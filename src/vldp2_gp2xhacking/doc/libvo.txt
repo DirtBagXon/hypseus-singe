@@ -1,0 +1,87 @@
+Introduction to the libvo API
+
+
+I - choosing an output module
+
+typedef struct vo_driver_s {
+    char * name;
+    vo_open_t * open;
+} vo_driver_t;
+
+vo_driver_t * vo_drivers (void);
+
+going thru the driver array, we find the driver entry with the name we
+want, and use the associated setup field in the next steps. If we do
+not specify a given name, the first entry in the array is always the
+most reasonable default.
+
+
+II - initializing the output module
+
+vo_instance_t * vo_open (vo_open_t * open);
+
+this function returns a libvo instance ; this instance can then be
+passed to libmpeg2
+
+
+III - setting up a video mode
+
+int vo_setup (vo_instance_t * this, int width, int height);
+
+This function initializes the libvo instance with the desired
+resolution. On success it returns 0.
+
+
+IV - displaying frames
+
+struct vo_frame_s {
+    uint8_t * base[3];  /* pointer to 3 planes */
+    void (* copy) (vo_frame_t * frame, uint8_t **);
+    ...
+};
+
+vo_frame_t * vo_get_frame (vo_instance_t * this, int flags);
+
+This function is used to get a frame buffer before we start decoding a
+frame. The flags are : VO_TOP_FIELD, VO_BOTTOM_FIELD, VO_BOTH_FIELDS -
+indicate which field(s) will be decoded first, and VO_PREDICTION_FLAG
+- used if the frame will be used by the decoder to predict future
+frames, and must thus be conserved in memory for a longer time.
+
+The frames will not be queried in the display order ; however we can
+make a few assumptions : all frames with the VO_PREDICTION_FLAG will
+be queried in display order, and all frames without the
+VO_PREDICTION_FLAG will be queried in display order too. The
+prediction frames must be kept in memory for a longer time ; however
+it is never necessary to keep more than two prediction frames at any
+point in time.
+
+The base pointers in the frame points to allocated arrays that the
+decoder will use as buffers for the decompressed picture. The queried
+frame is not displayed yet, so we can work in these buffers without
+worrying about display artefacts.
+
+The copy function, if not set to NULL, is to be called each time we're
+done decompressing 16 lines (from either one or both fields, as
+indicated in the vo_get_frame flags). After that the decoder is free
+to overwrite the picture buffers if this is not a prediction
+frame. The intent of the copy function is to enhance the cache
+behaviour by letting the libvo process the yuv data just after it is
+decompressed - while it is still fresh in the cache.
+
+void vo_field (vo_frame_t * frame, int flags);
+
+If we had started decoding only one of the fields, this is used to
+indicate when we start decoding the second field.
+
+void vo_draw (vo_frame_t * frame);
+
+This is called when we're done working on this frame and we want it
+actually displayed.
+
+
+V - closing the output instance
+
+void vo_close (vo_instance_t * this);
+
+Close the output instance and free the associated memory

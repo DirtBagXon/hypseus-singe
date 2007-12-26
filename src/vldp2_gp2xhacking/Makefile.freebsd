@@ -1,0 +1,39 @@
+# Makefile for VLDP2
+# Written by Matt Ownby
+
+# TODO: Add dependencies
+
+CC = gcc
+#DFLAGS = -g -DVLDP_DEBUG
+
+# Benchmarking version
+#DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
+
+# Standard version
+DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops
+
+CFLAGS = ${DFLAGS} `sdl11-config --cflags` -I./include
+LIBS = `sdl11-config --libs`
+
+OBJS =  vldp/vldp.o vldp/vldp_internal.o vldp/mpegscan.o \
+	libmpeg2/cpu_accel.o libmpeg2/alloc.o libmpeg2/cpu_state.o \
+	libmpeg2/decode.o libmpeg2/header.o libmpeg2/motion_comp.o	\
+	libmpeg2/idct.o libmpeg2/idct_mmx.o libmpeg2/motion_comp_mmx.o \
+		libmpeg2/slice.o	\
+	libvo/video_out.o libvo/video_out_null.o 
+
+LIBNAME =	libvldp2.so
+
+.SUFFIXES:	.c
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o $@
+
+all:		vldp2
+
+vldp2:		${OBJS}
+		${CC} -shared -o ${LIBNAME} ${OBJS} ${LIBS}
+		cp ${LIBNAME} ../../.
+
+clean:
+		rm ${LIBNAME} ${OBJS}

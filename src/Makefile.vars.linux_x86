@@ -1,0 +1,27 @@
+# This file contains linux-specific environment variables
+# It is included by Makefile if a symlink is created to point to it
+
+export CXX=g++
+export CC=gcc
+
+# debugging version
+#DFLAGS = -g -DCPU_DEBUG
+
+# optimized version
+# NOTE : gcc 3.x has a bug that causes compilation to choke on m80.cpp
+# If you want to -DGCC_X86_ASM for extra speed, you have to use g++ 3.0 or earlier
+DFLAGS = -O3 -march=i686 -fomit-frame-pointer \
+	-fexpensive-optimizations -funroll-loops
+
+# this is to be exported for MMX assembly optimization
+export USE_MMX = 1
+
+# uncomment this to link VLDP statically instead of dynamically
+#export STATIC_VLDP = 1
+
+# platform-specific compile flags
+PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DLINUX -DNATIVE_CPU_X86 \
+	-DUSE_MMX -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL
+
+# platform-specific lib flags
+LIBS = `sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile -lGLEW

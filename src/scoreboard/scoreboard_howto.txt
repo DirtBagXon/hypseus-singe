@@ -1,0 +1,34 @@
+How to use the scoreboard (for Developers)
+by Matt Ownby
+Last Updated 29 Sep 2007
+
+To control the scoreboard, follow these instructions:
+1) Call ScoreboardCollection::GetInstance
+	- The ILogger pointer can be gotten by calling ConsoleLogger::GetInstance
+	- The SDL_Surface callback can be NULL if you are not using an overlay scoreboard.  If you are using an overlay scoreboard, refer lair.cpp or thayers.cpp for what to put here.
+	- bThayers should be false for Dragon's Lair scoreboard (all LED's used) or true if you just want to use the credits LED's like thayer's quest does.
+	- bUsingAnnunciator should be false. It's only used for Space Ace.
+	- uWhichPort is which parallel port to use and usually will be 0.  If you're not using a hardware scoreboard, this value is ignored.
+
+2) Now that you have an IScoreboard pointer, you need to call ScoreboardCollection::AddType to add the scoreboards you want to control.
+	The types are defined in scoreboard_factory.h
+
+3) To control the scoreboard, call the public methods in the IScoreboard class (defined in scoreboard_interface.h).  NOTE that ScoreboardCollection inherits from IScoreboard.
+	- Call pre_set_digit to set a digit, where the digit type is defined in scoreboard_interface.h
+	- Alternatively, there are some methods that begin with "update_" that are compatible with the old way of controlling the scoreboard, if this is more convenient.
+
+4) You _must_ free the scoreboard instance by calling the PreDeleteInstance() method. If you don't do this, you'll have a memory leak.  If you created an ILogger instance, you must also free it by calling its DeleteInstance() method.
+
+
+
+
+=== EXAMPLE ===
+An example of displaying a '2' in the player 1's score:
+
+ILogger *pLogger = ConsoleLogger::GetInstance();
+IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(pLogger);
+ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::HARDWARE);
+pScoreboard->update_player_score(0, 2, 0);	// first digit, value of 2, first player
+pScoreboard->PreDeleteInstance();	// cleanup
+pLogger->DeleteInstance();	// cleanup

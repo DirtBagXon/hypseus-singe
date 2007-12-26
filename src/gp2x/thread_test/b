@@ -1,0 +1,1 @@
+arm-open2x-linux-gcc -pg main.c -o thread_test `arm-open2x-linux-sdl-config --cflags --libs` -static

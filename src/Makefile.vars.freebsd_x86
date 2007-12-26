@@ -1,0 +1,22 @@
+# This file contains FreeBSD-specific environment variables
+# It is included by Makefile if a symlink is created to point to it
+
+export CXX=g++
+export CC=gcc
+
+# debugging version
+#DFLAGS = -g -DCPU_DEBUG
+
+# optimized version
+DFLAGS = -O3 -march=i686 -DX86_ASM -DGCC_X86_ASM -fomit-frame-pointer \
+	-fexpensive-optimizations -funroll-loops
+
+# to tell Makefile to assemble the MMX code
+export USE_MMX = 1
+
+# platform-specific compile flags
+PFLAGS = ${DFLAGS} `sdl11-config --cflags` -DUNIX -DFREEBSD \
+	-DNATIVE_CPU_X86 -DMMX_RGB2YUV
+
+# platform-specific lib flags
+LIBS = `sdl11-config --libs` -lSDL_mixer -lz -logg -lvorbis -lvorbisfile

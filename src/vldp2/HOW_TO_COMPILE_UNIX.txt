@@ -1,0 +1,21 @@
+How to compile libvldp2.so
+by Matt Ownby (Mar 20th, 2003)
+------------------------------
+
+This source code is based on libmpeg2 (http://libmpeg2.sf.net).
+
+Libmpeg2 has a nice ./configure script, which I took advantage of, but I made
+my own Makefiles for the final build because I really have a hard time using
+automake/autoconf.
+
+So to compile under linux, you'd do:
+
+	./configure
+	make -f Makefile.linux
+
+Compiling under Mac OSX is similar:
+
+	./configure
+	make -f Makefile.osx
+
+That's all it takes.

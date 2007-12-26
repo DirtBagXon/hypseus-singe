@@ -1,0 +1,39 @@
+At the time of this writing, DAPHNE will compile fully under these unix'ish
+platforms:
+- i386 GNU/Linux (primary platform)
+- i386 FreeBSD
+- Sparc Solaris (untested)
+
+MAC OSX USERS SHOULD USE THE XCODE PROJ INSIDE THE MACOSX DIRECTORY!!!
+The MAC OSX Makefile method is obsolete and is no longer maintained!
+
+--------------------------
+STEP BY STEP INSTRUCTIONS:
+--------------------------
+
+- Make sure you have g++, make, and sed installed.
+
+- Install these libraries (with headers) if you don't already have them:
+	SDL 1.2 (tested with 1.2.5, older versions may work fine)
+		SDL NOTE:
+		To have minimum hardware acceleration, SDL needs to be built with "xv" support.
+		"OpenGL" support is also recommended for better hardware acceleration.
+	Ogg Vorbis (libogg, libvorbis, libvorbisfile)
+	Zlib
+	GLEW (http://glew.sourceforge.net)
+
+- Now you are ready to compile. Daphne doesn't use the traditional
+autoconf/automake nonsense.  Instead, it uses a separate Makefile for
+each platform.  To compile under GNU/Linux, you
+would type this (from the src directory):
+
+	cp Makefile.vars.linux_x86 Makefile.vars
+	make
+
+(You'd do something similar if you were compiling under the other platforms.)
+
+- You also need to compile libvldp2.so which comes with DAPHNE and has its
+own set of instructions inside the vldp2 directory.  Go read those after
+you're done here. :)
+
+-----------------------------------------------------------------------------

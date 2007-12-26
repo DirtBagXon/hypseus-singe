@@ -1,0 +1,168 @@
+The nitpickers guide to Dragon's Lair!
+begun by Matt Ownby on Sept 14th, 2001
+contributions by Dave Hallock
+Last modified on June 7th, 2005
+
+
+Purpose : To document all of the nit-picky imperfections in Dragon's Lair,
+after having watched it very many times.
+
+Why : For fun.
+
+Is this document anti-dragon's lair? : No.  If I didn't like Dragon's Lair,
+would I have watched the disc very many times?  This is just something to do
+that other people may find to be an interesting (and useless) diversion from
+other things in life hee hee.
+
+----------------------------------------------------------------------------
+
+SECTION 1 - Individual scenes
+
+SMITHEE
+-------
+Watch the fire at Dirk's feet during this stage.  It shifts around quite a bit.
+Sometimes the anvil is inside the fire, sometimes it's outside.
+Notice that after the anvil crashes into the wall, it reappears again and
+Dirk steps on it to get up to the flaming forge.
+Notice that when the Smithee kills Dirk, he breaks Dirk's sword... and then
+Dirk's sword clatters to the ground unbroken.
+Notice that when the glowing blue mace kills Dirk that Dirk is holding his
+sword.  In the next shot, the blue mace strikes (and breaks) Dirk's sword
+which has magically teleported to the ground.
+
+SPINNING BATONS/GRIM REAPER
+---------------------------
+In one of the death scenes, Dirk gets struck by the glowing blue scythe and
+disappears (including his sword).  In the next shot, the sword clatters to
+the ground.
+
+BLACK KNIGHT ON THE HORSE
+-------------------------
+When the knight presumably cuts Dirk's head off (in one swing), the next
+shot shows the knight twirling Dirk's helmet on the top of his sword.  In
+order for this to happen, the knight must have chopped off Dirk's head,
+at which point, Dirk's helmet flew up into the air and the knight caught it
+on the tip of his sword on the way down.  Highly unlikely.  Ok, so we know
+the real reason they did this was to tone down the violence :)
+
+TENTACLES FROM CEILING
+----------------------
+Watch the tentacles on the floor.  They teleport around all throughout
+this scene.
+
+SNAKES
+------
+Watch the opening in the ceiling.  It disappears then reappears.
+
+GIDDY GOONS
+-----------
+Watch the trapdoor.  It disappears shortly after Dirk uses it.
+In one of the death scenes, you can see the red tripwire which was supposed
+to have been removed.
+
+LIZARD KING
+-----------
+Watch the Lizard King during this stage.  Half the time he is missing his
+crown!  The crown re-appears on his head just before he tries to bonk
+silly Dirk with his scepter.
+When Dirk grabs the coins and stuffs them in his pack, you can see a
+blue glitch on the film.
+
+ENCHANTED HORSE ARMOR
+---------------------
+There appear to be people standing around.  Wax dummies perhaps?  Hehe.
+
+ROBOT KNIGHT AND CHECKERED FLOOR
+--------------------------------
+In the death scene, the robot knight's sword is glowing yellow.  In the
+regular scene, it doesn't appear to be glowing at all.
+The dragon pulls Daphne throug the doorway.  But how did he fit through
+that doorway?
+
+MUD MEN
+-------
+On the third move in this stage, it shows Dirk close up jumping over a
+geyser.  On the next shot, Dirk has magically teleported back to where he
+was before he jumped over the geyser.  This time he runs around it.
+When Dirk jumps across the final geyser to freedom, a purple line will
+appear across the scene for a moment.
+
+FALLING PLATFORM
+----------------
+Two-thirds of the successful jumps on this stage will show Dirk jumping
+backward from the direction he was facing when the move was made.
+
+DRINK ME
+--------
+In the game over bones scene, the sign says 'eat me'
+
+CRYPT CREEPS
+------------
+The dragon pulls Daphne through a door at the end of the room.  But once
+you enter that door, you can see that there's no way the dragon could
+have escaped that room.
+When the crypt creeps first attack Dirk, they are wearing transparent
+rags.  When Dirk cracks their skulls with his sword, their rags have changed
+to solid black.
+
+THRONE ROOM
+-----------
+When Dirk successfully completes this stage, you can see a piece of lint
+just to the right of the upper section of the doorway.  This lint moves a
+little bit when the door slams shut.
+
+WIZARD'S CHAMBER/BUBBLING CAULDRON
+----------------------------------
+After you kill the ghost that comes out of the cauldron, the cauldron lid
+floats up and slams shut on top of the cauldron.  Then a few frames later,
+the lid teleports off the cauldron again to appear at its original resting
+place.
+In the game over bones scene, you can see a ladder to the lower left that
+leads down.  This is not present in the normal stage.
+
+DRAGON'S LAIR
+-------------
+Daphne's ball has a large crown on top of it when she is first seen.  Once
+Dirk jumps close to her in order to hear her instructions, the crown has
+disappeared.
+Dirk prevents a few stacks of jewelry from falling down.  But why are they
+stacked so high in the first place?
+
+One of the bags of gold in the lair has a '$' symbol on it.  But this symbol was created in the United States just a couple centuries ago.  Its origin is the letters U and S written overtop each other.  It evolved into an S with 2 vertical lines through it, and today 1 line.
+
+----------------------------------------------------------------------------
+
+SECTION 2 - Re-used animation
+
+"Dirk swinging determinedly, then widening his eyes in surprise" :
+It's used when Dirk gets attacked the the laughing skulls on the Crypt Creeps
+stage.  It's used when Dirk gets hugged by the giant bat.  It's used when
+Dirk gets wrapped around by the purple tentacles on the sliding staircase
+stage.
+
+"Dirk running away, coming directly into the camera"
+This is used when Dirk runs away from the vines on spinning batons, when
+Dirk runs away from the black knight (death scene), and when Dirk is running
+away from the dragon on the last stage.
+
+"Dirk crouching then leaping forward a seemingly great distance"
+- Used after Dirk passes the spinning batons.. he crouches, then leaps
+toward the grim reaper
+- Used after Dirk slays the dragon.  He crouches, then leaps toward Daphne's
+bubble.
+
+"Dirk getting burned by fire"
+- Used when Dirk makes a wrong turn on the enchanted horse armor stage
+- Used when Dirk gets burned on the tilting floor stage
+
+"Dirk getting burned by fire or engulfed by tar"
+- In Crypt Creeps stage, Dirk gets engulfed by tar
+- Same animation is used in Smithee stage when Dirk gets burned by fire
+
+"Dirk sheathing his sword and exiting the room"
+- In Crypt Creeps, upon completing the stage
+- In Smithee, also upon completing the stage
+
+"Dirk crawling out of a stage"
+- End of sliding staircase
+- End of tilting floor (I think, not verified)

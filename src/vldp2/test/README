@@ -1,0 +1,34 @@
+Please do use these tests if you do some libmpeg2 changes.
+
+* get the official suite of mpeg2 torture tests at
+http://www.linuxvideo.org/mpeg2dec/files/mpeg2dec-streams.tar.gz
+
+or using CVS :
+
+# export CVSROOT=:pserver:anonymous@cvs.linuxvideo.org:/cvs/livid
+# cvs login (Just press Return when prompted for a password)
+# cvs checkout mpeg2dec-streams
+
+(OK, I did some reorganization work on the archive, so its not really the
+official suite anymore)
+
+* extract this archive at the same level as your mpeg2dec directory :
+in your working directory you should have subdirectories mpeg2dec and
+mpeg2dec-streams.
+
+* change the "tests" file to indicate where you put these streams
+
+* set HACK_MODE 2 in libmpeg2/mpeg2_internal.h, because pgm and md5
+output modes currently only works with this change
+
+* go in the conformance directory and run ./regression <test> <idct>
+
+<test> is the name of the test suite you want to use. For the official
+mpeg video conformance tests, just use "tests".
+
+<idct> is the type of IDCT you are using. If your machine supports MMX,
+choose "mmx". If your machine uses the c idct, choose "c"
+
+That's it...
+
+walken

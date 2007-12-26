@@ -1,0 +1,592 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+           
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <title>DAPHNE laserdisc conversion tutorial</title>
+</head>
+ <body>
+   <big><big><big><b>How to use DAPHNE to play laserdisc games without having 
+ a real laserdisc</b></big></big></big><br>
+   <br>
+   A guide written by the following people: (add your name as you add content, 
+ no matter how small)<br>
+   Matt Ownby<br>
+   <br>
+     
+<hr width="100%" size="2" align="Left">These three steps are required to
+get DAPHNE up and running.<br>
+<br>
+   1 - <a href="#convert">Convert your laserdisc to DAPHNE's unique format.</a>
+   <br>
+   <br>
+   2 - <a href="#framefile">Create a frame file so that DAPHNE knows how
+to  use the content that you've created.</a>
+   <br>
+   <br>
+   3 - <a href="#calibrate">Run DAPHNE's seektest to calibrate your video/audio 
+ files to make sure they are aligned properly with the laserdisc.</a>
+   <br>
+   <br>
+   You should be ready to run DAPHNE and play the game. &nbsp;For  your laserdisc
+type, you will need to use the type 'vldp'. &nbsp;You will  also need to
+specify what your frame file that you created is called, using  the -framefile
+switch. &nbsp;So for example, if I want to play Dragon's Lair  and my frame
+file is called lair.txt, then I'd run daphne by typing "daphne  lair vldp
+-framefile lair.txt". &nbsp;Good luck ...<br>
+   <br>
+     
+<hr width="100%" size="2" align="Left"><big><big><b><a name="convert"></a>
+ Convert your laserdisc to DAPHNE's unique format (required)</b></big></big><br>
+   <br>
+DAPHNE uses mpeg2 (or mpeg1) for video and Ogg Vorbis for audio. &nbsp;This
+is unusual, so you might want to read this entire section instead of skimming
+it.<br>
+<br>
+1 - You will need a video capture card, preferably one that can capture  at
+least 640x480 . &nbsp;Common video capture formats include MJPEG, mpeg1, 
+and mpeg2.<br>
+   <br>
+   2 - Capture the entire laserdisc using your video capture card, in as
+high  of quality as your hardware will allow.<br>
+   <br>
+   3 - &nbsp;You will need to separate the video and audio into individual
+ files (when capturing video and audio, your video capture card usually merges
+ the video and audio into one single file). &nbsp;To separate an mpeg1 or
+mpeg2, you can use tmpgenc or bbdmux from bbtools. &nbsp;To separate an mjpeg,
+you can probably use virtualdub (although I'm not really sure).<br>
+   <br>
+   4 - You will probably have to re-encode the video stream. &nbsp;All video 
+ streams need to be in mpeg2 video (or mpeg1 video) format. &nbsp;MJPEG users 
+ will need to use a tool like tmpgenc to convert their video stream to this 
+ format. &nbsp;You also may need to change the video to a different resolution.
+&nbsp;Use the following resolutions for the following discs:<br>
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+  <tbody>
+    <tr>
+      <td valign="Top"><b>Disc Name</b><br>
+      </td>
+      <td valign="Top"><b>Resolution of video</b><br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Dragon's Lair<br>
+      </td>
+      <td valign="Top">640x480 *<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Space Ace<br>
+      </td>
+      <td valign="Top">640x480 *<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Cliff Hanger<br>
+      </td>
+      <td valign="Top">640x480<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Super Don Quixote<br>
+      </td>
+      <td valign="Top">512x480<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Esh's Aurunmilla<br>
+      </td>
+      <td valign="Top">512x480<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Thayer's Quest<br>
+      </td>
+      <td valign="Top">640x480 *<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Astron Belt<br>
+      </td>
+      <td valign="Top">512x480<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Galaxy Ranger / Starblazer<br>
+      </td>
+      <td valign="Top">512x480<br>
+      </td>
+    </tr>
+    <tr>
+      <td valign="Top">Cobra Command (Astron belt hardware)<br>
+      </td>
+      <td valign="Top">512x480<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<b>*</b> - This video file can be any resolution (720x480 for example) but
+performance will be best if it is 640x480. &nbsp;You have been warned.<br>
+<br>
+<big><big><b>NOTE:</b></big></big> If you are converting  Dragon's Lair or
+Space Ace, you <b>should convert</b> the frame rate  of the video from 29.97
+fps to 23.976 fps. &nbsp;For a more extensive guide  on re-encoding video,
+<a href="#reencoding">click here</a>
+   . &nbsp;Most (all?) other cartoon based games would greatly benefit being
+converted to 23.976 fps, but some games (Cliff Hanger) currently have trouble
+if they are not 29.97 fps.<br>
+   <br>
+   5 - You will need to convert your audio stream to Ogg Vorbis format. &nbsp;You 
+ also will need to make sure the audio is at 44.1 kHz. &nbsp;If your audio 
+ stream is at 48 KHz, for example, you'll need to use a tool like Sound Forge 
+ to resample down to 44.1 kHZ.<br>
+   <br>
+   6 - You should now have a video stream in mpeg2 video or mpeg1 video format, 
+ and an audio stream in ogg format. &nbsp;Make sure the video and audio streams 
+ are located in the same directory and &nbsp;that they have the same name 
+except for the suffix. &nbsp;For example, you could have a video file called 
+mymovie.m2v and an audio file called mymovie.ogg stashed in a directory called 
+'stuff'.<br>
+   <br>
+   7 - Confused? &nbsp;<a href="#example1">Here is one example</a>
+    of how to do all of what I just described. &nbsp;Someone else should
+add  another example.<br>
+     
+<hr width="100%" size="2" align="Left"><big><big><b><a name="framefile"></a>
+ Create a frame file so that DAPHNE knows how to use your video and  audio
+(required)</b></big></big><br>
+   <br>
+   1 - Make a simple text file called whatever you wish and put it inside 
+the  'framefile' directory &nbsp;in your main daphne directory. &nbsp;For 
+example,  I might want to make a file called d:\daphne\framefile\ace.txt if
+I was a  windows user.<br>
+   <br>
+   2 - The first line of this file should contain the full path to your video 
+ and audio files. &nbsp;For example, if my video file was d:\mpeg2\sa_hq.m2v 
+ then the first line of my ace.txt file would be d:\mpeg2\<br>
+   <br>
+   3 - Each line after the first line should have two entries. &nbsp;The
+first  entry is the laserdisc frame number that corresponds to the first
+frame of  your video file. &nbsp;The second entry should be the name of your
+video file (the audio file's name is calculated using the video file's name--that's 
+why they have to be named similarly!). &nbsp;So for example, the second line 
+in my ace.txt file I have would be &nbsp; &nbsp; &nbsp; &nbsp; 1 &nbsp;&nbsp; 
+ sa_hq.m2v<br>
+   This means that the first frame of my sa_hq.m2v corresponds with frame 
+#1  of a real space ace laserdisc. &nbsp;If you don't know for sure which 
+number  to use, just take a guess (0 is usually safe). &nbsp;You will be making
+this  number exact when you run the seektest. &nbsp;If you have multiple video
+and audio files, just add more lines using the same format.<br>
+   <br>
+   <b>Example #1</b><br>
+   One huge file for Space Ace where the video and audio files are located
+ at d:\mpeg2\sa_hq.m2v and d:\mpeg2\sa_hq.ogg and the first frame of the
+mpeg  corresponds exactly with the first frame of the laserdisc.<br>
+   <br>
+   d:\mpeg2\<br>
+   1&nbsp;&nbsp; &nbsp;sa_hq.m2v<br>
+   <br>
+   <b>Example #2</b><br>
+   Three pairs of files that contain an arbitrary laserdisc, located in the 
+ c:\files directory and called part1.m2v, part1.ogg, part2.m2v, part2.ogg, 
+ part3.m2v, part3.ogg. &nbsp;Let's say that part1 holds the video for frames 
+ 1-1299 of the laserdisc, part2 holds the video for frames 1300-14999 of the
+ laserdisc, and part3 holds the video for frames 15000 until the end of the
+ laserdisc. &nbsp;Then your frame file would look like this:<br>
+   <br>
+   c:\files\<br>
+   1&nbsp;&nbsp;&nbsp; part1.m2v<br>
+   1300&nbsp;&nbsp;&nbsp; part2.m2v<br>
+   15000&nbsp;&nbsp;&nbsp; part3.m2v<br>
+   <br>
+   When you've created this file, save it inside the 'framefile' directory.<br>
+     
+<hr width="100%" size="2" align="Left"><big><big><b><a name="calibrate"></a>
+ Calibrate your frame file so it is properly aligned with the original  laserdisc
+(required)</b></big></big><br>
+   <br>
+   DAPHNE has an internal tool to help you get your mpeg aligned with the 
+original  laserdisc (so that you don't have to guess on what frames to use 
+for your  frame file).<br>
+   <br>
+   To calibrate your video file, run daphne using the following command line:<br>
+   <br>
+   daphne seektest vldp -framefile yourframefile.txt -preset xx<br>
+   <br>
+   (you need to use the name of the frame file that you created). &nbsp;The 
+ xx corresponds to one of the following numbers:<br>
+   <br>
+   0 &nbsp;- Dragon's Lair<br>
+   1 - Space Ace<br>
+   2 - Super Don<br>
+   3 - Cliff Hanger<br>
+ 4 - Astron Belt<br>
+ 5 - Galaxy Ranger<br>
+ 6 - Thayer's Quest<br>
+   <br>
+   If your game isn't listed here, it means we haven't made a seektest for
+ it yet. &nbsp;Doh!<br>
+   <br>
+   If all goes well, you should be presented with a black screen. &nbsp;Pressing 
+ left, right, up or down will seek to a frame in the mpeg file. &nbsp;You 
+should make sure that the frame it seeks to matches up with the images you 
+see below.<br>
+<br>
+ <b><big><big>  NOTE #1</big></big> :</b> The first time a seek or a play
+is issued to the mpeg, it will parse  the mpeg video file and created a lookup
+table of the address of each frame.  &nbsp;This can take quite a while &nbsp;sometimes
+as long as ten minutes on really long files. &nbsp;A little red line will
+draw itself from left to right on the screen to indicate its progress. &nbsp;Just
+kick back and let it do its thing. &nbsp;When it's done, a frame from the
+mpeg file will be displayed on the screen. &nbsp;It will be different for
+each disc. &nbsp;Using  these frames &nbsp;you can tell if your frame file
+is correct and adjust accordingly.<br>
+<br>
+ <b><big><big>NOTE #2</big></big> :</b> The frame numbers displayed on these
+screen shots should <b>NOT</b> appear in the mpeg.  They are here only to
+show which laserdisc frame is being rendered.   <br>
+<br>
+<b>   Dragon's Lair (preset 0)</b><br>
+ 
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+   <tbody>
+     <tr>
+       <td valign="Top">Left<br>
+       </td>
+       <td valign="Top">Right<br>
+       </td>
+       <td valign="Top">Up<br>
+       </td>
+       <td valign="Top">Down<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="Top"><img src="pics/dl_322.jpg" alt="" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/dl_323.jpg" alt="" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/dl_31615.jpg" alt="" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/dl_31616.jpg" alt="?" width="320" height="240">
+       <br>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ <br>
+<b>   Space Ace (preset 1)</b><br>
+ 
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+   <tbody>
+     <tr>
+       <td valign="Top">Left<br>
+       </td>
+       <td valign="Top">Right<br>
+       </td>
+       <td valign="Top">Up<br>
+       </td>
+       <td valign="Top">Down<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="Top"><img src="pics/sa_1161.jpg" alt="left" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/sa_1162.jpg" alt="right" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/sa_33185.jpg" alt="up" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/sa_33186.jpg" alt="down" width="320" height="240">
+       <br>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ <br>
+<b>   Super Don Quixote (preset 2)</b><br>
+ 
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+   <tbody>
+     <tr>
+       <td valign="Top">Left<br>
+       </td>
+       <td valign="Top">Right<br>
+       </td>
+       <td valign="Top">Up<br>
+       </td>
+       <td valign="Top">Down<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="Top"><img src="pics/sdq_5400.jpg" alt="5400" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/sdq_5401.jpg" alt="5401" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/sdq_35850.jpg" alt="35850" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/sdq_35851.jpg" alt="35851" width="320" height="240">
+       <br>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ <br>
+   <br>
+<b>   Cliff Hanger (preset 3)</b><br>
+ 
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+   <tbody>
+     <tr>
+       <td valign="Top">Left<br>
+       </td>
+       <td valign="Top">Right<br>
+       </td>
+       <td valign="Top">Up<br>
+       </td>
+       <td valign="Top">Down<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="Top"><img src="pics/cliff_1544.jpg" alt="cliff 1544" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/cliff_1545.jpg" alt="cliff 1545" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/cliff_49665.jpg" alt="cliff 49665" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/cliff_49666.jpg" alt="right" width="320" height="240">
+       <br>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ <br>
+<b> Thayer's Quest (preset 6)</b><br>
+ 
+<table cellpadding="2" cellspacing="2" border="1" width="100%">
+   <tbody>
+     <tr>
+       <td valign="Top">Left<br>
+       </td>
+       <td valign="Top">Right<br>
+       </td>
+       <td valign="Top">Up<br>
+       </td>
+       <td valign="Top">Down<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="Top"><img src="pics/tq_716.jpg" alt="left" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/tq_717.jpg" alt="right" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/tq_49990.jpg" alt="up" width="320" height="240">
+       <br>
+       </td>
+       <td valign="Top"><img src="pics/tq_49991.jpg" alt="down" width="320" height="240">
+       <br>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ <br>
+   <br>
+   <br>
+ <big><b><big>  Ok, so what do you do if you don't see what you're supposed 
+to see?<br>
+</big></b></big>Well,  let's take Dragon's Lair for example. &nbsp;If your
+frame file looks like  this:<br>
+   <br>
+   d:\mpeg2\<br>
+   0 &nbsp; dl.m2v<br>
+   <br>
+   and moving &nbsp;left and right both show you two <font color="#ff0000">
+ red</font> attract mode frames, then  that means you need to decrease the 
+number to the left of "dl.m2v"... for example,  you might try changing the
+number to -1 or -2. &nbsp;Yes, negative numbers  are valid. &nbsp;On the
+other hand, if moving left and right give you two  black frames then you
+will need to try increasing the number to 1, 2, or higher.<br>
+   <br>
+   You need to keep running the seektest and adjusting your frame file, until 
+ you see the frames that you are supposed to see. &nbsp;Once you see what 
+you're supposed to see, you're ready to play the game! &nbsp;If you can't
+get both the left/right and the up/down to match, then give the left/right
+priority and realize that your mpeg might have missing frames in it.<br>
+     
+<hr width="100%" size="2" align="Left"><big><big><big><a name="example1"></a>
+   </big></big></big><big><big><b>Example #1 : A simpler Dragon's Lair conversion
+(recommended, but optional)</b></big></big><br>
+  <br>
+  1 - Capture the entire Dragon's Lair disc using your format of choice (preferably
+ MJPEG or MPEG2). &nbsp;Make sure to record both audio and video.<br>
+  <br>
+  2 - Run <a href="http://www.tmpgenc.com">tmpgenc</a>
+  .<br>
+  <br>
+  3 - For your video source at the main screen, click browse and locate your
+ file. &nbsp;If it's an AVI (MJPEG) it should load right up. &nbsp;If it's
+ an mpeg2, you might need a DVD player installed such as powerDVD to use
+it.  &nbsp;See the Space Ace example for a way to avoid using commercial
+software.<br>
+  <br>
+  4 - The audio source should be the same file as the video source.<br>
+  <br>
+  5 - Choose a sensible output file name. &nbsp;Make sure the stream type 
+is set to System (video+audio).<br>
+  <br>
+  6 - Click Setting.<br>
+  <br>
+  7 - Click on the Advanced tab. &nbsp;Set the video arrange method to "Full
+ Screen", do not preserve aspect ratio. &nbsp;You will have to guess on the
+ Field Order. &nbsp;Try using both of them and pick the one that looks the
+ best. &nbsp;I would try A before B.<br>
+  <br>
+  8 - Enable Inverse Telecine. &nbsp;Leave it set to flicker priority. &nbsp;This
+ will convert the video back to 23.976 fps where it belongs.<br>
+  <br>
+  9 - Double click on noise reduction to bring up the noise reduction menu.
+ &nbsp;Set still picture to 50, range to 2 and enable High Quality mode.
+&nbsp;Click  on OK and make sure that noise reduction is enabled.<br>
+  <br>
+  10 - Click on the audio tab and make sure the sampling frequency is 44100
+ Hz and stereo. &nbsp;Choose a sensible bitrate (160 is pretty nice).<br>
+  <br>
+  11 - Click on the video tab. &nbsp;Set the stream type to MPEG-2 Video. 
+&nbsp;Set the size to 640x480. &nbsp;The aspect ratio should be 4:3, the frame
+rate should be 23.976. &nbsp;Set the rate control mode to constant quality
+(CQ). &nbsp;Click on the Setting button next to the Rate control mode and
+set the maximum bitrate to 10,000 and the minimum to 0. &nbsp;Set the quality
+to whatever you want depending on how big you want the file to be. &nbsp;A
+quality of 60 should fit on 1 CD, a quality of 100 should fit on 3 CD's.
+&nbsp;Set the video format to NTSC, and the encode mode to Non-interlace.<br>
+  <br>
+  12 - You can play around with changing other things if you wish.<br>
+  <br>
+  13 - Click ok at the bottom of the window to close it.<br>
+  <br>
+  14 - Click the Start button at the top. &nbsp;It will go through and compute
+ the inverse telecine which can take a while. &nbsp;Then it will create an
+ mpeg2 system stream. &nbsp;It takes around 8 hours on an Athlon 800. &nbsp;If
+ you want it to go a lot faster, disable noise reduction (that's what really
+ slows it down).<br>
+  <br>
+  15 - Once it's done, go to File-&gt;MPEG Tools. &nbsp;Click on the De-Multiplex
+ tab.<br>
+  <br>
+  16 - Click the browse button and locate the new mpeg2 system stream you've
+ just created.<br>
+  <br>
+  17 - Double click on the video and audio streams and save them to separate
+ files.<br>
+  <br>
+  18 - Quit tmpgenc. &nbsp;You're done with it.<br>
+  <br>
+  19 - Open WinAmp or something that can read mpeg audio. &nbsp;Tell WinAmp
+ to output to a .WAV file then play the file. &nbsp;It should save a .WAV
+file to disk of the uncompresed audio. &nbsp;You can also use SoundForge
+to do this.<br>
+  <br>
+  20 - Run the <a href="http://www.vorbis.com/download_win.psp">OggDrop program</a>
+   . &nbsp;It should open up a little window. &nbsp;Right-click on it and 
+choose your bitrate. &nbsp;The higher the bitrate, the larger the file and 
+better the quality is. &nbsp;Then drag your .WAV file on top of the window 
+and it will encode it to OGG format.<br>
+  <br>
+  21 - Take your mpeg2 video stream and your ogg audio stream and put them
+ in a directory somewhere, using similar filenames such as dl.m2v and dl.ogg
+ .<br>
+  <br>
+  22 - Congratulations, you're done with the conversion!<br>
+  <br>
+  <br>
+  <br>
+   <big><big><b>Example #2 : Space Ace using mpeg2, a bit more advanced (optional)</b></big></big><br>
+  <br>
+  This method uses virtualdub to do a better inverse telecine than tmpgenc
+ can do. &nbsp;It does take a few more steps though, so unless you really
+want a nice looking Space Ace, you probably don't need to bother with this.<br>
+   <br>
+   1 - Capture the Dragon's Lair disc to an mpeg2 system stream (video and
+ audio combined). &nbsp;Some video capture cards such as Dazzle's Digital
+Video Create II can do this. &nbsp;Use a constant bitrate of 10,000,000 to
+get max quality. &nbsp;Set the audio to 44100 Hz (not 48000).<br>
+   <br>
+   2 - Install the HUFFYUV lossless codec in windows. &nbsp;We are going
+to  do some processing with VirtualDub so we need to convert the file to
+AVI.  &nbsp;The lossless codec will allow us to do this without sacrificing
+any  quality.<br>
+   <br>
+   3 - Using FlaskMPEG, convert the mpeg2 file to a HUFFYUV AVI file. &nbsp;This 
+ will probably take up a little under 20 gigs. &nbsp;Tell it to not process 
+ audio (ie, throw it away).<br>
+   <br>
+   4 - Open VirtualDub and open your new AVI file. &nbsp;Change the frame 
+rate  to 23.976 using VirtualDub's manual Inverse Telecine option. &nbsp;You'll
+ have to keep trying values between 0 to 5 until you get the right one. &nbsp;You
+ can click on the virtual dub play button to see if you've got the value
+set  correctly. &nbsp;If you've got it correct you should see no interlacing
+lines  appearing on the screen.<br>
+   <br>
+   5 - Tell VirtualDub to save the new file using HUFFYUV again (it defaults 
+ to uncompressed video which is not good).<br>
+   <br>
+   6 - Save your new AVI. &nbsp;It should save it at 23.976 frames per second 
+ and remove all those ugly interlacing lines. &nbsp;Now it'll look good on 
+ a computer monitor!<br>
+   <br>
+   7 - Now open tmpgenc and load up your latest AVI that you've made. &nbsp;Make 
+ sure the new video is mpeg2 (video only!), and 640x480, and make sure not 
+ to preserve the original aspect ratio. &nbsp;For your encoding type, if you
+ want it to look the best, choose constant quality and set it to 100 (the
+max!). &nbsp;Make sure you encode it to be non interlaced instead of interlaced.
+ &nbsp;You may also want to add some noise reduction (it can really make
+it  look a lot better), and clipping (if you recorded at 720x480, you will
+have  black bars on the side that you could stand to get rid of with clipping).
+ &nbsp;Once you've settled on your settings, click the START button and tmpgenc
+ will begin creating your mpeg2 video file. &nbsp;This could take an hour
+if you used minimal settings or longer (like 8 hours) if you went for higher
+ quality.<br>
+   <br>
+   8 - When it finishes, you'll have your video file. &nbsp;Now for the audio.<br>
+   <br>
+   9 - Snag the bbdmux program from the bbtools package. &nbsp;Use it to
+extract  the audio stream from your original mpeg2 file. &nbsp;You do it
+by typing  something like this: &nbsp;"bbdmux originalmpeg2.mpg 0xc0 originalaudio.m2a"<br>
+   <br>
+   10 - Break out WinAmp or Sound Forge or something that can read mpeg audio 
+ files. &nbsp;Save the file as a raw .WAV (44100 kHz!)<br>
+   <br>
+   11 - From www.vorbis.com you should be able to download utilities to convert 
+ WAV to OGG. &nbsp;I think Sound Forge can also save files as OGG. &nbsp;At 
+ any rate, you'll want to convert the audio to OGG format. &nbsp;Use whatever 
+ bitrate you feel like, I've been using 128k and it seems to be fine.<br>
+   <br>
+   12 - You should be about done now. &nbsp;Make sure your files are in the 
+ same directory and similarly named. &nbsp;For example, call the video file 
+ dl.m2v and the audio file dl.ogg . &nbsp;You should be ready to go!<br>
+   <br>
+     
+<hr width="100%" size="2" align="Left"><big><big><a name="reencoding"></a>
+   A more extensive guide on video re-encoding</big></big><br>
+   <br>
+   to be written :)<br>
+     
+</body>
+</html>

@@ -1,0 +1,37 @@
+* fix altivec IDCT (memset block to 0), optimize mmx idct memset too.
+
+* things we dont implement yet
+	* more verbose error reporting
+	* decoding of 4:2:2 streams
+	* export MC information (for XvMC or for error resilience)
+	* export quantizer information (for postprocessing filters)
+	* export header/picture/slice user data
+	* dont crash on bad streams, make sure we can resync after a while
+		* possible chunk buffer overflow while reading bits
+		* dont just fprintf and exit
+	* synchronization stuff
+	* IDCT precision with sparse matrixes
+	* sparc IDCT/MC optimizations; get rid of mlib code
+	* support for still pictures (decode before receiving next startcode !)
+
+* structural optimizations
+	* integrate idct_add and idct_copy into the main idct routine
+	* do yuv per sub-slice (probably big speed boost)
+	* try different memory arrangements for pictures (yuyv, stride, ...)
+	* once we have sync, call draw_frame before decoding I or P not after
+
+* local optimizations
+	* use restrict (__restrict__) pointers: int * restrict p;
+	* reschedule altivec IDCT and MC routines for 7450 chips
+	* try feig IDCT instead of MSSG c IDCT ?
+	* review the use of static inline functions
+	* improve MMX motion comp inner routines
+	* optimize IDCT for very sparse input matrixes ?
+	* optimize startcode search loop ?
+	* bit parsing / DCT parsing optimizations
+
+* clean up
+	* clean up header file usage
+	* clean up yuv2rgb for interlaced pictures (handling of uv)
+	* clean up picture_t structure (some variables should be local ?)
+	* clean up slice_init

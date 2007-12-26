@@ -1,0 +1,98 @@
+                                                                     
+                                                                     
+                                                                     
+                                             
+=========================================
+HOWTO: Build Daphne as a Universal Binary on OSX
+=========================================
+
+Building Daphne is a simple process of:
+
+	1.	Ensuring your build machine has the right tools (XCode 2.4, and MacOS SDKs)
+	2.	Collecting and building the required frameworks
+	3.	Opening and building the XCode project (in src/macosx)
+
+NOTE:  At this time, the Daphne frontend is not being built.  To run daphne you will have to manually CD into the Daphne.app bundle to the exe and launch it from the command-line.
+
+=========================================
+STEP 1:  Prepare Build Environment
+=========================================
+
+	1.	Download and install XCode 2.4 from Apple - it's free.  If you have alredy installed XCode, check to see if you have the folder  /Developer/SDKs/MacOSX10.2.8.sdk. If not, reinstall.  (You need to use the “Customize” button for this and select everything under "Cross Development.)
+	2.	Download and install Daphne source:
+	⁃	Open Terminal.	
+	⁃	Type export CVSROOT=:pserver:cvs@cvs.daphne-emu.com:/cvs/daphnecvs
+	⁃	Type cvs login
+	⁃	When it asks for a password, type in cvs as the password
+	⁃	Type cvs -z3 co daphne
+
+=========================================
+STEP 2a:  Build SDL Framework
+=========================================
+
+	1.	Make a folder in your home dir called "lib"
+	2.	Download SDL 1.2.11 from: http://www.libsdl.org/release/SDL-1.2.11.tar.gz
+	3.	Copy the SDL-1.2.11 dir to the lib folder you created.
+	4.	Unpack the SDL XCode project:
+	⁃	Open Terminal
+	⁃	cd ~/lib/SDL-1.2.11/
+	⁃	tar -zxf Xcode.tar.gz
+	5.	Build SDL:
+	⁃	Open the XCode project (~/lib/SDL-1.2.11/Xcode/SDL/SDL.xcodeproj) in Finder.
+	⁃	Change the target (Project->Set active target) to “Framework without X11 Stuff.”
+	⁃	Change the build configuration (Project->Set active build configuration) to “Deployment”
+	⁃	Build :)  I got 79 warnings and assume that’s normal.
+	6.	Deploy SDL Framework:
+	⁃	In Finder, locate ~/lib/SDL-1.2.11/Xcode/SDL/build/Deployment.  Move the “SDL.framework” folder to /Library/Frameworks.
+
+=========================================
+STEP 2b:  Build SDL Mixer Framework
+=========================================
+
+	1.	Copy SDL_mixer-1.2.7 to the lib folder you created.
+	2.	Unpack the SDL mixer XCode project:
+	⁃	Open Terminal
+	⁃	CD ~/lib/SDL_mixer_1.2.7
+	⁃	tar -zxf Xcode.tar.gz 
+	3.	Build SDL Mixer:
+	⁃	Open the XCode project in Finder
+	⁃	Change the target to “Framework with static smpeg”
+	⁃	Change the build configuration to “Deployment”
+	⁃	Build.  I got 63 warnings.
+	4.	In Finder, locate ~/Lib/SDL_mixer-1.2.7/XCode/SDL_mixer-1.2.7/Xcode/build.Deployment.  Move “SDL_mixer.framework” to /Library/Frameworks.
+
+=========================================
+STEP 2c:  Build Ogg Framework
+=========================================
+
+	1.	Download LibOgg from: http://downloads.xiph.org/releases/ogg/libogg-1.1.3.tar.gz
+	2.	Move libogg-1.1.3 to the lib folder you created.
+	3.	Build Ogg:
+	⁃	Open the XCode project in Finder (~/lib/liboggg-1.1.3/macosx/Ogg.xcodeproj)
+	⁃	Click Project, Edit Project Settings, choose the Build tab, and set the Architectures to "i386 ppc" This is important, or you won't get a universal binary framework!
+	⁃	Change the build configuration to “Deployment”
+	4.	Build.  I got 1 warning.
+	5.	In Finder, locate ~/lib/libogg-1.1.3/macosx/build/Deployment.  Move Ogg.framework to /Library/Frameworks.
+
+=========================================
+STEP 2d:  Build Vorbis Framework
+=========================================
+
+	1.	Download VOrbis from http://downloads.xiph.org/releases/vorbis/libvorbis-1.1.2.tar.gz
+	2.	Move libvorbis-1.1.2 to the lib folder you created.
+	3.	Build Vorbis:
+	⁃	Open the Xcode project in Finder (~/lib/libvorbis-1.1.2/macosx/Vorbis.xcodeproj)
+	⁃	Click Project, Project Settings and set the Architectures to "i386 ppc" This is important, or you won't get a universal binary framework!
+	⁃	Change the build configuration to 'Deployment'
+	4.	Build.  I got 32 warnings.
+	5.	In Finder, locate ~/lib/libvorbis-1.1.2/macosx/build/Deployment and move Vorbis.framework to /Library/Frameworks.
+
+=========================================
+STEP 3:  Build Daphne
+=========================================
+
+Simply open Daphne.xcodeproj and build. Enjoy!
+
+
+
+

@@ -1,0 +1,867 @@
+          <tbody>
+          <tr>
+            <td>                                                      
+      <p align="Center"><font face="Verdana, Arial, sans-serif"><b><big><big><font color="#33ff33">
+      DAPHNE v0.99.3</font></big></big></b><big><big> (September 21st, 2001)</big></big><br>
+       <b><font color="#ffcc00">   A   Laserdisc      Arcade Game Emulator</font></b><br>
+      Last updated September 21th, 2001<br>
+ DAPHNE is Free Software, released under the <a href="http://www.fsf.org/licenses/gpl-faq.html">
+ GNU General Public License</a>
+       </font></p>
+       
+      <p align="Center"><font face="Verdana, Arial, sans-serif">     DAPHNE's
+source code is copyrighted by its respective authors. &nbsp;It does NOT contains
+any code based on any original laserdisc arcade game ROM images, nor does
+it contain any proprietary code of any kind. &nbsp;In short, DAPHNE's only
+relationship to original laserdisc arcade games is that it happens to be
+quite compatible with the original hardware.</font></p>
+      <p align="Center"><font face="Verdana, Arial, sans-serif">DAPHNE may
+not legally be distributed with proprietary ROM images or laserdisc video/audio
+files. &nbsp;If you see anyone selling a "complete DAPHNE CD", you can be
+assured that this is definitely a Bad Thing.</font></p>
+      <p align="Center"><font face="Verdana, Arial, sans-serif">The DAPHNE
+home page is <a href="http://www.daphne-emu.com/">http://daphne-emu.com/<br>
+       </a>
+          </font>                                                       
+        </p>
+                                                                
+      <p><font color="#ffffff"><b><big><big><font face="Verdana, Arial, sans-serif">
+    CONTENTS</font></big></big></b></font><big>          </big></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><a href="#intro">   1.0
+       Introduction&nbsp;</a>
+          </font>                 </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><a href="#requirements">
+       2.0        System Requirements&nbsp;</a>
+             <br>
+      2.1 More on requirements&nbsp;</font></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><a href="#installation">
+       3.0        Installation&nbsp;</a>
+             <br>
+      3.1 Windows        Installation&nbsp; <br>
+      3.2 GNU/Linux        Installation&nbsp;</font>                    
+                   </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><a href="#setup">   4.0
+       Laserdisc Player Setup&nbsp;</a>
+             <br>
+      4.1 Sony Laserdisc        Player&nbsp; <br>
+      4.2 Most Pioneer Players&nbsp;  <br>
+      4.3 Pioneer        LD-V6000<br>
+     4.4 Hitachi<br>
+     4.5 Philips&nbsp;</font>                                           
+          </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><a href="#running">   5.0 
+        Running DAPHNE&nbsp;</a>
+             <br>
+      5.1 Beginner&nbsp;         <br>
+      5.2        Expert&nbsp;  <br>
+      5.3 DAPHNE Controls&nbsp;</font>                                  
+                    </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><a href="#troubleshooting">
+       6.0        Troubleshooting&nbsp;</a>
+          </font>                 </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif"><a href="#credits">
+       7.0        Credits&nbsp;</a>
+          </font>                 </p>
+                                                       
+      <p style="margin-bottom: 0in; ">       <font face="Verdana, Arial, sans-serif"><a href="#scoreboard">
+              APPENDIX A:</a>
+             <a href="#scoreboard">           Using a real Dragon's Lair
+scoreboard   with DAPHNE</a>
+          </font>                 </p>
+                                                                        
+     
+      <hr width="100%">                                                  
+     
+      <p><b><big><big><font face="Verdana, Arial, sans-serif" color="#ffffff"><a name="intro"></a>
+              1.0 INTRODUCTION</font></big></big></b><big>              
+      </big></p>
+                                                       
+      <p class="NormalWeb1"><font face="Verdana, Arial, sans-serif">     
+  DAPHNE is a Free laserdisc game emulator that allows one to play laserdisc 
+   arcade games on one's PC, optionally using a real laserdisc player. &nbsp;Using 
+   DAPHNE, one can play the following laserdisc arcade games (<b>some of which
+ don't work perfectly yet</b>) :</font></p>
+                       
+      <p class="NormalWeb1"><font color="#33ff33"><b><font face="Verdana, Arial, sans-serif">
+   Astron Belt<br>
+   Cliff Hanger<br>
+   Cobra Command (running on Astron Belt hardware)<br>
+   Dragon's Lair (US)<br>
+   Esh's Aurunmilla<br>
+   Galaxy Ranger<br>
+   Space Ace (US)<br>
+   Star Blazer<br>
+   Super Don Quix-ote<br>
+   Thayer's Quest<br>
+         </font></b></font></p>
+                       
+      <p class="NormalWeb1"><font face="Verdana, Arial, sans-serif">One can 
+ either use mpeg's to  simulate the game's laserdisc or one can use a real 
+ laserdisc player and a real laserdisc. &nbsp;Video overlay only works when 
+using mpeg, but some games (Dragon's Lair, Space Ace, and Thayer's Quest) 
+do not use video overlay, so a real disc would be a more pure experience in
+this case.</font></p>
+       
+      <p class="NormalWeb1"><font face="Verdana, Arial, sans-serif">DAPHNE 
+is available for either GNU/Linux or Windows 95/98/ME/2000. &nbsp;If you haven't
+yet been enlightened by GNU/Linux and are still chained in the Windows world,
+then Windows 2000 is recommended and Windows ME is specifically recommended 
+against. &nbsp;If you were one of the poor saps suckered into installing ME,
+then we pity you and urge you to switch to GNU/Linux immediately errr I mean
+switch to Windows 2000 immediately. &nbsp;Not many people have tried DAPHNE
+with XP yet, but if I were to guess right now, I'd say that it probably sucks
+(Windows XP, not DAPHNE .. hehe).</font></p>
+                                                             
+      <hr>                                                         
+      <p><font face="Verdana, Arial, sans-serif"><a name="requirements"></a>
+              <font color="#ffffff"><b><big><big>2.0 REQUIREMENTS</big></big></b></font></font>
+                           </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">&nbsp;       </font>    
+                       <big>             </big><big>           </big>   
+          
+      <table border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse; " width="100%" id="AutoNumber2" height="56">
+              <tbody>
+                 <tr>
+               <td width="57%" height="19" colspan="2"><big>            
+                                                 </big>                 
+                     
+            <p align="Center"><font color="#ffcc00"><b><big><big><font face="Verdana, Arial, sans-serif">
+     Software Requirements</font></big></big></b></font></p>
+               <big>                </big></td>
+               </tr>
+              <tr>
+                <td width="29%" height="19">                            
+                                                                       
+            <p align="Center"><font face="Verdana, Arial, sans-serif">  GNU/Linux 
+ 2.2 or better</font></p>
+                   </td>
+                <td width="28%" height="19">                            
+                                                                       
+            <p align="Center"><font face="Verdana, Arial, sans-serif">  Windows 
+ 95/98/ME or Windows 2000</font></p>
+                   </td>
+              </tr>
+              <tr>
+                <td width="29%" height="16">                            
+                                                                       
+            <p align="Center">                     <font face="Verdana, Arial, sans-serif"><a href="http://www.libsdl.org/" style="color: yellow; text-decoration: underline; ">
+                SDL 1.1</a>
+                </font>               </p>
+                   </td>
+                <td width="28%" height="16">                            
+                                                                       
+            <p align="Center"><font face="Verdana, Arial, sans-serif">DirectX
+   5, latest video card drivers</font></p>
+                   </td>
+              </tr>
+              <tr>
+                <td width="29%" height="19">                            
+                                                              
+            <div align="Center"><font face="Verdana, Arial, sans-serif">
+ Xfree86 4.x with Xv support _highly_ recommended<br>
+                </font>                           </div>
+                                                                      </td>
+                <td width="28%" height="19">                            
+                                                              
+            <div align="Center"><font face="Verdana, Arial, sans-serif">
+ If using mpeg instead of a laserdisc player, you'll need video/audio files
+  to approximate the laserdisc video.<br>
+                </font>                           </div>
+                                                                      </td>
+              </tr>
+              <tr>
+                <td width="57%" height="19" colspan="2">                
+                                                                        
+          
+            <p align="Center"><font face="Verdana, Arial, sans-serif">Appropriate 
+          laserdisc game's ROM images</font></p>
+                   </td>
+              </tr>
+                                                                        
+  
+        </tbody>                                                 
+      </table>
+                                               <big>             </big><big>
+             </big>              
+      <table border="1" cellpadding="0" cellspacing="0" style="border-collapse: collapse; " width="100%" id="AutoNumber3" height="117">
+              <tbody>
+                 <tr>
+               <td width="100%" colspan="2" height="25"><big>           
+                                                 </big>                 
+                     
+            <p align="Center"><font color="#ffcc00"><b><big><big><font face="Verdana, Arial, sans-serif">
+     Hardware          Requirements</font></big></big></b></font></p>
+               <big>                </big></td>
+               </tr>
+              <tr>
+                <td width="51%" height="19">                            
+                                                                       
+            <p align="Center"><font face="Verdana, Arial, sans-serif" color="#ffffff">
+     Utilizing an Actual Laserdisc          Player</font></p>
+                   </td>
+                <td width="49%" height="19">                            
+                                                                       
+            <p align="Center"><font face="Verdana, Arial, sans-serif" color="#ffffff">
+     Utilizing MPEG Video</font></p>
+                   </td>
+              </tr>
+              <tr>
+                <td width="51%" height="19">                            
+                                                                       
+            <p align="Center">         <font face="Verdana, Arial, sans-serif">
+                Pentium 100 MHz PC or better with 16MB RAM and available
+serial    port         </font></p>
+                   </td>
+                <td width="49%" height="19">         <font face="Verdana, Arial, sans-serif">
+       Pentium III 500 MHz PC or better with 128MB          of RAM and DirectX
+   5 compatible video card. &nbsp;For best performance, consider a 1ghz machine 
+  with 512 megs of RAM :)</font></td>
+              </tr>
+              <tr>
+                <td width="51%" height="19"><font face="Verdana, Arial, sans-serif">
+      Compatible          laserdisc player (See  <a href="http://www.xmission.com/%7Eredflame/daphne/docs/faq.html" style="color: yellow; text-decoration: underline; ">
+                supported laserdisc players</a>
+                   <a href="http://www.xmission.com/%7Eredflame/daphne/docs/faq.html">
+       )</a>
+                </font>                                                </td>
+                <td width="49%" height="19"><font face="Verdana, Arial, sans-serif">
+    A video card capable of YUV hardware acceleration is highly recommended.
+  &nbsp;TNT2's are cheap and work great for this.<br>
+                </font>             </td>
+              </tr>
+              <tr>
+                <td width="51%" height="32"><font face="Verdana, Arial, sans-serif">
+      The arcade game's          original laserdisc</font></td>
+                <td width="49%" height="32"><font face="Verdana, Arial, sans-serif"><br>
+                </font>            </td>
+              </tr>
+              <tr>
+                <td width="100%" height="31" colspan="2">               
+                                                                        
+          
+            <p align="Center"><font face="Verdana, Arial, sans-serif">  Optional 
+ Hardware</font></p>
+                   </td>
+              </tr>
+              <tr>
+                <td width="100%" height="32" colspan="2">               
+                                                                        
+          
+            <p align="Center">         <font face="Verdana, Arial, sans-serif">
+       Sound card (though highly recommended)</font></p>
+                   </td>
+              </tr>
+              <tr>
+                <td width="100%" height="32" colspan="2">               
+                                                                        
+          
+            <p align="Center">         <font face="Verdana, Arial, sans-serif">
+       Actual Dragon&#8217;s Lair scoreboard PCB</font></p>
+                   </td>
+              </tr>
+                                                                        
+  
+        </tbody>                                                 
+      </table>
+              </p>
+                                                       
+      <p><b><font color="#ffffff"><big><big><font face="Verdana, Arial, sans-serif">
+     2.1 MORE ON        REQUIREMENTS</font></big></big></font></b></p>
+                                                       
+      <p class="NormalWeb1"><b><font face="Verdana, Arial, sans-serif" color="#ffcc00">
+     If you plan to use a real Laserdisc Player</font></b></p>
+                                                             
+      <p class="NormalWeb1"><font face="Verdana, Arial, sans-serif">     
+  NTSC or PAL laserdisc players will work. &nbsp;&nbsp; Everyone in the 
+US and Canada      will want an NTSC player. Other parts of the world, such
+   as Europe, use PAL.</font>     </p>
+                                                             
+      <p class="NormalWeb1" style="margin-bottom: 1e-04pt; ">     <font face="Verdana, Arial, sans-serif">
+       You will need to get a      cable for your player. Cables can be purchased 
+   at Radio Shack and CompUSA,      or anywhere that       <a href="http://www.belkin.com/">
+           Belkin</a>
+    products are  sold. You can buy direct from        <a href="http://www.belkin.com/" style="color: yellow; text-decoration: underline; ">
+            Belkin</a>
+             as well. The cable you want depends on the type of laserdisc 
+       player you have. &nbsp;   Cable information can be found under    
+ the  <a href="#setup">        Laserdisc Player Setup</a>
+             section of this documentation.</font>                      
+                                     </p>
+                                                             
+      <p class="NormalWeb1" style="margin-bottom: 1e-04pt; ">     <font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+       ROM Images</font></b></font></p>
+                                                             
+      <p class="NormalWeb1" style="margin-bottom: 1e-04pt; ">     <font face="Verdana, Arial, sans-serif">
+       The ROM images are the      software from the arcade that accepts
+the   user's  input and controls the      original laserdisc player. &nbsp;Some
+ROM images also control video overlay. &nbsp;DAPHNE   uses the original software
+from the      arcade machine to run the emulated   hardware.  The ROMs are
+not included with      DAPHNE for legal reasons.</font></p>
+       
+      <p class="NormalWeb1" style="margin-bottom: 1e-04pt; "><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+ MPEG files</font></b></font></p>
+       
+      <p class="NormalWeb1" style="margin-bottom: 1e-04pt; "><font face="Verdana, Arial, sans-serif">
+ No doubt most people will be wondering where to get MPEG files to play these 
+laserdisc games. &nbsp;The official answer is, make your own using video capture
+equipment and an original laserdisc that you own. &nbsp;A guide can be found
+      <a href="http://blah"> here</a>
+ . &nbsp;Since we know many people won't like that answer, let us remind
+you that this is a free project worked on by volunteers and you are not obligated 
+to use it at all. &nbsp;Also, some of you may want to check out <a href="http://www.digitalleisure.com">
+ Digital Leisure</a>
+ 's products. &nbsp;They sell commercial versions of some laserdisc games 
+and we encourage you to buy their products. &nbsp;We vehemently discourage
+any piracy of Digital Leisure's products and will aggressively stamp it out
+wherever encountered.&nbsp;        </font>        </p>
+                                                               
+      <hr width="100%">                                                  
+     
+      <p><font color="#ffffff"><big><big><b><font face="Verdana, Arial, sans-serif"><a name="installation"></a>
+              3.0 INSTALLATION</font></b></big></big></font><big>       
+                </big></p>
+                                                       
+      <p><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+      3.1        WINDOWS INSTALLATION</font></b></font>        </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">1 - <a href="http://www.winzip.com/">
+       Unzip</a>
+        the daphne .zip file        into a directory of your choice, being
+ sure   to preserve directory        structure (c:\daphne works fine).&nbsp;
+          <br>
+      2 - Place the uncompressed        game ROM images into the appropriate
+  directory  within the ROMS directory.&nbsp;        Note:&nbsp; A text file
+  exists  in each of these directories that outlines        which roms are
+ required.&nbsp;&nbsp;</font>                           </p>
+                                                       
+      <p><b><font face="Verdana, Arial, sans-serif" color="#ffcc00">   3.2 
+        GNU/LINUX INSTALLATION</font></b>        </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">NOTE : It is expected that 
+ you have write access to the daphne directory and to the directory that houses
+ the mpeg files (if applicable). &nbsp;I realize that some linux users will
+ not like this, but it suits me just fine for now.<br>
+       1 - Extract the daphne .tar.gz file into a place where you have write
+  access  (your home directory is fine).<br>
+      2 - Put the uncompressed ROM images for any game you want to play inside
+   the game's folder in the 'roms' subdirectory. &nbsp;A text file exists
+in   each of these directories that outlines which roms are required.<br>
+          </font>                              </p>
+                                                       
+      <hr>                                                         
+      <p><font color="#ffffff"><b><big><big><font face="Verdana, Arial, sans-serif"><a name="setup"></a>
+                4.0 LASERDISC PLAYER SETUP</font></big></big></b></font><big>
+           </big></p>
+                                                       
+      <p><b><font face="Verdana, Arial, sans-serif"><font color="#ffcc00">
+   If you are utilizing MPEG  for your video source, you can skip this  
+     section.&nbsp;</font>         </font></b></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">DAPHNE controls  the    
+   laserdisc player by means of serial cable that runs from the back  of
+  your        computer into the back of the laserdisc player. The type of
+ cable you need        depends on the type of laserdisc player that you have.&nbsp;</font>
+                </p>
+                                                       
+      <p><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+      4.1        SONY LASERDISC PLAYERS</font></b></font>        </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       Sony players are by far the easiest Laserdisc players to setup and 
+       people who use DAPHNE seem to prefer Sony laserdisc players over other
+          choices. For the Sony players, you'll need a standard null-modem
+ cable  or        a regular serial cable with a null modem adapter. They
+can  be purchased  at        Radio Shack. One end of the cable should have
+a male   25-pin RS-232  type        connector to connect to the player. While
+older   computers have  a 25 pin        serial port, most newer ones only
+have 9-pin   serial ports.  Make sure you        buy the right cable and/or
+adapters for  your rig!&nbsp;          <br>
+          <br>
+          <img src="graphics/c9_to_null.jpg" width="560" height="320">
+        <br>
+          <img src="graphics/c25_to_null.jpg" width="772" height="320">
+          </font>                                                       
+       </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       You also will need to make sure the dip switches in the back of  
+     your  player are set to operate at 9600 baud (or 4800 if you really
+want          to). A Sony player usually includes a diagram on the back that
+shows   how        to set the dip switches properly.&nbsp; <br>
+          <br>
+          <img src="graphics/ldp1450_dip2.jpg" width="506" height="271">
+          </font>                                                </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       To test your Sony player, download the program <a href="http://www.xmission.com/%7Eredflame/daphne/download/ldp.zip">
+       LDP.EXE</a>
+               and run it. If LDP.EXE can control your player, then DAPHNE
+ will   work.&nbsp;</font>        </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+       4.2 NEWER PIONEER LASERDISC PLAYERS</font></b></font>        </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       Most of the newer Pioneer laserdisc players have an odd 15-pin   
+    connector  in back. Cables that fit this 15-pin connector are rare and, 
+ as        far  as I know, can only be <a href="http://www.xmission.com/%7Eredflame/daphne/download/pioneer.html">
+              purchased from Pioneer directly</a>
+       ! The cable you want depends on what        type of serial port you
+ have   on the back of your computer. If you have a        25-pin serial
+port  (older   computers) you will want part # CC-03. If you        have
+a 9-pin  serial  port, you will want part # CC-13. Mentioning the part  
+     # to  the person  you talk to at Pioneer will likely help a great deal
+since        they will  probably have no clue what you are talking about
+otherwise  =].        If you know what you're doing, you can also <a href="http://www.xmission.com/%7Eredflame/daphne/download/pioneer.html">
+       make        your own cable</a>
+       .&nbsp; <br>
+          <br>
+          <img src="graphics/c15_to_25.jpg" width="364" height="295">
+          <img src="graphics/c9_to_15.jpg" width="500" height="301">
+          </font>                                                       
+         </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       You also need to set the dip switches in the back of your player.
+       Some Pioneers operate at 9600 baud, others only operate at 4800. DAPHNE
+          can handle both. There is usually a diagram on the back of your
+player          that shows how to set the dip switches properly.&nbsp;</font>
+            </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       To test your Pioneer player,        download the program <a href="http://www.xmission.com/%7Eredflame/daphne/download/svc.exe">
+       SVC.EXE</a>
+               and run it. If it works without giving errors, DAPHNE will 
+work.&nbsp;             Note:&nbsp; This utility may not work under Windows 
+NT/2000.</font></p>
+                                                       
+      <p style="margin-bottom: 0in; "><b><font face="Verdana, Arial, sans-serif" color="#ffcc00">
+       4.3 PIONEER LD-V6000 LASERDISC PLAYERS</font></b>        </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       The LD-V6000's use a straight (NOT NULL) 25-pin serial cable,    
+   which   is a lot better than the 15-pin cable that the newer Pioneers
+use.         Connecting the LD-V6000 to your computer is easy because 25-pin
+serial         cables are very common.&nbsp; <br>
+          <br>
+          <img src="graphics/cstraight.jpg" width="805" height="260">
+          </font>                                                </p>
+                                                       
+      <p style="margin-bottom: 0in; "><font face="Verdana, Arial, sans-serif">
+       You also need to set the dip switches for the LD-V6000's. The dip
+       switch settings are documented <a href="http://www.xmission.com/%7Eredflame/daphne/download/pioneer.html">
+              here.</a>
+             <br>
+          <br>
+          <img src="graphics/ldv6010a.jpg" width="419" height="278">
+          </font>                                                       </p>
+                                                       
+      <p style="border-right-width: medium; border-right-style: none; padding-right: 0.03in; border-top-width: medium; border-top-style: none; padding-left: 0.03in; margin-bottom: 0in; padding-bottom: 0.03in; border-left-width: medium; border-left-style: none; padding-top: 0.03in; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(0,0,0); "><font face="Verdana, Arial, sans-serif">
+       To test your LD-V6000, download        <a href="http://www.xmission.com/%7Eredflame/daphne/download/lpv11.exe">
+       this</a>
+               program. If it works without giving errors, DAPHNE will work.&nbsp; 
+   Note:&nbsp;        This utility may not work with Windows NT/2000.</font></p>
+                                                       
+      <p style="margin-bottom: 0in; "><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+       4.4 HITACHI VIP9550 (and compatible) LASERDISC PLAYER</font></b></font></p>
+                                                       
+      <p style="border-right-width: medium; border-right-style: none; padding-right: 0.03in; border-top-width: medium; border-top-style: none; padding-left: 0.03in; margin-bottom: 0in; padding-bottom: 0.03in; border-left-width: medium; border-left-style: none; padding-top: 0.03in; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(0,0,0); "><font face="Verdana, Arial, sans-serif">
+       Hitachi players need a STRAIGHT 25-pin cable.</font></p>
+                                                       
+      <p style="margin-bottom: 0in; "><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+       4.5 PHILIPS LASERDISC PLAYERS</font></b></font></p>
+                                                       
+      <p style="border-right-width: medium; border-right-style: none; padding-right: 0.03in; border-top-width: medium; border-top-style: none; padding-left: 0.03in; margin-bottom: 0in; padding-bottom: 0.03in; border-left-width: medium; border-left-style: none; padding-top: 0.03in; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(0,0,0); "><font face="Verdana, Arial, sans-serif">
+       Philips players need a customized serial cable which is outlined in
+ the   philips.cpp file in the source code. &nbsp;I don't have the info handy
+ at   the moment hehehe.<br>
+          </font>               </p>
+                                                                        
+     
+      <hr>                                                         
+      <p><font face="Verdana, Arial, sans-serif"><a name="running"></a>
+             <br>
+         <big><big><b><font color="#ffffff">    5.0 RUNNING DAPHNE</font></b></big></big></font>
+           </p>
+                                                       
+      <p><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+      5.1        BEGINNER</font></b></font>         </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">The easiest  and quickest
+         way to play is by using the Graphic User        Interface  (GUI).
+ The GUI is currently only available in the Windows version. </font>    
+      </p>
+                                                       
+      <p align="Center">       <font face="Verdana, Arial, sans-serif"><img border="0" src="graphics/screenshot1.jpg" width="417" height="300">
+          </font>               </p>
+                                                       
+      <p style="margin-bottom: 0in; text-decoration: none; "><font face="Verdana, Arial, sans-serif">
+       1 - If using an MPEG, be sure      your framefile is pointing the
+the   correct  path.&nbsp; Please see the DAPHNE      Laserdisc Conversion
+Tutorial   for more information on framefiles and      creating a DAPHNE
+compatible  MPEG and OGG.&nbsp; A sample framefile has been      provided
+in the archive  named  dl.txt.    &nbsp; </font>                </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">2 - After         double-clicking
+  DaphneLoader, you will be presented with the above  screen for game selection.&nbsp;
+         Your first task is to click on "configure"  for the game of your
+choice.</font></p>
+                                                       
+      <p align="Center">     <font face="Verdana, Arial, sans-serif"><img border="0" src="graphics/screenshot3.jpg" width="410" height="352">
+          </font>               </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">     3 -   There are a number 
+ of options within the configuration      tabs  that are fairly self explanatory.&nbsp; 
+ If utilizing an actual      laserdisc,  you must select the correct laserdisc 
+ type under the "general"      tab.&nbsp;  The other critical settings are 
+ stored under the "laserdisc tab"</font></p>
+                                                       
+      <p align="Center">     <font face="Verdana, Arial, sans-serif"><img border="0" src="graphics/screenshot2.jpg" width="410" height="352">
+          </font>               </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">     4 -        If using
+  MPEG, select "Virtual LDP" for the player type      and specify your MPEG
+  Information File.&nbsp; For laserdisc, select the      appropriate laserdisc
+  player and designate the correct serial port and baud      rate.</font></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">5 - Click "OK" and your
+settings will be saved.&nbsp; You can then      click on "Start" and if all
+goes well, the game will begin.&nbsp; It takes a      few seconds for the
+ROM to initialize itself.</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">6 - If something goes
+  wrong, read the <a href="#troubleshooting">          troubleshooting</a>
+        section.</font>        </p>
+                                                       
+      <p><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+      5.2        EXPERT</font></b></font>         </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">DAPHNE can be        manipulated
+  exclusively through the command-line in both Windows  and        Linux.</font></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">     These  expert instructions
+  are not intended to replace the beginner      instructions,  only to append
+  to them. Not everything covered in the beginner      section  will be repeated
+  here.&nbsp;</font>        </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">A typical  command-line
+       invocation looks like this for mpeg:&nbsp;</font>          </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif" color="#33ff33">   daphne 
+ lair vldp -framefile lair.txt -fullscreen</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">A typical command-line 
+  invocation looks like      this for a real laserdisc player:</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif" color="#33ff33">  daphne 
+ lair pioneer -baud 9600      -port 1 -latency 10</font></p>
+                                                       
+      <p>     <font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+      5.3 COMMAND      LINE PARAMETERS</font></b></font></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">These commands are sequenced
+  in the order in      which they should appear in the command line:</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">SELECT GAME  TYPE:&nbsp;
+       Possible options:&nbsp; lair, ace, dle, cliff, gtg, superdon,  sdq,
+ sdqshort,      thayers, speedtest, seektest, cputest, fftest, ffr, astronp,
+  esh, astron,      galaxy, laireuro, blazer, cobraab</font></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">LASERDISC PLAYER  TYPE:&nbsp;
+  Possible      options:&nbsp; sony, pioneer, v6000, hitachi, philips,  vldp,
+  noldp, combo      (combo allows a LDP and VLDP to run simultaneously)</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">FRAMEFILE      SPECIFICATION:&nbsp;
+  (only for vldp or seektest)&nbsp; -framefile &lt;filename&gt;&nbsp;   
+   (specify full path to framefile if not located in root of Daphne directory.)</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">DISABLE SOUND:&nbsp; 
+  -nosound</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">EXTERNAL SCOREBOARD:&nbsp; 
+  -scoreboard</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">EXTERNAL SCOREBOARD 
+  PORT SPECIFICATION:&nbsp; -scoreport &lt;value&gt;      &nbsp; Specifies
+  which parallel      port is connected to your external scoreboard (if you've
+  indicated that you      have one).&nbsp; 0 means LPT1, 1 means LPT2.&nbsp;
+  Default is 0.</font>                     </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">SERIAL PORT SPECIFICATION:&nbsp;
+   (only        for LD players)&nbsp; -port &lt;value&gt;&nbsp;  Specifies
+ which serial  port to use.&nbsp; 0        is the first serial port (COM
+1),  1 is the second,  and so on.&nbsp;        Default is 0.</font>     
+ </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">BAUD      RATE  SPECIFICATION:&nbsp;
+  (only for LD players)&nbsp; -baud &lt;value&gt;      Specifies which baud
+  rate to use.&nbsp; 9600 baud is the default.</font>                </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">LATENCY:&nbsp; (for VLDP
+  and LDP)&nbsp;          -latency &lt;value&gt;&nbsp; Sets the        search
+  latency. This is how  long, in milliseconds, that Daphne will pause   
+    before searching for  a frame.&nbsp; If you see frames at the end of
+a        scene that you're  not suppose to see, adjust this settings.&nbsp;
+Default        value is 0.&nbsp;</font>                   </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">FULLSCREEN:&nbsp;  -fullscreen&nbsp;
+  Sets MPEG        video to play in fullscreen mode.&nbsp;  If using a real
+  laserdisc player,        this paramater is applied to the  virtual scoreboard.</font></p>
+                                                       
+      <p>     <font face="Verdana, Arial, sans-serif">LASERDISC TYPE FRAME
+  MODIFIER:&nbsp;      (for LD only)&nbsp; Possible options:&nbsp; -pal_dl, 
+  -pal_sa, -pal_dl_sc,      -spaceace91</font></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">DIP SWITCHES:&nbsp;  (For
+  DL and SA only) -bank &lt;bank #&gt;      &lt;switches&gt;&nbsp; Bank 
+#  is 0 or 1 for DL and SA and the switches are      positioned as follows:&nbsp;
+   76543210.&nbsp; Example:&nbsp; -bank 0 00110000      (would turn on switches
+   4 and 5 on bank 0)</font></p>
+                                                       
+      <p><font color="#ffcc00"><b><font face="Verdana, Arial, sans-serif">
+      5.3        DAPHNE CONTROLS</font></b></font>         </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">You can use the keyboard
+         and/or joystick with DAPHNE.&nbsp;</font>        </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33">  ESC</font>
+   - Quit the  game&nbsp;  <br>
+         <font color="#33ff33">   5 and 6</font>  -        Insert Coin (coin 
+ chutes)&nbsp;   <br>
+         <font color="#33ff33">    1</font>- Player 1 Start&nbsp;  (and 
+      "FEET" in Cliffhanger)<br>
+         <font color="#33ff33">    2</font>- Player 2 Start&nbsp;  (and "FEET" 
+ in        Cliffhanger)<br>
+         <font color="#33ff33">    Arrow Keys or        Joystick</font> - 
+Directional  Movement&nbsp;    <br>
+         <font color="#33ff33">   CTRL   , Space Bar, or        Joystick
+Button</font>    - Sword button/Laser Gun/"HANDS"   in        Cliffhanger/etc...&nbsp;</font>
+                                                                        
+               </p>
+                                                                        
+     
+      <hr>                                                         
+      <p><font color="#ffffff"><b><big><big><font face="Verdana, Arial, sans-serif"><a name="troubleshooting"></a>
+                6.0 TROUBLESHOOTING</font></big></big></b></font><big>  
+     </big></p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">If DAPHNE  isn't working
+         correctly for you, you should    read the <a href="http://www.xmission.com/%7Eredflame/daphne/docs/faq.html">
+       FAQ</a>
+       .&nbsp;        Most every question can be answered there. &nbsp;If 
+you   don't find your answer there, try reading the message board to see if
+anyone   before you had trouble. &nbsp;If you still don't find any help, try
+posting   on the message board, or email the volunteer DAPHNE technical support
+crew   at the email address listed in the CONTACT section.</font>       
+      </p>
+                                                                        
+     
+      <hr>                                                         
+      <p><font color="#ffffff"><big><big><b><font face="Verdana, Arial, sans-serif"><a name="credits"></a>
+                7.0 CREDITS (names in alphabetical order):</font></b></big></big></font><big>
+                 </big></p>
+                                                                        
+                            
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> Project 
+ Coordinator:</font><br>
+    Matt Ownby&nbsp;</font>       </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33">  Coding</font>
+  (if their code appears in current DAPHNE source code):<br>
+    Garrett Banuk (SDL  console code, no affiliation with DAPHNE)<br>
+    Mark Broadhead<br>
+      Robert DiNapoli<br>
+      Andrew Hepburn<br>
+      Aaron Holtzman and the rest of the mpeg2dec contributors (no affiliation
+   with DAPHNE)<br>
+      Jeff Kulzcycki<br>
+     Brad Oldham<br>
+     Warren Ondras<br>
+     Matt Ownby</font>              </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33">  Extensive
+and/or Heroic Hardware testing and/or ROM burning:</font><br>
+      Mark Broadhead<br>
+     Matteo Marioni<br>
+      Warren Ondras<br>
+     Gabrio Secco<br>
+          </font>              </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+ROM Disassembly:</font><br>
+    Robert DiNapoli<br>
+     Dave Hallock<br>
+    Colin Kraft (no affiliation  with DAPHNE)<br>
+    Jeff Kulzcycki<br>
+    Matt Ownby&nbsp;</font>                            </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+For providing original  discs, other footage, or hardware:</font><br>
+  David Bauer<br>
+  Morgan Beckman<br>
+  Mark Broadhead<br>
+  Lady Eboshi<br>
+  Steven Hertz<br>
+      Jeff Kinder<br>
+      Warren Ondras<br>
+      Matt Ownby&nbsp;<br>
+  Chip Sbrogna<br>
+  Gabrio Secco<br>
+      Brendon Zeidler<br>
+          </font>       </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+For providing rare ROM  images:</font><br>
+      Brendon Zeidler (thanks for the Esh's!)</font>       </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+Testing of original hardware to gather info on how it worked:</font><br>
+    Bo Ayers<br>
+    Mark Broadhead<br>
+      Anthony Gallagher<br>
+    Jeff Kinder<br>
+     Warren Ondras</font>                     </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+Unofficial snapshots:</font><br>
+      Matteo Marioni<br>
+          </font>       </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+Documentation:</font><br>
+    Brad Oldham<br>
+     Matt Ownby<br>
+      Chip Sbrogna&nbsp;</font>       </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> LED
+ Artwork:</font><br>
+    Daniel "YenSid" Shutt&nbsp;</font>       </p>
+                                       
+      <p><font face="Verdana, Arial, sans-serif"><font color="#33ff33"> 
+Sound sampling:</font><br>
+    Mark Broadhead<br>
+      Robert DiNapoli&nbsp;<br>
+    Jeff Kinder&nbsp;</font>              </p>
+                                       
+      <p style="border-right-width: medium; border-right-style: none; padding-right: 0in; border-top-width: medium; border-top-style: none; padding-left: 0in; margin-bottom: 0in; padding-bottom: 0in; page-break-after: auto; border-left-width: medium; border-left-style: none; padding-top: 0in; border-bottom-width: medium; border-bottom-style: none; text-decoration: none; page-break-inside: auto; "><font face="Verdana, Arial, sans-serif"><font color="#33ff33">
+      Financial support:</font><br>
+    Trevor Brown (for buying me an LD-V6000 manual)<br>
+     &nbsp; <br>
+          </font>                       </p>
+                                                       
+      <hr>                                                         
+      <p><font color="#ffffff"><b><big><big><font face="Verdana, Arial, sans-serif"><a name="scoreboard"></a>
+                A   .0 Appendix        A - Using a real Dragon's Lair   
+    scoreboard</font></big></big></b></font><big>           </big></p>
+                                                       
+      <p style="margin-bottom: 0in; text-decoration: none; "><font face="Verdana, Arial, sans-serif">
+       DAPHNE can        use a real scoreboard from a Dragon's Lair cabinet. 
+    To do so, you        will need to make your own cable because Robert DiNapoli
+   chose the        pin-outs for this cable arbitrarily so you won't find
+any   compatible        cables out there.<br>
+       On one end of the cable, you need a 16-pin Symbex        connector 
+that   plugs into the back of your Dragon's Lair scoreboard. It        looks 
+like   this:       <br>
+          <br>
+          <img src="graphics/scoreboard1.jpg" width="411" height="276">
+          </font>                              </p>
+                                                       
+      <p><font face="Verdana, Arial, sans-serif">On the other end of the
+cable you will need a 25-pin connector that        plugs into your parallel
+port on your computer. Here is the one Rob made        for me <grin> : <br>
+             <br>
+              <img src="graphics/scoreboard2.jpg" width="449" height="339">
+                      </grin></font>                     </p>
+                       
+      <p><font face="Verdana, Arial, sans-serif">NOTICE that two of the wires 
+ are not connected to anything! These  wires        are for +5 volts and ground.
+ I have been using my PC's power  supply to        provide the +5 volts and
+ ground. Of course you can use any  +5 V source.        The red wire of my
+ PC's power supply is +5 and the black  one next to it is        ground.
+DON'T  TAKE MY WORD FOR IT! IF YOU DO THIS  WRONG YOU WILL RUIN YOUR    
+   SCOREBOARD  SO DOUBLE CHECK BEFORE YOU DO SOMETHING FOOLISH. I OF COURSE
+       WILL NOT BE HELD RESPONSIBLE FOR ANY DAMAGE THAT OCCURS TO YOUR HARDWARE
+       BY ATTEMPTING THIS VERY OPTIONAL HACK. <br>
+       Finally you will need to know        the pin-outs to construct the 
+cable.          <br>
+          <br>
+          </font>                                                       
+            
+      <table border="1">
+                <tbody>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">Scoreboard
+Pin</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">Parallel Port
+ Pin</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">1</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">5</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">2</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">4</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">3</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">3</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">4</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">2</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">5</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">8</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">6</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">7</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">7</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">6</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">8</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">14</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">9</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">17</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">10</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">not used</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">11,12,13</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">+5 volts</font></td>
+                 </tr>
+                <tr>
+                  <td><font face="Verdana, Arial, sans-serif">14,15,16</font></td>
+                  <td><font face="Verdana, Arial, sans-serif">Ground</font></td>
+                 </tr>
+                                                                     
+        </tbody>                                                 
+      </table>
+             </p>
+                                  
+      <p></p>
+             </td>
+           </tr>
+          <tr>
+            <td><font face="Verdana, Arial, sans-serif"><br>
+          </font>               </td>
+           </tr>
+                           
+  </tbody>       

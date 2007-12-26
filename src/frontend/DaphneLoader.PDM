@@ -1,0 +1,266 @@
+[Root]
+Most Recent Package=loader and daph (no bmps)
+
+
+[Package|Loader only|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=G:\dev\DaphneLoader\Package
+
+[Package|Loader only|Configure DAO ISAMs]
+Applicable=No
+
+[Package|Loader only|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|Loader only|Files Found]
+
+[Package|Loader only|Files Released]
+
+[Package|Loader only|Missing Dependency Information]
+
+[Package|Loader only|Out-of-Date Dependency Information]
+
+[Package|Loader only|Files Added]
+
+[Package|Loader only|Files Removed]
+
+[Package|Loader only|Files In Project]
+G:\dev\DaphneLoader\DaphneLoader.exe=Yes
+C:\WINNT\system32\msvbvm60.dll=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\WINNT\system32\MSCOMCTL.OCX=Yes
+C:\WINNT\system32\COMDLG32.OCX=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINNT\system32\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+
+[Package|Loader only|Configure Registry Files]
+Applicable=No
+
+[Package|Loader only|Configure Remote Servers]
+Applicable=No
+
+[Package|Loader only|Install Locations]
+G:\dev\DaphneLoader\DaphneLoader.exe=$(AppPath)
+C:\WINNT\system32\msvbvm60.dll=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\WINNT\system32\MSCOMCTL.OCX=$(WinSysPath)
+C:\WINNT\system32\COMDLG32.OCX=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINNT\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+
+[Package|Loader only|Configure Shared Files]
+Applicable=Yes
+G:\dev\DaphneLoader\DaphneLoader.exe=No
+
+[Package|Loader only|Distribution]
+Type=single
+Size=
+Title=DaphneLoader
+
+[Package|Loader only|IconGroups]
+Group0=Daphne
+PrivateGroup0=-1
+Parent0=$(Programs)
+
+[Package|Loader only|Daphne]
+Icon1=DaphneLoader.exe
+Title1=Daphne Loader
+StartIn1=$(AppPath)
+Key1=Icon1
+
+[Package|Loader only|Package]
+PackageFolder=G:\dev\DaphneLoader\Package
+ProjectFolder=G:\dev\DaphneLoader
+ServerSideCab=
+File1=G:\dev\DaphneLoader\Package\setup.exe
+File2=G:\dev\DaphneLoader\Package\Setup.Lst
+File3=G:\dev\DaphneLoader\Package\DaphneLoader.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
+
+
+[Package|loader and daph (no bmps)|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=G:\dev\DaphneLoader\Package
+
+[Package|loader and daph (no bmps)|Configure DAO ISAMs]
+Applicable=No
+
+[Package|loader and daph (no bmps)|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|loader and daph (no bmps)|Files Found]
+
+[Package|loader and daph (no bmps)|Files Released]
+
+[Package|loader and daph (no bmps)|Missing Dependency Information]
+
+[Package|loader and daph (no bmps)|Out-of-Date Dependency Information]
+
+[Package|loader and daph (no bmps)|Files Added]
+G:\dev\DaphneLoader\DaphneLoaderInfo.ini=
+G:\dev\DaphneLoader\images\thayers.jpg=
+G:\dev\DaphneLoader\images\astron.jpg=
+G:\dev\DaphneLoader\images\badlands.jpg=
+G:\dev\DaphneLoader\images\cliff.jpg=
+G:\dev\DaphneLoader\images\cobra.jpg=
+G:\dev\DaphneLoader\images\esh.jpg=
+G:\dev\DaphneLoader\images\galaxy.jpg=
+G:\dev\DaphneLoader\images\gtg.jpg=
+G:\dev\DaphneLoader\images\lair.jpg=
+G:\dev\DaphneLoader\images\lt1.jpg=
+G:\dev\DaphneLoader\images\lt2.jpg=
+G:\dev\DaphneLoader\images\superdon.jpg=
+G:\dev\DaphneLoader\images\ace.jpg=
+G:\dev\daphne\daphne.exe=
+G:\dev\daphne\vorbisfile.dll=
+G:\dev\daphne\SDL.dll=
+G:\dev\daphne\SDL_mixer.dll=
+G:\dev\daphne\vldp.dll=
+G:\dev\daphne\vorbis.dll=
+G:\dev\daphne\ogg.dll=
+
+[Package|loader and daph (no bmps)|Files Removed]
+
+[Package|loader and daph (no bmps)|Files In Project]
+G:\dev\DaphneLoader\DaphneLoader.exe=Yes
+C:\WINNT\system32\msvbvm60.dll=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\WINNT\system32\MSCOMCTL.OCX=Yes
+C:\WINNT\system32\COMDLG32.OCX=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINNT\system32\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+G:\dev\DaphneLoader\DaphneLoaderInfo.ini=Yes
+G:\dev\DaphneLoader\images\thayers.jpg=Yes
+G:\dev\DaphneLoader\images\astron.jpg=Yes
+G:\dev\DaphneLoader\images\badlands.jpg=Yes
+G:\dev\DaphneLoader\images\cliff.jpg=Yes
+G:\dev\DaphneLoader\images\cobra.jpg=Yes
+G:\dev\DaphneLoader\images\esh.jpg=Yes
+G:\dev\DaphneLoader\images\galaxy.jpg=Yes
+G:\dev\DaphneLoader\images\gtg.jpg=Yes
+G:\dev\DaphneLoader\images\lair.jpg=Yes
+G:\dev\DaphneLoader\images\lt1.jpg=Yes
+G:\dev\DaphneLoader\images\lt2.jpg=Yes
+G:\dev\DaphneLoader\images\superdon.jpg=Yes
+G:\dev\DaphneLoader\images\ace.jpg=Yes
+G:\dev\daphne\daphne.exe=Yes
+G:\dev\daphne\vorbisfile.dll=Yes
+G:\dev\daphne\SDL.dll=Yes
+G:\dev\daphne\SDL_mixer.dll=Yes
+G:\dev\daphne\vldp.dll=Yes
+G:\dev\daphne\vorbis.dll=Yes
+G:\dev\daphne\ogg.dll=Yes
+
+[Package|loader and daph (no bmps)|Configure Registry Files]
+Applicable=No
+
+[Package|loader and daph (no bmps)|Configure Remote Servers]
+Applicable=No
+
+[Package|loader and daph (no bmps)|Install Locations]
+G:\dev\DaphneLoader\DaphneLoader.exe=$(AppPath)
+C:\WINNT\system32\msvbvm60.dll=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEAUT32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\OLEPRO32.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\ASYCFILT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\STDOLE2.TLB=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\WINNT\system32\MSCOMCTL.OCX=$(WinSysPath)
+C:\WINNT\system32\COMDLG32.OCX=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINNT\system32\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+G:\dev\DaphneLoader\DaphneLoaderInfo.ini=$(AppPath)
+G:\dev\DaphneLoader\images\thayers.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\astron.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\badlands.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\cliff.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\cobra.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\esh.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\galaxy.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\gtg.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\lair.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\lt1.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\lt2.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\superdon.jpg=$(AppPath)\images
+G:\dev\DaphneLoader\images\ace.jpg=$(AppPath)\images
+G:\dev\daphne\daphne.exe=$(AppPath)
+G:\dev\daphne\vorbisfile.dll=$(AppPath)
+G:\dev\daphne\SDL.dll=$(AppPath)
+G:\dev\daphne\SDL_mixer.dll=$(AppPath)
+G:\dev\daphne\vldp.dll=$(AppPath)
+G:\dev\daphne\vorbis.dll=$(AppPath)
+G:\dev\daphne\ogg.dll=$(AppPath)
+
+[Package|loader and daph (no bmps)|Configure Shared Files]
+Applicable=Yes
+G:\dev\DaphneLoader\DaphneLoader.exe=No
+G:\dev\DaphneLoader\DaphneLoaderInfo.ini=No
+G:\dev\DaphneLoader\images\thayers.jpg=No
+G:\dev\DaphneLoader\images\astron.jpg=No
+G:\dev\DaphneLoader\images\badlands.jpg=No
+G:\dev\DaphneLoader\images\cliff.jpg=No
+G:\dev\DaphneLoader\images\cobra.jpg=No
+G:\dev\DaphneLoader\images\esh.jpg=No
+G:\dev\DaphneLoader\images\galaxy.jpg=No
+G:\dev\DaphneLoader\images\gtg.jpg=No
+G:\dev\DaphneLoader\images\lair.jpg=No
+G:\dev\DaphneLoader\images\lt1.jpg=No
+G:\dev\DaphneLoader\images\lt2.jpg=No
+G:\dev\DaphneLoader\images\superdon.jpg=No
+G:\dev\DaphneLoader\images\ace.jpg=No
+G:\dev\daphne\daphne.exe=No
+G:\dev\daphne\vorbisfile.dll=No
+G:\dev\daphne\SDL.dll=No
+G:\dev\daphne\SDL_mixer.dll=No
+G:\dev\daphne\vldp.dll=No
+G:\dev\daphne\vorbis.dll=No
+G:\dev\daphne\ogg.dll=No
+
+[Package|loader and daph (no bmps)|Distribution]
+Type=single
+Size=
+Title=Daphne
+
+[Package|loader and daph (no bmps)|IconGroups]
+Group0=Daphne
+PrivateGroup0=-1
+Parent0=$(Programs)
+
+[Package|loader and daph (no bmps)|Daphne]
+Icon1=DaphneLoader.exe
+Title1=Daphne
+StartIn1=$(AppPath)
+Key1=Icon1
+
+[Package|loader and daph (no bmps)|Package]
+PackageFolder=G:\dev\DaphneLoader\Package
+ProjectFolder=G:\dev\DaphneLoader
+ServerSideCab=
+File1=G:\dev\DaphneLoader\Package\setup.exe
+File2=G:\dev\DaphneLoader\Package\Setup.Lst
+File3=G:\dev\DaphneLoader\Package\DaphneLoader.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz

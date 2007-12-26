@@ -1,0 +1,44 @@
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[0].p[0], v=gp2x_video_YUV_color(0xFF,0,0);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[0].p[1], v=gp2x_video_YUV_color(0xFF,0,0);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[1].p[0], v=gp2x_video_YUV_color(0,0xFF,0);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[1].p[1], v=gp2x_video_YUV_color(0,0xFF,0);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[2].p[0], v=gp2x_video_YUV_color(0,0,0xFF);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[2].p[1], v=gp2x_video_YUV_color(0,0,0xFF);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[3].p[0], v=gp2x_video_YUV_color(0x80,0,0xFF);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+                                  {
+                                   unsigned long *p=(unsigned long *)gp2x_video_YUV[3].p[1], v=gp2x_video_YUV_color(0x80,0,0xFF);
+                                   int c=320*240;
+                                   while(c--) *p++=v;
+                                  }
+
+                                  gp2x_video_YUV_setregions(0,1,2,3,160,120);
+                                  gp2x_video_RGB_setwindows(0x10,0x10,0x10,0x10,160,120);

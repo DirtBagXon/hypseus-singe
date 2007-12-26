@@ -1,0 +1,39 @@
+# Makefile for VLDP2
+# Written by Matt Ownby
+
+# TODO: Add dependencies
+
+CC = arm-open2x-linux-gcc
+#DFLAGS = -g -DVLDP_DEBUG
+
+# Benchmarking version
+#DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
+
+# Standard version
+DFLAGS = -O3 -fomit-frame-pointer -funroll-loops
+#DFLAGS = -pg -DVLDP_BENCHMARK
+
+# optimized debug
+#DFLAGS = -O3 -fomit-frame-pointer -funroll-loops -DVLDP_DEBUG
+
+CFLAGS = ${DFLAGS} -DGP2X `arm-open2x-linux-sdl-config --cflags` -I./include
+LIBS = `arm-open2x-linux-sdl-config --libs`
+
+OBJS =  vldp/vldp.o vldp/vldp_internal.o vldp/mpegscan.o \
+	libvo/video_out_null.o 940/interface_920.o
+
+LIBNAME =	libvldp2.so
+
+.SUFFIXES:	.c
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o $@
+
+all:		vldp2
+
+vldp2:		${OBJS}
+		${CC} -shared -o ${LIBNAME} ${OBJS} ${LIBS}
+		cp ${LIBNAME} ../../.
+
+clean:
+		rm ${LIBNAME} ${OBJS}

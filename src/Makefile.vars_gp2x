@@ -1,0 +1,30 @@
+# This file contains linux-specific environment variables
+# It is included by Makefile if a symlink is created to point to it
+
+# GP2X VERSION!!! :)
+
+export CXX=arm-open2x-linux-g++
+export CC=arm-open2x-linux-gcc
+
+# debugging version
+DFLAGS = -g -DCPU_DEBUG
+
+# optimized version
+# NOTE : gcc 3.x has a bug that causes compilation to choke on m80.cpp
+# If you want to -DGCC_X86_ASM for extra speed, you have to use g++ 3.0 or earlier
+#DFLAGS = -O3 -fomit-frame-pointer \
+#	-fexpensive-optimizations -funroll-loops
+
+# this is to be exported for MMX assembly optimization
+export USE_MMX = 0
+
+# gp2x probably won't compile properly unless VLDP is statically linked (at least on anything higher than gcc 2)
+export STATIC_VLDP_GP2X = 1
+
+# platform-specific compile flags
+PFLAGS = ${DFLAGS} `arm-open2x-linux-sdl-config --cflags` -DUNIX -DLINUX -DNATIVE_CPU_ARM \
+	-DGP2X -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -I/opt/open2x/gcc-4.1.1-glibc-2.3.6/include
+
+# platform-specific lib flags
+#LIBS = `arm-open2x-linux-sdl-config --libs` -static -lz -lvorbisidec
+LIBS = `arm-open2x-linux-sdl-config --libs` -L /opt/open2x/gcc-4.1.1-glibc-2.3.6/lib -static -lz -lvorbisidec -ldl

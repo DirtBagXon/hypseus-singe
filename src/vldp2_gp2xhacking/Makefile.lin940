@@ -1,0 +1,41 @@
+# Makefile for VLDP2
+# Written by Matt Ownby
+
+# TODO: Add dependencies
+
+CC = gcc
+#DFLAGS = -pg
+DFLAGS = -g -DVLDP_DEBUG
+
+# Benchmarking version
+#DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
+
+# Standard version
+#DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops
+
+CFLAGS = ${DFLAGS} `sdl-config --cflags` -I./include -Wall
+LIBS = `sdl-config --libs`
+
+OBJS = libmpeg2/cpu_accel.o libmpeg2/alloc.o libmpeg2/cpu_state.o \
+	libmpeg2/decode.o libmpeg2/header.o libmpeg2/motion_comp.o	\
+	libmpeg2/idct.o libmpeg2/idct_mmx.o libmpeg2/motion_comp_mmx.o \
+		libmpeg2/slice.o	\
+	libvo/video_out.o \
+	940/interface_940.o 940/video_out_940.o 940/interface_920.o \
+	940/mpo_lib.o \
+	940/main920.o 940/dummy.o
+
+EXENAME = test920
+
+.SUFFIXES:	.c
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o $@
+
+all:		vldp2
+
+vldp2:		${OBJS}
+		${CC} -o ${EXENAME} ${OBJS} ${LIBS}
+
+clean:
+		rm ${EXENAME} ${OBJS}

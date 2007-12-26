@@ -1,0 +1,57 @@
+You can compile DAPHNE in windows using two compilers:
+	Visual C++ 6
+	Visual C++ 7.1 (aka Visual Studio 2003)
+
+- Make sure you have MASM installed.  VS7.1 automatically comes with this
+installed.  If you are using VS6, you may need to upgrade to service pack 5
+and then install the Processor Pack in order to get MASM.  There are other ways
+to get it installed, but this way requires the shortest explanation :).
+
+- Download the SDL Development Runtime for Visual C++ from the
+http://www.libsdl.org site.  At the time of this writing, the URL was
+http://www.libsdl.org/download-1.2.html but it could have changed.
+
+- Download the SDL_Mixer Development Runtime for Visual C++, from
+http://www.libsdl.org/projects/SDL_mixer/index.html .
+
+- Download the Ogg Vorbis Win32 SDK from 
+http://www.vorbis.com/download_win.psp .  At the time of this writing the latest version
+was 1.0rc2 but I expect that will change very soon.
+
+- Download the Zlib "SDK".  There are various places to get this, but I got mine from
+http://www.winimage.com/zLibDll/zlib114dll.zip and I am going to assume you are using
+this package as well.
+
+- Download the GLEW win32 binaries from http://glew.sourceforge.net .  At the
+time of this writing, the latest version was 1.3.4
+
+- Extract these packages to the directories of your choice.  I recommend
+extracting the SDL stuff to c:\sdl\ , the Ogg Vorbis stuff to c:\ov\ ,
+the GLEW stuff to c:\glew,
+and the zlib stuff to c:\zlib-1.14\ to make things organized.
+
+- (VS7.1 users should go to Tools->Options->Projects for this next step)
+From inside VS6, go to Tools->Options then click on the Directories
+tab.  You will need to add new directories to the Include category to point to
+the include files for the three packages you just downloaded.  For example,
+you might add an entries like these:
+
+	c:\sdl\sdl-1.2\include
+	c:\sdl\sdl_mixer-1.2.0\include
+	c:\ov\sdk\include
+	c:\zlib-1.14
+	c:\glew\include
+
+You will also need to add entries to the Library category (as opposed to the
+Include category you just added entries for).  Your library entries might
+look like this:
+
+        c:\sdl\sdl-1.2\lib
+        c:\sdl\sdl_mixer-1.2.0\lib
+        c:\ov\sdk\lib
+	c:\zlib-1.14\dll32
+	c:\glew\lib
+
+- If you are using VS6, go to File->Open Workspace and open the daphne.dsw 
+file inside the src directory.  From VS7.1, go to File->Open Solution and open
+the daphne_vs2003.sln .  You should be ready to compile.  Good luck!

@@ -1,0 +1,152 @@
+-------------------------------------
+	   Dragon's Lair
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Sword = space bar
+	Coin = 5/6
+	Start = 1/2
+
+Overlay/Scoreboard:
+	Scoreboard
+
+Issues:
+	No issues =)
+
+-------------------------------------
+	    Space Ace
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Fire/Energize = space bar
+	Coin = 5/6
+	Start = 1/2
+
+Overlay/Scoreboard:
+	Scoreboard
+
+Issues:
+	No issues =)
+
+-------------------------------------
+	 Cliff Hanger
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Hands = space bar
+	Coin = 5/6
+	Start/Feet = 1/2
+
+Overlay/Scoreboard:
+	Overlay
+
+Issues:
+	Graphics glitches in the 
+	overlay
+
+-------------------------------------
+	Goal to Go
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Hands = space bar
+	Coin = 5/6
+	Start/Feet = 1/2
+
+Overlay/Scoreboard:
+	Overlay
+
+Issues:
+	The current LDP interface doesn't
+	allow this game to function.
+	Remove me if the game still isn't
+	working for release
+
+-------------------------------------
+	Super Don Quix-ote
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Action = space bar
+	Coin = 5/6
+	Start = 1/2
+
+Overlay/Scoreboard:
+	Overlay
+
+Issues:
+	Sometimes the laserdisc/mpeg
+	gets ahead of the CPU thus
+	causing gameplay to lock up
+
+-------------------------------------
+	  Thayer's Quest
+-------------------------------------
+Keys:
+	Blue 1 - Blue 4 = F1 - F4
+	Red/Green buttons along the top = keyboard numbers
+	A-Z = A-Z
+	See http://www.d-l-p.com/tech/virtual/pics/tq/tq_cpo.jpg
+	for more details
+
+Overlay/Scoreboard:
+	Scoreboard
+
+Issues:
+	The SSI-263 isn't implemented at all,
+	so in game messages aren't heard. This
+	gives the appearance of locking up when
+	the user doesn't know what the CPU is
+	asking him/her to do
+
+-------------------------------------
+	Esh's Aurunmilla
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Action = space bar
+	Coin = 5/6
+	Start = 1/2
+
+Overlay/Scoreboard:
+	Overlay
+
+Issues:
+	The overlay colors aren't correct
+
+-------------------------------------
+	    Astron Belt
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Laser = space bar
+	Coin = 5/6
+	Start = 1
+	Continue = 2
+
+Overlay/Scoreboard:
+	Overlay
+
+Issues:
+	This game currently isn't working.
+	Remove me if its still not working
+	for release.
+
+-------------------------------------
+	  Galaxy Ranger
+-------------------------------------
+Keys:
+	Joystick = directional keys
+	Laser = space bar
+	Coin = 5/6
+	Start = 1
+	Continue = 2
+
+Overlay/Scoreboard:
+	Overlay
+
+Issues:
+	This game currently isn't working.
+	Remove me if its still not working
+	for release.
+

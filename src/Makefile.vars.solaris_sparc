@@ -1,0 +1,27 @@
+# This file contains solaris-specific (SPARC version) environment variables
+# It is included by Makefile if a symlink is created to point to it
+
+# NOTE : This won't fully compile Daphne on Solaris unless you strip out
+# all audio-related stuff.  If someone has full access to a Solaris box,
+# feel free to complete this port.
+
+export CXX=g++
+export CC=gcc
+
+# debugging version
+#DFLAGS = -g -DCPU_DEBUG
+
+# optimized version
+DFLAGS = -O3 -fomit-frame-pointer -fexpensive-optimizations -funroll-loops
+
+# we don't really need this, but for completeness I added it ...
+export USE_MMX_RGB2YUV = 0
+
+# platform-specific compile flags
+PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DSOLARIS \
+	-DNATIVE_CPU_SPARC
+
+# platform-specific lib flags
+# I removed the audio stuff because the stupid solaris machine I'm working on
+# doesn't have it and my quota is too small to build it.
+LIBS = `sdl-config --libs` -ldl -lz -lsocket -lnsl

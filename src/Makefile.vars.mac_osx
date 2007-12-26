@@ -1,0 +1,57 @@
+# This file contains Mac-specific environment variables
+# It is included by Makefile if a symlink is created to point to it
+
+# IF YOU WANT TO MAKE ONLY MINIMAL CHANGES TO THIS MAKEFILE, FOLLOW THESE
+#  INSTRUCTIONS!!!
+
+# 1 - Build all required libraries (SDL, SDL_mixer, Ogg, Vorbis) from source.
+#  When configuring, use "./configure --prefix $HOME/slibs --disable-shared"
+#  When "make install"ing, it will install everything into your $HOME directory
+#   inside the slibs directory.  That way, you don't need to be root.
+# 2 - Add $HOME/slibs/bin to your PATH, by doing:
+#	"export PATH=$PATH:$HOME/slibs/bin"
+#	(This allows the sdl-config script to run properly.)
+# 3 - Copy this file to Makefile.vars, type make, and you should be good to go.
+
+# where your library include files are installed
+INC_DIR=${HOME}/slibs/include
+
+# which type of linking you want to do
+LIBS=${PRE_TIGER_LIBS}
+
+# static library path
+SLIBS = $(HOME)/slibs/lib
+
+export CXX=g++
+export CC=gcc
+
+# debugging version
+#DFLAGS = -g -DCPU_DEBUG
+
+# optimized version
+DFLAGS = -O3 -fomit-frame-pointer -funroll-loops
+
+# not using an intel CPU, so no MMX
+export USE_MMX_RGB2YUV = 0
+
+# platform-specific compile flags
+PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DMAC_OSX -DNATIVE_CPU_PPC \
+	-I ${INC_DIR}
+
+# Dynamic linking ...
+DYNAMIC_LIBS = `sdl-config --libs` -lSDL_mixer -lz -ldl -logg -lvorbis \
+	-lvorbisfile -framework Quicktime
+
+# Static linking (probably better for Mac OSX users)
+TIGER_LIBS = -lz \
+	`sdl-config --static-libs` \
+	$(SLIBS)/libSDL_mixer.a \
+	$(SLIBS)/libogg.a $(SLIBS)/libvorbis.a $(SLIBS)/libvorbisfile.a \
+	/usr/lib/libSystemStubs.a
+
+# Old libs, probably work for pre Tiger OSX
+PRE_TIGER_LIBS = -lz \
+	`sdl-config --static-libs` \
+	$(SLIBS)/libSDL_mixer.a \
+	$(SLIBS)/libogg.a $(SLIBS)/libvorbis.a $(SLIBS)/libvorbisfile.a \
+	$(SLIBS)/libdl.a

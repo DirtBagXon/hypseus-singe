@@ -1,0 +1,63 @@
+# Makefile for VLDP2
+# Written by Matt Ownby
+
+# TODO: Add dependencies
+
+CC = arm-open2x-linux-gcc
+LD = arm-open2x-linux-ld
+#DFLAGS = -pg
+#DFLAGS = -g -DVLDP_DEBUG
+
+# Benchmarking version
+#DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
+
+# Standard version
+DFLAGS = -O2
+
+CFLAGS = ${DFLAGS} -DGP2X -I./include -Wall
+920FLAGS = -DGP2X -g -Wall `arm-open2x-linux-sdl-config --cflags`
+LIBS = -g `arm-open2x-linux-sdl-config --libs` -static
+
+OBJS920 = 940/main920.o 940/interface_920.o
+
+OBJS940 = libmpeg2/cpu_accel.o libmpeg2/alloc.o libmpeg2/cpu_state.o \
+	libmpeg2/decode.o libmpeg2/header.o libmpeg2/motion_comp.o	\
+	libmpeg2/idct.o \
+		libmpeg2/slice.o	\
+	libvo/video_out.o \
+	940/interface_940.o 940/video_out_940.o \
+	940/mpo_lib.o 940/dummy.o
+
+EXENAME = test920gp2x
+PRELIBNAME = libmpeg940.pre
+LIBNAME = libmpeg940.bin
+
+.SUFFIXES:	.c
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o $@
+
+all:		test920 libmpeg940
+
+test920:	main920 interface920
+		${CC} -o ${EXENAME} ${OBJS920} ${LIBS}
+
+main920:	940/main920.c
+		${CC} ${920FLAGS} -c 940/main920.c -o 940/main920.o
+
+main940:	940/main940.o
+		${CC} -O0 -c 940/main940.c -o 940/main940.o
+
+interface920:	940/interface_920.c
+		${CC} ${920FLAGS} -c 940/interface_920.c -o 940/interface_920.o
+
+libmpeg940:	main940 ${OBJS940} math.o
+		$(LD) -e code940 -Ttext 0x0 940/main940.o 940/math.o ${OBJS940} -o $(PRELIBNAME)
+		arm-open2x-linux-strip $(PRELIBNAME)
+		arm-open2x-linux-objcopy -O binary $(PRELIBNAME) $(LIBNAME)
+
+math.o:		940/math.s
+	        arm-open2x-linux-gcc -c 940/math.s -o 940/math.o
+
+clean:
+		rm ${EXENAME} ${OBJS920} ${OBJS940}

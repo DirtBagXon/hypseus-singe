@@ -1,0 +1,43 @@
+# Makefile for VLDP2
+# Written by Matt Ownby
+
+# TODO: Add dependencies
+
+CC = gcc
+#DFLAGS = -g
+
+# Benchmarking version
+#DFLAGS = -O3 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
+
+# Standard version
+DFLAGS = -O3 -fomit-frame-pointer -funroll-loops
+
+CFLAGS = ${DFLAGS} `sdl-config --cflags` -I./include
+SLIBS = /usr/local/lib
+#LIBS = $(SLIBS)/libSDL.a
+LIBS =
+
+# compiling in this altivec stuff won't hurt and might help ...
+OBJS =  vldp/vldp.o vldp/vldp_internal.o vldp/mpegscan.o \
+	libmpeg2/cpu_accel.o libmpeg2/alloc.o libmpeg2/cpu_state.o \
+	libmpeg2/decode.o libmpeg2/header.o libmpeg2/motion_comp.o	\
+	libmpeg2/idct.o \
+	libmpeg2/slice.o	\
+	libmpeg2/idct_altivec.o libmpeg2/motion_comp_altivec.o \
+	libvo/video_out.o libvo/video_out_null.o 
+
+LIBNAME =	libvldp2.so
+
+.SUFFIXES:	.c
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o $@
+
+all:		vldp2
+
+vldp2:		${OBJS}
+		${CC} -o ${LIBNAME} ${OBJS} -bundle -bundle_loader ../../daphne
+		cp ${LIBNAME} ../../.
+
+clean:
+		rm ${LIBNAME} ${OBJS}

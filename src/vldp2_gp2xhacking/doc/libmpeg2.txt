@@ -1,0 +1,12 @@
+
+I - simplest example
+
+explanation of sequence_t, picture_t fields
+
+II - w/ color conversion
+
+III - pts
+
+IV - app that preallocates buffers
+
+V - app that does its own buffer management

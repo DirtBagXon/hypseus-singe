@@ -1,0 +1,147 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+MYDIALOG DIALOGEX 0, 0, 313, 245
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DAPHNE Setup"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK, boot the ROM!",IDOK,186,13,115,15
+    PUSHBUTTON      "Quit DAPHNE",IDCANCEL,186,33,115,15
+    CONTROL         "A0",IDC_A0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,77,
+                    25,10
+    CONTROL         "A1",IDC_A1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,97,
+                    25,10
+    CONTROL         "A2",IDC_A2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,117,
+                    25,10
+    CONTROL         "A3",IDC_A3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,137,
+                    25,10
+    CONTROL         "A4",IDC_A4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,157,
+                    25,10
+    CONTROL         "A5",IDC_A5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,177,
+                    25,10
+    CONTROL         "A6",IDC_A6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,197,
+                    25,10
+    CONTROL         "A7",IDC_A7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,217,
+                    25,10
+    CONTROL         "B0",IDC_B0,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,77,
+                    25,10
+    CONTROL         "B1",IDC_B1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,97,
+                    25,10
+    CONTROL         "B2",IDC_B2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,117,
+                    25,10
+    CONTROL         "B3",IDC_B3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,137,
+                    25,10
+    CONTROL         "B4",IDC_B4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,157,
+                    25,10
+    CONTROL         "B5",IDC_B5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,177,
+                    25,10
+    CONTROL         "B6",IDC_B6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,197,
+                    25,10
+    CONTROL         "B7",IDC_B7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,217,
+                    25,10
+    EDITTEXT        IDC_FILEMASK,77,80,96,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_LATENCY,77,116,96,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_LDP,187,80,116,95,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    COMBOBOX        IDC_COMPORT,187,116,116,94,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_BAUD,187,152,116,60,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Laserdisc Player Type",IDC_STATIC,233,65,70,8
+    LTEXT           "Serial Port",IDC_STATIC,270,101,33,8
+    LTEXT           "Baud Rate",IDC_STATIC,268,137,35,8
+    LTEXT           "ROM Filename (Mask)",IDC_STATIC,102,65,71,8
+    LTEXT           "Search Latency (ms)",IDC_STATIC,102,101,71,8
+    COMBOBOX        IDC_PRESET,18,23,124,90,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    GROUPBOX        "Newbie Quick Configuration",IDC_STATIC,11,8,169,37
+    GROUPBOX        "Expert Configuration",IDC_STATIC,11,42,169,190
+    LTEXT           "Dip Switches",IDC_STATIC,19,65,42,8
+    PUSHBUTTON      "Apply",IDC_APPLY,145,23,27,12
+    COMBOBOX        IDC_SKILL,77,152,96,66,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Skill (Space Ace only)",IDC_STATIC,102,137,70,8
+    COMBOBOX        IDC_FRAMEMODS,77,186,96,66,CBS_DROPDOWN | WS_VSCROLL | 
+                    WS_TABSTOP
+    LTEXT           "Frame Modifiers",IDC_STATIC,102,171,50,8
+    COMBOBOX        IDC_SCOREBOARD,187,186,116,66,CBS_DROPDOWN | 
+                    CBS_DISABLENOSCROLL,WS_EX_LEFTSCROLLBAR
+    LTEXT           "External Scoreboard",IDC_STATIC,238,171,65,8
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_DAPHNE              ICON    DISCARDABLE     "daphne.ico"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

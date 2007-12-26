@@ -1,0 +1,87 @@
+Daphne Changelog
+-------------------------
+
+v1.0.0
+- Fixed OpenGL offset test, and added a check for the bottom row also.
+- Fixed sound shutdown bug (possibly crash when shutting down daphne).
+- Fixed laireuro driver so that overlay is displayed properly in OpenGL mode.
+- Stats are now sent after a game has run, not before. This is because the delay in sending stats was throwing off one of the timers.
+- Fixed a bunch of unit tests that weren't passing.
+
+v0.101.31
+- Build .30 was broken on windows, this update fixes that.
+
+v0.101.30
+- Fixed problem where a green border was showing up in OpenGL mode.
+
+v0.101.29
+- Fixed crash in Thayer's Quest when using VLDP, as a result of changes I made for v0.101.26
+- Fixed problem on linux update where Ogg Vorbis libs weren't included and need to be.
+- Added support for MMX on Intel Macs.
+- Added OpenGL support for all Macs.
+
+v0.101.28
+- Fixed problem with overlay scoreboard not being able to be toggled on and off.
+- Made all scoreboards so they clear on startup and shutdown.  This includes the hardware scoreboard.
+- Overlay scoreboard no longer requires VLDP.
+- Changed test_sb 'game' so that it controls a hardware scoreboard in addition to image scoreboard.
+
+v0.101.27
+- When I pushed out .26 I accidently included a debug build of vldp2.dll; this update fixes that.
+
+v0.101.26
+- Completely re-worked scoreboard code.  Dragon's Lair, Space Ace, and Thayer's Quest drivers were updated to reflect this change.
+- Added simple unit testing framework to improve development.
+- Thayer's Quest scoreboard has been re-worked.  Now the only way to see subtitles is to also use the overlay scoreboard.  This is to be consistent with the intent behind the way the overlay code is designed and to stop doing hacks to get the subtitles to work in 'noldp' mode.
+
+v0.101.25
+- Added MMX audio mixing function (for extra speed)
+- Added logging to indicate whether MMX and OpenGL are compiled into the executable.
+
+v0.101.24
+- Improved VLDP+OpenGL code so that less frames are dropped and less frames are queued before being displayed.
+- Added diagnostics switch to Dragon's Lair driver to boot into diagnostics mode.
+- Added ability to take screenshots when in VLDP+OpenGL mode.
+- Fixed leading 0s that aceeuro issues to ldp.
+- Fixed playing of attract mode without sound in laireuro driver.
+- Fixed coin input on Italian version of laireuro.
+- Added D2 version of laireuro as lair_d2.
+- Fixed PPC detection on OSX.
+
+v0.101.23
+- Fixed Cliff Hanger beeps so they work in all ROM revisions.
+
+v0.101.22
+- Fixed VLDP problem where 32-bit overflow would occur if skipping was attempted after disc had been playing without a search for over 2 minutes.
+  (this problem was only evident in Astron Belt/Galaxy Ranger if the 'infinite' timer was enabled)
+
+v0.101.21
+- Fixed problem where left/right sound channels were reversed
+- Audio mixer changed so that audio is now mixed at full volume and checked for clipping
+
+v0.101.20
+- Removed 'instant strobes' option from Dragon's Lair driver, as this is incompatible with artificial seek delay.
+- Reworked the strobe handling in Dragon's Lair to be more efficient with CPU usage.
+- Improved VLDP error message about requiring a -framefile argument so it is only shown if the user didn't provide a -framefile argument.
+- Improved blocking seeking so that it will once again work with VLDP seek delay.
+- Fixed "-altaudio" option which has been broken since before v0.99.7 (!!)
+
+v0.101.19
+- Improved 'cobraconv' driver so that the game should be playable (although it still has many problems)
+- Added support for 'search abort' in the LDP1000 driver.  This fixed beginning of a new Bega's Battle game so that the "I am Bega" sequence will show even if the user has specified a lot of search delay.
+- Fixed PR-7820 driver so that it uses non-blocking seeking.
+
+v0.101.18
+- Fixed 'pause game' lockup bug that occurred when seek delay was enabled
+- Fixed 'continue countdown' in Bega's Battle so that it counts normally instead of too fast.
+- Fixed VIP9500SG Hitachi driver so that it works with non-blocking seeking.  This should improve Astron Belt, Galaxy Ranger, and Cobra Command (Astron Belt ROMS).
+
+v0.101.17
+- Fixed problem in Super Don Quixote where death scenes can be seen after each correct move.  Occasional death scenes may still be seen but these are due to bugs in the ROM and not bugs in the emulation.  As a result of this work, Esh's Aurunmilla also performs much better, although it may still not be as tight as Super Don.
+- Added ability to 'tilt' games. (Cliff Hanger is the only game that can currently be tilted).
+- Reworked OpenGL driver and fixed overrun problem that occasionally happened.
+- Added a formal changelog
+- Added preliminary SINGE support.  SINGE is a scripting language to allow users to make their own laserdisc-styled games.
+
+v0.101.16 and older
+- All changes are logged in CVS and a full changelog will be available for the next official release.
