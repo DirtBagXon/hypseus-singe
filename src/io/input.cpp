@@ -25,6 +25,7 @@
 #include <time.h>
 #include "input.h"
 #include "conout.h"
+#include "homedir.h"
 #include "../video/video.h"
 #include "../video/SDL_Console.h"
 #include "../daphne.h"
@@ -162,7 +163,10 @@ void CFG_Keys()
 	int val1 = 0, val2 = 0, val3 = 0;
 //	bool done = false;
 
-	io = mpo_open("dapinput.ini", MPO_OPEN_READONLY);
+	// find where the dapinput ini file is (if the file doesn't exist, this string will be empty)
+	string strDapInput = g_homedir.find_file("dapinput.ini", true);
+
+	io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
 	if (io)
 	{
 		printline("Remapping input ...");

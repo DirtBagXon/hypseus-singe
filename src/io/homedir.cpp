@@ -1,10 +1,5 @@
 /*
  *  homedir.cpp
- *  daphne
- *
- *  Created by Derek Stutsman on 2/19/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
- *
  */
 
 #include "homedir.h"
@@ -63,12 +58,12 @@ void homedir::set_homedir(const string &s)
 
 string homedir::get_romfile(const string &s)
 {
-	return find_file(pdRoms, s);
+	return find_file("roms/" + s, true);
 }
 
 string homedir::get_ramfile(const string &s)
 {
-	return find_file(pdRams, s);
+	return find_file("ram/" + s, false);
 }
 
 string homedir::get_framefile(const string &s)
@@ -80,36 +75,14 @@ string homedir::get_framefile(const string &s)
 	}
 	else
 	{
-		return find_file(pdFramefiles, s);
+		return find_file("framefile/" + s, true);
 	}
 }
 
-string homedir::find_file(private_dir fileType, string fileName)
+string homedir::find_file(string fileName, bool bFallback)
 {
-	string strFile = "";
+	string strFile = fileName;
 	string result = "";
-	bool bFallback = true;
-	switch(fileType)
-	{
-		case pdRams:
-		{
-			strFile = "ram/";
-			bFallback = false;
-			break;
-		}
-		case pdRoms:
-		{
-			strFile = "roms/";
-			break;
-		}
-		case pdFramefiles:
-		{
-			strFile = "framefile/";
-			break;
-		}
-	}
-
-	strFile += fileName;
 
 	// try homedir first
 	result = m_homedir + "/" + strFile;

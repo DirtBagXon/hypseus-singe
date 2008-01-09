@@ -1,10 +1,5 @@
 /*
  *  homedir.h
- *  daphne
- *
- *  Created by Derek Stutsman on 2/19/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
- *
  */
 
 #ifndef HOMEDIR_H
@@ -12,15 +7,9 @@
 
 #include <string>	// STL strings, useful to prevent buffer overrun
 #include "homedir.h"
+#include "mpo_fileio.h"
 
 using namespace std;	// for STL string to compile without problems ...
-
-enum private_dir
-{
-	pdRoms,
-	pdRams,
-	pdFramefiles
-};
 
 class homedir
 {
@@ -34,16 +23,19 @@ public:
 	string get_romfile(const string &s);
 	string get_ramfile(const string &s);
 	string get_framefile(const string &s);
+
+	// Searches homedir for a filename indicated by 'fileName' and if it doesn't find it,
+	//  searches the application directory for the same filename (if 'bFallback' is true).
+	// Returns the found path,
+	//  or an empty string if neither location yielded the file.
+	string find_file(string fileName, bool bFallback = true);
+
 private:
 	void make_dir(const string &dir);
 	
 	//Private members	
 	string m_appdir;				//Directory the app was launched from
 	string m_homedir;				//"Home" directory to search first (defaults to appdir)
-	
-	//Internal-use methods
-	string find_file(private_dir fileType, string fileName);
-	
 };
 
 extern homedir g_homedir;	// our global game class.  Instead of having every .cpp file define this, we put it here.
