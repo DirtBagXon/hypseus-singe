@@ -1,6 +1,9 @@
 Daphne Changelog
 -------------------------
 
+v1.0.1
+- Fixed problem where dapinput.ini file wasn't being looked for in the home directory.
+
 v1.0.0
 - Fixed OpenGL offset test, and added a check for the bottom row also.
 - Fixed sound shutdown bug (possibly crash when shutting down daphne).
