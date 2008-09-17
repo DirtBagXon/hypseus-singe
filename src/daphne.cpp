@@ -89,7 +89,7 @@ using namespace std;
 
 const char *get_daphne_version()
 {
-	return "1.0.1";
+	return "1.0.2";
 }
 
 unsigned char get_filename(char *s, unsigned char n)

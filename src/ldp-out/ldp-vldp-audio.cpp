@@ -146,7 +146,8 @@ int mmseek (void *datasource, int64_t offset, int whence)
 	switch (whence)
 	{
 	case SEEK_SET:
-		if (offset < g_audio_filesize)
+		// bug fix by Arnaud Gibert
+		if (offset <= g_audio_filesize)
 		{
 			// make sure offset is positive so we don't get into trouble
 			if (offset >= 0)
@@ -161,7 +162,7 @@ int mmseek (void *datasource, int64_t offset, int whence)
 		}
 		break;
 	case SEEK_CUR:
-		if (offset + g_audio_filepos < g_audio_filesize)
+		if (offset + g_audio_filepos <= g_audio_filesize)
 		{
 			g_audio_filepos = (unsigned int) (g_audio_filepos + offset);
 			result = 0;

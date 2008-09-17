@@ -1,6 +1,10 @@
 Daphne Changelog
 -------------------------
 
+v1.0.2
+- Fixed bug in Ogg Vorbis seeking. (Arnaud Gibert)
+- Added support for compiling on 64-bit linux. (Joker)
+
 v1.0.1
 - Fixed problem where dapinput.ini file wasn't being looked for in the home directory.
 
