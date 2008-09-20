@@ -3,6 +3,7 @@ Daphne Changelog
 
 v1.0.3
 - Fixed linux hardware queries (especially video card query).
+- Changed linux .so loader so that libvldp2.so can be in /usr/lib or some other place (Arnaud Gibert)
 
 v1.0.2
 - Fixed bug in Ogg Vorbis seeking. (Arnaud Gibert)
