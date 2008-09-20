@@ -172,7 +172,7 @@ unsigned int get_cpu_mhz()
 	FILE *F;
 	double mhz;
 	const char *s = "cat /proc/cpuinfo | grep MHz | sed -e 's/^.*: //'";
-	F = popen(s, "rb");
+	F = popen(s, "r");
 	if (F)
 	{
 		fscanf(F, "%lf", &mhz);
@@ -236,7 +236,7 @@ unsigned int get_sys_mem()
 #ifdef LINUX
 	FILE *F;
 	const char *s = "ls -l /proc/kcore | awk '{print $5}'";
-	F = popen(s, "rb");
+	F = popen(s, "r");
 	if (F)
 	{
 		fscanf(F, "%u", &mem);	// this breaks if they have over 2 gigs of ram :)
@@ -274,7 +274,7 @@ char *get_video_description()
 	FILE *F;
 	// PCI query fix by Arnaud G. Gibert
 	const char *s = "lspci | grep -i \"VGA compatible controller\" | awk -F ': ' '{print $2}'";
-	F = popen(s, "rb");
+	F = popen(s, "r");
 	if (F)
 	{
 		unsigned int len = fread(result, 1, 79, F);
