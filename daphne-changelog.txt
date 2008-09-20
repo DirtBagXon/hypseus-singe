@@ -1,6 +1,9 @@
 Daphne Changelog
 -------------------------
 
+v1.0.3
+- Fixed linux hardware queries (especially video card query).
+
 v1.0.2
 - Fixed bug in Ogg Vorbis seeking. (Arnaud Gibert)
 - Added support for compiling on 64-bit linux. (Joker)
