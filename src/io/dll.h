@@ -38,7 +38,7 @@
 #define M_GET_SYM	GetProcAddress
 #define M_FREE_LIB	FreeLibrary
 #else
-#define M_LOAD_LIB(libname)	dlopen("./lib" #libname ".so", RTLD_NOW)
+#define M_LOAD_LIB(libname)	dlopen("lib" #libname ".so", RTLD_NOW)
 #define M_GET_SYM	dlsym
 #define M_FREE_LIB	dlclose
 #endif
