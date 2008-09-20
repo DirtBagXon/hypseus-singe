@@ -171,12 +171,12 @@ unsigned int get_cpu_mhz()
 #ifdef NATIVE_CPU_X86
 	FILE *F;
 	double mhz;
-	system("cat /proc/cpuinfo | grep MHz | sed -e 's/^.*: //' > /tmp/result.txt");
-	F = fopen("/tmp/result.txt", "rb");
+	const char *s = "cat /proc/cpuinfo | grep MHz | sed -e 's/^.*: //'";
+	F = popen(s, "rb");
 	if (F)
 	{
 		fscanf(F, "%lf", &mhz);
-		fclose(F);
+		pclose(F);
 	}
 	result = (unsigned int) mhz;
 #endif // NATIVE_CPU_X86
@@ -195,6 +195,7 @@ unsigned int get_cpu_mhz()
 	{
 		fscanf(F, "%lf", &mhz);
 		fclose(F);
+		unlink("/tmp/result.txt");
 	}
 	result = (unsigned int) mhz;
 #endif
@@ -234,12 +235,12 @@ unsigned int get_sys_mem()
 	unsigned int mem = 0;
 #ifdef LINUX
 	FILE *F;
-	system("ls -l /proc/kcore | awk '{print $5}' > /tmp/result.txt");
-	F = fopen("/tmp/result.txt", "rb");
+	const char *s = "ls -l /proc/kcore | awk '{print $5}'";
+	F = popen(s, "rb");
 	if (F)
 	{
 		fscanf(F, "%u", &mem);	// this breaks if they have over 2 gigs of ram :)
-		fclose(F);
+		pclose(F);
 	}
 
 #endif
@@ -271,13 +272,14 @@ char *get_video_description()
 #ifdef LINUX
 #ifdef NATIVE_CPU_X86
 	FILE *F;
-	system("cat /proc/pci | grep -i \"VGA compatible controller\" | awk -F ': ' '{print $2}' > /tmp/result.txt");
-	F = fopen("/tmp/result.txt", "rb");
+	// PCI query fix by Arnaud G. Gibert
+	const char *s = "lspci | grep -i \"VGA compatible controller\" | awk -F ': ' '{print $2}'";
+	F = popen(s, "rb");
 	if (F)
 	{
 		unsigned int len = fread(result, 1, 79, F);
-		if (len > 1) result[len-2] = 0;	// get rid of trailing period
-		fclose(F);
+		if (len > 1) result[len-1] = 0;	// make sure string is null terminated
+		pclose(F);
 	}
 #endif	// NATIVE_CPU_X86
 #ifdef NATIVE_CPU_MIPS
