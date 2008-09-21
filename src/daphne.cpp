@@ -131,6 +131,12 @@ unsigned char get_quitflag()
 
 }
 
+bool change_dir(const char *cpszNewDir)
+{
+	int i = chdir(cpszNewDir);
+	return (i == 0);
+}
+
 // sets current directory based on the full path of the executable
 // This solves the problem of someone running daphne without first being in the daphne directory
 void set_cur_dir(const char *exe_loc)
@@ -149,7 +155,7 @@ void set_cur_dir(const char *exe_loc)
 	{
 		path = exe_loc;
 		path.erase(index);	// erase from here to the end
-		chdir(path.c_str());
+		change_dir(path.c_str());
 	}
 }
 

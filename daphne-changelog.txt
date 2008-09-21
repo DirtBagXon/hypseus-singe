@@ -4,6 +4,8 @@ Daphne Changelog
 v1.0.3
 - Fixed linux hardware queries (especially video card query).
 - Changed linux .so loader so that libvldp2.so can be in /usr/lib or some other place (Arnaud Gibert)
+- Added "-datadir" command-line argument to change to a different directory before loading any data files.
+	This is so the daphne executable can live in a different folder (which is typical on linux).
 
 v1.0.2
 - Fixed bug in Ogg Vorbis seeking. (Arnaud Gibert)

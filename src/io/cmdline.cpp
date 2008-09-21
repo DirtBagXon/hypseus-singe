@@ -666,7 +666,15 @@ bool parse_cmd_line(int argc, char **argv)
 		{
 			//Ignore this one, already handled
 			get_next_word(s, sizeof(s));
-		}		
+		}
+
+		// If they are defining an alternate 'data' directory, where all other files aside from the executable live.
+		// Primary used for linux to separate binary file (eg. daphne.bin) and other datafiles . 
+		else if (strcasecmp(s, "-datadir")==0) 
+		{ 
+			get_next_word(s, sizeof(s)); 
+			change_dir(s);
+		}
 
 		// if user wants laserdisc player to blank video while searching (VLDP only)
 		else if (strcasecmp(s, "-blank_searches")==0)

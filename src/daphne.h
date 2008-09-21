@@ -36,6 +36,8 @@ const char *get_daphne_version();
 unsigned char get_filename(char *s, unsigned char n);
 void set_quitflag();
 unsigned char get_quitflag();
+bool change_dir(const char *pszNewDir);
+void set_cur_dir(const char *exe_loc);
 int main(int, char **);
 void set_unix_signals();
 void handle_unix_signals(int);
