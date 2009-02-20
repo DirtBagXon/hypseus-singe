@@ -1,7 +1,7 @@
 /*
  * parallel.h
  *
- * Copyright (C) 2001 Matt Ownby
+ * Copyright (C) 2001-2009 Matt Ownby
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -22,8 +22,24 @@
 
 #include "logger.h"
 
-bool par_init(int port, ILogger *pLogger);
-int par_base0(int port, unsigned char data);
-int par_base2(int port, unsigned char data);
-void par_close(int port, ILogger *pLogger);
+// This is now a static class to hide the global member variable(s) that it uses.
+class par
+{
+public:
+	static bool init(unsigned int port, ILogger *pLogger);
+	static void base0(unsigned char data);
+	static void base2(unsigned char data);
+	static void close(ILogger *pLogger);
+
+private:
+	// index into the port arrays for the purpose of getting the port addresses
+	static unsigned int m_uPortIdx;
+
+	// base port address (last value reserved for custom address)
+	static short m_base0[3];
+
+	// base+2 port address (last value reserved for custom address)
+	static short m_base2[3];
+
+};
 

@@ -537,12 +537,6 @@
 					RelativePath="io\numstr.h">
 				</File>
 				<File
-					RelativePath="io\par-io.cpp">
-				</File>
-				<File
-					RelativePath="io\par-io.h">
-				</File>
-				<File
 					RelativePath=".\io\parallel.cpp">
 				</File>
 				<File
@@ -940,6 +934,13 @@
 		<Filter
 			Name="Resource Files"
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+		</Filter>
+		<Filter
+			Name="lib"
+			Filter="">
+			<File
+				RelativePath=".\lib\inpout32.lib">
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\daphne-changelog.txt">

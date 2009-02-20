@@ -18,6 +18,7 @@ cp "$SRC_FILES/../daphne.exe" $UPDATEDIR/.
 cp "$SRC_FILES/../daphne-changelog.txt" $UPDATEDIR/.
 cp "$SRC_FILES/../vldp2.dll" $UPDATEDIR/.
 cp "$SRC_FILES/../glew32.dll" $UPDATEDIR/.
+cp "$SRC_FILES/../inpout32.dll" $UPDATEDIR/.
 
 # archive up the update directory
 cd $UPDATEDIR

@@ -125,9 +125,6 @@
 				RelativePath="..\io\logger.cpp">
 			</File>
 			<File
-				RelativePath="..\io\par-io.cpp">
-			</File>
-			<File
 				RelativePath="..\io\parallel.cpp">
 			</File>
 			<File
@@ -143,6 +140,13 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+		</Filter>
+		<Filter
+			Name="lib"
+			Filter="">
+			<File
+				RelativePath="..\lib\inpout32.lib">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

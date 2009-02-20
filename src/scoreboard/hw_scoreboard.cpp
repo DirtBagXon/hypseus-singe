@@ -25,13 +25,13 @@ IScoreboard *HwScoreboard::GetInstance(unsigned int uParallelPort, ILogger *pLog
 
 bool HwScoreboard::ParInit()
 {
-	bool bRes = par_init(m_uParallelPort, m_pLogger);
+	bool bRes = par::init(m_uParallelPort, m_pLogger);
 	return bRes;
 }
 
 void HwScoreboard::ParShutdown()
 {
-	par_close(m_uParallelPort, m_pLogger);
+	par::close(m_pLogger);
 }
 
 HwScoreboard::HwScoreboard(unsigned int uParallelPort, ILogger *pLogger)
@@ -68,18 +68,18 @@ bool HwScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 	{
 		digit = ((which - PLAYER1_0) % 6);
 		rsb_value = (unsigned char) ((digit << 4) | uValue);
-		par_base2(rsb_port, 0);
-		par_base0(rsb_port, rsb_value);
+		par::base2(0);
+		par::base0(rsb_value);
 
 		// if it's player 1
 		if (which <= this->PLAYER1_5)
 		{
-			par_base2(rsb_port, 2);
+			par::base2(2);
 		}
 		// else player 2
 		else
 		{
-			par_base2(rsb_port, 8);
+			par::base2(8);
 		}
 	}
 	// else if this is a lives digit
@@ -96,9 +96,9 @@ bool HwScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 			rsb_value = (unsigned char) (0x70 | uValue);
 		}
 
-		par_base2(rsb_port, 0);
-		par_base0(rsb_port, rsb_value);
-		par_base2(rsb_port, 2);
+		par::base2(0);
+		par::base0(rsb_value);
+		par::base2(2);
 
 	}
 	// else it's the credits
@@ -116,9 +116,9 @@ bool HwScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 		{
 			rsb_value = (unsigned char) (0x70 | uValue);
 		}
-		par_base2(rsb_port, 0);
-		par_base0(rsb_port, rsb_value);
-		par_base2(rsb_port, 8);
+		par::base2(0);
+		par::base0(rsb_value);
+		par::base2(8);
 	}
 
 	return true;

@@ -54,8 +54,8 @@ unsigned char get_frame_modifier();
 void set_frame_modifier(unsigned char value);
 void set_scoreboard(unsigned char value);
 unsigned char get_scoreboard();
-void set_scoreboard_port(unsigned char value);
-unsigned char get_scoreboard_port();
+void set_scoreboard_port(unsigned int value);
+unsigned int get_scoreboard_port();
 void reset_logfile(int argc, char **argv);
 void set_scoreboard_text(char sb_text[]);
 

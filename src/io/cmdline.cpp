@@ -32,6 +32,7 @@
 #include "numstr.h"
 #include "homedir.h"
 #include "input.h"	// to disable joystick use
+#include "../io/numstr.h"
 #include "../video/video.h"
 #include "../video/led.h"
 #include "../daphne.h"
@@ -75,7 +76,7 @@
 #include "../ldp-out/ldp-combo.h"
 #include "../ldp-out/ldp-vldp.h"
 #include "../ldp-out/framemod.h"
- 
+
 #ifdef UNIX
 #include <unistd.h>     // for unlink
 #endif
@@ -810,8 +811,7 @@ bool parse_cmd_line(int argc, char **argv)
 		else if (strcasecmp(s, "-scoreport")==0)
 		{
 			get_next_word(s, sizeof(s));
-			i = atoi(s);
-			set_scoreboard_port((unsigned char) i);
+			set_scoreboard_port((unsigned int)numstr::ToUint32(s, 16));
 			sprintf(s, "Setting scoreboard port to %d", i);
 			printline(s);
 		}

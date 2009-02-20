@@ -89,7 +89,7 @@ using namespace std;
 
 const char *get_daphne_version()
 {
-	return "1.0.3";
+	return "1.0.4";
 }
 
 unsigned char get_filename(char *s, unsigned char n)
@@ -351,12 +351,12 @@ unsigned char get_scoreboard()
 	return (realscoreboard);
 }
 
-void set_scoreboard_port(unsigned char value)
+void set_scoreboard_port(unsigned int value)
 {
 	rsb_port = value;
 }
 
-unsigned char get_scoreboard_port()
+unsigned int get_scoreboard_port()
 {
 	return(rsb_port);
 }

@@ -44,7 +44,7 @@ Uint8 frame_modifier = 0;	// what type of frame modifications to be used
 Uint8 joystick_detected = 0;	// 0 = no joystick, 1 = joystick present
 
 Uint8 realscoreboard = 0;	// 1 = external scoreboard is attached
-Uint8 rsb_port = 0;		// 0 = LPT1, 1 = LPT2 for real scoreboard
+unsigned int rsb_port = 0;		// 0 = LPT1, 1 = LPT2 or address of real scoreboard 
 
 unsigned int idleexit; // added by JFA for -idleexit
 unsigned char startsilent = 0;
