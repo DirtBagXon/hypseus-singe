@@ -3,6 +3,9 @@ Daphne Changelog
 
 v1.0.4
 - Changed parallel port code so that any address can be used for the parallel port (Brad Oldham).
+- Updated to SDL v1.2.13, and applied Daphne-specific SDL mods.
+- Fixed Vista black screen issue when using YUV overlays.  YUV overlays will automatically be disabled for Vista,
+which will result in slower performance.  Therefore, Vista users should use OpenGL mode when possible for best performance.
 
 v1.0.3
 - Fixed linux hardware queries (especially video card query).

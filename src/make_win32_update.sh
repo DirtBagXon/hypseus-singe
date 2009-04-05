@@ -15,6 +15,7 @@ mkdir -p $UPDATEDIR
 
 # copy files that have changed since base release
 cp "$SRC_FILES/../daphne.exe" $UPDATEDIR/.
+cp "$SRC_FILES/../sdl.dll" $UPDATEDIR/.
 cp "$SRC_FILES/../daphne-changelog.txt" $UPDATEDIR/.
 cp "$SRC_FILES/../vldp2.dll" $UPDATEDIR/.
 cp "$SRC_FILES/../glew32.dll" $UPDATEDIR/.
@@ -22,6 +23,7 @@ cp "$SRC_FILES/../inpout32.dll" $UPDATEDIR/.
 
 # archive up the update directory
 cd $UPDATEDIR
+echo "Creating update.zip"
 zip -9 ../$TMPZIP *
 cd ..
 
@@ -31,6 +33,7 @@ ZIPNAME=daphne-updater-$VERSION-win32.zip
 
 # create ZIP to be uploaded
 cd $UPDATEHELPDIR
+echo "Creating ZIP with updater program"
 zip ../$ZIPNAME *
 cd ..
 
