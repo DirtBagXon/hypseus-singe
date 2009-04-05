@@ -92,7 +92,7 @@
 				AdditionalDependencies="SDL.lib"
 				OutputFile="$(Outdir)/vldp2.dll"
 				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
