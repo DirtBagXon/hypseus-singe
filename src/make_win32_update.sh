@@ -15,7 +15,6 @@ mkdir -p $UPDATEDIR
 
 # copy files that have changed since base release
 cp "$SRC_FILES/../daphne.exe" $UPDATEDIR/.
-cp "$SRC_FILES/../sdl.dll" $UPDATEDIR/.
 cp "$SRC_FILES/../daphne-changelog.txt" $UPDATEDIR/.
 cp "$SRC_FILES/../vldp2.dll" $UPDATEDIR/.
 cp "$SRC_FILES/../glew32.dll" $UPDATEDIR/.
