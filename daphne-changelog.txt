@@ -1,6 +1,9 @@
 Daphne Changelog
 -------------------------
 
+v1.0.5
+- Moved the SDL.dll update to DaphneLoader's auto-update instead of Daphne's.  This is because DaphneLoader's input_grabber also depends on SDL.dll.
+
 v1.0.4
 - Changed parallel port code so that any address can be used for the parallel port (Brad Oldham).
 - Updated to SDL v1.2.13, and applied Daphne-specific SDL mods.
