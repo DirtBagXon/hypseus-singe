@@ -190,7 +190,7 @@ bool sound_play_saveme();
 int load_waves();
 void free_waves();
 int get_sound_initialized();
-void unmute_sound(); // added by JFA for -startsilent
+void set_sound_mute(bool bMuted); // added by JFA for -startsilent
 void set_sound_enabled_status (bool value);
 bool is_sound_enabled();
 

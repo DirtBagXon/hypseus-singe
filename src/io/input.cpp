@@ -831,38 +831,19 @@ inline void add_coin_to_queue(bool enabled, Uint8 val)
 	g_coin_queue.push(coin);	// add the coin to the queue ...
 }
 
-// this is called when the cpu timers get flushed
-// the values in the coin queue are invalid and need to be recalculated
-void reshuffle_coin_queue()
-{
-	// IMPORTANT : the total cycles executed should've been recalculated by the cpu flush routine BEFORE calling this
-	g_last_coin_cycle_used = get_total_cycles_executed(0);
-
-	// recalculate every entry in the queue
-	for (unsigned int size = 0; size < g_coin_queue.size(); size++)
-	{
-		struct coin_input coin;
-		coin = g_coin_queue.front();
-		g_coin_queue.pop();	// remove from front of queue
-
-		add_coin_to_queue(coin.coin_enabled, coin.coin_val);
-	}
-
-	printline("REMOVE ME : coin queue was reshuffled");	// remove me
-}
-
 // added by JFA for -idleexit
 void reset_idle(void)
 {
-	static int soundon = 0;
+	static bool bSoundOn = false;
 
-	// only call reopen_sound() if -startsilent was passed via command line,
-	//  otherwise this can turn on attract mode audio that is supposed to be quiet.
-	if (get_startsilent() && (!soundon))
+	// At this time, the only way the sound will be muted is if -startsilent was passed via command line.
+	// So the first key press should always unmute the sound.
+	if (!bSoundOn)
 	{
-		soundon = 1;
-		unmute_sound();
+		bSoundOn = true;
+		set_sound_mute(false);
 	}
+
 	idle_timer = refresh_ms_time();
 }
 // end edit

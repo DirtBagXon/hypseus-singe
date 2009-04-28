@@ -54,6 +54,8 @@ sample_s g_sample_saveme;	// the special saveme wav which is loaded independentl
 
 bool g_sound_enabled = true;	// whether sound is enabled
 
+bool g_bSoundMuted = false;	// whether sound is muted
+
 struct sounddef *g_soundchip_head = NULL;	// pointer to the first sound chip in our linked list of chips's
 unsigned int g_uSoundChipNextID = 0;	// the idea that the next soundchip to get added will get (also usually indicates how many sound chips have been added, but not if a soundchip gets deleted)
 
@@ -67,12 +69,6 @@ Uint16 g_u16SoundBufSamples = 2048;
 
 // # of bytes each individual sound chip should be allocated for its buffer
 unsigned int g_uSoundChipBufSize = g_u16SoundBufSamples * AUDIO_BYTES_PER_SAMPLE;
-
-// # of bits to shift right when mixing (replacement for division since division is so slow).
-// This value is calculated automatically when new sound chips are added.
-// NOTE : there is only one shift value despite support for multiple channels to ensure
-//  that the channels are the same relative volume to each other
-unsigned int g_uMixRShift = 0;
 
 // the volume (user adjustable) of the VLDP audio stream
 unsigned int g_uVolumeVLDP = AUDIO_MAX_VOLUME;
@@ -94,8 +90,10 @@ bool g_bAudioLocked = false;
 #endif // lock audio macros
 
 // added by JFA for -startsilent
-void unmute_sound()
+void set_sound_mute(bool bMuted)
 {
+	g_bSoundMuted = bMuted;
+
 	// only proceed if sound has been initialized
 	if (g_sound_initialized)
 	{
@@ -168,6 +166,13 @@ bool sound_init()
 					// if we can load all our waves, we're set
 					if (load_waves())
 					{
+						// If we are supposed to start without playing any sound, then set muted bool here.
+						// It must come here because add_soundchip (which comes right afterwards) will set the sound mixing callback.
+						if (get_startsilent())
+						{
+							g_bSoundMuted = true;
+						}
+
 						// right before initialization, add the samples 'sound chip', which can (and should be)
 						//  only added once, so we need not track its ID (we call its functions directly)
 						struct sounddef soundchip;
@@ -176,16 +181,6 @@ bool sound_init()
 
 						// initialize sound chips
 						init_soundchip();
-
-						// if -startsilent has been requested on the command line, then start off muted
-						if (get_startsilent())
-						{
-							// lock audio because we're changing the mixing callback
-							LOCK_AUDIO();
-							g_soundmix_callback = mixMute;
-							UNLOCK_AUDIO();
-						}
-						// else sound volume is already set, so we can leave it alone
 
 						if (specObtained.samples != g_u16SoundBufSamples)
 						{
@@ -381,84 +376,6 @@ void set_sound_enabled_status (bool value)
 bool is_sound_enabled()
 {
 	return g_sound_enabled;
-}
-
-void sound_recalc_rshift()
-{
-
-#ifdef DEBUG
-	assert (g_bAudioLocked == true);
-#endif
-
-	g_uMixRShift = 0;	// reset
-	for (unsigned int uChannel = 0; uChannel < AUDIO_CHANNELS; uChannel++)
-	{
-		unsigned int uVolSum = 0; // sum of all volume levels for this channel
-
-		struct sounddef *cur = g_soundchip_head;
-
-		// go through every sound chip
-		while (cur)
-		{
-			uVolSum += cur->uVolume[uChannel];	// add current volume
-			cur = cur->next_soundchip;
-		}
-
-		unsigned int uRemainder = uVolSum % AUDIO_MAX_VOLUME;	// get any remainder we have
-		unsigned int uChanCount = uVolSum / AUDIO_MAX_VOLUME;	// how many max volumed sound channels we have (two half volumes count as 1, for example)
-		unsigned int uShift = 0;
-
-		// if we have a remainder, then it counts as an additional channel
-		// (this is a cheap way to avoid overflow)
-		if (uRemainder > 0)
-		{
-			++uChanCount;
-		}
-
-		// if we only have 1 sound chip, we don't need to do any mixing
-		if (uChanCount == 1)
-		{
-			uShift = 0;
-		}
-		// else if we have 2 sound chips, we can divide by 2
-		else if (uChanCount == 2)
-		{
-			uShift = 1;
-		}
-		// else if we have 3 or 4 sound chips, we can divide by 4
-		else if (uChanCount <= 4)
-		{
-			uShift = 2;
-		}
-		// else if we have 5, 6, 7, or 8 sound chips, we can divide by 8
-		else if (uChanCount <= 8)
-		{
-			uShift = 3;
-		}
-		// else if we have 9, 10, 11, 12, 13, 14, or 15 sound chips, we can divide by 16
-		// NOTE : this is NOT desireable as it would probably be too quiet!
-		else if (uChanCount <= 15)
-		{
-			uShift = 4;
-		}
-
-		// else perhaps we have exceeded our limit
-		else
-		{
-			printline("sound.cpp ERROR : too many sound chips added.");
-			// NOTE : the reason there is a limit of 15 sound chips is this is how many we can mix
-			//  without worrying about 32-bit overflow.
-			set_quitflag();	// force dev to worry about this
-		}
-
-		// if we have to mix more for this channel than we did for another channel,
-		//  then we need to have all channels mix to this degree to keep relative
-		//  volumes the same.
-		if (uShift > g_uMixRShift)
-		{
-			g_uMixRShift = uShift;
-		}
-	} // end for loop
 }
 
 // NOTE : this is called by the game driver, so it can be called even if sound is disabled
@@ -734,11 +651,6 @@ void mixWithMults(Uint8 *stream, int length)
 			cur = cur->next_soundchip;
 		}
 
-		// do fast division to get sample back in 16-bit format
-		//mixed_sample_1 >>= g_uMixRShift;
-		//mixed_sample_2 >>= g_uMixRShift;
-		// FAST DIVISION method not good enough (quality-wise) anymore, see mixWithMaxVolume for explanation
-
 		DO_CLIP(mixed_sample_1);
 		DO_CLIP(mixed_sample_2);
 
@@ -890,54 +802,63 @@ void update_soundchip_volumes()
 	assert (g_bAudioLocked == true);
 #endif
 
-	struct sounddef *cur = g_soundchip_head;
-	while (cur)
+	// If sound is not muted then do some calculations
+	if (!g_bSoundMuted)
 	{
-		// if this isn't a VLDP chip ...
-		if (cur->type != SOUNDCHIP_VLDP)
+
+		struct sounddef *cur = g_soundchip_head;
+		while (cur)
 		{
-			cur->uBaseVolume[0] = cur->uBaseVolume[1] = g_uVolumeNonVLDP;
+			// if this isn't a VLDP chip ...
+			if (cur->type != SOUNDCHIP_VLDP)
+			{
+				cur->uBaseVolume[0] = cur->uBaseVolume[1] = g_uVolumeNonVLDP;
+			}
+			// else this is the VLDP chip
+			else
+			{
+				cur->uBaseVolume[0] = cur->uBaseVolume[1] = g_uVolumeVLDP;
+			}
+
+			for (unsigned int uChannel = 0; uChannel < 2; ++uChannel)
+			{
+				// The actual volume must take into account the user-defined BaseVolume,
+				//  in case the user requested that the volume be 50% of whatever it would normally be.
+				// If the base volume is AUDIO_MAX_VOLUME, then the new volume becomes uVolume
+				cur->uVolume[uChannel] = (cur->uDriverVolume[uChannel] * cur->uBaseVolume[uChannel]) / AUDIO_MAX_VOLUME;
+
+				// if we've wound up with a volume that is less than the max
+				if (cur->uVolume[uChannel] < AUDIO_MAX_VOLUME)
+				{
+					bNonMaxVolume = true;
+				}
+			}
+
+			cur = cur->next_soundchip;
+			++uSoundchipCount;
 		}
-		// else this is the VLDP chip
+
+		// if we need to use the most expensive mixing callback...
+		if (bNonMaxVolume)
+		{
+			g_soundmix_callback = mixWithMults;
+		}
+		else if (uSoundchipCount > 1)
+		{
+			g_soundmix_callback = mixWithMaxVolume;
+		}
+		// just 1 soundchip? we can mix super fast in that case
 		else
 		{
-			cur->uBaseVolume[0] = cur->uBaseVolume[1] = g_uVolumeVLDP;
+			g_soundmix_callback = mixNone;
 		}
 
-		for (unsigned int uChannel = 0; uChannel < 2; ++uChannel)
-		{
-			// The actual volume must take into account the user-defined BaseVolume,
-			//  in case the user requested that the volume be 50% of whatever it would normally be.
-			// If the base volume is AUDIO_MAX_VOLUME, then the new volume becomes uVolume
-			cur->uVolume[uChannel] = (cur->uDriverVolume[uChannel] * cur->uBaseVolume[uChannel]) / AUDIO_MAX_VOLUME;
-
-			// if we've wound up with a volume that is less than the max
-			if (cur->uVolume[uChannel] < AUDIO_MAX_VOLUME)
-			{
-				bNonMaxVolume = true;
-			}
-		}
-
-		cur = cur->next_soundchip;
-		++uSoundchipCount;
-	}
-
-	// if we need to use the most expensive mixing callback...
-	if (bNonMaxVolume)
-	{
-		g_soundmix_callback = mixWithMults;
-	}
-	else if (uSoundchipCount > 1)
-	{
-		g_soundmix_callback = mixWithMaxVolume;
-	}
-	// just 1 soundchip? we can mix super fast in that case
+	} // end if sound is not muted
+	// else sound is muted
 	else
 	{
-		g_soundmix_callback = mixNone;
+		g_soundmix_callback = mixMute;
 	}
-
-	sound_recalc_rshift();	// now that volume has been changed, this must be recalculated
 
 }
 

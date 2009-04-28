@@ -89,7 +89,6 @@ void check_console_refresh();
 void input_enable(Uint8);
 void input_disable(Uint8);
 inline void add_coin_to_queue(bool enabled, Uint8 val);
-void reshuffle_coin_queue();
 void reset_idle(void); // added by JFA
 void set_use_joystick(bool val);
 
