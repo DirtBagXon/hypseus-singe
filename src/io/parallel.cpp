@@ -106,7 +106,7 @@ void par::close(ILogger *pLogger)
 
 // initializes the specified port (0 is LPT1)
 // returns 1 if successful, 0 if failted
-bool par_init (int port, ILogger *pLogger)
+bool par::init(unsigned int port, ILogger *pLogger)
 {
 
 	bool result = false;
@@ -134,27 +134,19 @@ bool par_init (int port, ILogger *pLogger)
 }
 
 // writes a byte to the port at base+0
-int par_base0 (int port, unsigned char data)
+void par::base0 (unsigned char data)
 {
-	if ((m_uPortIdx >=0) && (m_uPortIdx <=1))
-	{
-		outb(data, par::m_base0[m_uPortIdx]);
-	}
-	return(1);
+	outb(data, par::m_base0[m_uPortIdx]);
 }
 
 // writes a byte to the port at base+2
-int par_base2 (int port, unsigned char data)
+void par::base2 (unsigned char data)
 {
-	if ((m_uPortIdx >=0) && (m_uPortIdx <= 1))
-	{
-		outb(data, par::m_base2[m_uPortIdx]);
-	}
-	return(1);
+	outb(data, par::m_base2[m_uPortIdx]);
 }
 
 // closes parallel port
-void par_close (ILogger *pLogger)
+void par::close (ILogger *pLogger)
 {
 	// we don't have to do anything here
 }
@@ -163,22 +155,20 @@ void par_close (ILogger *pLogger)
 #else	// end NATIVE_CPU_X86
 
 // here is the code for systems that have no parallel support
-bool par_init (int port, ILogger *pLogger)
+bool par::init (unsigned int port, ILogger *pLogger)
 {
 	return false;
 }
 
-int par_base0(int port, unsigned char data)
+void par::base0(unsigned char data)
 {
-	return 0;
 }
 
-int par_base2(int port, unsigned char data)
+void par::base2(unsigned char data)
 {
-	return 0;
 }
 
-void par_close(ILogger *pLogger)
+void par::close(ILogger *pLogger)
 {
 }
 #endif

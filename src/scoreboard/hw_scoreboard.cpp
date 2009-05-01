@@ -60,7 +60,7 @@ bool HwScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 
 	m_DigitValues[which] = uValue;
 	unsigned char rsb_value = 0;
-	int rsb_port = m_uParallelPort;
+//	int rsb_port = m_uParallelPort;
 	unsigned int digit = 0;
 
 	// this is a player digit
