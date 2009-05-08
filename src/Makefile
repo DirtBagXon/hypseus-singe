@@ -33,7 +33,7 @@ DEFINE_STATIC_VLDP = -DSTATIC_VLDP
 endif
 
 # Platform specific cflags defined in the Makefile.vars file
-export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} -Wall -Winline -Werror
+export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} -Wall -Werror
 
 OBJS = ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
 	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}

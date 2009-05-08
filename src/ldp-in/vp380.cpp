@@ -92,7 +92,7 @@ char	CommandBuffer[32];
 int		CommandIndex = 0;
 
 // regular command
-int vp380_GotCommand ( char* Command )
+int vp380_GotCommand ( const char* Command )
 {
 	if(strcmp(Command, &CommandBuffer[0]) == 0)
 	{

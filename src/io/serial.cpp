@@ -490,7 +490,7 @@ void serial_rxflush()
 
 // sends an ASCII string to serial port and terminates with a
 // carriage return (0x0D)
-void send_tx_string(char *s)
+void send_tx_string(const char *s)
 {
 	unsigned int i = 0;
 

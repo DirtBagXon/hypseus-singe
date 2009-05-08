@@ -58,7 +58,7 @@ typedef void * unzFile;	// because including the unzip header file gives some co
 // This is so when debugging, you can have function names instead of numbers (it is easier to read)
 struct addr_name
 {
-	char *name;	// arbitrary name assigned to that address
+	const char *name;	// arbitrary name assigned to that address
 	unsigned int address;	// memory address
 };
 
@@ -150,7 +150,7 @@ public:
 	virtual bool handle_cmdline_arg(const char *arg);	// the cmd line will pass on any unknown variables to the game to see if there is a game-specific option to be parsed
 	void disable_crc();  // skips CRC check on ROM load
 	virtual bool load_roms();	// load roms into memory
-	bool verify_required_file(char *filename, char *gamedir, Uint32 filecrc32);	// verifies existence of a required file (such as a readme.txt for DLE)
+	bool verify_required_file(const char *filename, const char *gamedir, Uint32 filecrc32);	// verifies existence of a required file (such as a readme.txt for DLE)
 	virtual void patch_roms();	// do any modifications (cheats, etc) to roms after they're loaded
 	int get_video_row_offset();
 	int get_video_col_offset();
@@ -171,11 +171,11 @@ public:
 	Uint32 get_num_sounds();
 	const char *get_sound_name(int);
 	const char *get_issues();	// does the game have any performance issues the user should know about?
-	void set_issues(char *);
+	void set_issues(const char *);
 	void toggle_game_pause();	// toggles whether the game is paused or not
 	const char *get_shortgamename();	// returns short game name
 #ifdef CPU_DEBUG
-	char *get_address_name(unsigned int addr);	// get a potential name for a memory address (very useful for debugging)
+	const char *get_address_name(unsigned int addr);	// get a potential name for a memory address (very useful for debugging)
 #endif
 
 	// returns m_bMouseEnabled
@@ -183,7 +183,7 @@ public:
 
 protected:
 	bool m_game_paused;	// whether the game is paused or not
-	char *m_shortgamename;	// a one-word name for this game (ie "lair" "ace" "dle", etc)
+	const char *m_shortgamename;	// a one-word name for this game (ie "lair" "ace" "dle", etc)
 	const struct rom_def *m_rom_list;	// pointer to a null-terminated array of roms to be loaded
 	Uint8 m_cpumem[CPU_MEM_SIZE];	// generic buffer that most 16-bit addressing cpu's can use
 	unsigned int m_uDiscFPKS;	// frames per kilosecond of the game's laserdisc (to avoid using gp2x-unfriendly float)
@@ -191,14 +191,14 @@ protected:
 //	double m_disc_ms_per_frame;	// how many ms per frame of the game's laserdisc (same value as fps, just re-arranged)
 	Uint8 m_game_type;	// which game it is
 	Uint32 m_num_sounds;	// how many samples the game has to load
-	char *m_sound_name[MAX_NUM_SOUNDS];	// names for each sound file
-	char *m_game_issues;	// description of any issues the game has (NULL if no issues)
+	const char *m_sound_name[MAX_NUM_SOUNDS];	// names for each sound file
+	const char *m_game_issues;	// description of any issues the game has (NULL if no issues)
 	bool m_cheat_requested;	// whether user has requested any cheats to be enabled
 	bool m_crc_disabled;    // set to true to disable CRC check on ROM load
 	bool m_prefer_samples;
 	bool m_fastboot;
 	
-	char *m_nvram_filename; // filename for nvram (only for DL2/SA91 for now)
+	const char *m_nvram_filename; // filename for nvram (only for DL2/SA91 for now)
 	Uint8 *m_nvram_begin;  // points to where our nvram begins
 	Uint16 *m_EEPROM_9536_begin;  // points to the 9536 EEPROM for DL2/SA91
 	bool m_EEPROM_9536;

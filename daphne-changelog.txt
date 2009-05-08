@@ -1,6 +1,9 @@
 Daphne Changelog
 -------------------------
 
+v1.0.7
+- Updated source code so it builds on the latest g++
+
 v1.0.6
 - Fixed -startsilent command-line option.
 

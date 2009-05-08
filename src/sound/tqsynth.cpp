@@ -174,13 +174,13 @@ enum Eparm_e
 
 typedef struct Elm_s
 {
-    char *name;
+    const char *name;
     char rk;
     char du;
     char ud;
     unsigned char font;
-    char  *dict;
-    char  *ipa;
+    const char  *dict;
+    const char  *ipa;
     long  feat;
     interp_t p[nEparm];
 } Elm_t, *Elm_ptr;
@@ -3066,7 +3066,7 @@ Elm_ptr find_elm(char *s)
     return NULL;
 }
 
-void trie_insert(trie_ptr *r, char *s, void *value)
+void trie_insert(trie_ptr *r, const char *s, void *value)
 {
     trie_ptr p = NULL;
     char ch;
@@ -3132,7 +3132,7 @@ char *trie_lookup(trie_ptr *r, char **sp)
     return value;
 }
 
-void enter(char *p, ...)
+void enter(const char *p, ...)
 {
     va_list ap;
     char *s;

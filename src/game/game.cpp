@@ -825,7 +825,7 @@ bool game::load_roms()
 
 // returns true if the file in question exists, and has the proper CRC32
 // 'gamedir' is which rom directory (or .ZIP file) this file is expected to be in
-bool game::verify_required_file(char *filename, char *gamedir, Uint32 filecrc32)
+bool game::verify_required_file(const char *filename, const char *gamedir, Uint32 filecrc32)
 {
 	Uint8 *readme_test = NULL;
 	bool passed_test = false;
@@ -1114,7 +1114,7 @@ const char *game::get_issues()
 	return m_game_issues;
 }
 
-void game::set_issues(char *issues)
+void game::set_issues(const char *issues)
 {
 	m_game_issues = issues;
 }

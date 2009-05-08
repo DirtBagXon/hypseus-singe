@@ -72,7 +72,7 @@ void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y, 
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
 void free_bmps();
-SDL_Surface *load_one_bmp(char *);
+SDL_Surface *load_one_bmp(const char *);
 void free_one_bmp(SDL_Surface *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h, unsigned char red, unsigned char green, unsigned char blue);
 SDL_Surface *get_screen();
@@ -89,7 +89,7 @@ void set_video_height(Uint16);
 void take_screenshot(SDL_Overlay *yuvimage);
 void save_screenshot(SDL_Surface *shot);
 void yuv2rgb(SDL_Color *result, int y, int u, int v);
-void draw_string(char*, int, int, SDL_Surface*);
+void draw_string(const char*, int, int, SDL_Surface*);
 void vid_toggle_fullscreen();
 
 // used to enable/disable the HWACCEL environment variable

@@ -56,8 +56,8 @@ static bool m_ssi_control = false;  // Whe true SSI-263 is in Control Mode.
 // SSI-263->rsynth phoneme conversion.
 typedef struct _phoneme_xlate_table
 {
-    char *ssi263_phoneme;
-    char *rsynth_phoneme;
+    const char *ssi263_phoneme;
+    const char *rsynth_phoneme;
 } phoneme_xlate_table;
 
 static bool m_speech_enabled = false;   // When true SSI-263 is ready to synthesize speech.
@@ -256,7 +256,8 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
             }
             else if (phoneme_xlate[phoneme].rsynth_phoneme)
             {
-                char *p_start, *p_end;
+                const char *p_start;
+		const char *p_end;
 
 #ifdef SSI_DEBUG
                 strcat(ssi263_phoneme_text, phoneme_xlate[phoneme].ssi263_phoneme);

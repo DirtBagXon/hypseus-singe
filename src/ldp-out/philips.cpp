@@ -199,7 +199,7 @@ void philips::stop()
 // watchquit is whether or not to abort if a quit signal is requested
 //   (you always want to do this unless you are sending a command
 //    after the quitflag has been enabled, such as 'stop')
-bool philips::check_result(char *result_string, Uint32 timeout_val, bool watchquit)
+bool philips::check_result(const char *result_string, Uint32 timeout_val, bool watchquit)
 {
 
 	char s[81] = { 0 };

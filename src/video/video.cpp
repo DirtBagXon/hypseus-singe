@@ -554,7 +554,7 @@ bool load_bmps()
 }
 
 
-SDL_Surface *load_one_bmp(char *filename)
+SDL_Surface *load_one_bmp(const char *filename)
 {
 	SDL_Surface *result = SDL_LoadBMP(filename);
 
@@ -629,7 +629,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 
 	if (!LDP1450_strlen)              // if a blank line is sent, we must blank out the entire line
 	{
-		LDP1450_String = "           ";
+		strcpy(LDP1450_String,"           ");
 		LDP1450_strlen = strlen(LDP1450_String);
 	}
 	else 
@@ -1056,7 +1056,7 @@ void yuv2rgb(SDL_Color *result, int y, int u, int v)
 	result->b = (unsigned char) b;
 }
 
-void draw_string(char* t, int col, int row, SDL_Surface* overlay)
+void draw_string(const char* t, int col, int row, SDL_Surface* overlay)
 {
 	SDL_Rect dest;
 

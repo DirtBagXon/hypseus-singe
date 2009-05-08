@@ -24,7 +24,7 @@ struct singe_in_info
 	// From video/video.h
 	Uint16 (*get_video_width)();
 	Uint16 (*get_video_height)();
-	void (*draw_string)(char*, int, int, SDL_Surface*);
+	void (*draw_string)(const char*, int, int, SDL_Surface*);
 	
 	// From sound/samples.h
 	int (*samples_play_sample)(Uint8 *pu8Buf, unsigned int uLength, unsigned int uChannels, int iSlot, void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot));

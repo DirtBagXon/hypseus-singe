@@ -345,7 +345,7 @@ struct m80_context
 // macro to increment R
 // this is the same as a regular increment except bit 7 never changes
 #define M80_INC_R	\
-	R = (R + 1) & 0x7F | (R & 0x80)
+	R = (((R + 1) & 0x7F) | (R & 0x80))
 
 // Rotate Left Accumulator - flags are different from RL A
 #define M80_RLA	\

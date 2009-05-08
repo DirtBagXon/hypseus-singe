@@ -455,7 +455,7 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
 
 void badlands::palette_calculate()
 {
-	SDL_Color temp_color;
+	SDL_Color temp_color = { 0 };
 	//Convert palette rom into a useable palette
 	for (int i = 0; i < BADLANDS_COLOR_COUNT; i++)
 	{
@@ -511,7 +511,7 @@ void badlands::video_repaint()
 
    if (shoot_led)
 	{
-		char* t = "SHOOT!";
+		const char* t = "SHOOT!";
 		draw_string(t, 20, 17, m_video_overlay[m_active_video_overlay]);
 	}
 }

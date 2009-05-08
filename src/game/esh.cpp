@@ -384,7 +384,7 @@ void esh::port_write(Uint16 port, Uint8 value)
 
 void esh::palette_calculate()
 {
-	SDL_Color temp_color;
+	SDL_Color temp_color = { 0 };
 	//Convert palette rom into a useable palette
 	for (int i = 0; i < ESH_COLOR_COUNT; i++)
 	{

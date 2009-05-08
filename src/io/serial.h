@@ -30,7 +30,7 @@ unsigned char serial_rx ();
 bool serial_rx_char_waiting();
 void serial_rxflush ();
 void serial_close ();
-void send_tx_string(char *s);
+void send_tx_string(const char *s);
 unsigned char serial_get_one_byte(unsigned int);
 
 #endif
