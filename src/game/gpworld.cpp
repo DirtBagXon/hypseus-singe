@@ -560,7 +560,7 @@ void gpworld::video_repaint()
 				{
 					if (pixel[x])
 					{
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 8 + x)) = tile_color_pointer[(pixel[x]) | (m_cpumem[current_character]) & 0xfc];
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 8 + x)) = tile_color_pointer[(pixel[x]) | ((m_cpumem[current_character]) & 0xfc)];
 					}
 				}
 			}
@@ -577,7 +577,7 @@ void gpworld::video_repaint()
 //		}
 
 	// draw low or high depending on the state of the shifter
-	char *t = "HIGH";
+	const char *t = "HIGH";
 	if (banks[2]) t = "LOW";
 	draw_string(t, 1, 17, m_video_overlay[m_active_video_overlay]);
 }

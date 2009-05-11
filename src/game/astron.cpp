@@ -740,8 +740,8 @@ void astron::palette_calculate()
 		Uint8 data_lo = sprite[x];
 		Uint8 data_high = sprite[x + 0x8000];
 			
-		used_sprite_color[((data_lo & 0x0f) | (data_high << 0x04) & 0xff)] = true;
-		used_sprite_color[((data_lo >> 0x04) | (data_high & 0xf0) & 0xff)] = true;
+		used_sprite_color[((data_lo & 0x0f) | ((data_high << 0x04) & 0xff))] = true;
+		used_sprite_color[((data_lo >> 0x04) | ((data_high & 0xf0) & 0xff))] = true;
 	}
 		
 	// now, the tiles
