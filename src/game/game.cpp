@@ -1164,10 +1164,10 @@ const char *game::get_shortgamename()
 #ifdef CPU_DEBUG
 // returns either a name for the address or else NULL if no name exists
 // Used for debugging to improve readability (to assign function and variable names)
-char *game::get_address_name(unsigned int addr)
+const char *game::get_address_name(unsigned int addr)
 {
 
-	char *name = NULL;
+	const char *name = NULL;
 	int i = 0;
 
 	// loop until we've hit the end of our memory names or until we've found a match

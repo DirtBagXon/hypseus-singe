@@ -84,7 +84,7 @@ void MAME_Debug(void)
 const char *set_ea_info( int what, unsigned address, int size, int acc )
 {
 	static char addrstr[160] = { 0 };	// must be static so it isn't de-allocated upon returning
-	char *name = NULL;
+	const char *name = NULL;
 
 	switch(acc)
 	{
@@ -260,7 +260,7 @@ void debug_disassemble(unsigned int addr)
 {
 	char s[160] = { 0 };
 	int line = 0;
-	char *name = NULL;
+	const char *name = NULL;
 
 	// print this many lines because that's how many our console can show at a time
 	while (line < 13)
