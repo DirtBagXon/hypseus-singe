@@ -37,10 +37,11 @@
 #include "../io/conout.h"
 #include "../io/input.h"
 #include "../timer/timer.h"
+#include "../io/numstr.h"
 
 //////////////////////////////////////////////////////////////////////////
 
-cputest::cputest() : m_uZeroCount(0), m_bCpuInitialized(false)
+cputest::cputest() : m_uZeroCount(0), m_bStarted(false)
 {
 	struct cpudef cpu;	// structure we will define our cpu in
 	
@@ -53,25 +54,40 @@ cputest::cputest() : m_uZeroCount(0), m_bCpuInitialized(false)
 	cpu.mem = m_cpumem;
 	add_cpu(&cpu);	// add this cpu to the list (it will be our only one)
 	
+	m_disc_fps = 29.97;	// for now this needs _some_ value for vblank purposes
+
 	m_num_sounds = 0;
 	m_game_uses_video_overlay = false;
 }
 
 bool cputest::init()
 {
-	cpu_init();
-	m_bCpuInitialized = true;
-	m_speedtimer = GET_TICKS();
-	return true;
+	bool bSuccess = false;
+
+#ifdef CPU_DEBUG
+	// this cpu test requires CPU_DEBUG to be enabled because that's the only way that the update_pc callback will get called.
+	bSuccess = true;
+#else
+	printline("This build was not compiled with CPU_DEBUG defined.  Recompile with CPU_DEBUG defined in order to run the cpu tests.");
+#endif // CPU_DEBUG
+
+	return bSuccess;
 }
 
 void cputest::shutdown()
 {
 	Uint32 elapsed_ms = GET_TICKS() - m_speedtimer;
-	char s[81];
 	
-	sprintf(s, "Z80 cputest executed in %u ms", elapsed_ms);
-	printline(s);
+	string s = "Z80 cputest executed in ";
+	s += numstr::ToStr(elapsed_ms);
+	s += " ms";
+	printline(s.c_str());
+}
+
+void cputest::start()
+{
+	m_speedtimer = GET_TICKS();
+	m_bStarted = true;
 }
 
 Uint8 cputest::port_read(Uint16 port)
@@ -79,12 +95,17 @@ Uint8 cputest::port_read(Uint16 port)
 	return 0;
 }
 
+// writes a byte to the cpu's port
+void cputest::port_write(Uint16 port, Uint8 value)
+{
+}
+
 void cputest::update_pc(Uint32 new_pc)
 {
 	// this halts the tests
 	if (new_pc == 0)
 	{
-		if (m_bCpuInitialized && !get_quitflag())
+		if (m_bStarted && !get_quitflag())
 		{
 			printline("PC went to 0 (test complete)");
 			set_quitflag();
@@ -181,3 +202,4 @@ void cputest::set_preset(int val)
 		break;
 	} // end switch	
 }
+

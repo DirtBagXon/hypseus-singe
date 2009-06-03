@@ -35,12 +35,14 @@ public:
 	bool init();
 	void shutdown();
 	Uint8 port_read(Uint16);
+	void port_write(Uint16 port, Uint8 value);
 	void update_pc(Uint32);
 	void set_preset(int);
+	void start();
 private:
 	Uint32 m_speedtimer;
 	unsigned int m_uZeroCount;
-	bool m_bCpuInitialized;
+	bool m_bStarted;
 };
 
 #endif
