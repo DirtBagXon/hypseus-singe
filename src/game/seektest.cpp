@@ -427,12 +427,21 @@ void seektest::set_preset(int val)
 		m_late2 = 53581;	// all black frame
 		strcpy(m_name, "Us vs Them");
 		break;
-	case 20:	// Space Aace '91
+	case 20:	// Space Ace '91
 		m_disc_fps = 29.97;
 		// NOTE : THESE FRAMES ARE UNVERIFIED, I CAME UP WITH THEM BY USING THE FORMULA IN FRAMEMOD.CPP!!!
 		m_early1 = 1686;	// interlaced frame before "there's borfs ship"
 		m_early2 = 1687;	// first full frame of "there's borfs ship"
 		strcpy(m_name, "Space Ace '91");
+		break;
+	case 21:	// Time Traveler
+		m_disc_fps = 29.97;
+		m_early1 = 352;
+		m_early2 = 353;
+		m_late1 = 53645;
+		m_late2 = 53646;
+		strcpy(m_name, "Time Traveler");
+		break;
 	default:
 		printline("SEEKTEST ERROR : unknown preset");
 		break;
@@ -525,6 +534,10 @@ bool seektest::handle_cmdline_arg(const char *arg)
 	else if (strcasecmp(arg, "-ace91")==0)
 	{
 		set_preset(20);
+	}
+	else if (strcasecmp(arg, "-timetrav")==0)
+	{
+		set_preset(21);
 	}
 
 	// no match

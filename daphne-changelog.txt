@@ -1,6 +1,9 @@
 Daphne Changelog
 -------------------------
 
+Next
+- Added Time Traveler to seektest.
+
 v1.0.7
 - Updated source code so it builds on the latest g++
 
