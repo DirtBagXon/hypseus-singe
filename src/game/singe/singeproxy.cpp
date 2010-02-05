@@ -774,10 +774,16 @@ static int sep_font_sprite(lua_State *L)
 				if (!(textsurface)) {
 					sep_die("Font surface is null!");
 				} else {
-					SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
 
-					// untested, but pretty sure this should be a 0 since textsurface expects the 0 color to be transparent
-					SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+					// the colorkey is only 0 when using Solid (quick n' dirty) mode.
+					// In shaded mode, color 0 refers to the background color.
+					if (g_fontQuality == 1)
+					{
+						SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
+
+						// by definition, the transparent index is 0
+						SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+					}
 
 					g_spriteList.push_back(textsurface);
 					result = g_spriteList.size() - 1;
@@ -936,10 +942,15 @@ static int sep_say_font(lua_State *L)
 							dest.w = textsurface->w;
 							dest.h = textsurface->h;
 
-							SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
+							// the colorkey is only 0 when using Solid (quick n' dirty) mode.
+							// In shaded mode, color 0 refers to the background color.
+							if (g_fontQuality == 1)
+							{
+								SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
 
-							// by definition, the transparent index is 0
-							SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+								// by definition, the transparent index is 0
+								SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+							}
 
 							SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
 
