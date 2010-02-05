@@ -775,7 +775,9 @@ static int sep_font_sprite(lua_State *L)
 					sep_die("Font surface is null!");
 				} else {
 					SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
-					SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, SDL_MapRGB(textsurface->format, g_colorBackground.r, g_colorBackground.g, g_colorBackground.b));
+
+					// untested, but pretty sure this should be a 0 since textsurface expects the 0 color to be transparent
+					SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
 
 					g_spriteList.push_back(textsurface);
 					result = g_spriteList.size() - 1;
