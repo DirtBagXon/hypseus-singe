@@ -935,9 +935,12 @@ static int sep_say_font(lua_State *L)
 							dest.h = textsurface->h;
 
 							SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
-							SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, SDL_MapRGB(textsurface->format, g_colorBackground.r, g_colorBackground.g, g_colorBackground.b));
+
+							// by definition, the transparent index is 0
+							SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
 
 							SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
+
 							SDL_FreeSurface(textsurface);
 						}
           }
