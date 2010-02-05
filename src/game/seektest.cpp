@@ -442,6 +442,14 @@ void seektest::set_preset(int val)
 		m_late2 = 53646;
 		strcpy(m_name, "Time Traveler");
 		break;
+	case 22:	// Mad Dog 1
+		m_disc_fps = 29.97;
+		m_early1 = 137;
+		m_early2 = 138;
+		m_late1 = 38970;
+		m_late2 = 38971;
+		strcpy(m_name, "Mad Dog 1");
+		break;
 	default:
 		printline("SEEKTEST ERROR : unknown preset");
 		break;
@@ -538,6 +546,10 @@ bool seektest::handle_cmdline_arg(const char *arg)
 	else if (strcasecmp(arg, "-timetrav")==0)
 	{
 		set_preset(21);
+	}
+	else if (strcasecmp(arg, "-maddog")==0)
+	{
+		set_preset(22);
 	}
 
 	// no match

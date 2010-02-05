@@ -491,6 +491,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "discSkipBackward",   sep_skip_backward);
   lua_register(g_se_lua_context, "discSkipBlanking",   sep_skip_blanking);
   lua_register(g_se_lua_context, "discSkipForward",    sep_skip_forward);
+  lua_register(g_se_lua_context, "discSkipToFrame",    sep_skip_to_frame);
   lua_register(g_se_lua_context, "discStepBackward",   sep_step_backward);
   lua_register(g_se_lua_context, "discStepForward",    sep_step_forward);
   lua_register(g_se_lua_context, "discStop",           sep_stop);
@@ -1038,6 +1039,42 @@ static int sep_skip_forward(lua_State *L)
 	}
       
   return 0;
+}
+
+/*
+static int sep_search(lua_State *L)
+{
+  char s[6] = { 0 };
+  int n = lua_gettop(L);
+  
+  if (n == 1)
+    if (lua_isnumber(L, 1))
+    {
+      g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
+      g_pSingeIn->pre_search(s, true);
+    }
+
+  return 0;
+}
+*/
+
+static int sep_skip_to_frame(lua_State *L)
+{
+	int n = lua_gettop(L);
+
+	if (n == 1)
+	{
+		if (lua_isnumber(L, 1))
+		{
+			// TODO : implement this for real on the daphne side of things instead of having to do a search/play hack
+			char s[6] = { 0 };
+			g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
+			g_pSingeIn->pre_search(s, true);
+			g_pSingeIn->pre_play();
+		}
+	}
+
+	return 0;
 }
 
 static int sep_sound_load(lua_State *L)

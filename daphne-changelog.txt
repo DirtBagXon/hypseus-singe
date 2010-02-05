@@ -3,6 +3,8 @@ Daphne Changelog
 
 Next
 - Added Time Traveler to seektest.
+- Added Mad Dog 1 to seektest.
+- Added SINGE function "discSkipToFrame".
 
 v1.0.7
 - Updated source code so it builds on the latest g++

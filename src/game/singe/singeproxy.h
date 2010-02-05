@@ -99,6 +99,7 @@ static int sep_sprite_height(lua_State *L);
 static int sep_sprite_load(lua_State *L);
 static int sep_sprite_width(lua_State *L);
 static int sep_skip_forward(lua_State *L);
+static int sep_skip_to_frame(lua_State *L);
 static int sep_step_backward(lua_State *L);
 static int sep_step_forward(lua_State *L);
 static int sep_stop(lua_State *L);

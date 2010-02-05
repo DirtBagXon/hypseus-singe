@@ -21,7 +21,7 @@ void vid_blank()
 {
 }
 
-void draw_string(char *t, int col, int row, SDL_Surface *overlay)
+void draw_string(const char *t, int col, int row, SDL_Surface *overlay)
 {
 	SDL_FillRect(overlay, NULL, 0xFFFFFFFF);
 }
