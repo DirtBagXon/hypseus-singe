@@ -784,6 +784,11 @@ static int sep_font_sprite(lua_State *L)
 						// by definition, the transparent index is 0
 						SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
 					}
+					// alpha must be set for 32-bit surface when blitting or else alpha channel will be ignored
+					else if (g_fontQuality == 3)
+					{
+						SDL_SetAlpha(textsurface, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+					}
 
 					g_spriteList.push_back(textsurface);
 					result = g_spriteList.size() - 1;
@@ -951,8 +956,17 @@ static int sep_say_font(lua_State *L)
 								// by definition, the transparent index is 0
 								SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
 							}
+							// alpha must be set for 32-bit surface when blitting or else alpha channel will be ignored
+							else if (g_fontQuality == 3)
+							{
+								SDL_SetAlpha(textsurface, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+							}
+
+//							SDL_SaveBMP(textsurface, "nukeme.bmp");
 
 							SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
+
+//							SDL_SaveBMP(g_se_surface, "nukeme2.bmp");
 
 							SDL_FreeSurface(textsurface);
 						}
