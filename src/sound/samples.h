@@ -49,4 +49,9 @@ int samples_play_sample(Uint8 *pu8Buf, unsigned int uLength, unsigned int uChann
 //  or false if the sample isn't playing
 bool samples_is_sample_playing(unsigned int uSlot);
 
+// This is a hack (for now) to ensure that any callbacks that were queued get fired by the main thread (instead of the audio thread).
+// For now it must be manually called as often as you want your callbacks to be called.
+// (in the future this will be automated)
+void samples_do_queued_callbacks();
+
 #endif // SAMPLES_H

@@ -10,7 +10,8 @@
 #include <assert.h>
 #endif
 
-//using namespace std;
+#include <queue>
+using namespace std;
 
 struct sample_data_s
 {
@@ -32,6 +33,17 @@ struct sample_data_s
 	// if this is not NULL, it will get called when the sample has finished playing
 	void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSampleIdx);
 };
+
+// temporary holding struct so that main thread can issue callbacks instead of the audio thread
+struct sample_callback_s
+{
+	void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSampleIdx);
+	Uint8 *pu8Buf;
+	unsigned int uSampleIdx;
+};
+
+// MUST BE PROTECTED BY MUTEX!
+queue<sample_callback_s> g_qCallbacks;
 
 // this number can be any size, but there's no reason to make it huge
 const unsigned int MAX_DYNAMIC_SAMPLES = 8;
@@ -67,6 +79,7 @@ void samples_shutdown(int unused)
 }
 
 // called from sound mixer to get audio stream
+// NOTE : This runs on the audio thread!!!
 void samples_get_stream(Uint8 *stream, int length, int unused)
 {
 #ifdef DEBUG
@@ -131,7 +144,14 @@ void samples_get_stream(Uint8 *stream, int length, int unused)
 					// if caller has requested to be notified when this sample is done ...
 					if (data->finishedCallback != NULL)
 					{
-						data->finishedCallback(data->pu8Buf, u);
+						sample_callback_s cb;
+						cb.finishedCallback = data->finishedCallback;
+						cb.pu8Buf = data->pu8Buf;
+						cb.uSampleIdx = u;
+
+						// NOTE : I am _assuming_ the SDL_LockAudio has already been called which is why I don't do it here.
+						// The callback needs to be queued up so that the main thread can issue it (the audio thread can't issue it without causing instability)
+						g_qCallbacks.push(cb);
 					}
 					break;
 				}
@@ -149,6 +169,9 @@ int samples_play_sample(Uint8 *pu8Buf, unsigned int uLength, unsigned int uChann
 	// range check
 	if ((uChannels == 1) || (uChannels == 2))
 	{
+		// about to access shared variables
+		SDL_LockAudio();
+
 		// if we should automatically find a free slot
 		if (iSlot < 0)
 		{
@@ -206,6 +229,9 @@ int samples_play_sample(Uint8 *pu8Buf, unsigned int uLength, unsigned int uChann
 			state->finishedCallback = finishedCallback;
 		}
 		// else there's an error so do nothing ...
+
+		SDL_UnlockAudio();
+
 	} // end if channels are ok
 	// else channels are out of range
 
@@ -217,11 +243,34 @@ bool samples_is_sample_playing(unsigned int uSlot)
 	bool bResult = false;
 	if (uSlot < MAX_DYNAMIC_SAMPLES)
 	{
+		// about to access shared variables
+		SDL_LockAudio();
 		bResult = g_SampleStates[uSlot].bActive;
+		SDL_UnlockAudio();
 	}
 	else
 	{
 		printline("ERROR: samples_is_sample_playing() was called with an out-of-range parameter");
 	}
 	return bResult;
+}
+
+void samples_do_queued_callbacks()
+{
+	// about to access shared variables
+	SDL_LockAudio();
+
+	// do all the callbacks that are queued up
+	while (!g_qCallbacks.empty())
+	{
+		sample_callback_s cb = g_qCallbacks.front();
+
+		// call the callback here
+		cb.finishedCallback(cb.pu8Buf, cb.uSampleIdx);
+
+		// remove this item from the queue
+		g_qCallbacks.pop();
+	}
+
+	SDL_UnlockAudio();
 }

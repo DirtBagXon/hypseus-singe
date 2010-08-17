@@ -182,6 +182,7 @@ void singe::start()
 			}
 			video_blit();
 			SDL_check_input();
+			samples_do_queued_callbacks();	// hack to ensure sound callbacks are called at a time when lua can accept them without crashing
 			g_ldp->think_delay(10);	// don't hog cpu, and advance timer
 		}
 

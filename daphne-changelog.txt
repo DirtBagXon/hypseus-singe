@@ -5,6 +5,7 @@ Next
 - Added Time Traveler to seektest.
 - Added Mad Dog 1 to seektest.
 - Added SINGE function "discSkipToFrame".
+- Fixed sample callback feature so it runs in the main thread and not the audio thread.
 
 v1.0.7
 - Updated source code so it builds on the latest g++
