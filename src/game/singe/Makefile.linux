@@ -1,0 +1,41 @@
+# Makefile for SINGE
+# Written by RDG2010
+
+# TODO: Add dependencies
+
+CC = gcc
+# Uncomment for debugging purposes
+#DFLAGS = -pg
+#DFLAGS = -ggdb -DSINGE_DEBUG -DDEBUG
+
+# Benchmarking version
+#DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
+
+# Standard version
+DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops
+
+CFLAGS = ${DFLAGS} `sdl-config --cflags` 
+LIBS = `sdl-config --libs` -lSDL_image -lSDL_ttf
+
+OBJS =  singeproxy.o lbaselib.o ldblib.o ldump.o lapi.o lauxlib.o lcode.o ldebug.o ldo.o \
+	lfunc.o	lgc.o linit.o liolib.o llex.o lmathlib.o lmem.o \
+	loadlib.o lobject.o lopcodes.o loslib.o lparser.o lstate.o lstrlib.o	\
+	lstring.o ltable.o ltablib.o ltm.o \
+	lundump.o lvm.o lzio.o lrandom.o random.o
+
+LIBNAME =	libsinge.so
+
+.SUFFIXES:	.c .cpp 
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o $@
+
+all:		singe
+
+singe:		${OBJS}
+		${CC} -shared -o ${LIBNAME} ${OBJS} ${LIBS}
+		cp ${LIBNAME} ../../../.
+
+clean:
+		rm -f ${LIBNAME} ${OBJS}
+		

@@ -8,19 +8,39 @@ include Makefile.vars
 
 # send these to all the sub-Makefiles
 
-# name of the executable
+# name of the executable and dynamic libraries
 EXE = ../daphne.bin
+LIB_VLDP = ../libvldp2.so
+LIB_SINGE = ../libsinge.so
 
 VLDP_OBJS =
+SINGE_OBJS =
 
 # if we are statically linking VLDP (instead of dynamic)
-# NOTE : these libs must be compiled separately beforehand (as it building a shared vldp)
+# NOTE : these libs must be compiled separately beforehand (as if building a shared vldp)
 ifeq ($(STATIC_VLDP),1)
 VLDP_OBJS = vldp2/vldp/vldp.o vldp2/vldp/vldp_internal.o vldp2/vldp/mpegscan.o \
 	vldp2/libmpeg2/cpu_accel.o vldp2/libmpeg2/alloc.o vldp2/libmpeg2/cpu_state.o vldp2/libmpeg2/decode.o \
 	vldp2/libmpeg2/header.o vldp2/libmpeg2/motion_comp.o vldp2/libmpeg2/idct.o vldp2/libmpeg2/idct_mmx.o \
 	vldp2/libmpeg2/motion_comp_mmx.o vldp2/libmpeg2/slice.o vldp2/libvo/video_out.o vldp2/libvo/video_out_null.o
 DEFINE_STATIC_VLDP = -DSTATIC_VLDP
+endif
+
+# if doing the same for SINGE...  by RDG2010
+ifeq ($(STATIC_SINGE),1)
+SINGE_OBJS =  game/singe/lbaselib.o game/singe/ldblib.o \
+	game/singe/ldump.o game/singe/lapi.o game/singe/lauxlib.o \
+	game/singe/lcode.o game/singe/ldebug.o game/singe/ldo.o \
+	game/singe/lfunc.o game/singe/linit.o game/singe/lgc.o \
+	game/singe/liolib.o game/singe/llex.o game/singe/lmathlib.o \
+	game/singe/lmem.o game/singe/loadlib.o game/singe/lobject.o \
+	game/singe/lopcodes.o game/singe/loslib.o game/singe/lparser.o \
+	game/singe/lstate.o game/singe/lstring.o game/singe/lstrlib.o game/singe/ltable.o \
+	game/singe/ltablib.o game/singe/ltm.o game/singe/lundump.o \
+	game/singe/lvm.o game/singe/lzio.o game/singe/lrandom.o game/singe/random.o \
+	game/singe/singeproxy.o
+
+DEFINE_STATIC_SINGE = -DSTATIC_SINGE
 endif
 
 # gp2x static linking is slightly different because the decoding
@@ -32,11 +52,12 @@ EXE = ../daphne2x
 DEFINE_STATIC_VLDP = -DSTATIC_VLDP
 endif
 
+
 # Platform specific cflags defined in the Makefile.vars file
-export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} -Wall -Werror
+export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} ${DEFINE_STATIC_SINGE} -Wall -Werror
 
 OBJS = ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
-	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}
+	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${SINGE_OBJS} ${VLDP_OBJS} 
 
 LOCAL_OBJS = daphne.o
 
@@ -68,6 +89,8 @@ clean_deps:
 clean:	clean_deps
 	find . -name "*.o" -exec rm {} \;
 	rm -f ${EXE}
+	rm -f ${LIB_VLDP}
+	rm -f ${LIB_SINGE}
 
 testvldp:	testvldp.c
 	${CC} ${CFLAGS} -DSHOW_FRAMES -DUSE_OVERLAY testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp
@@ -76,3 +99,4 @@ testvldp:	testvldp.c
 	set -e; $(CXX) -MM $(CFLAGS) $< \
                 | sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@; \
                 [ -s $@ ] || rm -f $@
+

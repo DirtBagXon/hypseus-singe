@@ -5,7 +5,8 @@ export CXX=g++
 export CC=gcc
 
 # debugging version
-#DFLAGS = -g -DCPU_DEBUG
+#DFLAGS = -pg
+#DFLAGS = -ggdb -DCPU_DEBUG -DDEBUG -O0
 
 # optimized version
 # NOTE : gcc 3.x has a bug that causes compilation to choke on m80.cpp
@@ -16,12 +17,18 @@ DFLAGS = -O3 -march=i686 -fomit-frame-pointer \
 # this is to be exported for MMX assembly optimization
 export USE_MMX = 1
 
-# uncomment this to link VLDP statically instead of dynamically
+# uncomment these to link VLDP statically instead of dynamically
 #export STATIC_VLDP = 1
+#export STATIC_SINGE = 1
 
 # platform-specific compile flags
+# Add -DBUILD_SINGE to enable SINGE
 PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DLINUX -DNATIVE_CPU_X86 \
-	-DUSE_MMX -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL
+	-DUSE_MMX -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL -DBUILD_SINGE
+
 
 # platform-specific lib flags
-LIBS = `sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile -lGLEW
+# For SINGE add -lSDL_image -lSDL_ttf
+LIBS = `sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile -lGLEW -lSDL_image -lSDL_ttf
+
+
