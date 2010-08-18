@@ -36,6 +36,10 @@
 
 using namespace std;
 
+// by rdg2010
+
+enum { KEYBD_NORMAL, KEYBD_FULL };
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class singe : public game
@@ -77,6 +81,36 @@ public:
 	static bool pre_skip_backward(Uint16 u16Frames) { return g_ldp->pre_skip_backward(u16Frames); }
 	static void pre_step_forward() { g_ldp->pre_step_forward(); }
 	static void pre_step_backward() { g_ldp->pre_step_backward(); }
+	
+	// by RDG2010
+	// Sometimes it's useful to know the status of the vldp.	
+	// Lets give Singe the ability to query for this.
+	static int get_status() { return g_ldp->get_status(); }
+	
+	// These wrapper functions makes the function set_keyboard_mode and get_keyboard_mode 
+	// available for the DLL/so library side of SINGE. 
+	// Take a look at the comments in singe::init on singe.cpp for more info.
+	// 
+	// GFM - Get For Me
+	static void gfm_set_keyboard_mode(void *pInstance, int thisVal)
+	{
+		singe *pSingeInstance = (singe *) pInstance; 
+		pSingeInstance->set_keyboard_mode(thisVal);
+	}
+
+	static int gfm_get_keyboard_mode(void *pInstance)
+	{
+		singe *pSingeInstance = (singe *) pInstance; 
+		return pSingeInstance->get_keyboard_mode();
+	}
+
+	void set_keyboard_mode(int); // Sets value of private member i_keyboard_mode
+	int get_keyboard_mode();     // Retrieves the value of i_keyboard_mode	
+
+	// By RDG2010
+	// Copying expanded keyboard handling technique from Thayer's driver.
+	void process_keydown(SDLKey, int [][2]);
+	void process_keyup  (SDLKey, int [][2]);
 
 private:
 	// callback function for singe to pass error messages to us
@@ -86,4 +120,12 @@ private:
 	string m_strGameScript;	// script name for the game
 
 	DLL_INSTANCE m_dll_instance;	// pointer to DLL we load (if we aren't statically linked)
+	
+	// by RDG2010
+	
+	int i_keyboard_mode; // Stores the keyboard access mode. Valid values are:
+						 // KEYBD_NORMAL - Tells SINGE to use daphne.ini keys.
+						 // KEYBD_FULL   - Tells SINGE to scan the full keyboard (a la Thayers).	
+	static const int i_full_keybd_defs[]; // Array with discrete SDLKey values. Used in process_keyup/keydown.
+	
 };

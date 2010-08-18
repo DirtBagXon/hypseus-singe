@@ -205,6 +205,12 @@
 				RelativePath=".\lundump.c">
 			</File>
 			<File
+				RelativePath=".\lrandom.c">
+			</File>
+			<File
+				RelativePath=".\random.c">
+			</File>			
+			<File
 				RelativePath=".\lvm.c">
 			</File>
 			<File

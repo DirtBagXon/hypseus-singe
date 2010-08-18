@@ -26,8 +26,15 @@
 
 #include "../../vldp2/vldp/vldp.h"  // to get the vldp structs
 
+// by RDG2010
+// Ubuntu Linux complains if SDL includes are used with quotes.
+#ifdef WIN32
 #include "SDL_image.h"
 #include "SDL_ttf.h"
+#else
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
+#endif
 
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
@@ -103,3 +110,10 @@ static int sep_skip_to_frame(lua_State *L);
 static int sep_step_backward(lua_State *L);
 static int sep_step_forward(lua_State *L);
 static int sep_stop(lua_State *L);
+// by RDG2010
+static int sep_keyboard_set_mode(lua_State *L);
+static int sep_keyboard_get_mode(lua_State *L);
+static int sep_singe_quit(lua_State *L);
+static int sep_get_vldp_state(lua_State *L);
+static int sep_get_pause_flag(lua_State *L);
+static int sep_set_pause_flag(lua_State *L);

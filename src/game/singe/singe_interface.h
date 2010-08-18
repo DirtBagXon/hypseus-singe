@@ -2,7 +2,7 @@
 #define SINGE_INTERFACE_H
 
 // increase this number every time you change something in this file!!!
-#define SINGE_INTERFACE_API_VERSION 3
+#define SINGE_INTERFACE_API_VERSION 4
 
 // info provided to Singe from Daphne
 struct singe_in_info
@@ -48,6 +48,12 @@ struct singe_in_info
 	bool (*pre_skip_backward)(Uint16);
 	void (*pre_step_forward)();
 	void (*pre_step_backward)();
+	
+	//by RDG2010
+	void *pSingeInstance;
+	void (*cfm_set_keyboard_mode)(void *, int);
+	int  (*cfm_get_keyboard_mode)(void *);	
+	int (*get_status)();
 
 	// VARIABLES:
 	

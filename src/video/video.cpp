@@ -151,9 +151,15 @@ bool init_display()
 			suggested_bpp = 32;
 		}
 
+		// By RDG2010
+		// Have cursor disabled always.
+		// Useful for ALG SINGE games
+		// If there is a game that needs to show the cursor icon of the OS
+		// then modify.
+		SDL_ShowCursor(SDL_DISABLE);	// hide mouse in fullscreen mode
 		if (g_fullscreen)
 		{
-			SDL_ShowCursor(SDL_DISABLE);	// hide mouse in fullscreen mode
+			//SDL_ShowCursor(SDL_DISABLE);	// hide mouse in fullscreen mode
 			sdl_flags |= SDL_FULLSCREEN;
 		}
 

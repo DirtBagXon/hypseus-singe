@@ -46,7 +46,7 @@ struct sample_callback_s
 queue<sample_callback_s> g_qCallbacks;
 
 // this number can be any size, but there's no reason to make it huge
-const unsigned int MAX_DYNAMIC_SAMPLES = 8;
+const unsigned int MAX_DYNAMIC_SAMPLES = 32; // Raised from 8 by RDG2010
 
 struct sample_data_s g_SampleStates[MAX_DYNAMIC_SAMPLES];
 

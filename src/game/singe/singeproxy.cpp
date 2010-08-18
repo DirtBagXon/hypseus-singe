@@ -62,6 +62,7 @@ int                   g_fontCurrent         = -1;
 int                   g_fontQuality         =  1;
 double                g_sep_overlay_scale_x =  1;
 double                g_sep_overlay_scale_y =  1;
+bool				  g_pause_state		    = false; // by RDG2010
 
 int (*g_original_prepare_frame)(struct yuv_buf *buf);
 
@@ -518,6 +519,15 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "vldpGetHeight",      sep_mpeg_get_height);
   lua_register(g_se_lua_context, "vldpGetPixel",       sep_mpeg_get_pixel);
   lua_register(g_se_lua_context, "vldpGetWidth",       sep_mpeg_get_width);
+  
+  // by RDG2010
+  lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
+  lua_register(g_se_lua_context, "keyboardSetMode",    sep_keyboard_set_mode);
+  lua_register(g_se_lua_context, "discGetState",       sep_get_vldp_state);  
+  lua_register(g_se_lua_context, "singeGetPauseFlag",  sep_get_pause_flag);
+  lua_register(g_se_lua_context, "singeSetPauseFlag",  sep_set_pause_flag);
+  lua_register(g_se_lua_context, "singeQuit",          sep_singe_quit);
+  //////////////////
 
   if (TTF_Init() < 0)
   {
@@ -887,6 +897,7 @@ static int sep_overlay_clear(lua_State *L)
 static int sep_pause(lua_State *L)
 {
   g_pSingeIn->pre_pause();
+  g_pause_state = true; // by RDG2010
 
   return 0;
 }
@@ -894,6 +905,7 @@ static int sep_pause(lua_State *L)
 static int sep_play(lua_State *L)
 {
   g_pSingeIn->pre_play();
+  g_pause_state = false; // by RDG2010
 
   return 0;
 }
@@ -1101,6 +1113,7 @@ static int sep_skip_to_frame(lua_State *L)
 			g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
 			g_pSingeIn->pre_search(s, true);
 			g_pSingeIn->pre_play();
+			g_pause_state = false; // BY RDG2010
 		}
 	}
 
@@ -1251,3 +1264,132 @@ static int sep_stop(lua_State *L)
 
   return 0;
 }
+
+// by RDG2010
+static int sep_keyboard_set_mode(lua_State *L)
+{
+
+	/*
+	* Singe can scan keyboard input in two ways:
+	*
+	* MODE_NORMAL - Singe will only check for keys defined
+	* in daphne.ini. This is the default behavior.
+	* 
+	* MODE_FULL   - Singe will scan the keyboard for most keypresses.
+	* 
+	* This function allows the mode to be set through a lua scrip command.
+	* Take a look at singe::set_keyboard_mode on singe.cpp for more info.
+	*
+	*/
+
+	int n = lua_gettop(L);
+	int q = 0;
+		
+	if (n == 1)
+	{		
+		if (lua_isnumber(L, 1))
+		{	
+			q = lua_tonumber(L, 1);
+			g_pSingeIn->cfm_set_keyboard_mode(g_pSingeIn->pSingeInstance, q);
+			
+		}
+	}
+	return 0;
+}
+
+// by RDG2010
+static int sep_keyboard_get_mode(lua_State *L)
+{
+	/*
+	* Singe can scan keyboard input in two ways:
+	*
+	* MODE_NORMAL - Singe will only check for keys defined
+	* in daphne.ini. This is the default behavior.
+	* 
+	* MODE_FULL   - Singe will scan the keyboard for most keypresses.
+	* 
+	* This function returns the current scan mode for
+	* programming code on the lua script.
+	*
+	* Take a look at singe::get_keyboard_mode on singe.cpp for more info.
+	*
+	*/
+
+	lua_pushnumber(L, g_pSingeIn->cfm_get_keyboard_mode(g_pSingeIn->pSingeInstance));	
+	return 1;
+}
+
+// by RDG2010
+static int sep_singe_quit(lua_State *L)
+{
+   /*
+	* This function allows a programmer to end program execution
+	* through a simple command in the lua script.
+	*
+	* Useful for cases where the game design calls for
+	* an 'Exit' option in a user menu.
+	* 
+	*/
+
+	sep_die("User decided to quit early.");
+	return 0;
+}
+// by RDG2010
+static int sep_get_vldp_state(lua_State *L)
+{
+
+   /*
+	* Returns the status of the vldp
+	* Values returned are 
+	* based on the following enumeration (found in ldp.h).
+	*
+	* LDP_ERROR = 0
+	* LDP_SEARCHING = 1
+	* LDP_STOPPED = 2
+	* LDP_PLAYING = 3
+	* LDP_PAUSE = 4
+	*
+	*/
+
+	lua_pushnumber(L, g_pSingeIn->get_status());	
+	return 1;
+
+}
+
+// by RDG2010
+static int sep_get_pause_flag(lua_State *L)
+{
+   /*
+	* This function returns g_pause_state's value to the lua script.
+	*
+	* Sometimes game logic pauses the game (which implies pausing video playback).
+	* When implementing a pause state it is possible for the player
+	* to resume playblack at moments where the game is not intended to.
+	* Boolean g_pause state is an internal variable that keeps track
+	* of this. It's set to true whenever sep_pre_pause is called.
+	* It's set to false whenever sep_pre_play or sep_skip_to_frame is called.
+	* 
+	* A lua programmer can use this to prevent resuming playback accidentally.
+	*/
+	lua_pushboolean(L, g_pause_state);
+	return 1;
+
+}
+
+static int sep_set_pause_flag(lua_State *L)
+{
+	int n = lua_gettop(L);
+	bool b1 = false;
+		
+	if (n == 1)
+	{		
+		if (lua_isboolean(L, 1))
+		{	
+			b1 = lua_toboolean(L, 1);
+			g_pause_state = b1;
+			
+		}
+	}	
+	return 0;
+}
+

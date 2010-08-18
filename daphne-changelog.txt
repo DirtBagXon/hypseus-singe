@@ -1,6 +1,53 @@
 Daphne Changelog
 -------------------------
 
+v1.0.8 - The SINGE update
+
+- Revised "how_to_compile" windows and unix text files.
+- Revised linux makefile.vars files (x86 and x64), plain "Makefile", and added Makefile.linux to the singe folder.
+  Daphne with Singe can now be compiled under Linux.
+
+- Updated lua engine to from 5.1.1 to 5.1.4
+- singe_interface.h updated to version 4.
+	+ Added functions to the SINGE library for keyboard mode and get_vldp status.
+- singeproxy.h - Added function declarations to the proxy.
+- singeproxy.cpp - Added the following functions on the lua scripts side:
+	"keyboardGetMode" - Returns a value representing keyboard mode (MODE_FULL, MODE_NORMAL).
+    "keyboardSetMode" - Sets the keyboard mode.
+    "discGetState"	  - Returns the state of the VLDP according to the enumeration found 
+						in ldp.h (LDP_ERROR, LDP_SEARCHING, LDP_STOPPED, LDP_PLAYING, LDP_PAUSE).
+    "singeGetPauseFlag" - For tracking complex pause states.
+    "singeSetPauseFlag"
+    "singeQuit"         - Causes Daphne to terminate execution.
+	
+	+ Added internal variable g_pause_state for tracking complex pause states 
+	Useful when pausing playback isn't enough or when it is necessary to know 
+	who paused the game (the user or the program).
+	
+- linit.c - Added a Mersenne Twister random number generator as a lua plugin (written by Luiz Henrique de Figueiredo).
+- game.h - added GAME_SINGE to the driver enumeration declaration.
+- input.cpp - modified process_event so that it routes input handling to singe.
+- samples.cpp - Raised MAX_DYNAMIC_SAMPLES to 32 (from 8) to allow additional sound samples
+to be mixed (for SINGE games).
+
+	+ by Matt_O: Added checks to the SDL audio thread (fixes SINGE sound crash bug). 
+	Audio thread no longer issues callbacks to SINGE's "OnSoundComplete". Responsibility
+	is ensured to occur by the main processing thread and only during SINGE's "safe time"
+	in the main game loop (look at singe::start() for changes).
+	
+- video.cpp - modified init_display so the OS mouse cursor is always hidden
+regardless if daphne is in windowed or full mode. Used by ALG SINGE games.
+- vldp.h - Added a preprocessor definition to allow Linux find SDL libraries.
+
+- singe.vcproj - Added lrandom.c and random.c to the Visual C++ project.
+- daphne_vs2003.vcproj - Fixed debug "Runtime Library" settings 
+  from "Multi-Threaded DLL" to "Multi-Threaded Debug DLL" to avoid linker errors 
+  in newer Visual C++ versions.
+  
+
++++++++++ End of v1.0.8 +++++++++ 
+
+
 Next
 - Added Time Traveler to seektest.
 - Added Mad Dog 1 to seektest.

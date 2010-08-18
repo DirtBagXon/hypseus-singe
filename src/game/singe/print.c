@@ -23,8 +23,7 @@
 static void PrintString(const TString* ts)
 {
  const char* s=getstr(ts);
- int n=ts->tsv.len;
- int i;
+ size_t i,n=ts->tsv.len;
  putchar('"');
  for (i=0; i<n; i++)
  {
@@ -32,6 +31,7 @@ static void PrintString(const TString* ts)
   switch (c)
   {
    case '"': printf("\\\""); break;
+   case '\\': printf("\\\\"); break;
    case '\a': printf("\\a"); break;
    case '\b': printf("\\b"); break;
    case '\f': printf("\\f"); break;

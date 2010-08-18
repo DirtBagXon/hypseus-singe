@@ -32,6 +32,7 @@
 #include "../timer/timer.h"
 #include "../game/game.h"
 #include "../game/thayers.h"
+#include "../game/singe.h" // by RDG2010
 #include "../ldp-out/ldp.h"
 #include "fileparse.h"
 
@@ -442,52 +443,81 @@ void toggle_console()
 void process_event(SDL_Event *event)
 {
 	unsigned int i = 0;
+	
+	// by RDG2010
+	// make things easier to read...
+	SDLKey keyPressed = event->key.keysym.sym;
+	Uint8 thisGame = g_game->get_game_type();
 
 	switch (event->type)
 	{
 		case SDL_KEYDOWN:
 			reset_idle(); // added by JFA for -idleexit
-			if (g_game->get_game_type() != GAME_THAYERS)
-			{
-				process_keydown(event->key.keysym.sym);
-			}
-			// We use a special case for Thayers Quest
-			else
-			{
-				thayers *l_thayers = dynamic_cast<thayers *>(g_game);
-				// cast game class to a thayers class so we can call a thayers-specific function
+			
+			
+			// by RDG2010
+			// Get SINGE full access to keyboard input (like Thayers)
 
-				// make sure cast succeeded
-				if (l_thayers)
+			if (thisGame != GAME_THAYERS && thisGame != GAME_SINGE)
+			{
+					process_keydown(keyPressed);
+			} else {
+				if (thisGame == GAME_THAYERS)
 				{
-					l_thayers->process_keydown(event->key.keysym.sym);
-				}
-				// else cast failed, and we would crash if we tried to call process_keydown
-				// cast would fail if g_game is not a thayers class
+
+					thayers *l_thayers = dynamic_cast<thayers *>(g_game);
+					// cast game class to a thayers class so we can call a thayers-specific function
+
+					// make sure cast succeeded
+					if (l_thayers) l_thayers->process_keydown(keyPressed);
+					// else cast failed, and we would crash if we tried to call process_keydown
+					// cast would fail if g_game is not a thayers class
+
+				} else {
+
+					if (thisGame == GAME_SINGE)
+					{
+						singe *l_singe = dynamic_cast<singe *>(g_game);
+						if (l_singe) l_singe->process_keydown(keyPressed, g_key_defs);
+					} 
+				} 
 			}
+			
 			break;
 		case SDL_KEYUP:
 			// MPO : since con_getkey doesn't catch the key up event, we shouldn't call reset_idle here.
 			//reset_idle(); // added by JFA for -idleexit
 
-			if (g_game->get_game_type() != GAME_THAYERS)
-			{
-				process_keyup(event->key.keysym.sym);
-			}
-			// We use a special case for Thayers Quest
-			else
-			{
-				thayers *l_thayers = dynamic_cast<thayers *>(g_game);
-				// cast game class to thayers class so we can call a thayers-specific function
+			// by RDG2010
+			// Get SINGE full access to keyboard input (like Thayers)
 
-				// make sure cast succeeded
-				if (l_thayers)
+			if (thisGame != GAME_THAYERS && thisGame != GAME_SINGE)
+			{
+					process_keyup(keyPressed);
+					
+			} else {
+				if (thisGame == GAME_THAYERS)
 				{
-					l_thayers->process_keyup(event->key.keysym.sym);
-				}
-				// else cast failed and we would crash if we tried to call process_keyup
-				// cast would fail if g_game is not a thayers class
+
+					thayers *l_thayers = dynamic_cast<thayers *>(g_game);
+					// cast game class to a thayers class so we can call a thayers-specific function
+
+					// make sure cast succeeded
+					if (l_thayers) l_thayers->process_keyup(keyPressed);
+					
+					// else cast failed, and we would crash if we tried to call process_keydown
+					// cast would fail if g_game is not a thayers class
+				} else {
+
+					if (thisGame == GAME_SINGE)
+					{
+						singe *l_singe = dynamic_cast<singe *>(g_game);
+						if (l_singe) l_singe->process_keyup(keyPressed, g_key_defs);
+						
+					} 
+				} 
 			}
+			
 			break;
 		case SDL_JOYAXISMOTION:
 			//reset_idle(); // added by JFA for -idleexit

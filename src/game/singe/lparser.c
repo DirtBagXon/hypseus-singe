@@ -489,7 +489,7 @@ static void lastlistfield (FuncState *fs, struct ConsControl *cc) {
 
 static void listfield (LexState *ls, struct ConsControl *cc) {
   expr(ls, &cc->v);
-  luaY_checklimit(ls->fs, cc->na, MAXARG_Bx, "items in a constructor");
+  luaY_checklimit(ls->fs, cc->na, MAX_INT, "items in a constructor");
   cc->na++;
   cc->tostore++;
 }
@@ -938,6 +938,8 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
     primaryexp(ls, &nv.v);
     if (nv.v.k == VLOCAL)
       check_conflict(ls, lh, &nv.v);
+    luaY_checklimit(ls->fs, nvars, LUAI_MAXCCALLS - ls->L->nCcalls,
+                    "variables in assignment");
     assignment(ls, &nv, nvars+1);
   }
   else {  /* assignment -> `=' explist1 */
