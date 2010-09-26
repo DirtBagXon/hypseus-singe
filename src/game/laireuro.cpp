@@ -416,14 +416,16 @@ void laireuro::palette_calculate()
 	{
       palette_set_color(x, colors[x]);
 	}
+	palette_set_transparency(0, false);
+	palette_set_transparency(8, true);
 }
 
 // updates laireuro's video
 void laireuro::video_repaint()
 {
-	int charx_offset = 0;
+	int charx_offset = 1;
 	int chary_offset = 0;
-	for (int charx = charx_offset; charx < 21 + charx_offset; charx++)
+	for (int charx = charx_offset; charx < 18 + charx_offset; charx++)
 	{
 		for (int chary = chary_offset; chary < 9 + chary_offset; chary++)
 		{
@@ -431,27 +433,26 @@ void laireuro::video_repaint()
 			for (y = 0; y < 16; y++)
 			{
 				int x = 0;
-				for (x = 0; x < 8; x++)
+				// Each tile is loaded into an 8 bit serial shift 
+				for (x = 0; x < 10; x++)
 				{
 					// bit 0 of wt misc turns on/off character generator
 					if (m_wt_misc & 0x04)
 					{
-                  Uint8 pixel = static_cast<Uint8>(m_character[(m_cpumem[chary * 64 + charx * 2 + 0xc001]*16+y) | ((m_wt_misc & 0x02) << 11)] & (0x01 << x));
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + (charx - charx_offset)) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + 1 + (charx - charx_offset)) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + (charx - charx_offset)) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + 1 + (charx - charx_offset)) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
+						Uint8 pixel = (x < 8)?static_cast<Uint8>(m_character[(m_cpumem[chary * 64 + charx * 2 + 0xc001]*16+y) | ((m_wt_misc & 0x02) << 11)] & (0x01 << x)):0;
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2)) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) + 1) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) ) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) + 1) = pixel?m_cpumem[chary * 64 + charx * 2 + 0xc002]:((m_wt_misc & 0x02)?0:4);
 					}
 					else 
 					{
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + (charx - charx_offset)) = 0;
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + 1 + (charx - charx_offset)) = 0;
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + (charx - charx_offset)) = 0;
-						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + 1 + (charx - charx_offset)) = 0;
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) ) = 8;
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) + 1 ) = 8;
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) ) = 8;
+						*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 20 + (x * 2) + 1 ) = 8;
 					}
 				}
-				*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + (charx - charx_offset)) = ((m_wt_misc & 0x04)?4:0);
-				*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) + (charx - charx_offset) * 16 + (x * 2) + (charx - charx_offset)) = ((m_wt_misc & 0x04)?4:0);
 			}
 		}
 	}
@@ -722,7 +723,7 @@ void ctc_update_period(Uint8 channel)
 		}
 		if (channel == 0) // sound
 		{
-			audio_write_ctrl_data(0, (Uint32)(1000 / new_period / 2), g_soundchip_id);
+			audio_write_ctrl_data(1, (Uint32)(1000 / new_period / 2), g_soundchip_id);
 		}
 #ifdef DEBUG
 		char s[81] = { 0 };

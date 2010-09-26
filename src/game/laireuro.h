@@ -29,7 +29,7 @@
 
 #define LAIREURO_OVERLAY_W 360	// width of overlay
 #define LAIREURO_OVERLAY_H 288 // height of overlay
-#define LAIREURO_COLOR_COUNT 8 // 8 colors total
+#define LAIREURO_COLOR_COUNT 9 // 8 colors total plus a "transparent" color
 
 // we need our own callback since laireuro uses IM2
 Sint32 laireuro_irq_callback(int);
