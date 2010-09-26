@@ -45,7 +45,7 @@ int tonegen_initialize(Uint32 unused)
 	int channel;
 	for (channel = 0; channel < VOICES; channel++)
 	{
-      g_tonegen.amplitude[channel] = 0x7FFF;
+		g_tonegen.amplitude[channel] = 0x3FFF;
 		g_tonegen.bytes_to_go[channel] = 4;
 		g_tonegen.bytes_per_switch[channel] = 0;
 		g_tonegen.flip[channel] = 1;
@@ -65,15 +65,25 @@ void tonegen_stream(Uint8* stream, int length, int index)
 	{
 		// endian-independent! :)
 		// NOTE : assumes stream is in little endian format
-		Sint16 sample = 0;
+		Sint16 sample_left = 0;
+		Sint16 sample_right = 0;
 		int channel = 0;
 		for (channel = 0; channel < VOICES; channel++)
 		{
-			sample += g_tonegen.amplitude[channel] * g_tonegen.flip[channel] / VOICES;
+			if ((channel & 1) == 0)
+			{
+				sample_left += g_tonegen.amplitude[channel] * g_tonegen.flip[channel] / VOICES;
+			}
+			else
+			{
+				sample_right += g_tonegen.amplitude[channel] * g_tonegen.flip[channel] / VOICES;
+			}
 		}
 
-		stream[pos] = stream[pos+2] = (Uint16) (sample) & 0xff; 
-		stream[pos+1] = stream[pos+3] = ((Uint16) (sample) >> 8) & 0xff; 
+		stream[pos] = (Uint16) (sample_left) & 0xff;
+		stream[pos+1] = ((Uint16) (sample_left) >> 8) & 0xff;
+		stream[pos+2] = (Uint16) (sample_right) & 0xff; 
+		stream[pos+3] = ((Uint16) (sample_right) >> 8) & 0xff; 
 
 		for (channel = 0; channel < VOICES; channel++)
 		{
