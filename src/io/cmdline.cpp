@@ -922,7 +922,9 @@ bool parse_cmd_line(int argc, char **argv)
 
 		// by RDG2010
 		// Preliminary light gun support.
-		else if (strcasecmp(s, "-lightgun")==0)
+		// Creates a borderless, no title bar window the size of the desktop
+		// and positions it accordingly so that it covers the whole screen.
+		else if (strcasecmp(s, "-fullscreen_window")==0)
 		{			
 			set_fakefullscreen(true);
 					
