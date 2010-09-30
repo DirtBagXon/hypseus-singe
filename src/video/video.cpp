@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>	// for some error messages
+#include <SDL_syswm.h> // rdg2010
 #include "video.h"
 #include "palette.h"
 #include "SDL_DrawText.h"
@@ -39,6 +40,7 @@
 #include "../game/game.h"
 #include "../ldp-out/ldp.h"
 #include "../ldp-out/ldp-vldp-gl.h"
+
 
 #ifdef USE_OPENGL
 #ifdef MAC_OSX
@@ -84,6 +86,8 @@ SDL_Surface *g_screen = NULL;	// our primary display
 SDL_Surface *g_screen_blitter = NULL;	// the surface we blit to (we don't blit directly to g_screen because opengl doesn't like that)
 bool g_console_initialized = false;	// 1 once console is initialized
 bool g_fullscreen = false;	// whether we should initialize video in fullscreen mode or not
+bool g_fakefullscreen = false; // by RDG2010 -- whether daphne should fake fullscreen (for ALG lightgun games).
+int g_scalefactor = 100; // by RDG2010 -- scales the image to this percentage value (for CRT TVs with overscan problems).
 int sboverlay_characterset = 1;
 
 // whether we will try to force a 4:3 aspect ratio regardless of window size
@@ -186,6 +190,33 @@ bool init_display()
 			newline();
 		}
 
+		/* by RDG2010
+		 * Adding preliminary lightgun support.
+		 * For now that means a fake fullscreen. 
+		 * A borderless, no title bar window the same size as the desktop.
+		 * This is done in three steps:
+		 * 1. Get desktop resolution.
+		 * 2. Make SDL window borderless.
+		 * 3. Move window to top-left corner of the screen.
+		 *
+		 * Tested OK on both Windows and Ubuntu Linux.
+		 * TODO: Provide a better solution.
+		 *
+		 */		
+
+		if (get_fakefullscreen())
+		{
+			
+			// Step 1. Get desktop resolution.
+			// Get the current resolution of the system's desktop.
+			const SDL_VideoInfo* info = SDL_GetVideoInfo(); // For SDL 1.3 use SDL_GetDesktopDisplayMode() instead.
+			int desktopWidth  = info->current_w; 
+			int desktopHeight = info->current_h;
+			// Update variables here, before initializing any surfaces.			
+			g_vid_width = desktopWidth ; g_vid_height = desktopHeight;
+		}
+		// RDG2010
+
 		g_draw_width = g_vid_width;
 		g_draw_height = g_vid_height;
 
@@ -208,11 +239,28 @@ bool init_display()
 			// else the aspect ratio is already correct, so don't change anything
 		}
 
+		// if we're supposed to scale the image...	
+		if (g_scalefactor < 100) 
+		{
+			g_draw_width = g_draw_width * g_scalefactor / 100;
+			g_draw_height = g_draw_height * g_scalefactor / 100;
+		}
+
 #ifndef GP2X
 		if (!g_bUseOpenGL)
 		{
+			// by RDG2010
+			// Step 2. Create a borderless SDL window.
+			// If doing lightgun support, make the window bordeless (no title bar).			
+			// This is achieved by adding the SDL_NOFRAME flag.			
+
+			if (get_fakefullscreen()) sdl_flags = sdl_flags | SDL_NOFRAME; 
+
 			g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
 			SDL_WM_SetCaption("DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]", "daphne");
+
+
+
 		}
 		else
 		{
@@ -226,6 +274,49 @@ bool init_display()
 		SDL_ShowCursor(SDL_DISABLE);	// always hide mouse for gp2x
 		g_screen = SDL_SetVideoMode(320, 240, 0, SDL_HWSURFACE);
 #endif
+
+			/* by RDG2010
+			 * Step 3. Move window to the top-left corner of the screen.
+			 *
+			 * The task of positioning the window is OS dependant.
+			 * When using a window the same size of the desktop, X11 will
+			 * automatically position it to the top-left corner of the screen.
+			 * In the case of Windows, it has to be done manually.
+			 * 
+			 */
+
+#ifdef WIN32
+			if (get_fakefullscreen())
+			{
+
+				// Access to SDL's OS specific structure.
+				SDL_SysWMinfo windowInfo;
+				SDL_VERSION(&windowInfo.version);
+
+				if(SDL_GetWMInfo(&windowInfo))
+				{
+					// Retrieve the Windows handle to the SDL window.
+					HWND handle = windowInfo.window;
+					// Position Window to top-left corner of the screen.
+					if(!SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOREPOSITION|SWP_NOZORDER|SWP_NOSIZE)) 
+					{
+						printline("Error occurred with 'SetWindowPos'. Lightgun mode failed.");
+						result = 0;
+					}
+
+				}
+				else
+				{
+					// Error occurred with 'SDL_GetWMInfo' 
+					printline("Error occurred with 'SDL_GetWMInfo'. Lightgun mode failed.");
+					result = 0;
+
+				} // endif
+		
+			} // endif
+
+#endif
+
 
 		// create a 32-bit surface
 		g_screen_blitter = SDL_CreateRGBSurface(SDL_SWSURFACE,
@@ -284,6 +375,14 @@ bool init_opengl()
 	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+
+	// by RDG2010
+	// Step 2. Create a borderless SDL window (on the OpenGL side).
+	// If doing lightgun support, make the window bordeless (no title bar).			
+	// This is achieved by adding the SDL_NOFRAME flag.
+	// Tested OK on both Windows and Ubuntu Linux.
+
+	if (get_fakefullscreen()) sdl_flags = sdl_flags | SDL_NOFRAME; 
 
 	g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, 0, sdl_flags);
 
@@ -753,6 +852,31 @@ bool get_fullscreen()
 void set_fullscreen(bool value)
 {
 	g_fullscreen = value;
+}
+
+// by RDG2010
+bool get_fakefullscreen()
+{
+	return g_fakefullscreen;
+}
+
+void set_fakefullscreen(bool value)
+{
+	g_fakefullscreen = value;
+}
+
+int get_scalefactor()
+{
+	return g_scalefactor;
+}
+void set_scalefactor(int value)
+{
+	if (value > 100 || value < 50) // Validating in case user inputs crazy values.
+	{							   
+		printline("Invalid scale value. Ignoring -scalefactor parameter.");		
+		g_scalefactor = 100;
+
+	} else { g_scalefactor = value; }
 }
 
 void set_rotate_degrees(float fDegrees)

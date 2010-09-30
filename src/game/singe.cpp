@@ -498,23 +498,25 @@ void singe::process_keyup(SDLKey key, int keydefs[][2])
 				toggle_game_pause();						
 				input_disable(SWITCH_PAUSE);
 
-			} else {
-				if (key == keydefs[SWITCH_QUIT][0] || key == keydefs[SWITCH_QUIT][1]) 
-				{
-					set_quitflag();	
+			} else if (key == keydefs[SWITCH_QUIT][0] || key == keydefs[SWITCH_QUIT][1]) {
+				
+				set_quitflag();	
 							
-				} else {
+			} else if (key == keydefs[SWITCH_SCREENSHOT][0]) {
 
-					for (Uint8 move = 0; move < SWITCH_COUNT; move++)
+				printline("Screenshot requested!");
+				g_ldp->request_screenshot();
+
+			} else {
+
+				for (Uint8 move = 0; move < SWITCH_COUNT; move++)
+				{
+					if ((key == keydefs[move][0]) || (key == keydefs[move][1]))
 					{
-						if ((key == keydefs[move][0]) || (key == keydefs[move][1]))
-						{
-							if (move != SWITCH_PAUSE) input_disable(move);
-						}
-
+						if (move != SWITCH_PAUSE) input_disable(move);
 					}
 
-				} // endif
+				} // end for
 
 			} // endif
 

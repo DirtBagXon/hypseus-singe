@@ -382,7 +382,21 @@ void sep_shutdown(void)
 
 void sep_sound_ended(Uint8 *buffer, unsigned int slot)
 {
+	/*
+	* by RDG2010
+	* This function is triggered by a callback when a sound finishes playing
+	
+	// Following lines are for debug purposes:
+
+	char s[100];
+	sprintf(s, "sep_sound_ended:  slot numer is %u", slot);
+	sep_print(s);
+	
+	///////////////////////////
+	*/
+
 	sep_call_lua("onSoundCompleted", "i", slot);
+	
 }
 
 bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
@@ -508,18 +522,18 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "overlayGetWidth",    sep_get_overlay_width);
   lua_register(g_se_lua_context, "overlayPrint",       sep_say);
 	
-	lua_register(g_se_lua_context, "soundLoad",          sep_sound_load);
-	lua_register(g_se_lua_context, "soundPlay",          sep_sound_play);
+	lua_register(g_se_lua_context, "soundLoad",        sep_sound_load);
+	lua_register(g_se_lua_context, "soundPlay",        sep_sound_play);
 
-	lua_register(g_se_lua_context, "spriteDraw",         sep_sprite_draw);
-	lua_register(g_se_lua_context, "spriteGetHeight",    sep_sprite_height);
-	lua_register(g_se_lua_context, "spriteGetWidth",     sep_sprite_width);
-	lua_register(g_se_lua_context, "spriteLoad",         sep_sprite_load);
+	lua_register(g_se_lua_context, "spriteDraw",       sep_sprite_draw);
+	lua_register(g_se_lua_context, "spriteGetHeight",  sep_sprite_height);
+	lua_register(g_se_lua_context, "spriteGetWidth",   sep_sprite_width);
+	lua_register(g_se_lua_context, "spriteLoad",       sep_sprite_load);
 
   lua_register(g_se_lua_context, "vldpGetHeight",      sep_mpeg_get_height);
   lua_register(g_se_lua_context, "vldpGetPixel",       sep_mpeg_get_pixel);
   lua_register(g_se_lua_context, "vldpGetWidth",       sep_mpeg_get_width);
-  
+
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
   lua_register(g_se_lua_context, "keyboardSetMode",    sep_keyboard_set_mode);
@@ -1392,4 +1406,3 @@ static int sep_set_pause_flag(lua_State *L)
 	}	
 	return 0;
 }
-

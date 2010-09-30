@@ -48,18 +48,20 @@ struct singe_in_info
 	bool (*pre_skip_backward)(Uint16);
 	void (*pre_step_forward)();
 	void (*pre_step_backward)();
-	
+
 	//by RDG2010
 	void *pSingeInstance;
 	void (*cfm_set_keyboard_mode)(void *, int);
 	int  (*cfm_get_keyboard_mode)(void *);	
-	int (*get_status)();
+	int  (*get_status)();
+	
 
 	// VARIABLES:
 	
 	// VLDP Interface
 	struct vldp_in_info        *g_local_info;
 	const struct vldp_out_info *g_vldp_info;
+	
 };
 
 // info provided from Singe to Daphne

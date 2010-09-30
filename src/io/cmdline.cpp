@@ -920,10 +920,33 @@ bool parse_cmd_line(int argc, char **argv)
 			set_yuv_hwaccel(false);
 		}
 
+		// by RDG2010
+		// Preliminary light gun support.
+		else if (strcasecmp(s, "-lightgun")==0)
+		{			
+			set_fakefullscreen(true);
+					
+		}
+
+		// by RDG2010
+		// Scales video image to something smaller than the window size.
+		// Helpful for users with overscan issues on arcade monitors or CRT TVs.
+		// Valid values are 50-100, where 50 means half the size of the 
+		// window, 100 means the same size.
+		else if (strcasecmp(s, "-scalefactor")==0)
+		{
+			get_next_word(s, sizeof(s));
+			i = atoi(s);
+			sprintf(s, "Scaling image by %d%%", i);
+			printline(s);
+			set_scalefactor((Uint16)i);
+		}
+
 #ifdef USE_OPENGL
 		else if (strcasecmp(s, "-opengl")==0)
 		{
-			set_use_opengl(true);
+			set_use_opengl(true);			
+			
 		}
 #endif // USE_OPENGL
 

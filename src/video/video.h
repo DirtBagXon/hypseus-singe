@@ -80,6 +80,10 @@ SDL_Surface *get_screen_blitter();
 int get_console_initialized();
 bool get_fullscreen();
 void set_fullscreen(bool value);
+bool get_fakefullscreen(); // by RDG2010
+void set_fakefullscreen(bool value); // by RDG2010
+int get_scalefactor(); // by RDG2010
+void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);
 void set_sboverlay_characterset(int value);
 Uint16 get_video_width();
