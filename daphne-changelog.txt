@@ -1,6 +1,20 @@
 Daphne Changelog
 -------------------------
 
+v1.0.10
+- Fixed Thayer's Quest locking up after playing synthesized speech.
+
+v1.0.9
+- Added "-fullscreen_window" and "-scalefactor" command-line options (rdg)
+- Dragon's Lair and Space Ace Euro improvements (MarkB)
+	Changed tonegen so that odd channels are outputted to left channel and even go to right channel
+	Changed LairEuro's graphics rendering to follow the schematics. 
+	Also made computer generated sound on right channel only.
+- Added Time Traveler to seektest.
+- Added Mad Dog 1 to seektest.
+- Added SINGE function "discSkipToFrame".
+- Fixed sample callback feature so it runs in the main thread and not the audio thread.
+
 v1.0.8 - The SINGE update
 
 - Revised "how_to_compile" windows and unix text files.
@@ -43,16 +57,6 @@ regardless if daphne is in windowed or full mode. Used by ALG SINGE games.
 - daphne_vs2003.vcproj - Fixed debug "Runtime Library" settings 
   from "Multi-Threaded DLL" to "Multi-Threaded Debug DLL" to avoid linker errors 
   in newer Visual C++ versions.
-  
-
-+++++++++ End of v1.0.8 +++++++++ 
-
-
-Next
-- Added Time Traveler to seektest.
-- Added Mad Dog 1 to seektest.
-- Added SINGE function "discSkipToFrame".
-- Fixed sample callback feature so it runs in the main thread and not the audio thread.
 
 v1.0.7
 - Updated source code so it builds on the latest g++
@@ -165,4 +169,4 @@ v0.101.17
 - Added preliminary SINGE support.  SINGE is a scripting language to allow users to make their own laserdisc-styled games.
 
 v0.101.16 and older
-- All changes are logged in CVS and a full changelog will be available for the next official release.
+- ... :)

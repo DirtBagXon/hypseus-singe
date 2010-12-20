@@ -26,6 +26,7 @@
 #include "../io/mpo_fileio.h"
 #include "../io/error.h"
 #include "../io/dll.h"
+#include "../io/cmdline.h"  // for get_next_word  (rdg2010)
 #include "../ldp-out/ldp.h"
 #include "../sound/samples.h"
 #include "../video/palette.h"

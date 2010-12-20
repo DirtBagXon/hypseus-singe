@@ -487,6 +487,7 @@ void ssi263_say_phones(char *phonemes, int len)
 		// The proper fix to this is to return to the ROM some signal that our sample has finished playing.
 		while ((g_bSamplePlaying) && (!get_quitflag()))
 		{
+			samples_do_queued_callbacks();	// hack to ensure sound callbacks are called in a thread-safe way.  In the next major version, this hack must be done away with.
 			SDL_Delay(10);
 			SDL_check_input();
 		}

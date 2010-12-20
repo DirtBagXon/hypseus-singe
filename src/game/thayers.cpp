@@ -40,7 +40,8 @@
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
 
-thayers::thayers()
+thayers::thayers() :
+m_pScoreboard(NULL)
 {
 	struct cpudef cpu;
 	

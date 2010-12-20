@@ -86,7 +86,7 @@ SDL_Surface *g_screen = NULL;	// our primary display
 SDL_Surface *g_screen_blitter = NULL;	// the surface we blit to (we don't blit directly to g_screen because opengl doesn't like that)
 bool g_console_initialized = false;	// 1 once console is initialized
 bool g_fullscreen = false;	// whether we should initialize video in fullscreen mode or not
-bool g_fakefullscreen = false; // by RDG2010 -- whether daphne should fake fullscreen (for ALG lightgun games).
+bool g_fakefullscreen = false; // by RDG2010 -- whether daphne should do fullscreen window
 int g_scalefactor = 100; // by RDG2010 -- scales the image to this percentage value (for CRT TVs with overscan problems).
 int sboverlay_characterset = 1;
 
@@ -251,7 +251,7 @@ bool init_display()
 		{
 			// by RDG2010
 			// Step 2. Create a borderless SDL window.
-			// If doing lightgun support, make the window bordeless (no title bar).			
+			// If doing fullscreen window, make the window bordeless (no title bar).			
 			// This is achieved by adding the SDL_NOFRAME flag.			
 
 			if (get_fakefullscreen()) sdl_flags = sdl_flags | SDL_NOFRAME; 
@@ -300,7 +300,7 @@ bool init_display()
 					// Position Window to top-left corner of the screen.
 					if(!SetWindowPos(handle, NULL, 0, 0, 0, 0, SWP_NOREPOSITION|SWP_NOZORDER|SWP_NOSIZE)) 
 					{
-						printline("Error occurred with 'SetWindowPos'. Lightgun mode failed.");
+						printline("Error occurred with 'SetWindowPos'. Fullscreen window failed.");
 						result = 0;
 					}
 
@@ -308,7 +308,7 @@ bool init_display()
 				else
 				{
 					// Error occurred with 'SDL_GetWMInfo' 
-					printline("Error occurred with 'SDL_GetWMInfo'. Lightgun mode failed.");
+					printline("Error occurred with 'SDL_GetWMInfo'. Fullscreen window failed.");
 					result = 0;
 
 				} // endif
@@ -378,7 +378,7 @@ bool init_opengl()
 
 	// by RDG2010
 	// Step 2. Create a borderless SDL window (on the OpenGL side).
-	// If doing lightgun support, make the window bordeless (no title bar).			
+	// If doing fullscreen window, make the window bordeless (no title bar).			
 	// This is achieved by adding the SDL_NOFRAME flag.
 	// Tested OK on both Windows and Ubuntu Linux.
 

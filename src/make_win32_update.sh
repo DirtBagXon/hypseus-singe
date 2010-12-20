@@ -40,7 +40,7 @@ cd ..
 chmod 644 $ZIPNAME
 
 # upload it to server
-scp $ZIPNAME matt@www.daphne-emu.com:/var/www/download/win32-uploads/.
+scp $ZIPNAME matt@www.daphne-emu.com:/var/www/daphne/download/win32-uploads/.
 
 # clean-up ...
 rm $TMPZIP

@@ -46,7 +46,7 @@ ZIPNAME=daphne-updater-$VERSION-linux.zip
 zip $ZIPNAME $UPDATENAME
 
 # upload it to server
-scp $ZIPNAME matt@www.daphne-emu.com:/var/www/download/linux/.
+scp $ZIPNAME matt@www.daphne-emu.com:/var/www/daphne/download/linux/.
 
 # clean-up ...
 rm $TMPTAR

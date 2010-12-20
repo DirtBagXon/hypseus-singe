@@ -281,31 +281,40 @@ void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
 // game-specific command line arguments handled here
 bool singe::handle_cmdline_arg(const char *arg)
 {
+	
 	bool bResult = false;
 	static bool scriptLoaded = false;
+	char s[81] = { 0 };
 
-	if (mpo_file_exists(arg))
+	if (strcasecmp(arg, "-script") == 0)
 	{
-		if (!scriptLoaded)
+		get_next_word(s, sizeof(s));
+
+		if (mpo_file_exists(s))
 		{
-			bResult = scriptLoaded = true;
-			m_strGameScript = arg;
+			if (!scriptLoaded)
+			{
+				bResult = scriptLoaded = true;
+				m_strGameScript = s;
+			}
+			else
+			{
+				printline("Only one game script may be loaded at a time!");
+				bResult = false;
+			}
 		}
 		else
 		{
-			printline("Only one game script may be loaded at a time!");
-			bResult = false;
+			string strErrMsg = "Script ";
+			strErrMsg += s;
+			strErrMsg += " does not exist.";
+			printline(strErrMsg.c_str());
 		}
-	}
-	else
-	{
-		string strErrMsg = "Script ";
-		strErrMsg += arg;
-		strErrMsg += " does not exist.";
-		printline(strErrMsg.c_str());
+
 	}
 
 	return bResult;
+
 }
 
 

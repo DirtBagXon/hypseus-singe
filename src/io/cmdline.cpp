@@ -1149,7 +1149,7 @@ bool parse_cmd_line(int argc, char **argv)
 		}
 		else
 		{
-			printline("Unknown command line parameter:");
+			printline("Unknown command line parameter or parameter value:");
 			printline(s);
 			result = false;
 		}
