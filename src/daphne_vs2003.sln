@@ -1,7 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "daphne", "daphne_vs2003.vcproj", "{D6F69305-8810-439B-A6E1-554175951DE3}"
 	ProjectSection(ProjectDependencies) = postProject
-		{7F8CEA42-F687-4755-BD58-54A6B25659A7} = {7F8CEA42-F687-4755-BD58-54A6B25659A7}
 		{9F8120A6-B6C8-4CBF-9D9B-45AF83F61EA0} = {9F8120A6-B6C8-4CBF-9D9B-45AF83F61EA0}
 	EndProjectSection
 EndProject
@@ -25,8 +24,6 @@ Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
-	EndGlobalSection
-	GlobalSection(ProjectDependencies) = postSolution
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
 		{D6F69305-8810-439B-A6E1-554175951DE3}.Debug.ActiveCfg = Debug|Win32

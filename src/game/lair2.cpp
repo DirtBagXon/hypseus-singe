@@ -601,6 +601,13 @@ void lair2::patch_roms()
 			// m_cpumem[0x140f6] = 0xc3;
 			// m_cpumem[0x140b0] = 0xc3;
 
+			// enable hints for all levels cheat
+			if (m_cheat_requested)
+			{
+				m_cpumem[0xF2804] = 0x90;
+				m_cpumem[0xF2805] = 0x90;
+			}
+
 			// FIX compiler bugs that make laserdisc access problematic
 
 			// FIX Send_Byte_2_LDP() function
