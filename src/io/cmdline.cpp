@@ -761,7 +761,7 @@ bool parse_cmd_line(int argc, char **argv)
 		}
 
 		// to disable any existing joysticks that may be plugged in that may interfere with input
-		else if (strcasecmp(s, "-nojoystick")==0)
+		else if ((strcasecmp(s, "-nojoystick")==0) || (strcasecmp(s, "-nojoy")==0))
 		{
 			set_use_joystick(false);
 		}
@@ -772,7 +772,7 @@ bool parse_cmd_line(int argc, char **argv)
 		{
 			net_no_server_send();
 		}
-		else if (strcasecmp(s, "-nosound")==0)
+		else if ((strcasecmp(s, "-nosound")==0) || (strcasecmp(s, "-mutesound")==0))
 		{
 			set_sound_enabled_status(false);
 			printline("Disabling sound...");

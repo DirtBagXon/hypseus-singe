@@ -287,8 +287,8 @@ H. Troubleshooting Compiler and Linking Errors:
  
 + .\daphne.rc(10) : fatal error RC1015: cannot open include file 'afxres.h'
  
-	Happens when converting project solutions to newer
-	Visual Studio versions. Open up daphne.rc and change the
+	Happens when converting the VS2003 project solution to a newer
+	Visual Studio version. Open up daphne.rc and change the
 	following line:
  
 	#include "afxres.h"
@@ -298,15 +298,15 @@ H. Troubleshooting Compiler and Linking Errors:
  
 	#include "windows.h"
  
-+ LINK : fatal error LNK1181: cannot open input file '*******.lib'
++ LINK : fatal error LNK????: cannot open input file '*******.lib'
  
 	Visual Studio can't find the specified library.
-	Probably the file is missing or misspelled.
+	Probably the file is misspelled in the linker properties.
 	Usually happens with zlib, libogg or libvorbis libraries.
  
-	Check that your project linker "INPUT" properties
-	are correctly spelled and
-	that your library directories are pointing to the right places.
+	Check that the library files declared in the project linker 
+        "INPUT" properties are correctly spelled and that your library 
+        directories are pointing to the right places.
 	
 + error PRJ0019: A tool returned an error code from 
   "Performing Custom Build Step"

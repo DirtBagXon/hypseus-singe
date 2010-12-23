@@ -117,3 +117,5 @@ static int sep_singe_quit(lua_State *L);
 static int sep_get_vldp_state(lua_State *L);
 static int sep_get_pause_flag(lua_State *L);
 static int sep_set_pause_flag(lua_State *L);
+static int sep_singe_version(lua_State *L);
+static int sep_ldp_verbose(lua_State *L);

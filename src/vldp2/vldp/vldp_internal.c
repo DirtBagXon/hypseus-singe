@@ -85,7 +85,7 @@ unsigned int s_uPreCacheIdxCount = 0;	// how many files have been precached
 struct precache_entry_s s_sPreCacheEntries[MAX_PRECACHE_FILES];	// struct array holding precache data
 
 
-#define MAX_LDP_FRAMES 60000
+#define MAX_LDP_FRAMES 65535 // rdg2010: increase frames cap limit to 16-bit max
 
 static FILE *g_mpeg_handle = NULL;	// mpeg file we currently have open
 static mpeg2dec_t *g_mpeg_data = NULL;	// structure for libmpeg2's state

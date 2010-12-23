@@ -221,6 +221,8 @@ public:
 	// debug function used by the cpu debugger
 	void print_frame_info();
 
+	void setVerbose(bool); // rdg2010
+
 protected:
 	// helper function, shouldn't be called directly
 	void increment_current_frame();
@@ -308,6 +310,7 @@ protected:
 private:
 	// set to true if pre_init has been called (used to error checking)
 	bool m_bPreInitCalled;
+	bool m_bVerbose; // Control message displays on daphne_log.txt -- rdg2010
 
 };
 

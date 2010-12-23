@@ -145,32 +145,32 @@ bool singe::init()
 		
 		// by RDG2010
 		g_SingeIn.get_status = get_status;
+		g_SingeIn.get_singe_version = get_singe_version;
+		g_SingeIn.set_ldp_verbose = set_ldp_verbose;
 
 		// These functions allow the DLL side of SINGE
 		// call the functions set_keyboard_mode and get_keyboard_mode inside this very class.		
 
-		// Explaining the two lines below:
-		//
+		// Writing this down to hopefully remind myself in the future.
 		// The function on the left side is called from the DLL side.
-		// It's the one that asks Daphne for something.
-		// Have a look at the "singe_in_info" struct in singe_interface.h 
+		// The DLL refers to this function from within. In this case singeproxy.cpp
+		// Have a look at the "singe_in_info" struct in singe_interface.h for declaration examples.
 		//
 		// The function on the right side is the wrapper function.	
-		// It's the one that redirects the call to the appropriate 
-		// function on the Daphne side.
+		// It's the function that does something on the Daphne side.
+		// 
 		// Have a look at the class declaration in singe.h for details.
-		// I am using these prefixes in an attempt to make things easier to read:
-		//
-		// CFM == Call For Me
-		// GFM == Get For Me
+		// The two lines below basically link these functions together
+		// So when the DLL needs something from Daphne
+		// then the DLL knows which function to call.
 		g_SingeIn.cfm_set_keyboard_mode = gfm_set_keyboard_mode;
 		g_SingeIn.cfm_get_keyboard_mode = gfm_get_keyboard_mode;		
 
 		/*
 		Why a wrapper?
 
-		Special case. We can't hook up the CFMs
-		directly to the functions inside the class
+		Special case. We can't hook up the function on the Daphne side (CFMs)
+		directly to the functions inside the singe class
 		because their pointer types don't match.
 		To do function callbacks you need to provide a static function.
 		The wrapper function (GFMs) solve this problem.
@@ -201,7 +201,6 @@ bool singe::init()
 		printerror("You must use VLDP when using Singe.");
 		bSuccess = false;
 	}
-
 	if (!bSuccess)
 	{
 #ifndef STATIC_SINGE
@@ -215,8 +214,9 @@ bool singe::init()
 void singe::start()
 {
 	int intReturn = 0;
-
-	printline("Starting Singe.");
+	char s1[100];
+	sprintf(s1,"Starting Singe version %.2f",get_singe_version());
+	printline(s1);
 	g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
 	g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
 	g_pSingeOut->sep_startup(m_strGameScript.c_str());
@@ -402,6 +402,12 @@ void singe::set_keyboard_mode(int thisVal)
 int singe::get_keyboard_mode()
 {
 	return i_keyboard_mode;
+}
+
+double singe::get_singe_version()
+{
+	double thisVersion = SINGE_VERSION;
+	return thisVersion;
 }
 
 // Have SINGE deal directly with SDL input

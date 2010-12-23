@@ -38,7 +38,7 @@
 using namespace std;
 
 // by rdg2010
-
+#define SINGE_VERSION 1.14  // Update this number whenever you issue a major change
 enum { KEYBD_NORMAL, KEYBD_FULL };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +87,9 @@ public:
 	// Sometimes it's useful to know the status of the vldp.	
 	// Lets give Singe the ability to query for this.
 	static int get_status() { return g_ldp->get_status(); }
+	static double get_singe_version();  // Returns version of the Singe engine	
+	// Controls VLDP message displays on daphne_log.txt
+	static void set_ldp_verbose(bool thisBol) { g_ldp->setVerbose(thisBol); }
 	
 	// These wrapper functions makes the function set_keyboard_mode and get_keyboard_mode 
 	// available for the DLL/so library side of SINGE. 

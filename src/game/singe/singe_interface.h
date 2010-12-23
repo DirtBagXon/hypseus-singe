@@ -2,7 +2,7 @@
 #define SINGE_INTERFACE_H
 
 // increase this number every time you change something in this file!!!
-#define SINGE_INTERFACE_API_VERSION 4
+#define SINGE_INTERFACE_API_VERSION 5
 
 // info provided to Singe from Daphne
 struct singe_in_info
@@ -54,7 +54,8 @@ struct singe_in_info
 	void (*cfm_set_keyboard_mode)(void *, int);
 	int  (*cfm_get_keyboard_mode)(void *);	
 	int  (*get_status)();
-	
+	double (*get_singe_version)(void);
+	void (*set_ldp_verbose)(bool);	
 
 	// VARIABLES:
 	

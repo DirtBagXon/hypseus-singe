@@ -533,6 +533,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "vldpGetHeight",      sep_mpeg_get_height);
   lua_register(g_se_lua_context, "vldpGetPixel",       sep_mpeg_get_pixel);
   lua_register(g_se_lua_context, "vldpGetWidth",       sep_mpeg_get_width);
+  lua_register(g_se_lua_context, "vldpSetVerbose",     sep_ldp_verbose);  
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -541,6 +542,8 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "singeGetPauseFlag",  sep_get_pause_flag);
   lua_register(g_se_lua_context, "singeSetPauseFlag",  sep_set_pause_flag);
   lua_register(g_se_lua_context, "singeQuit",          sep_singe_quit);
+  lua_register(g_se_lua_context, "singeVersion",       sep_singe_version);  
+  
   //////////////////
 
   if (TTF_Init() < 0)
@@ -1404,5 +1407,40 @@ static int sep_set_pause_flag(lua_State *L)
 			
 		}
 	}	
+	return 0;
+}
+
+static int sep_singe_version(lua_State *L)
+{
+   /*
+	* Returns Singe engine version to the lua script.
+	* For validation purposes.
+	*
+	*/
+	
+	lua_pushnumber(L, g_pSingeIn->get_singe_version());
+	return 1;
+	
+}
+static int sep_ldp_verbose(lua_State *L)
+{
+	/*
+	 * Enables/Disables writing of VLDP playback activity to daphne_log.txt
+	 * Enabled by default.
+	 */
+
+	int n = lua_gettop(L);
+	bool b1 = false;
+		
+	if (n == 1)
+	{		
+		if (lua_isboolean(L, 1))
+		{	
+			b1 = lua_toboolean(L, 1);
+			g_pSingeIn->set_ldp_verbose(b1);
+			
+		}
+	}	
+	
 	return 0;
 }
