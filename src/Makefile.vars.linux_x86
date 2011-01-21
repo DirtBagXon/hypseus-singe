@@ -28,5 +28,4 @@ PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DLINUX -DNATIVE_CPU_X86 \
 
 
 # platform-specific lib flags
-# For SINGE, add -lSDL_image -lSDL_ttf to the singe-specific shared library
 LIBS = `sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile -lGLEW
