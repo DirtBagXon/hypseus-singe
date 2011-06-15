@@ -21,6 +21,7 @@
  */
 
 #include "parallel.h"
+#include "numstr.h"
 
 // this code only applies to x86-based systems, I believe
 #ifdef NATIVE_CPU_X86
@@ -37,7 +38,8 @@ short par::m_base2[3] = { 0x37A, 0x27A, 0 };
 
 #ifdef WIN32
 
-void _stdcall Out32(short PortAddress, short data);
+#include <windows.h>
+#include "inpout32.h"
 
 bool par::init(unsigned int port, ILogger *pLogger)
 // initializes parallel port for use
@@ -53,13 +55,13 @@ bool par::init(unsigned int port, ILogger *pLogger)
 
 	m_uPortIdx = port;
 
-	char sAddr[81];
-	sprintf(sAddr, "%x", m_base0[m_uPortIdx]);
 	string s = "Opening parallel port at address 0x";
-	s += sAddr;
+	s += numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
 	pLogger->Log(s);
 
-	return(true);
+	bool bRes = (IsInpOutDriverOpen() != 0);
+
+	return(bRes);
 }
 
 // writes a byte to the port at base+0
