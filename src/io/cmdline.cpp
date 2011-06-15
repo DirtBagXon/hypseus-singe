@@ -761,7 +761,7 @@ bool parse_cmd_line(int argc, char **argv)
 		}
 
 		// to disable any existing joysticks that may be plugged in that may interfere with input
-		else if ((strcasecmp(s, "-nojoystick")==0) || (strcasecmp(s, "-nojoy")==0))
+		else if (strcasecmp(s, "-nojoystick")==0)
 		{
 			set_use_joystick(false);
 		}
@@ -772,7 +772,7 @@ bool parse_cmd_line(int argc, char **argv)
 		{
 			net_no_server_send();
 		}
-		else if ((strcasecmp(s, "-nosound")==0) || (strcasecmp(s, "-mutesound")==0))
+		else if (strcasecmp(s, "-nosound")==0)
 		{
 			set_sound_enabled_status(false);
 			printline("Disabling sound...");
@@ -811,8 +811,9 @@ bool parse_cmd_line(int argc, char **argv)
 		else if (strcasecmp(s, "-scoreport")==0)
 		{
 			get_next_word(s, sizeof(s));
-			set_scoreboard_port((unsigned int)numstr::ToUint32(s, 16));
-			sprintf(s, "Setting scoreboard port to %d", i);
+			unsigned int u = (unsigned int)numstr::ToUint32(s, 16);
+			set_scoreboard_port(u);
+			sprintf(s, "Setting scoreboard port to %x", u);
 			printline(s);
 		}
 		else if (strcasecmp(s, "-port")==0)

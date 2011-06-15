@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "DAPHNE, a Laserdisc Arcade Game Emulator"
             VALUE "FileVersion", "0, 1, 0, 11"
             VALUE "InternalName", "daphne"
-            VALUE "LegalCopyright", "Copyright (C) 1999-2010 Matt Ownby"
+            VALUE "LegalCopyright", "Copyright (C) 1999-2011 Matt Ownby"
             VALUE "OriginalFilename", "daphne.exe"
             VALUE "ProductName", " daphne Application"
             VALUE "ProductVersion", "0, 1, 0, 11"
