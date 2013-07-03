@@ -1,6 +1,9 @@
 Daphne Changelog
 -------------------------
 
+v1.0.13
+- Changed inpout library so it only loads (and thus installs itself) if parallel port is actually used.
+
 v1.0.12
 - Fixed hardware scoreboard so it will work on 64-bit Windows.
 

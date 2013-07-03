@@ -39,7 +39,10 @@ short par::m_base2[3] = { 0x37A, 0x27A, 0 };
 #ifdef WIN32
 
 #include <windows.h>
-#include "inpout32.h"
+
+typedef void (WINAPI *Out32_t)(short PortAddress, short data);
+Out32_t Out32;
+HINSTANCE g_hInstInpout;
 
 bool par::init(unsigned int port, ILogger *pLogger)
 // initializes parallel port for use
@@ -59,9 +62,21 @@ bool par::init(unsigned int port, ILogger *pLogger)
 	s += numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
 	pLogger->Log(s);
 
-	bool bRes = (IsInpOutDriverOpen() != 0);
+	g_hInstInpout = LoadLibrary("inpout32.dll");
+	if (g_hInstInpout == NULL)
+	{
+		return(false);
+	}
 
-	return(bRes);
+	Out32 = (Out32_t)GetProcAddress(g_hInstInpout, "Out32");
+	if (!Out32)
+	{
+		FreeLibrary(g_hInstInpout);
+		g_hInstInpout = NULL;
+		return(false);
+	}
+
+	return(true);
 }
 
 // writes a byte to the port at base+0
@@ -80,6 +95,10 @@ void par::close(ILogger *pLogger)
 {
 	// does nothing with current win32 implementation
 	pLogger->Log("Closing parallel port");
+
+	FreeLibrary(g_hInstInpout);
+	g_hInstInpout = NULL;
+	Out32 = NULL;
 }
 
 #endif
