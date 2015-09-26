@@ -304,9 +304,9 @@ bool v6000::wait_for_finished()
 	const int time_to_finish = 3;	// wait this long to timeout
 	char s[81] = { 0 };
 	char debug_string[81] = { 0 };
-	int status_timer = 0;
+//	int status_timer = 0;
 	int finish_timer = 0;
-	int bytes_read = 0;
+//	int bytes_read = 0;
 	bool finished = false;
 	bool spun_up_before = false;
 	bool gotstatus = false;
@@ -318,8 +318,8 @@ bool v6000::wait_for_finished()
 		serial_rxflush();	// flush input buffer
 		serial_tx('D');
 		serial_tx('4');	// status query command
-		bytes_read = 0;
-		status_timer = 0;
+//		bytes_read = 0;
+//		status_timer = 0;
 		s[0] = 0;
 
 		gotstatus = getstring(s, 1000, true);

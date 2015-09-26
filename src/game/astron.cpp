@@ -1161,18 +1161,17 @@ void astron::draw_sprite(int spr_number)
 
 		while (1)
 		{
-			int data_lo, data_high, data;
+			int data_lo, data_high;
 
-			data = sprite[src2 & 0x7fff];
 			data_lo = sprite[src2 & 0x7fff];
 			data_high = sprite[(src2 & 0x7fff) + 0x8000];
 
 			// stop drawing when the sprite data is 0xff
-			if ((data_lo == 0xff) && (data_high == 0xff)) 
+			if ((data_lo == 0xff) && (data_high == 0xff))
 			{
 				break;
 			}
-			
+
 			Uint8 pixel1 = (data_lo >> 0x04) | (data_high & 0xf0);
 			Uint8 pixel2 = (data_lo & 0x0f) | (data_high << 0x04);
 

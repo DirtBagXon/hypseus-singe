@@ -521,8 +521,8 @@ static void aslm()             /* H?NxZxVxCx */
 static void rolm()             /* NxZxVxCx */
 	{
 		int    k;
-		int     val,i;
-	i=val=LoadByte(k=(*adresc[ad])());
+		int     val;
+	val=LoadByte(k=(*adresc[ad])());
 	m1=m2=val;
 	StoreByte(k,val=(val<<1)|((res&0x100)>>8) );
 	ovfl=sign=res=val;
@@ -1061,8 +1061,6 @@ static void asla()             /* H?NxZxVxCx */
 
 static void rola()             /* NxZxVxCx */
 	{
-		int     i;
-	i=ar;
 	m1=m2=ar;
 	ar=(ar<<1)|((res&0x100)>>8);
 	ovfl=sign=res=ar;
@@ -1150,8 +1148,6 @@ static void aslb()             /* H?NxZxVxCx */
 
 static void rolb()             /* NxZxVxCx */
 	{
-		int     i;
-	i=br;
 	m1=m2=br;
 	br=(br<<1)|((res&0x100)>>8);
 	ovfl=sign=res=br;
