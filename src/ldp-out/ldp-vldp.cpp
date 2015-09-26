@@ -1188,6 +1188,7 @@ bool ldp_vldp::load_vldp_lib()
 	}
 	else
 	{
+		printf("%s\n", dlerror());
 		printerror("ERROR: could not open the VLDP2 dynamic library (file not found maybe?)");
 	}
 
