@@ -18,8 +18,13 @@ I'm not sure anymore how to get Daphne compiled for 32-bit Linux.  Here
 I'll assume we're working on an amd64 processor.
 
 `cd src/vldp2`
+
 `./configure --disable-accel-detect`
+
 `make -f Makefile.linux_x64`
+
 `cd ..`
+
 `ln -s Makefile.vars.linux_x86 Makefile.vars`
+
 `make`
