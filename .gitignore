@@ -1,0 +1,7 @@
+*.o
+daphne.bin
+.deps
+*.d
+*.so
+*.a
+roms/*.zip
