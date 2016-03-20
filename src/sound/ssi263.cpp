@@ -472,7 +472,6 @@ bool g_bSamplePlaying = false;
 void ssi263_say_phones(char *phonemes, int len)
 {
     sample_s the_sample;
-    unsigned int channel;
 
 	the_sample.pu8Buf = NULL;
 	the_sample.uLength = 0;
@@ -480,7 +479,7 @@ void ssi263_say_phones(char *phonemes, int len)
 	if (tqsynth_phones_to_wave(phonemes, len, &the_sample))
 	{
 		g_bSamplePlaying = true;	// so that we don't overlap samples (only happens at the very beginning of boot-up)
-		channel = samples_play_sample(the_sample.pu8Buf, the_sample.uLength, AUDIO_CHANNELS, -1, ssi263_finished_callback);
+		samples_play_sample(the_sample.pu8Buf, the_sample.uLength, AUDIO_CHANNELS, -1, ssi263_finished_callback);
 
 		// Wait for sample to stop playing
 		// NOTE : This is a hack and isn't proper emulation.

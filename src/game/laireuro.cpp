@@ -727,7 +727,7 @@ void ctc_update_period(Uint8 channel)
 		}
 #ifdef DEBUG
 		char s[81] = { 0 };
-		sprintf(s,"Set up Irq %x with period of %f", channel ,0);
+		sprintf(s,"Set up Irq %x with period of %d", channel ,0);
 		printline(s);
 #endif
 	}

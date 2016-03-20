@@ -200,7 +200,6 @@ void write_vp380 (unsigned char value)
 			char	yc[4];
 			int		x;
 			int		y;
-			int		Line = 0;
 
 			// get x,y
 			strncpy (xc, &CommandBuffer[5],2);
@@ -218,7 +217,6 @@ void write_vp380 (unsigned char value)
 				if (g_LDP1450_Strings[j].y == (36 * y) - 20)
 				{
 					g_LDP1450_TextControl.TextLine = j;
-					Line = 1;
 					break;
 				}
 			}

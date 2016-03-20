@@ -131,7 +131,7 @@ void cSdlTMS9919::AudioCallback ( Uint8 *stream, int length )
 
 //	int volume = ( m_MasterVolume * AUDIO_MAX_VOLUME ) / 100;
 
-    bool mix = false;
+    //bool mix = false;
     memset ( stream, m_AudioSpec.silence, length );
 
     for ( int i = 0; i < 4; i++ ) {
@@ -142,7 +142,7 @@ void cSdlTMS9919::AudioCallback ( Uint8 *stream, int length )
 		if (( m_Attenuation [i] != 15 ) && ( info->period >= 1.0 )) 
 		{
             // new data so we'll need to mix
-			mix = true;
+			//mix = true;
             
 			// set left = length (number of samples we need to process)
 			int left = length/4, j = 1;
