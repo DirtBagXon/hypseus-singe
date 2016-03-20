@@ -52,7 +52,7 @@ struct net_packet
 	unsigned int crc32;	// a checksum of the preceeding data
 };
 
-void net_no_server_send();
+void net_server_send();
 unsigned int get_user_id();
 void net_set_gamename(char *gamename);
 void net_set_ldpname(char *ldpname);

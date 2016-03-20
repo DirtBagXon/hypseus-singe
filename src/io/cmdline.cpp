@@ -766,11 +766,10 @@ bool parse_cmd_line(int argc, char **argv)
 			set_use_joystick(false);
 		}
 
-		// if they are paranoid and don't want data sent to the server
-		// (don't be paranoid, read the source code, nothing bad is going on)
-		else if (strcasecmp(s, "-noserversend")==0)
+		// if want data sent to the server
+		else if (strcasecmp(s, "-serversend")==0)
 		{
-			net_no_server_send();
+			net_server_send();
 		}
 		else if (strcasecmp(s, "-nosound")==0)
 		{

@@ -78,15 +78,15 @@ static const unsigned char PROTOCOL_VERSION = 1;
 
 #define USERID_FILENAME "userid.bin"
 
-bool g_send_data_to_server = true;	// whether user allows us to send data to server
+bool g_send_data_to_server = false;	// whether user allows us to send data to server
 
 ////////////////////
 
 // disable sending data to server for paranoid users
 // (I don't know why anyone should be paranoid, this is open source for crying out loud)
-void net_no_server_send()
+void net_server_send()
 {
-	g_send_data_to_server = false;
+	g_send_data_to_server = true;
 }
 
 // returns a unique (hopefully) randomly generated user id so we can track how many
