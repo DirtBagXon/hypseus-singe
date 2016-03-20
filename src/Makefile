@@ -10,10 +10,24 @@ endif
 
 include Makefile.vars
 
+ifndef VERBOSE
+ export SILENT=@
+ export CC_MSG = @echo Compiling $@
+ export AR_MSG = @echo Archiving $@
+ export EXE_MSG = @echo Creating executable: $@
+ export GEN_MSG = @echo Generating $@
+endif
+
 # send these to all the sub-Makefiles
 
 # name of the executable and dynamic libraries
-EXE = ../daphne.bin
+EXE_BASE = daphne.bin
+EXE_EXT = 
+ifeq ($(OS),Windows_NT)
+  EXE_EXT = .exe
+endif
+EXE = ../$(EXE_BASE)$(EXE_EXT)
+
 LIB_VLDP = ../libvldp2.so
 LIB_SINGE = ../libsinge.so
 
@@ -68,40 +82,40 @@ LOCAL_OBJS = daphne.o
 
 .SUFFIXES:	.cpp
 
-all:	${LOCAL_OBJS} sub
-	${CXX} ${DFLAGS} ${OBJS} -o ${EXE} ${LIBS}
+$(EXE):	${LOCAL_OBJS} subdirs
+	$(EXE_MSG)
+	$(SILENT)${CXX} ${DFLAGS} ${OBJS} -o ${EXE} ${LIBS}
 
-sub:
-	cd ldp-out && $(MAKE)
-	cd cpu && $(MAKE)
-	cd cpu/x86 && $(MAKE)
-	cd game && $(MAKE)
-	cd io && $(MAKE)
-	cd timer && $(MAKE)
-	cd ldp-in && $(MAKE)
-	cd video && $(MAKE)
-	cd sound && $(MAKE)
-	cd scoreboard && $(MAKE)
+SUBDIRS = ldp-out cpu cpu/x86 game io timer ldp-in video sound scoreboard
 
-include $(LOCAL_OBJS:.o=.d)
+.PHONY: subdirs $(SUBDIRS)
+
+subdirs: $(SUBDIRS)
+
+$(SUBDIRS):
+	$(SILENT)$(MAKE) -s -C $@
+
+-include $(LOCAL_OBJS:.o=.d)
 
 .cpp.o:
-	${CXX} ${CFLAGS} -c $< -o $@
+	$(CC_MSG)
+	$(SILENT)$(CXX) ${CFLAGS} -c $< -o $@
 
 clean_deps:
-	find . -name "*.d" -exec rm {} \;
+	$(SILENT)find . -name "*.d" -exec rm {} \;
 
 clean:	clean_deps
-	find . -name "*.o" -exec rm {} \;
-	rm -f ${EXE}
-	rm -f ${LIB_VLDP}
-	rm -f ${LIB_SINGE}
+	$(SILENT)find . -name "*.o" -exec rm {} \;
+	$(SILENT)rm -f ${EXE}
+	$(SILENT)rm -f ${LIB_VLDP}
+	$(SILENT)rm -f ${LIB_SINGE}
 
 testvldp:	testvldp.c
 	${CC} ${CFLAGS} -DSHOW_FRAMES -DUSE_OVERLAY testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp
 
 %.d : %.cpp
-	set -e; $(CXX) -MM $(CFLAGS) $< \
+	$(GEN_MSG)
+	$(SILENT)set -e; $(CXX) -MM $(CFLAGS) $< \
                 | sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@; \
                 [ -s $@ ] || rm -f $@
 

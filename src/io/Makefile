@@ -1,7 +1,8 @@
 # sub Makefile
 
 %.d : %.cpp
-	set -e; $(CXX) -MM $(CFLAGS) $< \
+	$(GEN_MSG)/$@
+	$(SILENT)set -e; $(CXX) -MM $(CFLAGS) $< \
 		| sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@; \
 		[ -s $@ ] || rm -f $@
 
@@ -13,10 +14,11 @@ OBJS = input.o serial.o conout.o cmdline.o conin.o parallel.o error.o \
 
 all:	${OBJS}
 
-include $(OBJS:.o=.d)
+-include $(OBJS:.o=.d)
 
 .cpp.o:
-	${CXX} ${CFLAGS} -c $< -o $@
+	$(CC_MSG)/$@
+	$(SILENT)${CXX} ${CFLAGS} -c $< -o $@
 
 clean:
-	rm -f ${OBJS} *.d
+	$(SILENT)rm -f ${OBJS} *.d
