@@ -4,6 +4,10 @@
 # You need to symlink the set of variables that correspond to that platform
 # that you are using.  For example, if you are compiling for linux, you would
 # do "ln -s Makefile.vars.linux Makefile.vars"
+ifeq ("$(wildcard Makefile.vars)","")
+  $(error Makefile.vars not found. Read documentation)
+endif
+
 include Makefile.vars
 
 # send these to all the sub-Makefiles
