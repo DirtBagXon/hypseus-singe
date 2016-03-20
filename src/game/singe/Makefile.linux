@@ -12,10 +12,10 @@ CC = gcc
 #DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops -DVLDP_BENCHMARK
 
 # Standard version
-DFLAGS = -O3 -march=i686 -fomit-frame-pointer -funroll-loops
+DFLAGS = -O3 -fomit-frame-pointer -funroll-loops -fkeep-inline-functions
 
-CFLAGS = ${DFLAGS} `sdl-config --cflags` 
-LIBS = `sdl-config --libs` -lSDL_image -lSDL_ttf
+CFLAGS := ${DFLAGS} $(shell sdl-config --cflags)
+LIBS := $(shell sdl-config --libs) -lSDL_image -lSDL_ttf
 
 OBJS =  singeproxy.o lbaselib.o ldblib.o ldump.o lapi.o lauxlib.o lcode.o ldebug.o ldo.o \
 	lfunc.o	lgc.o linit.o liolib.o llex.o lmathlib.o lmem.o \
@@ -27,8 +27,11 @@ LIBNAME =	libsinge.so
 
 .SUFFIXES:	.c .cpp 
 
+.cpp.o:
+		${CXX} -fPIC ${CFLAGS} -c $< -o $@
+
 .c.o:
-		${CC} ${CFLAGS} -c $< -o $@
+		${CC} -fPIC ${CFLAGS} -c $< -o $@
 
 all:		singe
 
@@ -38,4 +41,4 @@ singe:		${OBJS}
 
 clean:
 		rm -f ${LIBNAME} ${OBJS}
-		
+
