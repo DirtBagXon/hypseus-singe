@@ -12,10 +12,22 @@ include Makefile.vars
 
 ifndef VERBOSE
  export SILENT=@
- export CC_MSG = @echo Compiling $@
- export AR_MSG = @echo Archiving $@
- export EXE_MSG = @echo Creating executable: $@
- export GEN_MSG = @echo Generating $@
+endif
+export CC_MSG = @echo Compiling $@
+export AR_MSG = @echo Archiving $@
+export EXE_MSG = @echo Creating executable: $@
+export GEN_MSG = @echo Generating $@
+
+ifneq ($(origin TOOLCHAIN),undefined)
+export CC := $(TOOLCHAIN)-$(CC)
+export CXX := $(TOOLCHAIN)-$(CXX)
+export AR := $(TOOLCHAIN)-$(AR)
+endif
+ 
+ifneq ($(origin CROSS),undefined)
+export STRIP := $(TOOLCHAIN)-$(STRIP)
+export PKG_CONFIG := $(TOOLCHAIN)-$(PKG_CONFIG)
+export WINDRES := $(TOOLCHAIN)-$(WINDRES)
 endif
 
 # send these to all the sub-Makefiles
@@ -82,7 +94,11 @@ SUBDIRS = ldp-out cpu cpu/x86 game io timer ldp-in video sound scoreboard
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
+ifndef VERBOSE
 	$(SILENT)$(MAKE) -s -C $@
+else
+	$(SILENT)$(MAKE) -C $@
+endif
 
 -include $(LOCAL_OBJS:.o=.d)
 
