@@ -473,6 +473,7 @@ void process_event(SDL_Event *event)
 					// else cast failed, and we would crash if we tried to call process_keydown
 					// cast would fail if g_game is not a thayers class
 
+#ifdef BUILD_SINGE
 				} else {
 
 					if (thisGame == GAME_SINGE)
@@ -480,6 +481,7 @@ void process_event(SDL_Event *event)
 						singe *l_singe = dynamic_cast<singe *>(g_game);
 						if (l_singe) l_singe->process_keydown(keyPressed, g_key_defs);
 					} 
+#endif
 				} 
 			}
 			
@@ -507,6 +509,7 @@ void process_event(SDL_Event *event)
 					
 					// else cast failed, and we would crash if we tried to call process_keydown
 					// cast would fail if g_game is not a thayers class
+#ifdef BUILD_SINGE
 				} else {
 
 					if (thisGame == GAME_SINGE)
@@ -515,6 +518,7 @@ void process_event(SDL_Event *event)
 						if (l_singe) l_singe->process_keyup(keyPressed, g_key_defs);
 						
 					} 
+#endif
 				} 
 			}
 			

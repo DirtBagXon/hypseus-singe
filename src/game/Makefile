@@ -10,11 +10,12 @@ LOCAL_OBJS = game.o boardinfo.o lair.o superd.o thayers.o astron.o firefox.o \
 	cliff.o speedtest.o seektest.o cputest.o ffr.o esh.o laireuro.o \
 	badlands.o starrider.o bega.o multicputest.o cobraconv.o gpworld.o \
         interstellar.o benchmark.o lair2.o mach3.o lgp.o timetrav.o \
-	releasetest.o singe.o test_sb.o
+	releasetest.o test_sb.o
 
 SUBDIRS = 
 
 ifeq ($(BUILD_SINGE),1)
+LOCAL_OBJS += singe.o
 SUBDIRS += singe
 endif
 
