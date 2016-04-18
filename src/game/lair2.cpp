@@ -41,7 +41,7 @@ NORMAL_MODE = 0x20
 
 */
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable:4100) // disable warning about unreferenced parameter
 #endif
 

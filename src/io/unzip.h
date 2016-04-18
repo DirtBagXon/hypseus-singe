@@ -39,7 +39,7 @@
       ftp://ftp.pkware.com/probdesc.zip */
 
 // start MATT
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable:4131)	// disable the warning about using old-styled parameter
 #endif
 // end MATT

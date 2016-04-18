@@ -4,4 +4,5 @@ daphne.bin
 *.d
 *.so
 *.a
+*.res
 roms/*.zip

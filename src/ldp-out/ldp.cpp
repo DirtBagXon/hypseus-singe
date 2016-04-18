@@ -47,7 +47,7 @@
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable:4100)	// disable the warning about unreferenced parameters
 #endif
 

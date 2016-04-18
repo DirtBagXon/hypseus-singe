@@ -40,7 +40,6 @@ struct net_packet
 	unsigned int user_id;
 	unsigned char os;
 	char os_desc[NET_LONGSTRSIZE];	// long OS description
-	unsigned int mhz;
 	unsigned int mem;
 	char cpu_name[NET_LONGSTRSIZE];	// long cpu description
 	char video_desc[NET_LONGSTRSIZE];	// long video description
@@ -56,7 +55,6 @@ void net_server_send();
 unsigned int get_user_id();
 void net_set_gamename(char *gamename);
 void net_set_ldpname(char *ldpname);
-unsigned int get_cpu_mhz();
 unsigned int get_sys_mem();
 char *get_video_description();
 char *get_cpu_name();

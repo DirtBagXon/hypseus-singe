@@ -49,7 +49,7 @@
 #include "cpu-debug.h"	// MPO
 #include "mamewrap.h"// for CPU INFO
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable:4244)	// disable the warning about possible loss of data
 #endif
 

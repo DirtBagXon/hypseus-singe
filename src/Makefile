@@ -24,6 +24,10 @@ export CXX := $(TOOLCHAIN)-$(CXX)
 export AR := $(TOOLCHAIN)-$(AR)
 endif
  
+PKG_CONFIG=pkg-config
+STRIP=strip
+WINDRES=windres
+
 ifneq ($(origin CROSS),undefined)
 export STRIP := $(TOOLCHAIN)-$(STRIP)
 export PKG_CONFIG := $(TOOLCHAIN)-$(PKG_CONFIG)
@@ -34,13 +38,10 @@ endif
 
 # name of the executable and dynamic libraries
 EXE_BASE = daphne.bin
-EXE_EXT = 
 ifeq ($(OS),Windows_NT)
   EXE_EXT = .exe
 endif
 EXE = ../$(EXE_BASE)$(EXE_EXT)
-
-OBJS = 
 
 LIB_VLDP = ../libvldp2.so
 
@@ -72,7 +73,6 @@ EXE = ../daphne2x
 DEFINE_STATIC_VLDP = -DSTATIC_VLDP
 endif
 
-
 # Platform specific cflags defined in the Makefile.vars file
 export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} -Wall
 
@@ -87,7 +87,7 @@ $(EXE):	${LOCAL_OBJS} subdirs
 	$(EXE_MSG)
 	$(SILENT)${CXX} ${DFLAGS} ${OBJS} -o ${EXE} ${LIBS}
 
-SUBDIRS = ldp-out cpu cpu/x86 game io timer ldp-in video sound scoreboard
+SUBDIRS += ldp-out cpu cpu/x86 game io timer ldp-in video sound scoreboard
 
 .PHONY: subdirs $(SUBDIRS)
 

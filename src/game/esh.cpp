@@ -30,7 +30,7 @@
 // f000 - f3ff video ram
 // f400 - f7ff video control ram
 
-#ifdef WIN32
+#ifdef _MSC_VER
 // disable "unreferenced inline function has been removed" warning
 #pragma warning( disable: 4514 )
 #endif

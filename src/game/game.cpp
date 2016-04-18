@@ -23,7 +23,7 @@
 // game.cpp
 // by Matt Ownby
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable:4100) // disable warning about unreferenced parameter
 
 // this doesn't disable the warnings I want disabled :(

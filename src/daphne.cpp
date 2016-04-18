@@ -375,7 +375,7 @@ void reset_logfile(int argc, char **argv)
 		str = str + argv[i] + " ";
 	}
 	printline(str.c_str());
-	snprintf(s, sizeof(s), "--CPU : %s %d MHz || Mem : %d megs", get_cpu_name(), get_cpu_mhz(), get_sys_mem());
+	snprintf(s, sizeof(s), "--CPU : %s || Mem : %d megs", get_cpu_name(), get_sys_mem());
 	printline(s);
 	snprintf(s, sizeof(s), "--OS : %s || Video : %s", get_os_description(), get_video_description());
 	printline(s);

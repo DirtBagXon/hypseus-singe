@@ -26,7 +26,7 @@
 // pretends to be an LDP, but uses the VLDP library for output
 // (for people who have no laserdisc player)
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #pragma warning (disable:4100)	// disable the warning about unreferenced formal parameters (MSVC++)
 #pragma warning (disable:4786) // disable warning about truncating to 255 in debug info
 #define strcasecmp stricmp
@@ -1188,7 +1188,12 @@ bool ldp_vldp::load_vldp_lib()
 	}
 	else
 	{
+#ifndef WIN32
 		printf("%s\n", dlerror());
+#else
+		DWORD dwRet = GetLastError();
+		printf("%ld\n", dwRet);
+#endif
 		printerror("ERROR: could not open the VLDP2 dynamic library (file not found maybe?)");
 	}
 

@@ -1234,7 +1234,7 @@ bool get_yuv_hwaccel()
 #ifdef WIN32
 	char buf[30];
 	ZeroMemory(buf, sizeof(buf));
-	DWORD res = GetEnvironmentVariable("SDL_VIDEO_YUV_HWACCEL", buf, sizeof(buf));
+	GetEnvironmentVariable("SDL_VIDEO_YUV_HWACCEL", buf, sizeof(buf));
 	if (buf[0] == '0') result = false;
 #else
 	char *hw_env = getenv("SDL_VIDEO_YUV_HWACCEL");

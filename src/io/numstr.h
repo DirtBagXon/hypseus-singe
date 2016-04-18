@@ -31,13 +31,10 @@
 #ifndef NUMSTR_H
 #define NUMSTR_H
 
-#ifdef WIN32
-typedef unsigned __int64 MPO_UINT64;
-typedef __int64 MPO_INT64;
-#else
-typedef unsigned long long MPO_UINT64;
-typedef long long MPO_INT64;
-#endif
+#include <stdint.h>
+
+typedef uint64_t MPO_UINT64;
+typedef int64_t MPO_INT64;
 
 #include <string>
 

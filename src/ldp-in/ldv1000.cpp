@@ -607,9 +607,9 @@ unsigned int g_ldv1000_last_event = 0;
 
 void ldv1000_event_callback(void *eventType)
 {
-	g_ldv1000_last_event = (unsigned long) eventType;	// changed to long for x64 support (thanks Joker)
+	g_ldv1000_last_event = (uint64_t) eventType;	// changed to long for x64 support (thanks Joker)
 
-	switch ((unsigned long) eventType)
+	switch ((uint64_t) eventType)
 	{
 	case LDV1000_EVENT_VSYNC_END:
 #ifdef DEBUG

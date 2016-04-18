@@ -153,7 +153,7 @@ void net_set_ldpname(char *ldpname)
 	strncpy(g_packet.ldpname, ldpname, sizeof(g_packet.ldpname));
 }
 
-#ifdef WIN32
+#if defined(_MSC_VER) && defined(_M_IX86)
 // some code I found to calculate cpu mhz
 _inline unsigned __int64 GetCycleCount(void)
 {
@@ -161,71 +161,6 @@ _inline unsigned __int64 GetCycleCount(void)
     _asm    _emit 0x31
 }
 #endif
-
-// gets the cpu's mhz (rounds to nearest 50 MHz)
-unsigned int get_cpu_mhz()
-{
-	unsigned int result = 0;
-	unsigned int mod = 0;
-#ifdef LINUX
-#ifdef NATIVE_CPU_X86
-	FILE *F;
-	double mhz;
-	const char *s = "cat /proc/cpuinfo | grep MHz | sed -e 's/^.*: //'";
-	F = popen(s, "r");
-	if (F)
-	{
-		fscanf(F, "%lf", &mhz);
-		pclose(F);
-	}
-	result = (unsigned int) mhz;
-#endif // NATIVE_CPU_X86
-#ifdef NATIVE_CPU_MIPS
-	result = 294;	// assume playstation 2 for now :)
-#endif // NATIVE_CPU_MIPS
-#endif // LINUX
-
-#ifdef FREEBSD
-	FILE *F;
-	double mhz;
-	char command[128]="dmesg | grep CPU | perl -e 'while (<>) {if ($_ =~ /\\D+(\\d+).+-MHz.+/) {print \"$1\n\"}}' > /tmp/result.txt"; 
-	system(command);
-	F = fopen("/tmp/result.txt", "rb");
-	if (F)
-	{
-		fscanf(F, "%lf", &mhz);
-		fclose(F);
-		unlink("/tmp/result.txt");
-	}
-	result = (unsigned int) mhz;
-#endif
-	
-
-#ifdef WIN32
-	unsigned __int64  m_startcycle;
-	unsigned __int64  m_res;
-
-	m_startcycle = GetCycleCount();
-	Sleep(1000); 
-	m_res = GetCycleCount()-m_startcycle;
-
-	result = (unsigned int)(m_res / 1000000);	// convert Hz to MHz
-#endif
-
-#ifdef MAC_OSX
-	long cpuSpeed = 0;
-	Gestalt(gestaltProcClkSpeed, &cpuSpeed);
-	result = (unsigned int)(cpuSpeed / 1000000);
-	return result;
-#endif
-
-	// round to nearest 50 MHz
-	result += 25;	// for rounding
-	mod = result % 50;
-	result -= mod;
-	
-	return result;
-}
 
 // gets the cpu's memory, rounds to nearest 64 megs of RAM
 unsigned int get_sys_mem()
@@ -360,7 +295,7 @@ char *get_cpu_name()
 
 #ifdef NATIVE_CPU_X86
 	unsigned int reg_ebx, reg_ecx, reg_edx;
-#ifdef WIN32
+#if defined(_MSC_VER) && defined(_M_IX86)
 	_asm
 	{
 		xor eax, eax
@@ -603,7 +538,6 @@ void net_send_data_to_server()
 
 				strncpy(g_packet.os_desc, get_os_description(), sizeof(g_packet.os_desc));
 				g_packet.protocol = PROTOCOL_VERSION;
-				g_packet.mhz = get_cpu_mhz();
 				g_packet.mem = get_sys_mem();
 				strncpy(g_packet.video_desc, get_video_description(), sizeof(g_packet.video_desc));
 				strncpy(g_packet.cpu_name, get_cpu_name(), sizeof(g_packet.cpu_name));
