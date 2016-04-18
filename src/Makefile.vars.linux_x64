@@ -18,12 +18,13 @@ DFLAGS = -O3 -fexpensive-optimizations -funroll-loops -fPIC
 
 # uncomment this to link VLDP statically instead of dynamically 
 #export STATIC_VLDP = 1 
-#export STATIC_SINGE = 1
+
+# uncomment to include singe support
+#export BUILD_SINGE = 1
 
 # platform-specific compile flags 
-# Add -DBUILD_SINGE to enable SINGE
 PFLAGS = ${DFLAGS} `sdl-config --cflags` -DUNIX -DLINUX -DNATIVE_CPU_X86 \
-	-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL -DBUILD_SINGE
+	-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL
 
 # platform-specific lib flags 
 LIBS = `sdl-config --libs` -ldl -lz -logg -lvorbis -lvorbisfile -lGLEW -lGL

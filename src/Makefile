@@ -28,11 +28,11 @@ ifeq ($(OS),Windows_NT)
 endif
 EXE = ../$(EXE_BASE)$(EXE_EXT)
 
+OBJS = 
+
 LIB_VLDP = ../libvldp2.so
-LIB_SINGE = ../libsinge.so
 
 VLDP_OBJS =
-SINGE_OBJS =
 
 # if we are statically linking VLDP (instead of dynamic)
 # NOTE : these libs must be compiled separately beforehand (as if building a shared vldp)
@@ -44,21 +44,11 @@ VLDP_OBJS = vldp2/vldp/vldp.o vldp2/vldp/vldp_internal.o vldp2/vldp/mpegscan.o \
 DEFINE_STATIC_VLDP = -DSTATIC_VLDP
 endif
 
-# if doing the same for SINGE...  by RDG2010
-ifeq ($(STATIC_SINGE),1)
-SINGE_OBJS =  game/singe/lbaselib.o game/singe/ldblib.o \
-	game/singe/ldump.o game/singe/lapi.o game/singe/lauxlib.o \
-	game/singe/lcode.o game/singe/ldebug.o game/singe/ldo.o \
-	game/singe/lfunc.o game/singe/linit.o game/singe/lgc.o \
-	game/singe/liolib.o game/singe/llex.o game/singe/lmathlib.o \
-	game/singe/lmem.o game/singe/loadlib.o game/singe/lobject.o \
-	game/singe/lopcodes.o game/singe/loslib.o game/singe/lparser.o \
-	game/singe/lstate.o game/singe/lstring.o game/singe/lstrlib.o game/singe/ltable.o \
-	game/singe/ltablib.o game/singe/ltm.o game/singe/lundump.o \
-	game/singe/lvm.o game/singe/lzio.o game/singe/lrandom.o game/singe/random.o \
-	game/singe/singeproxy.o
-
-DEFINE_STATIC_SINGE = -DSTATIC_SINGE
+# ...  by RDG2010
+ifeq ($(BUILD_SINGE),1)
+LIBS += -lSDL_image -lSDL_ttf $(shell pkg-config --libs lua)
+PFLAGS += -DBUILD_SINGE
+OBJS += game/singe/*.o
 endif
 
 # gp2x static linking is slightly different because the decoding
@@ -72,11 +62,10 @@ endif
 
 
 # Platform specific cflags defined in the Makefile.vars file
-#export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} ${DEFINE_STATIC_SINGE} -Wall -Werror
-export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} ${DEFINE_STATIC_SINGE} -Wall
+export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} -Wall
 
-OBJS = ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
-	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${SINGE_OBJS} ${VLDP_OBJS} 
+OBJS += ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
+	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}
 
 LOCAL_OBJS = daphne.o
 

@@ -482,7 +482,7 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
 
 void sep_startup(const char *script)
 {
-  g_se_lua_context = lua_open();
+  g_se_lua_context = luaL_newstate();
   luaL_openlibs(g_se_lua_context);
 	lua_atpanic(g_se_lua_context, sep_lua_error);
 

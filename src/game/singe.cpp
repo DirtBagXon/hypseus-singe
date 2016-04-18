@@ -80,37 +80,8 @@ bool singe::init()
 	bool bSuccess = false;
 	singeinitproc pSingeInit;	// pointer to the init proc ...
 
-#ifndef STATIC_SINGE	// if we're loading SINGE dynamically
-#ifndef DEBUG
-	m_dll_instance = M_LOAD_LIB(singe);	// load SINGE.DLL
-#else
-	m_dll_instance = M_LOAD_LIB(singed);	// load SINGED.DLL (debug version)
-#endif
-
-	// If the handle is valid, try to get the function address. 
-	if (m_dll_instance)
-	{
-		pSingeInit = (singeinitproc) M_GET_SYM(m_dll_instance, "singeproxy_init");
-
-		// if init function was found
-		if (pSingeInit)
-		{
-			bSuccess = true;
-		}
-		else
-		{
-			printerror("SINGE LOAD ERROR : singeproxy_init could not be loaded");
-		}
-	}
-	else
-	{
-		printerror("ERROR: could not open the SINGE dynamic library (file not found maybe?)");
-	}
-
-#else // else if we're loading SINGE statically
 	pSingeInit = singeproxy_init;
 	bSuccess = true;
-#endif // STATIC_SINGE
 
 	// if pSingeInit is valid ...
 	if (bSuccess)
@@ -201,12 +172,6 @@ bool singe::init()
 		printerror("You must use VLDP when using Singe.");
 		bSuccess = false;
 	}
-	if (!bSuccess)
-	{
-#ifndef STATIC_SINGE
-		M_FREE_LIB(m_dll_instance);
-#endif // STATIC_SINGE
-	}
 
 	return bSuccess;
 }
@@ -247,15 +212,6 @@ void singe::start()
 
 void singe::shutdown()
 {
-#ifndef STATIC_SINGE
-	// if a DLL is loaded, then free it
-	if (m_dll_instance)
-	{
-		M_FREE_LIB(m_dll_instance);
-		m_dll_instance = NULL;
-	}
-	// else do nothing ...
-#endif // STATIC_SINGE
 }
 
 void singe::input_enable(Uint8 input)

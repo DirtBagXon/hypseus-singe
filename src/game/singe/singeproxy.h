@@ -39,9 +39,9 @@
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
 {
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
 }
 
 ////////////////////////////////////////////////////////////////////////////////
