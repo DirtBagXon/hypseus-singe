@@ -60,7 +60,7 @@ static void null_draw_frame (vo_instance_t * instance,
 
 			if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks))
 			{
-				if (g_in_info->prepare_frame(&g_yuv_buf[(int) id]))
+				if (g_in_info->prepare_frame(&g_yuv_buf[(uintptr_t) id]))
 				{
 					while (((Sint32) (g_in_info->uMsTimer - s_timer) < correct_elapsed_ms)
 							&& (!bFrameNotShownDueToCmd))
@@ -88,7 +88,7 @@ static void null_draw_frame (vo_instance_t * instance,
 
 					if (!bFrameNotShownDueToCmd)
 					{
-						g_in_info->display_frame(&g_yuv_buf[(int) id]);
+						g_in_info->display_frame(&g_yuv_buf[(uintptr_t) id]);
 					}
 				}
 			}
@@ -165,7 +165,7 @@ static void null_draw_frame (vo_instance_t * instance,
 static void null_setup_fbuf (vo_instance_t * _instance,
 		uint8_t ** buf, void ** id)
 {
-	static int buffer_index = 0;
+	static uintptr_t buffer_index = 0;
 	*id = (int *) buffer_index;
 	buf[0] = g_yuv_buf[buffer_index].Y;
 	buf[1] = g_yuv_buf[buffer_index].U;
