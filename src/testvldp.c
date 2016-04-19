@@ -1,4 +1,4 @@
-#include "vldp3/vldp.h"	// VLDP stuff
+#include "vldp/vldp.h"	// VLDP stuff
 #include "io/dll.h"	// for DLL stuff
 #include "video/yuv2rgb.h"	// to bypass SDL's yuv overlay and do it ourselves ...
 

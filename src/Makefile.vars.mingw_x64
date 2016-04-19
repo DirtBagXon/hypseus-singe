@@ -11,13 +11,13 @@ export CROSS=1
 # optimized version 
 # NOTE : gcc 3.x has a bug that causes compilation to choke on m80.cpp 
 # If you want to -DGCC_X86_ASM for extra speed, you have to use g++ 3.0 or earlier 
-DFLAGS = -O3 -fexpensive-optimizations -funroll-loops
+DFLAGS = -O3 -fexpensive-optimizations -funroll-loops -fomit-frame-pointer
 
 # this is to be exported for MMX assembly optimization 
 #export USE_MMX = 1 
 
 # uncomment to include singe support
-#export BUILD_SINGE = 1
+export BUILD_SINGE = 1
 
 # platform-specific compile flags 
 PFLAGS = ${DFLAGS} $(shell $(TOOLCHAIN)-sdl-config --cflags) -DWIN32 -DNATIVE_CPU_X86 \

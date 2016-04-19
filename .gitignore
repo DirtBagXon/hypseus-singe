@@ -1,9 +1,10 @@
 *.o
-daphne.bin
+/daphne*
+/testvldp*
 .deps
 *.d
 *.so
 *.a
 *.res
-roms/*.zip
+roms
 src/Makefile.vars

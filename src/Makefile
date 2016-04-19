@@ -37,7 +37,7 @@ endif
 # send these to all the sub-Makefiles
 
 # name of the executable and dynamic libraries
-EXE_BASE = daphne.bin
+EXE_BASE = daphne
 ifeq ($(OS),Windows_NT)
   EXE_EXT = .exe
 endif
@@ -97,7 +97,7 @@ clean:	clean_deps
 	$(SILENT)rm -f ${LIB_SINGE}
 
 testvldp:	testvldp.c
-	${CC} ${CFLAGS} -DSHOW_FRAMES -DUSE_OVERLAY testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp
+	${CC} ${CFLAGS} -DSHOW_FRAMES -DUSE_OVERLAY testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
 
 %.d : %.cpp
 	$(GEN_MSG)
