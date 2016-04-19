@@ -1,30 +1,41 @@
-Daphne: the First Ever Multiple Arcade Laserdisc Emulator
-=========================================================
+# Daphne Fork: the First Ever Multiple Arcade Laserdisc Emulator
 
----
+[Daphne] is a program that "lets one play the original versions of many
+laserdisc arcade games on one's PC".
 
-Daphne, the First Ever Multiple Arcade Laserdisc Emulator is a program 
-that lets one play the original versions of many laserdisc arcade games 
-on one's PC.
+## Compile
 
-The official website for Daphne is http://www.daphne-emu.com.
+In addition to a working [gcc] toolchain, you will need (at minimum):
+[zlib], [libmpeg2], [SDL], [SDL_Mixer] and [SDL_Image].
 
-As development for Daphne has stopped, this repository is intended as 
-something of a continuation until the author decides to do something 
-official.
+    cd src
+    make VARS=Makefile.linux_x64 clean
+    make VARS=Makefile.linux_x64
 
-**Compiling Daphne on Linux**
-I'm not sure anymore how to get Daphne compiled for 32-bit Linux.  Here 
-I'll assume we're working on an amd64 processor.
+*Visual Studio is not supported, patches accepted!*
 
-`cd src/vldp2`
+## Support
 
-`./configure --disable-accel-detect`
+This is software is for educational purposes only. You may submit
+[issues] or [pull requests] to the [Github page].
 
-`make -f Makefile.linux_x64`
+**DO NOT submit issues or request support from the official Daphne forums!**
 
-`cd ..`
+## About
 
-`ln -s Makefile.vars.linux_x86 Makefile.vars`
+Open development by the original author, [Matt Ownby][CUS], was halted years ago.
+My intention for creating this public repository was to clean up the build
+process, and publish to Github to foster collaborative development.
 
-`make`
+[Github page]: https://github.com/zaplabs/daphne
+[issues]: https://github.com/zaplabs/daphne/issues
+[pull requests]: https://github.com/zaplabs/daphne/pulls
+[Daphne]: http://www.daphne-emu.com
+[CUS]: http://www.daphne-emu.com/site3/statement.php
+[gcc]: https://gcc.gnu.org/
+[zlib]: http://www.zlib.net/
+[libmpeg2]: http://libmpeg2.sourceforge.net/
+[SDL]: https://www.libsdl.org/download-1.2.php
+[SDL_Image]: https://www.libsdl.org/projects/SDL_image/release-1.2.html
+[SDL_Mixer]: https://www.libsdl.org/projects/SDL_mixer/release-1.2.html
+[GLEW]: http://glew.sourceforge.net/
