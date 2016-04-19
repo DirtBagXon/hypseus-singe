@@ -6,3 +6,4 @@ daphne.bin
 *.a
 *.res
 roms/*.zip
+src/Makefile.vars
