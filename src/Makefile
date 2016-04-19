@@ -3,12 +3,17 @@
 
 # You need to symlink the set of variables that correspond to that platform
 # that you are using.  For example, if you are compiling for linux, you would
-# do "ln -s Makefile.vars.linux Makefile.vars"
+# "ln -s Makefile.vars.linux Makefile.vars"
+# or make VARS=Makefile.vars.linux
 ifeq ("$(wildcard Makefile.vars)","")
-  $(error Makefile.vars not found. Read documentation)
+  ifneq ($(origin VARS),undefined)
+    include ${VARS}
+  else
+    $(error Makefile.vars not found. Read documentation)
+  endif
+else
+  include Makefile.vars
 endif
-
-include Makefile.vars
 
 ifndef VERBOSE
  export SILENT=@
