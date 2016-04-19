@@ -1,2 +1,0 @@
-Vldp2 is now compiled from the main daphne project from within Visual Studio.
-

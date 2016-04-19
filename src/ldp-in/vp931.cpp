@@ -190,7 +190,7 @@ void process_vp931_cmd (unsigned char value)
 			{
 				sprintf(s,"Unsupported VP931 Command Received: %x %x %x", command_byte[0], command_byte[1], command_byte[2]);
 				printline(s);
-#ifdef DEBUG
+#ifdef CPU_DEBUG
 				set_cpu_trace(1);
 #endif
 			}
@@ -202,7 +202,7 @@ void process_vp931_cmd (unsigned char value)
 		else if ((command_byte[0] & 0xf0) == 0xd0)
 		{
 			printline("VP931: Search and Halt command: Implement Me!");
-#ifdef DEBUG
+#ifdef CPU_DEBUG
 			set_cpu_trace(1);
 #endif
 		}
@@ -253,7 +253,7 @@ void process_vp931_cmd (unsigned char value)
 		{
 			sprintf(s,"Unsupported VP931 Command Received: %x %x %x", command_byte[0], command_byte[1], command_byte[2]);
 			printline(s);
-#ifdef DEBUG
+#ifdef CPU_DEBUG
 			set_cpu_trace(1);
 #endif
 		}

@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "../../vldp2/vldp/vldp.h"  // to get the vldp structs
+#include "../../vldp/vldp.h"  // to get the vldp structs
 
 // by RDG2010
 // Ubuntu Linux complains if SDL includes are used with quotes.

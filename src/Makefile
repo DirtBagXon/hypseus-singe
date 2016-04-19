@@ -43,20 +43,6 @@ ifeq ($(OS),Windows_NT)
 endif
 EXE = ../$(EXE_BASE)$(EXE_EXT)
 
-LIB_VLDP = ../libvldp2.so
-
-VLDP_OBJS =
-
-# if we are statically linking VLDP (instead of dynamic)
-# NOTE : these libs must be compiled separately beforehand (as if building a shared vldp)
-ifeq ($(STATIC_VLDP),1)
-VLDP_OBJS = vldp2/vldp/vldp.o vldp2/vldp/vldp_internal.o vldp2/vldp/mpegscan.o \
-	vldp2/libmpeg2/cpu_accel.o vldp2/libmpeg2/alloc.o vldp2/libmpeg2/cpu_state.o vldp2/libmpeg2/decode.o \
-	vldp2/libmpeg2/header.o vldp2/libmpeg2/motion_comp.o vldp2/libmpeg2/idct.o vldp2/libmpeg2/idct_mmx.o \
-	vldp2/libmpeg2/motion_comp_mmx.o vldp2/libmpeg2/slice.o vldp2/libvo/video_out.o vldp2/libvo/video_out_null.o
-DEFINE_STATIC_VLDP = -DSTATIC_VLDP
-endif
-
 # ...  by RDG2010
 ifeq ($(BUILD_SINGE),1)
 LIBS += -lSDL_image -lSDL_ttf $(shell pkg-config --libs lua)
@@ -64,17 +50,12 @@ PFLAGS += -DBUILD_SINGE
 OBJS += game/singe/*.o
 endif
 
-# gp2x static linking is slightly different because the decoding
-#  is done on the 940 cpu
-ifeq ($(STATIC_VLDP_GP2X),1)
-VLDP_OBJS = vldp2/vldp/vldp.o vldp2/vldp/vldp_internal.o vldp2/vldp/mpegscan.o \
-	vldp2/libvo/video_out_null.o vldp2/940/interface_920.o
-EXE = ../daphne2x
-DEFINE_STATIC_VLDP = -DSTATIC_VLDP
-endif
+VLDP_OBJS = vldp/*.o
+PFLAGS += $(shell pkg-config --cflags libmpeg2 libmpeg2convert)
+LIBS += $(shell pkg-config --libs libmpeg2 libmpeg2convert)
 
 # Platform specific cflags defined in the Makefile.vars file
-export CFLAGS = ${PFLAGS} ${DEFINE_STATIC_VLDP} -Wall
+export CFLAGS = ${PFLAGS} -Wall
 
 OBJS += ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
 	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}
@@ -87,7 +68,7 @@ $(EXE):	${LOCAL_OBJS} subdirs
 	$(EXE_MSG)
 	$(SILENT)${CXX} ${DFLAGS} ${OBJS} -o ${EXE} ${LIBS}
 
-SUBDIRS += ldp-out cpu cpu/x86 game io timer ldp-in video sound scoreboard
+SUBDIRS += ldp-out cpu cpu/x86 game io timer ldp-in video sound scoreboard vldp
 
 .PHONY: subdirs $(SUBDIRS)
 

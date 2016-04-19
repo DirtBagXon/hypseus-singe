@@ -1,7 +1,7 @@
 #ifdef GP2X
 
-#include "../vldp2/940/interface_920.h"
-#include "../vldp2/vldp/vldp.h"
+#include "../vldp/940/interface_920.h"
+#include "../vldp/vldp.h"
 #include "../io/conout.h"
 #include "../timer/timer.h"
 

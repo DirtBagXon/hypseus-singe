@@ -8,7 +8,7 @@
 #endif
 
 #include <string.h>	// for memcpy
-#include "../vldp2/vldp/vldp.h"	// to get the vldp structs
+#include "../vldp/vldp.h"	// to get the vldp structs
 #include "ldp-vldp.h"
 #include "ldp-vldp-gl.h"
 #include "ldp.h"

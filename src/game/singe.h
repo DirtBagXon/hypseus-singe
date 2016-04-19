@@ -31,7 +31,7 @@
 #include "../sound/samples.h"
 #include "../video/palette.h"
 #include "../video/video.h"
-#include "../vldp2/vldp/vldp.h"  // to get the vldp structs
+#include "../vldp/vldp.h"  // to get the vldp structs
 
 #include <string>
 

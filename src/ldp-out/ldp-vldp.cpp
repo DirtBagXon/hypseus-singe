@@ -56,7 +56,7 @@
 #include "framemod.h"
 #include "ldp-vldp-gl.h"	// for OpenGL callbacks
 #include "ldp-vldp-gp2x.h"	// for GP2X callbacks (if no gp2x, this is harmless)
-#include "../vldp2/vldp/vldp.h"	// to get the vldp structs
+#include "../vldp/vldp.h"	// to get the vldp structs
 #include "../video/palette.h"
 #include "../video/SDL_DrawText.h"
 #include "../video/blend.h"
@@ -1164,43 +1164,8 @@ bool ldp_vldp::load_vldp_lib()
 {
 	bool result = false;
 
-#ifndef STATIC_VLDP	// if we're loading VLDP dynamically
-#ifndef DEBUG
-    m_dll_instance = M_LOAD_LIB(vldp2);	// load VLDP2.DLL or libvldp2.so
-#else
-	m_dll_instance = M_LOAD_LIB(vldp2_dbg);
-#endif
-	
-    // If the handle is valid, try to get the function address. 
-    if (m_dll_instance)
-    {
-		pvldp_init = (initproc) M_GET_SYM(m_dll_instance, "vldp_init");
-		
-		// if init function was found
-		if (pvldp_init)
-		{
-			result = true;
-		}
-		else
-		{
-			printerror("VLDP LOAD ERROR : vldp_init could not be loaded");
-		}
-	}
-	else
-	{
-#ifndef WIN32
-		printf("%s\n", dlerror());
-#else
-		DWORD dwRet = GetLastError();
-		printf("%ld\n", dwRet);
-#endif
-		printerror("ERROR: could not open the VLDP2 dynamic library (file not found maybe?)");
-	}
-
-#else // else if we're loading VLDP statically
 	pvldp_init = vldp_init;
 	result = true;
-#endif // STATIC_VLDP
 	
 	return result;
 }
@@ -1208,15 +1173,6 @@ bool ldp_vldp::load_vldp_lib()
 // frees the VLDP dynamic library if we loaded it in
 void ldp_vldp::free_vldp_lib()
 {
-#ifndef STATIC_VLDP	// if we loaded vldp dynamically, then we need to unload it properly...
-
-	// don't free if the library was never opened
-	if (m_dll_instance)
-	{
-		M_FREE_LIB(m_dll_instance);
-	}
-
-#endif // STATIC_VLDP
 }
 
 

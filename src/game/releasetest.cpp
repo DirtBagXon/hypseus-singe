@@ -41,7 +41,7 @@
 #include "../video/video.h"	// for draw_string
 #include "../video/blend.h"
 #include "../ldp-out/ldp-vldp.h"
-#include "../vldp2/vldp/vldp.h"
+#include "../vldp/vldp.h"
 #include "../sound/sound.h"
 #include "../sound/samples.h"
 #include "../sound/mix.h"

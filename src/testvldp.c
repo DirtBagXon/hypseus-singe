@@ -1,4 +1,4 @@
-#include "vldp2/vldp/vldp.h"	// VLDP stuff
+#include "vldp3/vldp.h"	// VLDP stuff
 #include "io/dll.h"	// for DLL stuff
 #include "video/yuv2rgb.h"	// to bypass SDL's yuv overlay and do it ourselves ...
 
@@ -374,24 +374,18 @@ int main(int argc, char **argv)
 
 #endif
 
-#ifndef STATIC_VLDP
-	dll_instance = M_LOAD_LIB(vldp2);	// load VLDP2.DLL or libvldp2.so
-
-	// If the handle is valid, try to get the function address. 
-	if (dll_instance)
-	{
-		pvldp_init = (initproc) M_GET_SYM(dll_instance, "vldp_init");
-#else
 		pvldp_init = (initproc) &vldp_init;
-#endif // STATIC_VLDP
 		
 		// if all functions were found, then return success
 		if (pvldp_init)
 		{
 			g_local_info.prepare_frame = prepare_frame_callback;
-			g_local_info.prepare_yuy2_frame = prepare_yuy2_frame_callback;
 			g_local_info.display_frame = display_frame_callback;
+#ifdef GP2X
+			// gp2x receives a yuy2 frame directly
+			g_local_info.prepare_yuy2_frame = prepare_yuy2_frame_callback;
 			g_local_info.display_yuy2_frame = display_yuy2_frame_callback;
+#endif
 			g_local_info.report_parse_progress = report_parse_progress_callback;
 			g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
 			g_local_info.render_blank_frame = blank_overlay_callback;
@@ -412,14 +406,6 @@ int main(int argc, char **argv)
 		{
 			printerror("VLDP LOAD ERROR : vldp_init could not be loaded");
 		}
-#ifndef STATIC_VLDP
-		M_FREE_LIB(dll_instance);
-	}
-	else
-	{
-		printerror("ERROR: could not open the VLDP2 dynamic library (file not found maybe?)");
-	}
-#endif // STATIC_VLDP
 
 #ifdef SHOW_FRAMES
 
