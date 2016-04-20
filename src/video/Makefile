@@ -23,14 +23,14 @@ all:	${OBJS} rgb2yuv-asm blend_mmx-asm
 # so that non-MMX cpu's don't choke here ...
 rgb2yuv-asm:	rgb2yuv-gas.s
 ifeq ($(USE_MMX),1)
-	$(CC_MSG)/$@
-	$(SILENT)as rgb2yuv-gas.s -o rgb2yuv-gas.o
+	$(AS_MSG)/$@
+	$(SILENT)${AS} rgb2yuv-gas.s -o rgb2yuv-gas.o
 endif
 
 blend_mmx-asm:	blend_mmx-gas.s
 ifeq ($(USE_MMX),1)
-	$(CC_MSG)/$@
-	$(SILENT)as blend_mmx-gas.s -o blend_mmx-gas.o
+	$(AS_MSG)/$@
+	$(SILENT)${AS} blend_mmx-gas.s -o blend_mmx-gas.o
 endif
 
 clean:

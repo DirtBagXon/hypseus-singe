@@ -20,6 +20,7 @@ ifndef VERBOSE
 endif
 export CC_MSG = @echo Compiling $@
 export AR_MSG = @echo Archiving $@
+export AS_MSG = @echo Assembling $@
 export EXE_MSG = @echo Creating executable: $@
 export GEN_MSG = @echo Generating $@
 
@@ -27,6 +28,7 @@ ifneq ($(origin TOOLCHAIN),undefined)
 export CC := $(TOOLCHAIN)-$(CC)
 export CXX := $(TOOLCHAIN)-$(CXX)
 export AR := $(TOOLCHAIN)-$(AR)
+export AS := $(TOOLCHAIN)-$(AS)
 endif
  
 PKG_CONFIG=pkg-config
@@ -41,7 +43,9 @@ export SDL_CONFIG := $(TOOLCHAIN)-$(SDL_CONFIG)
 export WINDRES := $(TOOLCHAIN)-$(WINDRES)
 endif
 
-# send these to all the sub-Makefiles
+ifeq ($(USE_MMX),1)
+PFLAGS += -DUSE_MMX
+endif
 
 # name of the executable and dynamic libraries
 EXE_BASE = daphne
@@ -99,10 +103,9 @@ clean_deps:
 	$(SILENT)find . -name "*.d" -exec rm {} \;
 
 clean:	clean_deps
+	$(SILENT)rm -f ${OBJS}
 	$(SILENT)find . -name "*.o" -exec rm {} \;
 	$(SILENT)rm -f ${EXE}
-	$(SILENT)rm -f ${LIB_VLDP}
-	$(SILENT)rm -f ${LIB_SINGE}
 
 testvldp:	testvldp.c
 	${CC} ${CFLAGS} -DSHOW_FRAMES -DUSE_OVERLAY testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)

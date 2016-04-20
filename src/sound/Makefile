@@ -22,8 +22,8 @@ all:	${OBJS} mix_mmx-asm
 # MMX audio mixing function (conditional upon whether USE_MMX is defined)
 mix_mmx-asm:  mix_mmx-gas.s
 ifeq ($(USE_MMX),1)
-	$(CC_MSG)/$@
-	$(SILENT)as mix_mmx-gas.s -o mix_mmx-gas.o
+	$(AS_MSG)/$@
+	$(SILENT)${AS} mix_mmx-gas.s -o mix_mmx-gas.o
 endif
 
 clean:
