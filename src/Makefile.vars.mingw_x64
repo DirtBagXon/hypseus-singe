@@ -4,6 +4,9 @@
 export TOOLCHAIN=x86_64-w64-mingw32.static
 export CROSS=1
 
+export CXX=g++
+export CC=gcc
+
 # debugging version 
 #DFLAGS = -g -DCPU_DEBUG 
 #DFLAGS = -ggdb -DCPU_DEBUG -DDEBUG -O0
@@ -20,7 +23,7 @@ DFLAGS = -O3 -fexpensive-optimizations -funroll-loops -fomit-frame-pointer
 export BUILD_SINGE = 1
 
 # platform-specific compile flags 
-PFLAGS = ${DFLAGS} $(shell $(TOOLCHAIN)-sdl-config --cflags) -DWIN32 -DNATIVE_CPU_X86 \
+PFLAGS = ${DFLAGS} -DWIN32 -DNATIVE_CPU_X86 \
 	-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL -DGLEW_STATIC
 
 SUBDIRS = win32
@@ -30,4 +33,4 @@ OBJS += win32/daphne.res
 EXE_EXT = .exe
 
 # platform-specific lib flags 
-LIBS = -lwinmm -lws2_32 -lz $(shell ${PKG_CONFIG} --libs sdl ogg vorbis vorbisfile glew)
+LIBS = -lwinmm -lws2_32 -lz $(shell ${PKG_CONFIG} --libs ogg vorbis vorbisfile glew)

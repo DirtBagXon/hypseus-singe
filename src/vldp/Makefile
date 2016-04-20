@@ -1,6 +1,3 @@
-CFLAGS += $(shell pkg-config --cflags libmpeg2 libmpeg2convert) $(shell pkg-config --cflags sdl)
-LIBS += $(shell pkg-config --libs libmpeg2 libmpeg2convert) $(shell pkg-config --libs sdl)
-
 %.d : %.cpp
 	$(GEN_MSG)/$@
 	$(SILENT)set -e; $(CXX) -MM $(CFLAGS) $< \

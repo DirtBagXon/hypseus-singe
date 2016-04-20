@@ -19,8 +19,8 @@ DFLAGS = -O3 -fexpensive-optimizations -funroll-loops -fomit-frame-pointer
 export BUILD_SINGE = 1
 
 # platform-specific compile flags 
-PFLAGS = ${DFLAGS} $(shell sdl-config --cflags) -DUNIX -DLINUX -DNATIVE_CPU_X86 \
+PFLAGS = ${DFLAGS} -DUNIX -DLINUX -DNATIVE_CPU_X86 \
 	-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL
 
 # platform-specific lib flags 
-LIBS = $(shell sdl-config --libs) -ldl -lz -logg -lvorbis -lvorbisfile -lGLEW -lGL
+LIBS = -lz -logg -lvorbis -lvorbisfile -lGLEW -lGL

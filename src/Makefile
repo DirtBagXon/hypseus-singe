@@ -30,12 +30,14 @@ export AR := $(TOOLCHAIN)-$(AR)
 endif
  
 PKG_CONFIG=pkg-config
+SDL_CONFIG=sdl-config
 STRIP=strip
 WINDRES=windres
 
 ifneq ($(origin CROSS),undefined)
 export STRIP := $(TOOLCHAIN)-$(STRIP)
 export PKG_CONFIG := $(TOOLCHAIN)-$(PKG_CONFIG)
+export SDL_CONFIG := $(TOOLCHAIN)-$(SDL_CONFIG)
 export WINDRES := $(TOOLCHAIN)-$(WINDRES)
 endif
 
@@ -50,17 +52,18 @@ EXE = ../$(EXE_BASE)$(EXE_EXT)
 
 # ...  by RDG2010
 ifeq ($(BUILD_SINGE),1)
-LIBS += -lSDL_image -lSDL_ttf $(shell pkg-config --libs lua)
-PFLAGS += -DBUILD_SINGE
+LIBS += $(shell ${PKG_CONFIG} --libs lua SDL_ttf)
+PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL_ttf)
 OBJS += game/singe/*.o
 endif
 
 VLDP_OBJS = vldp/*.o
-PFLAGS += $(shell pkg-config --cflags libmpeg2 libmpeg2convert)
-LIBS += $(shell pkg-config --libs libmpeg2 libmpeg2convert)
+PFLAGS += $(shell ${PKG_CONFIG} --cflags libmpeg2 libmpeg2convert)
+LIBS += $(shell ${PKG_CONFIG} --libs libmpeg2 libmpeg2convert)
 
 # Platform specific cflags defined in the Makefile.vars file
-export CFLAGS = ${PFLAGS} -Wall
+export CFLAGS = $(shell ${PKG_CONFIG} --cflags SDL_image SDL_mixer) $(shell ${SDL_CONFIG} --cflags) ${PFLAGS} -Wall
+LIBS += $(shell ${PKG_CONFIG} --libs SDL_image SDL_mixer) $(shell ${SDL_CONFIG} --libs)
 
 OBJS += ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
 	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}

@@ -6,7 +6,7 @@
 		| sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@; \
 		[ -s $@ ] || rm -f $@
 
-SUB_CFLAGS = $(shell sdl-config --cflags) $(shell pkg-config --cflags lua)
+SUB_CFLAGS = $(shell ${PKG_CONFIG} --cflags lua)
 
 OBJS = singeproxy.o
 

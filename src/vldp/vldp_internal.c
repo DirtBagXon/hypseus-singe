@@ -35,11 +35,7 @@
 #include "vldp_common.h"
 #include "mpegscan.h"
 
-#ifdef WIN32
-#include "../vc++/inttypes.h"
-#else
 #include <inttypes.h>
-#endif
 
 #include <mpeg2.h>
 #include "video_out.h"
