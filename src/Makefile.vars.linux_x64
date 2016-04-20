@@ -15,9 +15,6 @@ DFLAGS = -O3 -fexpensive-optimizations -funroll-loops -fomit-frame-pointer
 # this is to be exported for MMX assembly optimization 
 #export USE_MMX = 1 
 
-# uncomment to include singe support
-export BUILD_SINGE = 1
-
 # platform-specific compile flags 
 PFLAGS = ${DFLAGS} -DUNIX -DLINUX -DNATIVE_CPU_X86 \
 	-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -DUSE_OPENGL

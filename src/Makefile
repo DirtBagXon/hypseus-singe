@@ -52,8 +52,8 @@ EXE = ../$(EXE_BASE)$(EXE_EXT)
 
 # ...  by RDG2010
 ifeq ($(BUILD_SINGE),1)
-LIBS += $(shell ${PKG_CONFIG} --libs lua SDL_ttf)
-PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL_ttf)
+LIBS += $(shell ${PKG_CONFIG} --libs lua SDL_mixer SDL_image SDL_ttf)
+PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL_mixer SDL_image SDL_ttf)
 OBJS += game/singe/*.o
 endif
 
@@ -62,8 +62,8 @@ PFLAGS += $(shell ${PKG_CONFIG} --cflags libmpeg2 libmpeg2convert)
 LIBS += $(shell ${PKG_CONFIG} --libs libmpeg2 libmpeg2convert)
 
 # Platform specific cflags defined in the Makefile.vars file
-export CFLAGS = $(shell ${PKG_CONFIG} --cflags SDL_image SDL_mixer) $(shell ${SDL_CONFIG} --cflags) ${PFLAGS} -Wall
-LIBS += $(shell ${PKG_CONFIG} --libs SDL_image SDL_mixer) $(shell ${SDL_CONFIG} --libs)
+export CFLAGS = $(shell ${SDL_CONFIG} --cflags) ${PFLAGS} -Wall
+LIBS += $(shell ${SDL_CONFIG} --libs)
 
 OBJS += ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
 	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}

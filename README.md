@@ -6,11 +6,21 @@ laserdisc arcade games on one's PC".
 ## Compile
 
 In addition to a working [gcc] toolchain, you will need (at minimum):
-[zlib], [libmpeg2], [SDL], [SDL_Mixer] and [SDL_Image].
+[zlib], [GLEW], [libmpeg2], [SDL].
 
     cd src
-    make VARS=Makefile.linux_x64 clean
-    make VARS=Makefile.linux_x64
+    make VARS=Makefile.vars.linux_x64 clean
+    make VARS=Makefile.vars.linux_x64
+
+Alternatively, copy or link vars file:
+
+    cd src
+    ln -s Makefile.vars.linux_x64 Makefile.vars
+    make
+
+To build with Singe support (requires [SDL_Mixer], [SDL_Image] and [SDL_ttf]).
+
+    make BUILD_SINGE=1
 
 *Visual Studio is not supported, patches accepted!*
 
@@ -38,4 +48,5 @@ process, and publish to Github to foster collaborative development.
 [SDL]: https://www.libsdl.org/download-1.2.php
 [SDL_Image]: https://www.libsdl.org/projects/SDL_image/release-1.2.html
 [SDL_Mixer]: https://www.libsdl.org/projects/SDL_mixer/release-1.2.html
+[SDL_ttf]: https://www.libsdl.org/projects/SDL_ttf/release-1.2.html
 [GLEW]: http://glew.sourceforge.net/
