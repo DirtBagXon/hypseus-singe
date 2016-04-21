@@ -48,6 +48,7 @@
 
 #ifdef LINUX
 #include <sys/utsname.h>	// MATT : I'm not sure if this is good for UNIX in general so I put it here
+#include <sys/sysinfo.h>
 #endif
 
 #ifdef UNIX
@@ -167,33 +168,27 @@ unsigned int get_sys_mem()
 {
 	unsigned int result = 0;
 	unsigned int mod = 0;
-	unsigned int mem = 0;
+	unsigned long long mem = 0;
 #ifdef LINUX
-	FILE *F;
-	const char *s = "ls -l /proc/kcore | awk '{print $5}'";
-	F = popen(s, "r");
-	if (F)
-	{
-		fscanf(F, "%u", &mem);	// this breaks if they have over 2 gigs of ram :)
-		pclose(F);
-	}
-
+	struct sysinfo info;
+	sysinfo(&info);
+	mem = info.totalram * (unsigned long long)info.mem_unit;
 #endif
 
 #ifdef FREEBSD
 	size_t len;
 	len = sizeof(mem);
 	sysctlbyname("hw.physmem", &mem, &len, NULL, NULL);
-	
 #endif
 
 #ifdef WIN32
-	MEMORYSTATUS memstat;
-	GlobalMemoryStatus(&memstat);
-	mem = memstat.dwTotalPhys;
+	MEMORYSTATUSEX memstat;
+	memstat.dwLength = sizeof(memstat);
+	GlobalMemoryStatusEx(&memstat);
+	mem = (unsigned long long) memstat.dwTotalPhys;
 #endif
 
-	result = (mem / (1024*1024)) + 32;	// for rounding
+	result = (mem / 1024 / 1024) + 32;	// for rounding
 	mod = result % 64;
 	result -= mod;
 
