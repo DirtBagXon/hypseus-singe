@@ -26,25 +26,28 @@
 // Some global data is stored here
 // *** Try to avoid using globals if possible!!!!! ***
 
-game *g_game = NULL;	// pointer to the game class that emulator will use
-ldp *g_ldp = NULL;		// pointer to the ldp class that emulator will use
+game *g_game = NULL; // pointer to the game class that emulator will use
+ldp *g_ldp   = NULL; // pointer to the ldp class that emulator will use
 
-Uint8 quitflag = 0;	// 1 = we are ready to quit the program
+Uint8 quitflag = 0; // 1 = we are ready to quit the program
 
-Uint8 serial_port = 0;	// which serial port to use to control LDP
-int baud_rate = 9600;	// which baud rate they want the serial port to function at
-int search_offset = 0;	// Value to add to every frame we search for (0 unless we have a PAL Dragon's Lair disc and the NTSC roms)
-						// PAL disc starts at frame 1, NTSC disc starts at frame 153.  So the search_offset for PAL would
-						// be -152
+Uint8 serial_port = 0; // which serial port to use to control LDP
+// which baud rate they want the serial port to function at
+int baud_rate = 9600;
+// Value to add to every frame we search for (0 unless we have a PAL Dragon's
+// Lair disc and the NTSC roms)
+// PAL disc starts at frame 1, NTSC disc starts at frame 153.
+// So the search_offset for PAL would be -152
+int search_offset = 0;
 
-Uint8 frame_modifier = 0;	// what type of frame modifications to be used
-							// the types of modifications possible are enumerated, and they
-							// includ Space Ace 91 and PAL
+// what type of frame modifications to be used the types of modifications
+// possible are enumerated, and they includ Space Ace 91 and PAL
+Uint8 frame_modifier = 0;
 
-Uint8 joystick_detected = 0;	// 0 = no joystick, 1 = joystick present
+Uint8 joystick_detected = 0; // 0 = no joystick, 1 = joystick present
 
-Uint8 realscoreboard = 0;	// 1 = external scoreboard is attached
-unsigned int rsb_port = 0;		// 0 = LPT1, 1 = LPT2 or address of real scoreboard 
+Uint8 realscoreboard  = 0; // 1 = external scoreboard is attached
+unsigned int rsb_port = 0; // 0 = LPT1, 1 = LPT2 or address of real scoreboard
 
 unsigned int idleexit; // added by JFA for -idleexit
 unsigned char startsilent = 0;
