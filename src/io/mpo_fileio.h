@@ -38,7 +38,7 @@
 #include <sys/stat.h>	// for fstat
 #endif
 
-#include "numstr.h"	// for MPO_UINT64 definition
+#include "numstr.h"
 
 #ifdef WIN32
 #define MPO_HANDLE HANDLE
@@ -64,12 +64,12 @@
 struct mpo_io
 {
 	MPO_HANDLE handle;	// handle of the file (keep this at the beginning of the struct to make it easy to statically initialize)
-	MPO_UINT64 size;	// the size of the file
+	uint64_t size;	// the size of the file
 
 	// A unit of time representing when this file was last modified.
 	// It will mean something different in win32 and linux and thus is only useful for
 	// comparing against other files to see which one was modified most recently.
-	MPO_UINT64 time_last_modified;
+	uint64_t time_last_modified;
 
 	bool eof;	// whether we have reached the End-Of-File
 };
@@ -105,7 +105,7 @@ mpo_io *mpo_open(const char *filename, int flags);
 
 bool mpo_read (void *buf, size_t bytes_to_read, MPO_BYTES_READ *bytes_read, mpo_io *io);
 bool mpo_write (const void *buf, size_t bytes_to_write, unsigned int *bytes_written, mpo_io *io);
-bool mpo_seek(MPO_INT64 offset, seek_type type, mpo_io *io);
+bool mpo_seek(int64_t offset, seek_type type, mpo_io *io);
 void mpo_close(mpo_io *io);
 
 // Attempts to create a directory (with permissions such that only the user can access that dir)

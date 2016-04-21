@@ -86,9 +86,9 @@ unsigned int numstr::ToUint32(const char *str, int base)
 	return u;
 }
 
-MPO_UINT64 numstr::ToUint64(const char *str, int base)
+uint64_t numstr::ToUint64(const char *str, int base)
 {
-	MPO_UINT64 u = 0;
+	uint64_t u = 0;
 	ToUint(str,u,base);
 	return u;
 }
@@ -170,9 +170,9 @@ string numstr::ToStr(int num, int base, unsigned int min_digits)
 	return IToStr(num, dummy, base, min_digits);
 }
 
-string numstr::ToStr(MPO_INT64 num, int base, unsigned int min_digits)
+string numstr::ToStr(int64_t num, int base, unsigned int min_digits)
 {
-	MPO_UINT64 dummy = 0;	// see comment in .h for IToStr for explanation
+	uint64_t dummy = 0;	// see comment in .h for IToStr for explanation
 	return IToStr(num, dummy, base, min_digits);
 }
 
@@ -186,7 +186,7 @@ string numstr::ToStr(unsigned int u, int base, unsigned int min_digits)
 	return UToStr(u, base, min_digits);
 }
 
-string numstr::ToStr(MPO_UINT64 u, int base, unsigned int min_digits)
+string numstr::ToStr(uint64_t u, int base, unsigned int min_digits)
 {
 	return UToStr(u, base, min_digits);
 }
@@ -200,7 +200,7 @@ string numstr::ToStr(double d, unsigned int min_digits_before, unsigned int min_
 	// bounds check: make sure the double is within our limits (2^62 was the highest I could get it to work without introducing overflow errors)
 	if ((d <= 4611686018427387904.0) && (d >= -4611686018427387904.0))
 	{
-		MPO_INT64 int64_portion = (MPO_INT64) d;	// strip off floating point part
+		int64_t int64_portion = (int64_t) d;	// strip off floating point part
 		d = d - int64_portion;	// isolate just the decimal portion
 
 		result = ToStr(int64_portion, 10, min_digits_before);	// use our other function to calculate the int portion
@@ -230,7 +230,7 @@ string numstr::ToStr(double d, unsigned int min_digits_before, unsigned int min_
 	return result;
 }
 
-string numstr::ToUnitStr(MPO_UINT64 u)
+string numstr::ToUnitStr(uint64_t u)
 {
 	string result;
 	double d;

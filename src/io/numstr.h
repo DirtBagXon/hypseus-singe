@@ -32,10 +32,6 @@
 #define NUMSTR_H
 
 #include <stdint.h>
-
-typedef uint64_t MPO_UINT64;
-typedef int64_t MPO_INT64;
-
 #include <string>
 
 using namespace std;
@@ -45,19 +41,19 @@ class numstr
 public:
 	static int ToInt32(const char *str);
 	static unsigned int ToUint32(const char *str, int base = 10);
-	static MPO_UINT64 ToUint64(const char *str, int base = 10);
+	static uint64_t ToUint64(const char *str, int base = 10);
 	static double ToDouble(const char *s);
 	static string ToStr(int i, int base = 10, unsigned int min_digits = 0);
-	static string ToStr(MPO_INT64 num, int base = 10, unsigned int min_digits = 0);
+	static string ToStr(int64_t num, int base = 10, unsigned int min_digits = 0);
 	static string ToStr(unsigned int u, int base = 10, unsigned int min_digits = 0);
 	static string ToStr(unsigned char u, int base = 10, unsigned int min_digits = 0);
-	static string ToStr(MPO_UINT64 u, int base = 10, unsigned int min_digits = 0);
+	static string ToStr(uint64_t u, int base = 10, unsigned int min_digits = 0);
 	
 	// NOTE : double cannot be > 2^63 (size of signed 64-bit int) or this conversion will fail
 	static string ToStr(double d, unsigned int min_digits_before = 0, unsigned int min_digits_after = 0, unsigned int max_digits_after = 5);
 
 	// converts raw bytes to KiB, MiB, or GiB to make it more readable
-	static string ToUnitStr(MPO_UINT64 u);
+	static string ToUnitStr(uint64_t u);
 	
 	static unsigned int my_strlen(const char *s);
 private:

@@ -42,7 +42,7 @@
 // if anyone knows how to do this check at compile time, let me know!!!
 void mpo_test()
 {
-	if (sizeof(MPO_UINT64) != 8)	// make sure this is really 64-bit
+	if (sizeof(uint64_t) != 8)	// make sure this is really 64-bit
 	{
 		int i = 0;
 		int b;
@@ -269,7 +269,7 @@ bool mpo_write (const void *buf, size_t bytes_to_write, unsigned int *bytes_writ
 
 // fseek replacement
 // returns true if seek was successful
-bool mpo_seek(MPO_INT64 offset, seek_type type, mpo_io *io)
+bool mpo_seek(int64_t offset, seek_type type, mpo_io *io)
 {
 	bool result = false;
 
