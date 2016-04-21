@@ -1,1 +1,0 @@
-arm-open2x-linux-gcc -O3 main.c minimal.c -o yuy2_rlyeh -lm -lpthread -static
