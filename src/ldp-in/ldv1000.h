@@ -20,14 +20,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // LDV1000.H
 
 #ifndef LDV1000_H
 #define LDV1000_H
 
 unsigned char read_ldv1000();
-void write_ldv1000 (unsigned char value);
+void write_ldv1000(unsigned char value);
 void pre_display_disable();
 void pre_display_enable();
 void ldv1000_enable_instant_seeking();

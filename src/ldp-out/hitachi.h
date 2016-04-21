@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // hitachi.h header
 // by Andrew Hepburn
 
@@ -31,24 +30,25 @@
 
 class hitachi : public ldp
 {
-public:
-	hitachi();
-	bool init_player();
-	//	bool search(char *);
-	bool nonblocking_search(char *frame);
-	int get_search_result();
-	bool skip_forward(Uint16 frames_to_skip, Uint16);
-	unsigned int play();
-	void pause();
-	void stop();
-//	Uint16 get_current_frame();
-	void enable_audio1();
-	void enable_audio2();
-	void disable_audio1();
-	void disable_audio2();
-	Uint16 get_real_current_frame();
-private:
-	bool receive_status(Uint8, Uint32);
+  public:
+    hitachi();
+    bool init_player();
+    //	bool search(char *);
+    bool nonblocking_search(char *frame);
+    int get_search_result();
+    bool skip_forward(Uint16 frames_to_skip, Uint16);
+    unsigned int play();
+    void pause();
+    void stop();
+    //	Uint16 get_current_frame();
+    void enable_audio1();
+    void enable_audio2();
+    void disable_audio1();
+    void disable_audio2();
+    Uint16 get_real_current_frame();
+
+  private:
+    bool receive_status(Uint8, Uint32);
 };
 
 #endif

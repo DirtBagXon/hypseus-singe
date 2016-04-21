@@ -5,14 +5,13 @@
 
 class LoggerFactory
 {
-public:
-	typedef enum
-	{
-		NULLTYPE,
-		CONSOLE,
-	} LoggerType;
+  public:
+    typedef enum {
+        NULLTYPE,
+        CONSOLE,
+    } LoggerType;
 
-	static ILogger *GetInstance(LoggerType type);
+    static ILogger *GetInstance(LoggerType type);
 };
 
 #endif // LOGGER_FACTORY_H

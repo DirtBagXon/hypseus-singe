@@ -21,8 +21,7 @@
 const unsigned int uVidWidth  = 320;
 const unsigned int uVidHeight = 240;
 
-typedef const struct vldp_out_info *(*initproc)(
-    const struct vldp_in_info *in_info);
+typedef const struct vldp_out_info *(*initproc)(const struct vldp_in_info *in_info);
 initproc pvldp_init; // pointer to the init proc ...
 
 // pointer to all functions the VLDP exposes to us ...
@@ -38,8 +37,8 @@ unsigned int g_uQuitFlag = 0;
 SDL_Surface *g_screen = NULL;
 
 #ifdef USE_OVERLAY
-SDL_Rect *g_screen_clip_rect =
-    NULL; // used a lot, we only want to calulcate once
+SDL_Rect *g_screen_clip_rect = NULL; // used a lot, we only want to calulcate
+                                     // once
 SDL_Overlay *g_hw_overlay = NULL;
 #endif // USE_OVERLAY
 
@@ -75,20 +74,20 @@ void buf2overlay_YUY2(SDL_Overlay *dst, struct yuv_buf *src)
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
             // Little-Endian (PC)
-            *((Uint32 *)(g_line_buf + col)) =
-                (Y_chunk & 0xFF) | (U_chunk << 8) | ((Y_chunk & 0xFF00) << 8) |
-                (V_chunk << 24);
-            *((Uint32 *)(g_line_buf2 + col)) =
-                (Y2_chunk & 0xFF) | (U_chunk << 8) |
-                ((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
+            *((Uint32 *)(g_line_buf + col)) = (Y_chunk & 0xFF) | (U_chunk << 8) |
+                                              ((Y_chunk & 0xFF00) << 8) |
+                                              (V_chunk << 24);
+            *((Uint32 *)(g_line_buf2 + col)) = (Y2_chunk & 0xFF) | (U_chunk << 8) |
+                                               ((Y2_chunk & 0xFF00) << 8) |
+                                               (V_chunk << 24);
 #else
             // Big-Endian (Mac)
-            *((Uint32 *)(g_line_buf + col)) =
-                ((Y_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-                ((Y_chunk & 0xFF) << 8) | (V_chunk);
-            *((Uint32 *)(g_line_buf2 + col)) =
-                ((Y2_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-                ((Y2_chunk & 0xFF) << 8) | (V_chunk);
+            *((Uint32 *)(g_line_buf + col)) = ((Y_chunk & 0xFF00) << 16) |
+                                              ((U_chunk) << 16) |
+                                              ((Y_chunk & 0xFF) << 8) | (V_chunk);
+            *((Uint32 *)(g_line_buf2 + col)) = ((Y2_chunk & 0xFF00) << 16) |
+                                               ((U_chunk) << 16) |
+                                               ((Y2_chunk & 0xFF) << 8) | (V_chunk);
 #endif
 
             Y += 2;
@@ -132,9 +131,9 @@ int prepare_frame_callback(struct yuv_buf *src)
         unsigned int uH     = uVidHeight;
         Uint8 *Y            = (Uint8 *)src->Y;
         // Y's width is assumed to be the same size as output screen
-        Uint8 *Y2           = ((Uint8 *)src->Y) + uVidWidth;
-        Uint8 *U            = (Uint8 *)src->U;
-        Uint8 *V            = (Uint8 *)src->V;
+        Uint8 *Y2 = ((Uint8 *)src->Y) + uVidWidth;
+        Uint8 *U  = (Uint8 *)src->U;
+        Uint8 *V  = (Uint8 *)src->V;
         int col, row;
 
         // do 2 rows at a time
@@ -262,8 +261,7 @@ void report_mpeg_dimensions_callback(int width, int height)
 {
 #ifdef SHOW_FRAMES
 #ifdef USE_OVERLAY
-    g_hw_overlay =
-        SDL_CreateYUVOverlay(width, height, SDL_YUY2_OVERLAY, g_screen);
+    g_hw_overlay = SDL_CreateYUVOverlay(width, height, SDL_YUY2_OVERLAY, g_screen);
     printf("HW Overlay: %u\n", g_hw_overlay->hw_overlay);
 
     // if we're not using hardware, then abort this "test"
@@ -273,8 +271,8 @@ void report_mpeg_dimensions_callback(int width, int height)
         g_uQuitFlag = 1;
     }
 
-    g_screen_clip_rect =
-        &g_screen->clip_rect; // used a lot, we only want to calculate it once
+    g_screen_clip_rect = &g_screen->clip_rect; // used a lot, we only want to
+                                               // calculate it once
 #else
     if ((width != uVidWidth) || (height != uVidHeight)) {
         printf("mpeg is the wrong dimensions (%d x %d)\n", width, height);
@@ -325,8 +323,7 @@ void set_cur_dir(const char *exe_loc)
     char path[512];
 
     // locate the preceeding / or \ character
-    while ((index >= 0) && (exe_loc[index] != '/') &&
-           (exe_loc[index] != '\\')) {
+    while ((index >= 0) && (exe_loc[index] != '/') && (exe_loc[index] != '\\')) {
         index--;
     }
 
@@ -351,8 +348,7 @@ int main(int argc, char **argv)
 
     // just a test ...
     printf("Making dummy overlay\n");
-    SDL_Overlay *pDummy =
-        SDL_CreateYUVOverlay(320, 240, SDL_YUY2_OVERLAY, g_screen);
+    SDL_Overlay *pDummy = SDL_CreateYUVOverlay(320, 240, SDL_YUY2_OVERLAY, g_screen);
     if (pDummy) {
         printf("Hw accel of dummy is %u\n", pDummy->hw_overlay);
         SDL_FreeYUVOverlay(pDummy);
@@ -364,8 +360,8 @@ int main(int argc, char **argv)
 
     // if all functions were found, then return success
     if (pvldp_init) {
-        g_local_info.prepare_frame = prepare_frame_callback;
-        g_local_info.display_frame = display_frame_callback;
+        g_local_info.prepare_frame          = prepare_frame_callback;
+        g_local_info.display_frame          = display_frame_callback;
         g_local_info.report_parse_progress  = report_parse_progress_callback;
         g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
         g_local_info.render_blank_frame     = blank_overlay_callback;

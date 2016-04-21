@@ -20,50 +20,51 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // combo.cpp
 // by Matt Ownby
 
-// a combo laserdisc player class that controls both smpeg and a real laserdisc player
+// a combo laserdisc player class that controls both smpeg and a real laserdisc
+// player
 
 #include "../timer/timer.h"
 #include "ldp-combo.h"
 
 combo::combo()
 {
-	blitting_allowed = false;
-	need_serial = true;
+    blitting_allowed = false;
+    need_serial      = true;
 }
 
 bool combo::init_player()
 {
-	return (m_rldp.init_player() && m_vldp.init_player());
+    return (m_rldp.init_player() && m_vldp.init_player());
 }
 
 void combo::shutdown_player()
 {
-	m_rldp.shutdown_player();
-	m_vldp.shutdown_player();
+    m_rldp.shutdown_player();
+    m_vldp.shutdown_player();
 }
 
 bool combo::search(char *frame)
 {
-	// real ldp should seek first since it takes longer
-//	return (m_rldp.search(frame) && m_vldp.search(frame));
-	// the search function is going away and combo really isn't being used anymore, so I am not maintaining it
-	return false;
+    // real ldp should seek first since it takes longer
+    //	return (m_rldp.search(frame) && m_vldp.search(frame));
+    // the search function is going away and combo really isn't being used
+    // anymore, so I am not maintaining it
+    return false;
 }
 
 unsigned int combo::play()
 {
-	m_vldp.play();	// virtual ldp should play first since it takes longer
-	m_rldp.play();
-	
-	return (refresh_ms_time());
+    m_vldp.play(); // virtual ldp should play first since it takes longer
+    m_rldp.play();
+
+    return (refresh_ms_time());
 }
 
 void combo::pause()
 {
-	m_rldp.pause();
-	m_vldp.pause();
+    m_rldp.pause();
+    m_vldp.pause();
 }

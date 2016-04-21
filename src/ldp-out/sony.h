@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // sony.h header
 
 #ifndef SONY_H
@@ -30,23 +29,23 @@
 
 class sony : public ldp
 {
-public:
-	sony();
-//	bool search(char *);
-	bool nonblocking_search(char *frame);
-	int get_search_result();
-	unsigned int play();
-	void pause();
-	void stop();
-	void enable_audio1();
-	void enable_audio2();
-	void disable_audio1();
-	void disable_audio2();
-//	Uint16 get_current_frame();
+  public:
+    sony();
+    //	bool search(char *);
+    bool nonblocking_search(char *frame);
+    int get_search_result();
+    unsigned int play();
+    void pause();
+    void stop();
+    void enable_audio1();
+    void enable_audio2();
+    void disable_audio1();
+    void disable_audio2();
+    //	Uint16 get_current_frame();
 
-	bool receive_status(Uint8);
-	void searchforframe(char *);
-	void resetplayer();
+    bool receive_status(Uint8);
+    void searchforframe(char *);
+    void resetplayer();
 };
 
 #endif

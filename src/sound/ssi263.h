@@ -29,7 +29,7 @@
 
 // Buffer set aside in game RAM to hold SSI-263 speech text.
 #define SSI_PHRASE_BUF_LEN 256
-	
+
 void ssi263_reg0(unsigned char value, Uint8 *irq_status);
 void ssi263_reg1(unsigned char value);
 void ssi263_reg2(unsigned char value);

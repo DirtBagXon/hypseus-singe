@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
-void printerror (const char *);
+void printerror(const char *);
 void printnowookin(const char *s);
 void printnotice(const char *s);

@@ -27,17 +27,17 @@
 
 class mcputest : public game
 {
-public:
-	mcputest();
-	void do_irq(unsigned int);
-	void do_nmi();
-	Uint8 cpu_mem_read(Uint16 addr);			// memory read routine
-	void cpu_mem_write(Uint16 addr, Uint8 value);		// memory write routine
-	void port_write(Uint16 Port, Uint8 Value);
-//	bool load_roms();
+  public:
+    mcputest();
+    void do_irq(unsigned int);
+    void do_nmi();
+    Uint8 cpu_mem_read(Uint16 addr);              // memory read routine
+    void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
+    void port_write(Uint16 Port, Uint8 Value);
+    //	bool load_roms();
 
-protected:
-	Uint8 m_cpumem2[0x10000];	// where the second rom gets loaded
+  protected:
+    Uint8 m_cpumem2[0x10000]; // where the second rom gets loaded
 };
 
 #endif

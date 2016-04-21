@@ -20,24 +20,22 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // ffr.h
 
 #include "game.h"
 
 class ffr : public game
 {
-public:
-	ffr();
-	void start();
-	void set_preset(int iPreset);
-private:
-	void think();
-	
-	unsigned int m_uTimer;
+  public:
+    ffr();
+    void start();
+    void set_preset(int iPreset);
 
-	// pointer to whatever clips we've selected
-	struct clip_boundary *m_pClips;
+  private:
+    void think();
 
+    unsigned int m_uTimer;
+
+    // pointer to whatever clips we've selected
+    struct clip_boundary *m_pClips;
 };
-

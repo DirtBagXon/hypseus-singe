@@ -10,7 +10,8 @@
 
 // we don't want WIN32 using stdio because
 // a) it's not available on xbox
-// b) it requires MSCVRT.DLL and VS.NET uses a new version that many people don't have
+// b) it requires MSCVRT.DLL and VS.NET uses a new version that many people
+// don't have
 #include <windows.h>
 
 // win32 doesn't have snprintf
@@ -25,4 +26,3 @@
 #include "mpo_fileio.h"
 
 #endif // MY_STDIO_H
-

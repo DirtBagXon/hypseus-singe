@@ -20,13 +20,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+// contains information about each board that we have just for debugging
+// convenience
 
-// contains information about each board that we have just for debugging convenience
-
-struct boardinfo
-{
-	const char *name;
+struct boardinfo {
+    const char *name;
 };
 
 void print_board_info(unsigned char index, unsigned char sequence, unsigned char type);
-

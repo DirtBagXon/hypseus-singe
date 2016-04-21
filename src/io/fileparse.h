@@ -31,7 +31,8 @@ int read_line(FILE *F, char *buf, int buf_size);
 int read_line(mpo_io *io, char *buf, int buf_size);
 
 // reads line from a buffer (in_buf), returns the line in 'line'
-// Returns a pointer to the first character in the next line, or NULL if there is no next line
+// Returns a pointer to the first character in the next line, or NULL if there
+// is no next line
 const char *read_line(const char *in_buf, string &line);
 
 bool get_path_of_file(string file_with_path, string &path);

@@ -20,16 +20,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #ifndef VP932_H
 #define VP932_H
 
 // these functions are the only ones to be called externally
-void vp932_write(Uint8 data);	// write a byte to the vp932
-Uint8 vp932_read();	// read a byte from the vp932
-							// make sure that vp932_data_available() returns true before reading data
+void vp932_write(Uint8 data); // write a byte to the vp932
+Uint8 vp932_read();           // read a byte from the vp932
+// make sure that vp932_data_available() returns true before reading data
 bool vp932_data_available(); // check to see if data is available to read
-
 
 // internal functions - don't call these
 void vp932_process_command();

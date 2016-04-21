@@ -28,18 +28,32 @@
 
 #include <SDL.h>
 
-#define LED_RANGE 17 //16 is normal, the 17th is for the 'A' in SAE
+#define LED_RANGE 17 // 16 is normal, the 17th is for the 'A' in SAE
 
 #define OVERLAY_LED_WIDTH 8
 #define OVERLAY_LED_HEIGHT 13
 
-#define OVERLAY_LDP1450_WIDTH 16                //width of each LDP1450 overlay character
-#define OVERLAY_LDP1450_HEIGHT 16               //height of each LDP1450 overlay character
-#define OVERLAY_LDP1450_CHARACTER_SPACING 15    //spacing between LDP1450 overlay characters
-#define OVERLAY_LDP1450_LINE_SPACING 16         //spacing between LDP1450 overlay lines
+#define OVERLAY_LDP1450_WIDTH 16 // width of each LDP1450 overlay character
+#define OVERLAY_LDP1450_HEIGHT 16 // height of each LDP1450 overlay character
+#define OVERLAY_LDP1450_CHARACTER_SPACING                                      \
+    15 // spacing between LDP1450 overlay characters
+#define OVERLAY_LDP1450_LINE_SPACING 16 // spacing between LDP1450 overlay lines
 
-enum { B_DL_PLAYER1, B_DL_PLAYER2, B_DL_LIVES, B_DL_CREDITS, B_DAPHNE_SAVEME, B_GAMENOWOOK, B_OVERLAY_LEDS, B_OVERLAY_LDP1450, B_EMPTY }; // bitmaps
-enum { FONT_SMALL, FONT_BIG };	// font enumeration, dependent on which order font .bmp's are loaded in
+enum {
+    B_DL_PLAYER1,
+    B_DL_PLAYER2,
+    B_DL_LIVES,
+    B_DL_CREDITS,
+    B_DAPHNE_SAVEME,
+    B_GAMENOWOOK,
+    B_OVERLAY_LEDS,
+    B_OVERLAY_LDP1450,
+    B_EMPTY
+}; // bitmaps
+enum {
+    FONT_SMALL,
+    FONT_BIG
+}; // font enumeration, dependent on which order font .bmp's are loaded in
 
 // dimensions of small font
 #define FONT_SMALL_W 6
@@ -68,22 +82,24 @@ void vid_blit(SDL_Surface *srf, int x, int y);
 void display_repaint();
 bool load_bmps();
 bool draw_led(int, int, int);
-void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y, SDL_Surface *overlay);
+void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y,
+                       SDL_Surface *overlay);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
 void free_bmps();
 SDL_Surface *load_one_bmp(const char *);
 void free_one_bmp(SDL_Surface *);
-void draw_rectangle(short x, short y, unsigned short w, unsigned short h, unsigned char red, unsigned char green, unsigned char blue);
+void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
+                    unsigned char red, unsigned char green, unsigned char blue);
 SDL_Surface *get_screen();
 SDL_Surface *get_screen_blitter();
 int get_console_initialized();
 bool get_fullscreen();
 void set_fullscreen(bool value);
-bool get_fakefullscreen(); // by RDG2010
+bool get_fakefullscreen();           // by RDG2010
 void set_fakefullscreen(bool value); // by RDG2010
-int get_scalefactor(); // by RDG2010
-void set_scalefactor(int value); // by RDG2010
+int get_scalefactor();               // by RDG2010
+void set_scalefactor(int value);     // by RDG2010
 void set_rotate_degrees(float fDegrees);
 void set_sboverlay_characterset(int value);
 Uint16 get_video_width();
@@ -93,11 +109,12 @@ void set_video_height(Uint16);
 void take_screenshot(SDL_Overlay *yuvimage);
 void save_screenshot(SDL_Surface *shot);
 void yuv2rgb(SDL_Color *result, int y, int u, int v);
-void draw_string(const char*, int, int, SDL_Surface*);
+void draw_string(const char *, int, int, SDL_Surface *);
 void vid_toggle_fullscreen();
 
 // used to enable/disable the HWACCEL environment variable
-// (the YUV overlay must be created after this has been called for it to take effect)
+// (the YUV overlay must be created after this has been called for it to take
+// effect)
 // if 'enabled' is true, the YUV hw accel is enabled.
 void set_yuv_hwaccel(bool enabled);
 

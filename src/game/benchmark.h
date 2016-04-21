@@ -24,12 +24,13 @@
 
 class benchmark : public game
 {
-public:
-	benchmark();
-	void start();
-	void set_preset(int);
-	void palette_calculate();
-	void video_repaint();
-private:
-	Uint32 m_seconds_to_run;	// how many seconds to run the benchmark
+  public:
+    benchmark();
+    void start();
+    void set_preset(int);
+    void palette_calculate();
+    void video_repaint();
+
+  private:
+    Uint32 m_seconds_to_run; // how many seconds to run the benchmark
 };

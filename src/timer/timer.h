@@ -23,7 +23,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // header file for timestuff.c
 
 #include <SDL.h>
@@ -33,7 +32,8 @@
 
 unsigned int elapsed_ms_time(unsigned int previous_time);
 
-// wrapper function to refer to GET_TICKS macro (in case the macro does not do a single function call!)
+// wrapper function to refer to GET_TICKS macro (in case the macro does not do a
+// single function call!)
 unsigned int GetTicksFunc();
 
 // legacy functions
@@ -41,4 +41,3 @@ unsigned int GetTicksFunc();
 #define make_delay MAKE_DELAY
 
 #endif // TIMER_H
-

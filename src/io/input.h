@@ -23,43 +23,43 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-enum
-{
-	SWITCH_UP,
-	SWITCH_LEFT,
-	SWITCH_DOWN,
-	SWITCH_RIGHT,
-	SWITCH_START1,
-	SWITCH_START2,
-	SWITCH_BUTTON1,
-	SWITCH_BUTTON2,
-	SWITCH_BUTTON3,
-	SWITCH_COIN1,
-	SWITCH_COIN2,
-	SWITCH_SKILL1,
-	SWITCH_SKILL2, 
-	SWITCH_SKILL3,
-	SWITCH_SERVICE,
-	SWITCH_TEST,
-	SWITCH_RESET,
-	SWITCH_SCREENSHOT,
-	SWITCH_QUIT,
-	SWITCH_PAUSE,
-	SWITCH_CONSOLE,
-	SWITCH_TILT,
-	SWITCH_COUNT,
-}; // daphne inputs for arcade and additional controls, leave SWITCH_COUNT at the end
+enum {
+    SWITCH_UP,
+    SWITCH_LEFT,
+    SWITCH_DOWN,
+    SWITCH_RIGHT,
+    SWITCH_START1,
+    SWITCH_START2,
+    SWITCH_BUTTON1,
+    SWITCH_BUTTON2,
+    SWITCH_BUTTON3,
+    SWITCH_COIN1,
+    SWITCH_COIN2,
+    SWITCH_SKILL1,
+    SWITCH_SKILL2,
+    SWITCH_SKILL3,
+    SWITCH_SERVICE,
+    SWITCH_TEST,
+    SWITCH_RESET,
+    SWITCH_SCREENSHOT,
+    SWITCH_QUIT,
+    SWITCH_PAUSE,
+    SWITCH_CONSOLE,
+    SWITCH_TILT,
+    SWITCH_COUNT,
+}; // daphne inputs for arcade and additional controls, leave SWITCH_COUNT at
+   // the end
 
 ///////////////////////
 
 #include <SDL.h>
 
 // to be passed into the coin queue
-struct coin_input
-{
-	bool coin_enabled;	//	whether the coin was enabled or disabled
-	Uint8 coin_val;	// either SWITCH_COIN1 or SWITCH_COIN2
-	Uint64 cycles_when_to_enable;	// the cycle count that we must have surpassed in order to be able to enable the coin
+struct coin_input {
+    bool coin_enabled;            //	whether the coin was enabled or disabled
+    Uint8 coin_val;               // either SWITCH_COIN1 or SWITCH_COIN2
+    Uint64 cycles_when_to_enable; // the cycle count that we must have surpassed
+                                  // in order to be able to enable the coin
 };
 
 ////////////////////////
@@ -68,7 +68,8 @@ int SDL_input_init();
 int SDL_input_shutdown();
 
 // Filters out mouse events if 'bFilteredOut' is true.
-// The purpose is so that games that don't use the mouse don't get a bunch of extra mouse
+// The purpose is so that games that don't use the mouse don't get a bunch of
+// extra mouse
 //  events which can hurt performance.
 void FilterMouseEvents(bool bFilteredOut);
 
@@ -93,4 +94,3 @@ void reset_idle(void); // added by JFA
 void set_use_joystick(bool val);
 
 #endif // INPUT_H
-

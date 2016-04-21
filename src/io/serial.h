@@ -20,16 +20,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 #ifndef SERIAL_H
 #define SERIAL_H
 
-bool serial_init (int port, int baudrate);
-int serial_tx (unsigned char ch);
-unsigned char serial_rx ();
+bool serial_init(int port, int baudrate);
+int serial_tx(unsigned char ch);
+unsigned char serial_rx();
 bool serial_rx_char_waiting();
-void serial_rxflush ();
-void serial_close ();
+void serial_rxflush();
+void serial_close();
 void send_tx_string(const char *s);
 unsigned char serial_get_one_byte(unsigned int);
 

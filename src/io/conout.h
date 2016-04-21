@@ -26,7 +26,7 @@
 #ifndef CONOUT_H
 #define CONOUT_H
 
-#define LOGNAME "daphne_log.txt"	// name of our logfile if we are using one
+#define LOGNAME "daphne_log.txt" // name of our logfile if we are using one
 
 void outstr(const char *s);
 void outchr(const char ch);

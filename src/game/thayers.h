@@ -27,38 +27,39 @@
 #include "game.h"
 #include "../scoreboard/scoreboard_collection.h"
 
-#define THAYERS_CPU_HZ	4000000	// speed of cpu
+#define THAYERS_CPU_HZ 4000000 // speed of cpu
 
 class thayers : public game
 {
-public:
-	thayers();
-	bool init();
-	void shutdown();
-	void set_version(int);
-	void do_irq(unsigned int which);
-	void do_nmi();		// dummy function to generate timer IRQ
-	void thayers_irq();	
-	Uint8 cpu_mem_read(Uint16 addr);			// memory read routine
-	void cpu_mem_write(Uint16 addr, Uint8 value);		// memory write routine
-	Uint8 port_read(Uint16 port);		// read from port
-	void port_write(Uint16 port, Uint8 value);		// write to a port
-	void process_keydown(SDLKey);
-	void process_keyup(SDLKey);
-	bool set_bank(unsigned char, unsigned char);
-	void palette_calculate();
-	void video_repaint();
+  public:
+    thayers();
+    bool init();
+    void shutdown();
+    void set_version(int);
+    void do_irq(unsigned int which);
+    void do_nmi(); // dummy function to generate timer IRQ
+    void thayers_irq();
+    Uint8 cpu_mem_read(Uint16 addr);              // memory read routine
+    void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
+    Uint8 port_read(Uint16 port);                 // read from port
+    void port_write(Uint16 port, Uint8 value);    // write to a port
+    void process_keydown(SDLKey);
+    void process_keyup(SDLKey);
+    bool set_bank(unsigned char, unsigned char);
+    void palette_calculate();
+    void video_repaint();
     void init_overlay_scoreboard();
-	void write_scoreboard(Uint8, Uint8, int); // function to decode scoreboard data
+    void write_scoreboard(Uint8, Uint8, int); // function to decode scoreboard
+                                              // data
 
-	// COP421 interface functions
-	void thayers_write_d_port(unsigned char); // Write to D port
-	void thayers_write_l_port(unsigned char); // Write L port
-	unsigned char thayers_read_l_port(void); // Read L port
-	void thayers_write_g_port(unsigned char);
-	unsigned char thayers_read_g_port(void); // Read to G I/O port
-	void thayers_write_so_bit(unsigned char); // Write to SO
-	unsigned char thayers_read_si_bit(void); // Read to SI
+    // COP421 interface functions
+    void thayers_write_d_port(unsigned char); // Write to D port
+    void thayers_write_l_port(unsigned char); // Write L port
+    unsigned char thayers_read_l_port(void);  // Read L port
+    void thayers_write_g_port(unsigned char);
+    unsigned char thayers_read_g_port(void);  // Read to G I/O port
+    void thayers_write_so_bit(unsigned char); // Write to SO
+    unsigned char thayers_read_si_bit(void);  // Read to SI
 
     // To turn off speech synthesis (only called from cmdline.cpp)
     void no_speech();
@@ -66,34 +67,35 @@ public:
     // Called by ssi263.cpp whenever it has something to say <g>.
     void show_speech_subtitle();
 
-protected:
-//	void string_draw(char*, int, int);
-	Uint8 coprom[0x400];
-	bool key_press;
-	Uint8 cop_read_latch;
-	Uint8 cop_write_latch;
-	Uint8 cop_g_read_latch;
-	Uint8 cop_g_write_latch;
-	Uint8 m_irq_status;
-	Uint8 banks[4];				// thayers's banks
-	// bank 1 is Dip Bank A
-	// bank 2 is bits 0-3 is Dip Bank B, 4 and 5 Coin 1 and 2, 6 and 7 laserdisc ready	
+  protected:
+    //	void string_draw(char*, int, int);
+    Uint8 coprom[0x400];
+    bool key_press;
+    Uint8 cop_read_latch;
+    Uint8 cop_write_latch;
+    Uint8 cop_g_read_latch;
+    Uint8 cop_g_write_latch;
+    Uint8 m_irq_status;
+    Uint8 banks[4]; // thayers's banks
+                    // bank 1 is Dip Bank A
+    // bank 2 is bits 0-3 is Dip Bank B, 4 and 5 Coin 1 and 2, 6 and 7 laserdisc
+    // ready
 
-private:
+  private:
     // Overlay text control stuff.
     bool m_use_overlay_scoreboard;
     bool m_show_speech_subtitle;
-	int m_message_timer;
+    int m_message_timer;
 
     // Text-to-speech related vars/methods.
     bool m_use_speech;
     void speech_buffer_cleanup(char *src, char *dst, int len);
 
-	// pointer to our scoreboard interface
-	IScoreboard *m_pScoreboard;
+    // pointer to our scoreboard interface
+    IScoreboard *m_pScoreboard;
 
-	// whether overlay scoreboard is visible or not
-	bool m_bScoreboardVisibility;
+    // whether overlay scoreboard is visible or not
+    bool m_bScoreboardVisibility;
 };
 
-#endif  // THAYERS_H
+#endif // THAYERS_H

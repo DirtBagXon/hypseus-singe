@@ -23,11 +23,18 @@
 #ifndef FRAMEMOD_H
 #define FRAMEMOD_H
 
-enum { MOD_NONE, MOD_SA91, MOD_PAL_DL, MOD_PAL_SA, MOD_PAL_DL_SC, MOD_PAL_SA_SC }; // frame modifiers
+enum {
+    MOD_NONE,
+    MOD_SA91,
+    MOD_PAL_DL,
+    MOD_PAL_SA,
+    MOD_PAL_DL_SC,
+    MOD_PAL_SA_SC
+}; // frame modifiers
 
 //////////////////////////////////////////////
 
-#include <SDL.h>	// for data types
+#include <SDL.h> // for data types
 
 bool need_frame_conversion();
 unsigned int get_frame_conversion_fpks();

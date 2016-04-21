@@ -31,37 +31,40 @@
 // if we aren't using the MMX version
 
 #ifndef USE_MMX
-Uint8 *g_blend_line1 = 0;
-Uint8 *g_blend_line2 = 0;
-Uint8 *g_blend_dest = 0;
+Uint8 *g_blend_line1            = 0;
+Uint8 *g_blend_line2            = 0;
+Uint8 *g_blend_dest             = 0;
 unsigned int g_blend_iterations = 0;
 #endif
 
 // A C version of blend_mmx
 // blend_mmx is about 4X as fast as this C version
-// NOTE : we always want this defined, even when using MMX, for the purpose of testing (see releasetest)
+// NOTE : we always want this defined, even when using MMX, for the purpose of
+// testing (see releasetest)
 void blend_c()
 {
-	register Uint8 *ptr1 = g_blend_line1;
-	register Uint8 *ptr2 = g_blend_line2;
-	
-	for (unsigned int col = 0; col < g_blend_iterations; col++)
-	{
-		g_blend_dest[col] = (Uint8) ((*ptr1 + *ptr2) >> 1);	// average fields together
-		ptr1++;
-		ptr2++;
-	}
+    register Uint8 *ptr1 = g_blend_line1;
+    register Uint8 *ptr2 = g_blend_line2;
+
+    for (unsigned int col = 0; col < g_blend_iterations; col++) {
+        g_blend_dest[col] = (Uint8)((*ptr1 + *ptr2) >> 1); // average fields
+                                                           // together
+        ptr1++;
+        ptr2++;
+    }
 }
 
 #ifdef USE_MMX
 
 #ifdef DEBUG
-// debug version of blend MMX that does safety checking before the call.  This obviously won't be used
+// debug version of blend MMX that does safety checking before the call.  This
+// obviously won't be used
 //  during release builds.
 void debug_blend_mmx()
 {
-	assert(((g_blend_iterations % 8) == 0) && (g_blend_iterations >= 8));	// blend MMX does 8 at a time
-	blend_mmx();
+    assert(((g_blend_iterations % 8) == 0) &&
+           (g_blend_iterations >= 8)); // blend MMX does 8 at a time
+    blend_mmx();
 }
 #endif // DEBUG
 

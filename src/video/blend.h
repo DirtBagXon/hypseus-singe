@@ -22,7 +22,6 @@
 
 // blend.h
 
-
 #ifndef BLEND_H
 #define BLEND_H
 
@@ -30,23 +29,26 @@
 #include "mmxdefs.h"
 #endif
 
-#include <SDL.h>	// for datatype defs
+#include <SDL.h> // for datatype defs
 
 // TO USE THE BLEND FUNCTIONS:
 // 1 - set g_blend_line1 to the first line of bytes to be averaged
 // 2 - set g_blend_line2 to the second line of bytes to be averaged
 // 3 - set g_blend_dest to the line of bytes that will be the destination
-// 4 - set g_blend_iterations to how many bytes long all lines are (they all must be the same length).
-//	IMPORTANT : g_blend_iterations must be a multiple of 8, and must be >= 8!
+// 4 - set g_blend_iterations to how many bytes long all lines are (they all
+//     must be the same length).
+//     IMPORTANT: g_blend_iterations must be a multiple of 8, and must be >= 8!
 // 5 - run g_blend_func() and you're done!
 
-// we always want this function defined for the purpose of testing (releasetest.cpp)
+// we always want this function defined for the purpose of testing
+// (releasetest.cpp)
 void blend_c();
 
-// Here we make some definitions so that the MMX/C code use identical syntax and variables
+// Here we make some definitions so that the MMX/C code use identical syntax and
+// variables
 #ifdef USE_MMX
 
-#if defined (MAC_OSX) || defined (WIN32)
+#if defined(MAC_OSX) || defined(WIN32)
 extern "C" void blend_mmx();
 extern "C" Uint8 *asm_line1;
 extern "C" Uint8 *asm_line2;

@@ -9,7 +9,6 @@
 #include <GL/glew.h>
 #endif
 
-
 void ldp_vldp_gl_think(unsigned int uVblankCount);
 
 bool init_vldp_opengl();
@@ -27,4 +26,3 @@ void render_blank_frame_GL_callback();
 #endif // USE_OPENGL
 
 #endif // LDP_VLDP_GL_H
-

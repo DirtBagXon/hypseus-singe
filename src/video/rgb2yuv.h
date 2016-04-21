@@ -37,13 +37,17 @@
 
 #if defined(MAC_OSX) || defined(WIN32)
 extern "C" void asm_rgb2yuv();
-extern "C" unsigned short asm_rgb2yuv_input[3];	// this must be a short due to the way the MMX code is laid out
+extern "C" unsigned short asm_rgb2yuv_input[3]; // this must be a short due to
+                                                // the way the MMX code is laid
+                                                // out
 extern "C" unsigned char asm_rgb2yuv_result_y;
 extern "C" unsigned char asm_rgb2yuv_result_u;
 extern "C" unsigned char asm_rgb2yuv_result_v;
 #else
 extern "C" void _asm_rgb2yuv();
-extern "C" unsigned short _asm_rgb2yuv_input[3];	// this must be a short due to the way the MMX code is laid out
+extern "C" unsigned short _asm_rgb2yuv_input[3]; // this must be a short due to
+                                                 // the way the MMX code is laid
+                                                 // out
 extern "C" unsigned char _asm_rgb2yuv_result_y;
 extern "C" unsigned char _asm_rgb2yuv_result_u;
 extern "C" unsigned char _asm_rgb2yuv_result_v;
@@ -58,10 +62,10 @@ extern "C" unsigned char _asm_rgb2yuv_result_v;
 
 // the C version of this routine
 void rgb2yuv();
-extern unsigned int rgb2yuv_input[3];	// 8-bit
-extern unsigned int rgb2yuv_result_y;	// 8-bit
-extern unsigned int rgb2yuv_result_u;	// 8-bit
-extern unsigned int rgb2yuv_result_v;	// 8-bit
+extern unsigned int rgb2yuv_input[3]; // 8-bit
+extern unsigned int rgb2yuv_result_y; // 8-bit
+extern unsigned int rgb2yuv_result_u; // 8-bit
+extern unsigned int rgb2yuv_result_v; // 8-bit
 
 #endif
 

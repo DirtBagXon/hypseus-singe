@@ -3,17 +3,16 @@
 
 ILogger *LoggerFactory::GetInstance(LoggerType type)
 {
-	ILogger *pInstance = 0;
+    ILogger *pInstance = 0;
 
-	switch (type)
-	{
-	default:
-		pInstance = NullLogger::GetInstance();
-		break;
-	case CONSOLE:
-		pInstance = ConsoleLogger::GetInstance();
-		break;
-	}
+    switch (type) {
+    default:
+        pInstance = NullLogger::GetInstance();
+        break;
+    case CONSOLE:
+        pInstance = ConsoleLogger::GetInstance();
+        break;
+    }
 
-	return pInstance;
+    return pInstance;
 }

@@ -27,23 +27,23 @@
 
 #include "game.h"
 
-#define TIMETRAV_CPU_HZ 5000000		// speed of cpu (5 MHz ?)
+#define TIMETRAV_CPU_HZ 5000000 // speed of cpu (5 MHz ?)
 
 class timetrav : public game
 {
-public:
-	timetrav();
-	void do_nmi();
-	Uint8 cpu_mem_read(Uint32 addr);
-	void cpu_mem_write(Uint32 addr, Uint8 value);
-	Uint8 port_read(Uint16);
-	void port_write(Uint16, Uint8);
-	void input_enable(Uint8);
-	void input_disable(Uint8);
-	bool set_bank(unsigned char, unsigned char);
-	void palette_calculate();
+  public:
+    timetrav();
+    void do_nmi();
+    Uint8 cpu_mem_read(Uint32 addr);
+    void cpu_mem_write(Uint32 addr, Uint8 value);
+    Uint8 port_read(Uint16);
+    void port_write(Uint16, Uint8);
+    void input_enable(Uint8);
+    void input_disable(Uint8);
+    bool set_bank(unsigned char, unsigned char);
+    void palette_calculate();
 
-protected:
+  protected:
 };
 
 #endif

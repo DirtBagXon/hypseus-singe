@@ -87,8 +87,6 @@ using namespace std;
 
 // -------------------------------------------------------------------------------------------------
 
-////////////////////////////////////////
-
 const char *get_daphne_version() { return "1.0.13"; }
 
 unsigned char get_filename(char *s, unsigned char n)
@@ -132,8 +130,7 @@ void set_cur_dir(const char *exe_loc)
     string path = "";
 
     // locate the preceeding / or \ character
-    while ((index >= 0) && (exe_loc[index] != '/') &&
-           (exe_loc[index] != '\\')) {
+    while ((index >= 0) && (exe_loc[index] != '/') && (exe_loc[index] != '\\')) {
         index--;
     }
 
@@ -316,8 +313,7 @@ void reset_logfile(int argc, char **argv)
         str = str + argv[i] + " ";
     }
     printline(str.c_str());
-    snprintf(s, sizeof(s), "--CPU : %s || Mem : %d megs", get_cpu_name(),
-             get_sys_mem());
+    snprintf(s, sizeof(s), "--CPU : %s || Mem : %d megs", get_cpu_name(), get_sys_mem());
     printline(s);
     snprintf(s, sizeof(s), "--OS : %s || Video : %s", get_os_description(),
              get_video_description());

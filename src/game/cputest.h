@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // cputest.h
 
 #ifndef CPUTEST_H
@@ -30,20 +29,20 @@
 
 class cputest : public game
 {
-public:
-	cputest();
-	bool init();
-	void shutdown();
-	Uint8 port_read(Uint16);
-	void port_write(Uint16 port, Uint8 value);
-	void update_pc(Uint32);
-	void set_preset(int);
-	void start();
-private:
-	Uint32 m_speedtimer;
-	unsigned int m_uZeroCount;
-	bool m_bStarted;
+  public:
+    cputest();
+    bool init();
+    void shutdown();
+    Uint8 port_read(Uint16);
+    void port_write(Uint16 port, Uint8 value);
+    void update_pc(Uint32);
+    void set_preset(int);
+    void start();
+
+  private:
+    Uint32 m_speedtimer;
+    unsigned int m_uZeroCount;
+    bool m_bStarted;
 };
 
 #endif
-

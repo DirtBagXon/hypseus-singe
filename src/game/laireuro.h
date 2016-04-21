@@ -25,9 +25,9 @@
 
 #include "game.h"
 
-#define LAIREURO_CPU_HZ	3579545	// speed of cpu - from schematics
+#define LAIREURO_CPU_HZ 3579545 // speed of cpu - from schematics
 
-#define LAIREURO_OVERLAY_W 360	// width of overlay
+#define LAIREURO_OVERLAY_W 360 // width of overlay
 #define LAIREURO_OVERLAY_H 288 // height of overlay
 #define LAIREURO_COLOR_COUNT 9 // 8 colors total plus a "transparent" color
 
@@ -44,64 +44,60 @@ void ctc_update_period(Uint8 channel);
 #define COUNTER true
 #define TIMER false
 
-struct ctc_channel
-{
-	double trig; // period of the trigger input
-	Uint8 control;
-	Uint8 time_const;
-	bool load_const;
-	bool time;
-	bool time_trig;
-	bool clk_trig_section;
-	Uint16 prescaler;
-	bool mode;
-	bool interrupt;
+struct ctc_channel {
+    double trig; // period of the trigger input
+    Uint8 control;
+    Uint8 time_const;
+    bool load_const;
+    bool time;
+    bool time_trig;
+    bool clk_trig_section;
+    Uint16 prescaler;
+    bool mode;
+    bool interrupt;
 };
 
-struct ctc_chip
-{
-	Uint8 int_vector;
-	ctc_channel channels[4];
-	double clock; // period of the clock
+struct ctc_chip {
+    Uint8 int_vector;
+    ctc_channel channels[4];
+    double clock; // period of the clock
 };
 
-struct dart_chip
-{
-	Uint8 next_reg;
-	Uint8 int_vector;
-	bool transmit_int;
-	bool ext_int;
+struct dart_chip {
+    Uint8 next_reg;
+    Uint8 int_vector;
+    bool transmit_int;
+    bool ext_int;
 };
-
 
 class laireuro : public game
 {
-public:
-	laireuro();
-	void do_irq(Uint32);
-	void do_nmi();
-	Uint8 cpu_mem_read(Uint16);
-	void cpu_mem_write(Uint16, Uint8);
-	Uint8 port_read(Uint16);
-	void port_write(Uint16, Uint8);
-	void input_enable(Uint8);
-	void input_disable(Uint8);
-	void palette_calculate();
-	void video_repaint();
-	void set_version(int);
-	bool set_bank(Uint8, Uint8);
+  public:
+    laireuro();
+    void do_irq(Uint32);
+    void do_nmi();
+    Uint8 cpu_mem_read(Uint16);
+    void cpu_mem_write(Uint16, Uint8);
+    Uint8 port_read(Uint16);
+    void port_write(Uint16, Uint8);
+    void input_enable(Uint8);
+    void input_disable(Uint8);
+    void palette_calculate();
+    void video_repaint();
+    void set_version(int);
+    bool set_bank(Uint8, Uint8);
 
-protected:
-	Uint8 m_wt_misc;
-	Uint8 m_character[0x2000];	
-	SDL_Color m_colors[LAIREURO_COLOR_COUNT];		
-	Uint8 m_banks[4];				
+  protected:
+    Uint8 m_wt_misc;
+    Uint8 m_character[0x2000];
+    SDL_Color m_colors[LAIREURO_COLOR_COUNT];
+    Uint8 m_banks[4];
 };
 
 class aceeuro : public laireuro
 {
-public:
-	aceeuro();
+  public:
+    aceeuro();
 };
 
 #endif

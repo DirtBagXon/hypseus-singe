@@ -33,54 +33,57 @@
 // if we aren't using the MMX version
 
 #ifndef USE_MMX
-struct mix_s *g_pMixBufs = NULL;
-Uint8 *g_pSampleDst = 0;
+struct mix_s *g_pMixBufs   = NULL;
+Uint8 *g_pSampleDst        = 0;
 unsigned int g_uBytesToMix = 0;
 #endif
 
 // A C version of mix_mmx
 // mix_mmx is 2.5 times as fast on Pentium 4
-// NOTE : we always want this defined, even when using MMX, for the purpose of testing (see releasetest)
+// NOTE : we always want this defined, even when using MMX, for the purpose of
+// testing (see releasetest)
 void mix_c()
 {
-	unsigned int uSamplesToMix = g_uBytesToMix >> 1;
-	Uint8 *stream = g_pSampleDst;
-	unsigned int sample = 0, val_to_store = 0;
+    unsigned int uSamplesToMix = g_uBytesToMix >> 1;
+    Uint8 *stream              = g_pSampleDst;
+    unsigned int sample = 0, val_to_store = 0;
 
-	for (sample = 0; sample < uSamplesToMix; sample += 2)
-	{
-		int mixed_sample_1 = 0, mixed_sample_2 = 0;	// left/right channels
-		struct mix_s *cur = g_pMixBufs;
+    for (sample = 0; sample < uSamplesToMix; sample += 2) {
+        int mixed_sample_1 = 0, mixed_sample_2 = 0; // left/right channels
+        struct mix_s *cur = g_pMixBufs;
 
-		// mix all sound chips
-		while (cur)
-		{
-			mixed_sample_1 += LOAD_LIL_SINT16(((short *) cur->pMixBuf) + sample);
-			mixed_sample_2 += LOAD_LIL_SINT16(((short *) cur->pMixBuf) + sample + 1);
-			cur = cur->pNext;
-		}
+        // mix all sound chips
+        while (cur) {
+            mixed_sample_1 += LOAD_LIL_SINT16(((short *)cur->pMixBuf) + sample);
+            mixed_sample_2 += LOAD_LIL_SINT16(((short *)cur->pMixBuf) + sample + 1);
+            cur = cur->pNext;
+        }
 
-		DO_CLIP(mixed_sample_1);
-		DO_CLIP(mixed_sample_2);
+        DO_CLIP(mixed_sample_1);
+        DO_CLIP(mixed_sample_2);
 
-		// note: sample2 needs to be on top because this is little endian, hence LSB
-		val_to_store = 
-			(((unsigned short) mixed_sample_2) << 16) | ((unsigned short) mixed_sample_1);
+        // note: sample2 needs to be on top because this is little endian, hence
+        // LSB
+        val_to_store = (((unsigned short)mixed_sample_2) << 16) |
+                       ((unsigned short)mixed_sample_1);
 
-		STORE_LIL_UINT32(stream, val_to_store);
-		stream += 4;
-	}
+        STORE_LIL_UINT32(stream, val_to_store);
+        stream += 4;
+    }
 }
 
 #ifdef USE_MMX
 
 #ifdef DEBUG
-// debug version of mix MMX that does safety checking before the call.  This obviously won't be used
+// debug version of mix MMX that does safety checking before the call.  This
+// obviously won't be used
 //  during release builds.
 void debug_mix_mmx()
 {
-	assert(((g_uBytesToMix % 8) == 0) && (g_uBytesToMix >= 8));	// mix MMX does 8 bytes at a time
-	mix_mmx();
+    assert(((g_uBytesToMix % 8) == 0) && (g_uBytesToMix >= 8)); // mix MMX does
+                                                                // 8 bytes at a
+                                                                // time
+    mix_mmx();
 }
 #endif // DEBUG
 

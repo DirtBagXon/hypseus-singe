@@ -27,28 +27,28 @@
 
 class pioneer : public ldp
 {
-public:
-	pioneer();
-	bool init_player();
-//	bool search(char *);
-	bool nonblocking_search(char *frame);
-	int get_search_result();
-	bool skip_forward(Uint16, Uint16);
-	unsigned int play();
-	void pause();
-	void stop();
-	void enable_audio1();
-	void enable_audio2();
-	void disable_audio1();
-	void disable_audio2();
-	Uint16 get_real_current_frame();
+  public:
+    pioneer();
+    bool init_player();
+    //	bool search(char *);
+    bool nonblocking_search(char *frame);
+    int get_search_result();
+    bool skip_forward(Uint16, Uint16);
+    unsigned int play();
+    void pause();
+    void stop();
+    void enable_audio1();
+    void enable_audio2();
+    void disable_audio1();
+    void disable_audio2();
+    Uint16 get_real_current_frame();
 
-private:
-	bool pioneer_audio1;
-	bool pioneer_audio2;
-	bool check_result(Uint32, bool);
-	bool getstring(char *, int, Uint32,bool);
-	void printmodel();
+  private:
+    bool pioneer_audio1;
+    bool pioneer_audio2;
+    bool check_result(Uint32, bool);
+    bool getstring(char *, int, Uint32, bool);
+    void printmodel();
 };
 
 #endif

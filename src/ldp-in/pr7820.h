@@ -20,14 +20,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // PR7820.H
 
 #ifndef PR7820_H
 #define PR7820_H
 
 bool read_pr7820_ready();
-void write_pr7820 (unsigned char value);
+void write_pr7820(unsigned char value);
 void pr7820_clear(void);
 Uint16 pr7820_get_buffered_frame(void);
 void pr7820_add_digit(char);

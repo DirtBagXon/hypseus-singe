@@ -22,7 +22,7 @@
 
 /*LED.CPP - Added by Brad Oldham for Space Ace skill LED emulation
 **
-**  Portions of this code Copyright 1999 Mark J. McGinty, 
+**  Portions of this code Copyright 1999 Mark J. McGinty,
 **  All Rights Reserved
 **	Free Usage granted to the public domain.
 **
@@ -38,19 +38,22 @@
 // Define the keyboard indicators.
 //
 
-#define IOCTL_KEYBOARD_SET_INDICATORS        CTL_CODE(FILE_DEVICE_KEYBOARD, 0x0002, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_KEYBOARD_QUERY_TYPEMATIC       CTL_CODE(FILE_DEVICE_KEYBOARD, 0x0008, METHOD_BUFFERED, FILE_ANY_ACCESS)
-#define IOCTL_KEYBOARD_QUERY_INDICATORS      CTL_CODE(FILE_DEVICE_KEYBOARD, 0x0010, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_KEYBOARD_SET_INDICATORS                                          \
+    CTL_CODE(FILE_DEVICE_KEYBOARD, 0x0002, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_KEYBOARD_QUERY_TYPEMATIC                                         \
+    CTL_CODE(FILE_DEVICE_KEYBOARD, 0x0008, METHOD_BUFFERED, FILE_ANY_ACCESS)
+#define IOCTL_KEYBOARD_QUERY_INDICATORS                                        \
+    CTL_CODE(FILE_DEVICE_KEYBOARD, 0x0010, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
 typedef struct _KEYBOARD_INDICATOR_PARAMETERS {
-    USHORT UnitId;		// Unit identifier.
-    USHORT LedFlags;		// LED indicator state.
+    USHORT UnitId;   // Unit identifier.
+    USHORT LedFlags; // LED indicator state.
 
 } KEYBOARD_INDICATOR_PARAMETERS, *PKEYBOARD_INDICATOR_PARAMETERS;
 
-#define KEYBOARD_CAPS_LOCK_ON     4
-#define KEYBOARD_NUM_LOCK_ON      2
-#define KEYBOARD_SCROLL_LOCK_ON   1
+#define KEYBOARD_CAPS_LOCK_ON 4
+#define KEYBOARD_NUM_LOCK_ON 2
+#define KEYBOARD_SCROLL_LOCK_ON 1
 
 #endif
 

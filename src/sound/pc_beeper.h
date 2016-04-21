@@ -23,7 +23,7 @@
 #ifndef PC_BEEPER_H
 #define PC_BEEPER_H
 
-#include <SDL.h>	// for data-type defs
+#include <SDL.h> // for data-type defs
 
 // init callback
 int beeper_init(Uint32 unused);

@@ -31,10 +31,11 @@
 #include "tms9919.hpp"
 #include "tms9919-sdl.hpp"
 
-// this can be set arbitrarily large (as large as it needs to be to support all games)
+// this can be set arbitrarily large (as large as it needs to be to support all
+// games)
 #define MAX_TMS9919_CHIPS 2
 
-cSdlTMS9919 *g_paSoundChips[MAX_TMS9919_CHIPS] = { NULL };
+cSdlTMS9919 *g_paSoundChips[MAX_TMS9919_CHIPS] = {NULL};
 
 // how many chips have been allocated so far
 int g_uTMS9919Index = 0;
@@ -43,41 +44,41 @@ int g_uTMS9919Index = 0;
 //  (so that it can be referenced quickly)
 int tms9919_initialize(Uint32 core_frequency)
 {
-	int result = -1;
+    int result = -1;
 
-	// check for overflow
-	if (g_uTMS9919Index < MAX_TMS9919_CHIPS)
-	{
-		g_paSoundChips[g_uTMS9919Index] = new cSdlTMS9919();
-		g_paSoundChips[g_uTMS9919Index]->set_core_frequency(core_frequency);
-		result = g_uTMS9919Index++;
-	}
-	return result;
+    // check for overflow
+    if (g_uTMS9919Index < MAX_TMS9919_CHIPS) {
+        g_paSoundChips[g_uTMS9919Index] = new cSdlTMS9919();
+        g_paSoundChips[g_uTMS9919Index]->set_core_frequency(core_frequency);
+        result = g_uTMS9919Index++;
+    }
+    return result;
 }
 
 void tms9919_writedata(Uint8 data, int index)
 {
 #ifdef DEBUG
-	assert((index >= 0) && (index < g_uTMS9919Index));
+    assert((index >= 0) && (index < g_uTMS9919Index));
 #endif
-	g_paSoundChips[index]->WriteData(data);
+    g_paSoundChips[index]->WriteData(data);
 }
 
-void tms9919_stream(Uint8* stream, int length, int index)
+void tms9919_stream(Uint8 *stream, int length, int index)
 {
 #ifdef DEBUG
-	assert((index >= 0) && (index < g_uTMS9919Index));
+    assert((index >= 0) && (index < g_uTMS9919Index));
 #endif
-	g_paSoundChips[index]->AudioCallback(stream, length);
+    g_paSoundChips[index]->AudioCallback(stream, length);
 }
 
 void tms9919_shutdown(int index)
 {
 #ifdef DEBUG
-	assert((index >= 0) && (index < g_uTMS9919Index));
+    assert((index >= 0) && (index < g_uTMS9919Index));
 #endif
-	delete g_paSoundChips[index];
-	g_paSoundChips[index] = NULL;
+    delete g_paSoundChips[index];
+    g_paSoundChips[index] = NULL;
 
-	// NOTE : g_uTMS9919Index cannot be decremented here because we are using an array
+    // NOTE : g_uTMS9919Index cannot be decremented here because we are using an
+    // array
 }

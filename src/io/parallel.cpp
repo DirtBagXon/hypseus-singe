@@ -29,8 +29,8 @@
 // Code to control the parallel port
 
 unsigned int par::m_uPortIdx = 0;
-short par::m_base0[3] = { 0x378, 0x278, 0 };
-short par::m_base2[3] = { 0x37A, 0x27A, 0 };
+short par::m_base0[3]        = {0x378, 0x278, 0};
+short par::m_base2[3]        = {0x37A, 0x27A, 0};
 
 #include <stdio.h>
 #include "conout.h"
@@ -40,7 +40,7 @@ short par::m_base2[3] = { 0x37A, 0x27A, 0 };
 
 #include <windows.h>
 
-typedef void (WINAPI *Out32_t)(short PortAddress, short data);
+typedef void(WINAPI *Out32_t)(short PortAddress, short data);
 Out32_t Out32;
 HINSTANCE g_hInstInpout;
 
@@ -49,56 +49,49 @@ bool par::init(unsigned int port, ILogger *pLogger)
 // port 0 is LPT1
 // port 1 is LPT2
 {
-	if (port > 1) // if port is not LPT1 or LPT2, a custom address for the port was specified
-	{
-		m_base0[2] = port;
-		m_base2[2] = port + 2;
-		port = 2; // so that m_uPortIdx becomes 2
-	}
+    if (port > 1) // if port is not LPT1 or LPT2, a custom address for the port
+                  // was specified
+    {
+        m_base0[2] = port;
+        m_base2[2] = port + 2;
+        port       = 2; // so that m_uPortIdx becomes 2
+    }
 
-	m_uPortIdx = port;
+    m_uPortIdx = port;
 
-	string s = "Opening parallel port at address 0x";
-	s += numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
-	pLogger->Log(s);
+    string s = "Opening parallel port at address 0x";
+    s += numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
+    pLogger->Log(s);
 
-	g_hInstInpout = LoadLibrary("inpout32.dll");
-	if (g_hInstInpout == NULL)
-	{
-		return(false);
-	}
+    g_hInstInpout = LoadLibrary("inpout32.dll");
+    if (g_hInstInpout == NULL) {
+        return (false);
+    }
 
-	Out32 = (Out32_t)GetProcAddress(g_hInstInpout, "Out32");
-	if (!Out32)
-	{
-		FreeLibrary(g_hInstInpout);
-		g_hInstInpout = NULL;
-		return(false);
-	}
+    Out32 = (Out32_t)GetProcAddress(g_hInstInpout, "Out32");
+    if (!Out32) {
+        FreeLibrary(g_hInstInpout);
+        g_hInstInpout = NULL;
+        return (false);
+    }
 
-	return(true);
+    return (true);
 }
 
 // writes a byte to the port at base+0
-void par::base0 (unsigned char data)
-{
-	Out32(m_base0[m_uPortIdx], data);
-}
+void par::base0(unsigned char data) { Out32(m_base0[m_uPortIdx], data); }
 
 // writes a byte to the port at base+2
-void par::base2 (unsigned char data)
-{
-	Out32(m_base2[m_uPortIdx], data);
-}
+void par::base2(unsigned char data) { Out32(m_base2[m_uPortIdx], data); }
 
 void par::close(ILogger *pLogger)
 {
-	// does nothing with current win32 implementation
-	pLogger->Log("Closing parallel port");
+    // does nothing with current win32 implementation
+    pLogger->Log("Closing parallel port");
 
-	FreeLibrary(g_hInstInpout);
-	g_hInstInpout = NULL;
-	Out32 = NULL;
+    FreeLibrary(g_hInstInpout);
+    g_hInstInpout = NULL;
+    Out32         = NULL;
 }
 
 #endif
@@ -113,8 +106,7 @@ void par::close(ILogger *pLogger)
 
 #endif
 
-
-//FreeBSD code 
+// FreeBSD code
 #ifdef FREEBSD
 
 #include <machine/sysarch.h>
@@ -124,72 +116,56 @@ void par::close(ILogger *pLogger)
 
 #endif
 
-
 // initializes the specified port (0 is LPT1)
 // returns 1 if successful, 0 if failted
 bool par::init(unsigned int port, ILogger *pLogger)
 {
 
-	bool result = false;
-	char s[81] = { 0 };
+    bool result = false;
+    char s[81]  = {0};
 
-	sprintf(s, "Opening parallel port %d", port);
-	pLogger->Log(s);
+    sprintf(s, "Opening parallel port %d", port);
+    pLogger->Log(s);
 
-	if (port > 1) // if port is not LPT1 or LPT2, a custom address for the port was specified
-	{
-		port = 2; // set port to the custom address
-		par::m_base0[2] = port;
-		par::m_base2[2] = port + 2;
-	}
+    if (port > 1) // if port is not LPT1 or LPT2, a custom address for the port
+                  // was specified
+    {
+        port            = 2; // set port to the custom address
+        par::m_base0[2] = port;
+        par::m_base2[2] = port + 2;
+    }
 
-	// request access to the small range of ports we need
-	// if we get a 0, it means we were successful
-	if (ioperm(par::m_base0[port], 3, 1) == 0)
-	{
-		m_uPortIdx = port;
-		result = true;
-	}
+    // request access to the small range of ports we need
+    // if we get a 0, it means we were successful
+    if (ioperm(par::m_base0[port], 3, 1) == 0) {
+        m_uPortIdx = port;
+        result     = true;
+    }
 
-	return(result);
+    return (result);
 }
 
 // writes a byte to the port at base+0
-void par::base0 (unsigned char data)
-{
-	outb(data, par::m_base0[m_uPortIdx]);
-}
+void par::base0(unsigned char data) { outb(data, par::m_base0[m_uPortIdx]); }
 
 // writes a byte to the port at base+2
-void par::base2 (unsigned char data)
-{
-	outb(data, par::m_base2[m_uPortIdx]);
-}
+void par::base2(unsigned char data) { outb(data, par::m_base2[m_uPortIdx]); }
 
 // closes parallel port
-void par::close (ILogger *pLogger)
-{
-	// we don't have to do anything here
-}
-
-#endif	// end UNIX
-#else	// end NATIVE_CPU_X86
-
-// here is the code for systems that have no parallel support
-bool par::init (unsigned int port, ILogger *pLogger)
-{
-	return false;
-}
-
-void par::base0(unsigned char data)
-{
-}
-
-void par::base2(unsigned char data)
-{
-}
-
 void par::close(ILogger *pLogger)
 {
+    // we don't have to do anything here
 }
+
+#endif // end UNIX
+#else  // end NATIVE_CPU_X86
+
+// here is the code for systems that have no parallel support
+bool par::init(unsigned int port, ILogger *pLogger) { return false; }
+
+void par::base0(unsigned char data) {}
+
+void par::base2(unsigned char data) {}
+
+void par::close(ILogger *pLogger) {}
 #endif

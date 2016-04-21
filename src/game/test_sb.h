@@ -6,9 +6,9 @@
 
 class test_sb : public game
 {
-public:
-	test_sb();
-	void start();
+  public:
+    test_sb();
+    void start();
 };
 
 #endif // TEST_SB_H

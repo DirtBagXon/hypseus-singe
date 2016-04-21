@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // This code is to interface the Daphne sound system with tms9919-sdl.cpp
 
 #ifndef SN_INTF_H

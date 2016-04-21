@@ -27,25 +27,24 @@
 
 class v6000 : public ldp
 {
-public:
-	v6000();
-	bool init_player();
-//	bool search(char *);
-	bool nonblocking_search(char *frame);
-	int get_search_result();
-	bool skip_forward(Uint16, Uint16);
-	unsigned int play();
-	void pause();
-	void stop();
-	void enable_audio1();
-	void disable_audio1();
-	void enable_audio2();
-	void disable_audio2();
+  public:
+    v6000();
+    bool init_player();
+    //	bool search(char *);
+    bool nonblocking_search(char *frame);
+    int get_search_result();
+    bool skip_forward(Uint16, Uint16);
+    unsigned int play();
+    void pause();
+    void stop();
+    void enable_audio1();
+    void disable_audio1();
+    void enable_audio2();
+    void disable_audio2();
 
-private:
-	bool wait_for_finished();
-	bool getstring(char *, Uint32, bool);
+  private:
+    bool wait_for_finished();
+    bool getstring(char *, Uint32, bool);
 };
 
 #endif
-

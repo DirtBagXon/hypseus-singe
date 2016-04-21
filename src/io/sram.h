@@ -23,5 +23,5 @@
 // sram.h -- stores/loads static RAM to/from disk
 // by Warren Ondras
 
-int sram_load(const char * filename, unsigned char * mem, unsigned int size);
-int sram_save(const char * filename, unsigned char * mem, unsigned int size);
+int sram_load(const char *filename, unsigned char *mem, unsigned int size);
+int sram_save(const char *filename, unsigned char *mem, unsigned int size);

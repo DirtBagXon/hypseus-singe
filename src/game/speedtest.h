@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // speedtest.h
 // by Matt Ownby
 
@@ -28,11 +27,12 @@
 
 class speedtest : public game
 {
-public:
-	speedtest();
-	void set_preset(int);	// set up dip switches/rom names, etc with prepared values
-	void start();
-private:
-	char m_max_frame[6];	// max frame # to seek to for speed test
+  public:
+    speedtest();
+    void set_preset(int); // set up dip switches/rom names, etc with prepared
+                          // values
+    void start();
 
+  private:
+    char m_max_frame[6]; // max frame # to seek to for speed test
 };

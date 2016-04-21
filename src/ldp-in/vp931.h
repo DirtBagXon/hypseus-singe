@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // VP931.H
 
 #ifndef VP931_H
@@ -35,7 +34,8 @@ bool vp931_is_dav_active();
 // DAK is active high
 bool vp931_is_dak_active();
 
-// OPRT is apparently always high, but I don't know if it is considered active high or not
+// OPRT is apparently always high, but I don't know if it is considered active
+// high or not
 // For now I will assume it is active high
 bool vp931_is_oprt_active();
 

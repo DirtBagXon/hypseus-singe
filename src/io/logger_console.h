@@ -7,15 +7,16 @@
 // logs to the console
 class ConsoleLogger : public ILogger
 {
-	friend class LoggerFactory;
-public:
-	static ILogger *GetInstance();
-	void DeleteInstance();
+    friend class LoggerFactory;
 
-	void Log(const string &strText);
-private:
-	ConsoleLogger();
+  public:
+    static ILogger *GetInstance();
+    void DeleteInstance();
+
+    void Log(const string &strText);
+
+  private:
+    ConsoleLogger();
 };
-
 
 #endif // FILE_LOGGER_H

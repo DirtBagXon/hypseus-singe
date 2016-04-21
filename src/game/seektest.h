@@ -27,26 +27,27 @@
 
 class seektest : public game
 {
-public:
-	seektest();
-	void start();
-	void go(Uint16 target_frame);
-	void input_enable(Uint8);
-	void input_disable(Uint8);
-	void set_preset(int);
-	bool handle_cmdline_arg(const char *arg);
-	void palette_calculate();
-	void video_repaint();
+  public:
+    seektest();
+    void start();
+    void go(Uint16 target_frame);
+    void input_enable(Uint8);
+    void input_disable(Uint8);
+    void set_preset(int);
+    bool handle_cmdline_arg(const char *arg);
+    void palette_calculate();
+    void video_repaint();
 
-private:
-	Uint16 m_early1, m_early2;	// two early frames we can alternate between
-	Uint16 m_late1, m_late2;	// two late frames we can alternate between
-	char m_name[81];	// name of the game
-	
-	bool m_locked;	// if the seektest in "locked" mode?
-	bool m_overlay;	// video overlay enabled?
-	Sint32 m_frame_offset;	// how much to adjust current frame by
-	bool m_multimpeg;	// whether the mpeg is expected to be split up into multiple parts
-	int *m_multimpeg_frames;	// array that holds each frame (if m_multimpeg is true), terminated with negative number
+  private:
+    Uint16 m_early1, m_early2; // two early frames we can alternate between
+    Uint16 m_late1, m_late2;   // two late frames we can alternate between
+    char m_name[81];           // name of the game
+
+    bool m_locked;           // if the seektest in "locked" mode?
+    bool m_overlay;          // video overlay enabled?
+    Sint32 m_frame_offset;   // how much to adjust current frame by
+    bool m_multimpeg;        // whether the mpeg is expected to be split up into
+                             // multiple parts
+    int *m_multimpeg_frames; // array that holds each frame (if m_multimpeg is
+                             // true), terminated with negative number
 };
-

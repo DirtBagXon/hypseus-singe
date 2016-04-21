@@ -25,36 +25,35 @@
 
 #include "game.h"
 
-#define STARRIDER_OVERLAY_W 320	// width of overlay
+#define STARRIDER_OVERLAY_W 320 // width of overlay
 #define STARRIDER_OVERLAY_H 256 // height of overlay
 
 class starrider : public game
 {
-public:
-	starrider();
-	void do_nmi();		// does an NMI tick
-	void do_irq();		// does an IRQ tick
-	void do_firq();		// does a FIRQ tick
-	Uint8 cpu_mem_read(Uint16 addr);			// memory read routine
-	void cpu_mem_write(Uint16 addr, Uint8 value);		// memory write routine
-	void input_enable(Uint8);
-	void input_disable(Uint8);
-	bool set_bank(unsigned char, unsigned char);
-	void palette_calculate();
-	void video_repaint();	// function to repaint video
+  public:
+    starrider();
+    void do_nmi();                                // does an NMI tick
+    void do_irq();                                // does an IRQ tick
+    void do_firq();                               // does a FIRQ tick
+    Uint8 cpu_mem_read(Uint16 addr);              // memory read routine
+    void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
+    void input_enable(Uint8);
+    void input_disable(Uint8);
+    bool set_bank(unsigned char, unsigned char);
+    void palette_calculate();
+    void video_repaint(); // function to repaint video
 
-private:
-	int current_bank;
-	bool firq_on;
-	bool irq_on;
-	bool nmi_on;
-	Uint8 character[0x2000];		
-	Uint8 rombank1[0xa000];		
-	Uint8 rombank2[0x4000];		
-//	SDL_Color colors[16];	// color palette
-	Uint8 banks[3];				// starrider's banks
-		// bank 1 is switches
-		// bank 2 is dip switch 1
-		// bank 3 is dip switch 2
+  private:
+    int current_bank;
+    bool firq_on;
+    bool irq_on;
+    bool nmi_on;
+    Uint8 character[0x2000];
+    Uint8 rombank1[0xa000];
+    Uint8 rombank2[0x4000];
+    //	SDL_Color colors[16];	// color palette
+    Uint8 banks[3]; // starrider's banks
+                    // bank 1 is switches
+                    // bank 2 is dip switch 1
+                    // bank 3 is dip switch 2
 };
-

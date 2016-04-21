@@ -27,4 +27,3 @@
 #include "video_out.h"
 
 /* Externally visible list of all vo drivers */
-

@@ -29,30 +29,35 @@
 #include "mmxdefs.h"
 #endif
 
-#include <SDL.h>	// for datatype defs
+#include <SDL.h> // for datatype defs
 
-// IMPORTANT: the MMX code depends on this structure beginning as it is displayed here!
+// IMPORTANT: the MMX code depends on this structure beginning as it is
+// displayed here!
 // Be very cautious about changing this struct!
-struct mix_s
-{
-	void *pMixBuf;
-	struct mix_s *pNext;
+struct mix_s {
+    void *pMixBuf;
+    struct mix_s *pNext;
 };
 
 // TO USE THE MIX FUNCTIONS:
-// 1 - set g_pMixBufs to a pointer to a populated mix_s struct (that contains all your streams)
+// 1 - set g_pMixBufs to a pointer to a populated mix_s struct (that contains
+// all your streams)
 // 2 - set g_pSampleDst to the destination stream
-// 3 - set g_uBytesToMix to how many bytes long all lines are (they all must be the same length).
+// 3 - set g_uBytesToMix to how many bytes long all lines are (they all must be
+// the same length).
 //	IMPORTANT : g_uBytesToMix must be a multiple of 8, and must be >= 8!
 // 4 - run g_mix_func() and you're done!
 
-// we always want this function defined for the purpose of testing (releasetest.cpp)
+// we always want this function defined for the purpose of testing
+// (releasetest.cpp)
 void mix_c();
 
-// Here we make some definitions so that the MMX/C code use identical syntax and variables
+// Here we make some definitions so that the MMX/C code use identical syntax and
+// variables
 #ifdef USE_MMX
 
-// For some reason, OSX was being retarded and insisted on putting _'s in front of all
+// For some reason, OSX was being retarded and insisted on putting _'s in front
+// of all
 //  assembly language variables.  So we've compensated for this insane behavior.
 
 #if defined(MAC_OSX) || defined(WIN32)

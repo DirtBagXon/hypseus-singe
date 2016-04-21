@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-
 // ldp-combo.h
 // by Matt Ownby
 
@@ -30,15 +29,16 @@
 
 class combo : public ldp
 {
-public:
-	combo();
-	virtual ~combo() {};	// this keeps g++ happy
-	bool init_player();
-	void shutdown_player();
-	bool search(char *);
-	unsigned int play();
-	void pause();
-private:
-	ldp_vldp m_vldp;	// our instance of a fake laserdisc player
-	sony m_rldp;	// our instance of a real laserdisc player
+  public:
+    combo();
+    virtual ~combo(){}; // this keeps g++ happy
+    bool init_player();
+    void shutdown_player();
+    bool search(char *);
+    unsigned int play();
+    void pause();
+
+  private:
+    ldp_vldp m_vldp; // our instance of a fake laserdisc player
+    sony m_rldp;     // our instance of a real laserdisc player
 };

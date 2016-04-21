@@ -6,7 +6,7 @@
  *              from a variety of sources.
  *
  * I found rsynth as "rsynth-2.0.tar.gz" at:
- *                svr-ftp.eng.cam.ac.uk:/pub/comp.speech/synthesis/ 
+ *                svr-ftp.eng.cam.ac.uk:/pub/comp.speech/synthesis/
  *
  * Copyright (C) 2003 Garry Jordan
  *
@@ -29,7 +29,7 @@
  */
 
 #include <SDL.h>
-#include "sound.h"	// for sample_s definition
+#include "sound.h" // for sample_s definition
 
 void tqsynth_init(int freq, Uint16 format, int channels, long base_F0);
 bool audio_get_chunk(int num_samples, short *samples, sample_s *ptrSample);

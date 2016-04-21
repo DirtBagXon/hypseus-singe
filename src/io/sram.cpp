@@ -24,87 +24,77 @@
 // by Warren Ondras
 
 #include <stdio.h>
-#include <zlib.h>	// for compression
+#include <zlib.h> // for compression
 #include "homedir.h"
 #include "numstr.h"
 #include "conout.h"
 
-int sram_load(const char * filename, unsigned char * mem, unsigned int size)
+int sram_load(const char *filename, unsigned char *mem, unsigned int size)
 {
-	string s;
-	gzFile loadfile = NULL;
-	int result = 0;
-	
-	//Use homedir to locate the correct place for saveram
-	string sramFile = g_homedir.get_ramfile(filename);
+    string s;
+    gzFile loadfile = NULL;
+    int result      = 0;
 
-	loadfile = gzopen(sramFile.c_str(), "rb");	// open compressed file
+    // Use homedir to locate the correct place for saveram
+    string sramFile = g_homedir.get_ramfile(filename);
 
-	// if loading the file succeeded
-	if (loadfile)
-	{
-		// read compressed data
-		if (gzread(loadfile, (voidp) mem, size) == (int) size)
-		{
-			s = "Loaded " + numstr::ToStr(size) + " bytes from " + sramFile;
-			printline(s.c_str());
-			result = 1;
-		}
-		else
-		{
-			s = "Error loading from " + sramFile;
-			printline(s.c_str());
-		}
-		gzclose(loadfile);
-	}
+    loadfile = gzopen(sramFile.c_str(), "rb"); // open compressed file
 
-	// if loading the file failed
-	else
-	{
-		s = "NOTE : RAM file " + sramFile + " was not found (it'll be created)";
-		printline(s.c_str());
-	}
-	
-	return result;
+    // if loading the file succeeded
+    if (loadfile) {
+        // read compressed data
+        if (gzread(loadfile, (voidp)mem, size) == (int)size) {
+            s = "Loaded " + numstr::ToStr(size) + " bytes from " + sramFile;
+            printline(s.c_str());
+            result = 1;
+        } else {
+            s = "Error loading from " + sramFile;
+            printline(s.c_str());
+        }
+        gzclose(loadfile);
+    }
+
+    // if loading the file failed
+    else {
+        s = "NOTE : RAM file " + sramFile + " was not found (it'll be created)";
+        printline(s.c_str());
+    }
+
+    return result;
 }
 
-int sram_save(const char * filename, unsigned char * mem, unsigned int size)
+int sram_save(const char *filename, unsigned char *mem, unsigned int size)
 {
-	char s[81];
-	gzFile savefile;
-	int result = 0;
+    char s[81];
+    gzFile savefile;
+    int result = 0;
 
-	//Use homedir to locate the correct place for saveram
-	string sramFile = g_homedir.get_ramfile(filename);
-	
-	savefile = gzopen(sramFile.c_str(), "wb");
+    // Use homedir to locate the correct place for saveram
+    string sramFile = g_homedir.get_ramfile(filename);
 
-	// if opening file was successful	
-	if (savefile)
-	{
-		// set it to compress at maximum because it shouldn't take too long and
-		// it'll save disk space
-		gzsetparams(savefile, Z_BEST_COMPRESSION, Z_DEFAULT_STRATEGY);
+    savefile = gzopen(sramFile.c_str(), "wb");
 
-		if (gzwrite(savefile, (voidp) mem, size) == (int) size)
-		{
-			sprintf(s, "Saved %d bytes to %s", size, filename);
-			printline(s);
-			result = 1;
-		}
-		else
-		{
-			sprintf(s, "Error saving %d bytes to %s", size, filename);
-			printline(s);
-		}
-		gzclose(savefile);
-	}
+    // if opening file was successful
+    if (savefile) {
+        // set it to compress at maximum because it shouldn't take too long and
+        // it'll save disk space
+        gzsetparams(savefile, Z_BEST_COMPRESSION, Z_DEFAULT_STRATEGY);
 
-	else
-	{
-		sprintf(s, "Error saving RAM to file ram/%s", filename);
-		printline(s);
-	}
-	
-	return result;
+        if (gzwrite(savefile, (voidp)mem, size) == (int)size) {
+            sprintf(s, "Saved %d bytes to %s", size, filename);
+            printline(s);
+            result = 1;
+        } else {
+            sprintf(s, "Error saving %d bytes to %s", size, filename);
+            printline(s);
+        }
+        gzclose(savefile);
+    }
+
+    else {
+        sprintf(s, "Error saving RAM to file ram/%s", filename);
+        printline(s);
+    }
+
+    return result;
 }

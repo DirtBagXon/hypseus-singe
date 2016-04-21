@@ -26,21 +26,21 @@
 // just has some macros to make DLL loading uniform across different OS's
 
 #ifdef WIN32
-#include <windows.h>	// for DLL loading
+#include <windows.h> // for DLL loading
 #else
-#include <dlfcn.h>	// for .so loading
+#include <dlfcn.h> // for .so loading
 // Mac OSX can get this from http://www.opendarwin.org/projects/dlcompat/
 #endif
 
 // macros for making the dynamic library code look cleaner
 #ifdef WIN32
-#define M_LOAD_LIB(libname)	LoadLibrary(#libname)
-#define M_GET_SYM	GetProcAddress
-#define M_FREE_LIB	FreeLibrary
+#define M_LOAD_LIB(libname) LoadLibrary(#libname)
+#define M_GET_SYM GetProcAddress
+#define M_FREE_LIB FreeLibrary
 #else
-#define M_LOAD_LIB(libname)	dlopen("lib" #libname ".so", RTLD_NOW)
-#define M_GET_SYM	dlsym
-#define M_FREE_LIB	dlclose
+#define M_LOAD_LIB(libname) dlopen("lib" #libname ".so", RTLD_NOW)
+#define M_GET_SYM dlsym
+#define M_FREE_LIB dlclose
 #endif
 
 #ifdef WIN32

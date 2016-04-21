@@ -31,10 +31,7 @@
 // time and previous_time (which is also in milliseconds)
 unsigned int elapsed_ms_time(unsigned int previous_time)
 {
-	return(GET_TICKS() - previous_time);
+    return (GET_TICKS() - previous_time);
 }
 
-unsigned int GetTicksFunc()
-{
-	return GET_TICKS();
-}
+unsigned int GetTicksFunc() { return GET_TICKS(); }
