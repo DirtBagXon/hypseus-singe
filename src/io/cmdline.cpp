@@ -141,7 +141,6 @@ bool parse_homedir()
 #ifndef MAC_OSX	// Zaph doesn't seem to like this behavior and he is maintaining the Mac build, so...
 		// on unix, if the user doesn't specify a homedir, then we want to default to ~/.daphne
 		//  to follow standard unix convention.
-#ifndef GP2X	// gp2x has no homedir as far as I can tell, easier to put everything in current dir
 		const char *homeenv = getenv("HOME");
 
 		// this is always expected to be non-NULL
@@ -152,7 +151,6 @@ bool parse_homedir()
 			g_homedir.set_homedir(strHomeDir);
 		}
 		// else we couldn't set the homedir, so just leave it as default
-#endif // not GP2X
 #endif // not MAC_OSX
 #else // WIN32
 		g_homedir.set_homedir(".");	// for win32 set it to the current directory

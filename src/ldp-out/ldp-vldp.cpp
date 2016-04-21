@@ -55,7 +55,6 @@
 #include "ldp-vldp.h"
 #include "framemod.h"
 #include "ldp-vldp-gl.h"	// for OpenGL callbacks
-#include "ldp-vldp-gp2x.h"	// for GP2X callbacks (if no gp2x, this is harmless)
 #include "../vldp/vldp.h"	// to get the vldp structs
 #include "../video/palette.h"
 #include "../video/SDL_DrawText.h"
@@ -185,11 +184,6 @@ bool ldp_vldp::init_player()
 						g_local_info.prepare_frame = prepare_frame_callback_without_overlay;
 					}
 					g_local_info.display_frame = display_frame_callback;
-#ifdef GP2X
-					// gp2x receives a yuy2 frame directly
-					g_local_info.prepare_yuy2_frame = prepare_gp2x_frame_callback;
-					g_local_info.display_yuy2_frame = display_gp2x_frame_callback;
-#endif // GP2X
 					g_local_info.report_parse_progress = report_parse_progress_callback;
 					g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
 					g_local_info.render_blank_frame = blank_overlay;
@@ -548,11 +542,9 @@ bool ldp_vldp::nonblocking_search(char *frame)
 				// NOTE: AVOID this if you can because it makes seeking less accurate
 				if (g_game->get_disc_fpks() != uFPKS)
 				{
-#ifndef GP2X	// we want to show a msg w/ floating point stuff in it, which is too much for gp2x to handle
 					string s = "NOTE: converting FPKS from " + numstr::ToStr(g_game->get_disc_fpks()) +
 						" to " + numstr::ToStr(uFPKS) + ". This may be less accurate.";
 					printline(s.c_str());
-#endif
 					m_target_mpegframe = (m_target_mpegframe * uFPKS) / g_game->get_disc_fpks();
 				}
 			}
@@ -837,23 +829,17 @@ unsigned int ldp_vldp::get_current_frame()
 
 			s = "g_local_info.uMsTimer is " + numstr::ToStr(g_local_info.uMsTimer) + ", which means frame offset " +
 				numstr::ToStr((g_local_info.uMsTimer * uFPKS) / 1000000);
-#ifndef GP2X
 			s += " (" + numstr::ToStr(g_local_info.uMsTimer * uFPKS * 0.000001) + ") ";
-#endif
 			printline(s.c_str());
 			s = "m_uCurrentOffsetFrame is " + numstr::ToStr(m_uCurrentOffsetFrame) + ", m_last_seeked frame is " + numstr::ToStr(m_last_seeked_frame);
 			printline(s.c_str());
 			unsigned int uMsCorrect = ((result - m_last_seeked_frame) * 1000000) / uFPKS;
 			s = "correct elapsed ms is " + numstr::ToStr(uMsCorrect);
-#ifndef GP2X
 			// show float if we have decent FPU
 			s += " (" + numstr::ToStr((result - m_last_seeked_frame) * 1000000.0 / uFPKS) + ") ";
-#endif
 			s += ", which is frame offset " + numstr::ToStr((uMsCorrect * uFPKS) / 1000000);
-#ifndef GP2X
 			// show float result if we have a decent FPU
 			s += " (" + numstr::ToStr(uMsCorrect * uFPKS * 0.000001) + ")";
-#endif
 			printline(s.c_str());
 
 		}

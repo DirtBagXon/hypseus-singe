@@ -122,7 +122,7 @@ public:
 
 	// Function all 'ldp-in' drivers should call to change the playback speed
 	// Input is a fraction (numerator/denominator) to avoid using a floating point value,
-	//  which doesn't work well on the GP2X.
+	//  which doesn't work well on the some platforms.
 	// Common speeds are 1X (1/1), 2X (2/1), 3X (3/1), 4X (4/1), 8X (8/1),
 	//  1/2X (1/2), 1/3X (1/3), 1/4X (1/4), 1/8X (1/8)
 	// Any weird speeds such as 7/2 have undefined behavior for now.

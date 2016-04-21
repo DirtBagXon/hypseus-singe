@@ -785,7 +785,6 @@ void ldp::pre_think()
 		// else the current frame has not changed
 
 #ifdef DEBUG
-#ifndef GP2X	// GP2X is slow enough that we don't want to do this safety check by default
 		// SAFETY CHECK
 		// This ensures that the number that is calculated is not far off what it should be.
 		// (this test is only meaningful if we are emulating a cpu, because otherwise we may deliberately
@@ -820,7 +819,6 @@ void ldp::pre_think()
 				}
 			}
 		}
-#endif // not GP2X
 #endif // DEBUG
 
 	}

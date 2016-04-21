@@ -156,7 +156,7 @@ game::~game()
 bool game::pre_init()
 {
 	// compute integer values that we will actually use in practice
-	// (floating point is too expensive on GP2X so we're eliminating it for recurring computations)
+	// (floating point is expensive on some platforms so eliminate it for recurring computations)
 	if (m_disc_fps != 0.0)
 	{
 		m_uDiscFPKS = (unsigned int) ((m_disc_fps * 1000.0) + 0.5);	// frames per kilosecond (same precision, but an int instead of a float)
@@ -1085,8 +1085,8 @@ unsigned int game::get_disc_fpks()
 	return m_uDiscFPKS;
 }
 
-// UPDATE : it's too expensive to use floating point on GP2X, so we are phasing this function out in
-//  favor of integer operations.
+// UPDATE : it's too expensive to use floating point on some platforms, so we
+// are phasing this function out in favor of integer operations.
 // returns how many ms per frame the disc runs at
 //double game::get_disc_ms_per_frame()
 //{

@@ -163,11 +163,8 @@ struct m80_context
 #define M80_GET_WORD    M80_PEEK_WORD; PC += 2
 
 // peek a word but don't advance PC
-// (the 16-bit little endian stuff doesn't compile correctly using gcc 4 on the GP2X, so we use the slower method)
-#if (SDL_BYTEORDER == SDL_LIL_ENDIAN) && (!GP2X)
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
 #define M80_PEEK_WORD	*( (Uint16 *) ( (Uint8 *) (opcode_base + PC)))
-#else
-#define M80_PEEK_WORD	(opcode_base[PC] | (opcode_base[PC+1] << 8))
 #endif
 
 // Interrupt check macro

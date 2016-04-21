@@ -48,14 +48,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifndef GP2X
 #include <vorbis/codec.h>		// OGG VORBIS specific headers
 #include <vorbis/vorbisfile.h>
-#else
-// gp2x ogg vorbis decoding files
-#include <tremor/ivorbiscodec.h>
-#include <tremor/ivorbisfile.h>
-#endif
 
 #ifdef TRY_MMAP
 #include <sys/mman.h>
@@ -588,13 +582,8 @@ void ldp_vldp_audio_callback(Uint8 *stream, int len, int unused)
 
 			while (samples_copied < len)
 			{
-#ifndef GP2X
 				samples_read = ov_read(&s_ogg, &g_small_buf[0],
 					AUDIO_BUF_CHUNK,0,2,1, &nop);
-#else
-				// gp2x version
-				samples_read = ov_read(&s_ogg, &g_small_buf[0], AUDIO_BUF_CHUNK, &nop);
-#endif
 
 				if (samples_read > 0)
 				{

@@ -62,7 +62,6 @@ Uint8 *g_pVidTex = NULL;
 
 using namespace std;
 
-#ifndef GP2X
 unsigned int g_vid_width = 640, g_vid_height = 480;	// default video width and video height
 #ifdef DEBUG
 const Uint16 cg_normalwidths[] = { 320, 640, 800, 1024, 1280, 1280, 1600 };
@@ -71,11 +70,6 @@ const Uint16 cg_normalheights[]= { 240, 480, 600, 768, 960, 1024, 1200 };
 const Uint16 cg_normalwidths[] = { 640, 800, 1024, 1280, 1280, 1600 };
 const Uint16 cg_normalheights[]= { 480, 600, 768, 960, 1024, 1200 };
 #endif // DEBUG
-#else
-unsigned int g_vid_width = 320, g_vid_height = 240;	// default for gp2x
-const Uint16 cg_normalwidths[] = { 320 };
-const Uint16 cg_normalheights[]= { 240 };
-#endif
 
 // the dimensions that we draw (may differ from g_vid_width/height if aspect ratio is enforced)
 unsigned int g_draw_width = 640, g_draw_height = 480;
@@ -246,7 +240,6 @@ bool init_display()
 			g_draw_height = g_draw_height * g_scalefactor / 100;
 		}
 
-#ifndef GP2X
 		if (!g_bUseOpenGL)
 		{
 			// by RDG2010
@@ -270,10 +263,6 @@ bool init_display()
 			g_pVidTex = MPO_MALLOC(GL_TEX_SIZE * GL_TEX_SIZE * 4);	// 32-bit bits per pixel, width and height the same
 #endif
 		}
-#else
-		SDL_ShowCursor(SDL_DISABLE);	// always hide mouse for gp2x
-		g_screen = SDL_SetVideoMode(320, 240, 0, SDL_HWSURFACE);
-#endif
 
 			/* by RDG2010
 			 * Step 3. Move window to the top-left corner of the screen.

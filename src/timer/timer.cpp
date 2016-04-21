@@ -38,30 +38,3 @@ unsigned int GetTicksFunc()
 {
 	return GET_TICKS();
 }
-
-#ifdef GP2X
-unsigned int g_uLastTicks = 0;
-unsigned int g_uExtraMs = 0;
-
-unsigned int GP2X_GetTicks(unsigned int uMiniTicks)
-{
-	// gp2x's mini ticks can be converted to ms by dividing by 7372.8, but we used 7373 for speed
-	const unsigned int DIVIDER = 7373;
-
-	// # of milliseconds in one cycle before 32-bit timer wraps around
-	const unsigned int CYCLE_MS = 0xFFFFFFFF / DIVIDER;
-
-	unsigned int uTicks = uMiniTicks / DIVIDER;
-
-	// has wraparound occurred?
-	if (uMiniTicks < g_uLastTicks)
-	{
-		g_uExtraMs += CYCLE_MS;	// add one cycle to the extra
-	}
-
-	g_uLastTicks = uTicks;
-	uTicks += g_uExtraMs;	// add whatever extra we've accumulated
-
-	return uTicks;
-}
-#endif // GP2X

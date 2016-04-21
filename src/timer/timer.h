@@ -28,23 +28,8 @@
 
 #include <SDL.h>
 
-#ifndef GP2X
-// not GP2X code ...
 #define GET_TICKS SDL_GetTicks
 #define MAKE_DELAY SDL_Delay
-#else
-
-// GP2X CODE HERE
-
-extern "C"
-{
-unsigned int SDL_GP2X_GetMiniTicks();
-}
-
-unsigned int GP2X_GetTicks(unsigned int uMiniTicks);
-#define GET_TICKS(dummy) GP2X_GetTicks(SDL_GP2X_GetMiniTicks())
-#define MAKE_DELAY SDL_Delay
-#endif // GP2X
 
 unsigned int elapsed_ms_time(unsigned int previous_time);
 

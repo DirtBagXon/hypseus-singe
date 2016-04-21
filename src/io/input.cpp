@@ -103,7 +103,6 @@ int g_key_defs[SWITCH_COUNT][2] =
 
 ////////////
 
-#ifndef GP2X
 // added by Russ
 // global button mapping array. just hardcoded room for 10 buttons max
 int joystick_buttons_map[10] = {
@@ -118,30 +117,6 @@ int joystick_buttons_map[10] = {
 	SWITCH_BUTTON1,	// button 9
 	SWITCH_BUTTON1,	// button 10
 };
-#else
-// button mapping for gp2x
-int joystick_buttons_map[18] =
-{
-	SWITCH_UP,	// 0 (up)
-	SWITCH_UP,	// 1 (up-left)
-	SWITCH_LEFT,	// 2 (left)
-	SWITCH_DOWN,	// 3 (down-left)
-	SWITCH_DOWN,	// 4 (down)
-	SWITCH_DOWN,	// 5 (down-right)
-	SWITCH_RIGHT,	// 6 (right)
-	SWITCH_UP,	// 7 (up-right)
-	SWITCH_START1,	// 8 (start)
-	SWITCH_COIN1,	// 9 (select)
-	SWITCH_QUIT,	// 10 (left)
-	SWITCH_PAUSE,	// 11 (right)
-	SWITCH_BUTTON1,	// 12 (A)
-	SWITCH_BUTTON2, // 13 (B)
-	SWITCH_BUTTON3,	// 14 (X)
-	SWITCH_CONSOLE,	// 15 (Y)
-	SWITCH_BUTTON1, // 16 is vol +
-	SWITCH_BUTTON1 // 17 is vol -
-};
-#endif
 
 // Mouse button to key mappings
 // Added by ScottD for Singe

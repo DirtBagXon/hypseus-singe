@@ -110,11 +110,6 @@ private:
 	void test_sound_mixing();
 	bool m_test_sound_mixing;
 
-#ifdef GP2X
-	void test_gp2x_timer();
-	bool m_test_gp2x_timer;
-#endif // GP2X
-
 };
 
 #endif

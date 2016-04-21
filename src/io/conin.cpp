@@ -80,28 +80,7 @@ char con_getkey()
 				// so lazy folks (like me) can pass the issues screen
 				// without going to the keyboard :)
 				case SDL_JOYBUTTONDOWN:
-#ifndef GP2X
 					result = 13;
-#else
-					// one of the buttons needs to exit the emulator
-					switch(event.jbutton.button)
-						{
-							// L is #10, and it will map to escape for now ...
-							case 10:
-								result = 27;
-								break;
-							case 15:	// Y (hide console)
-#ifdef CPU_DEBUG
-								toggle_console();
-#endif
-								result = 0;
-								break;
-							default:
-								result = 13;
-								break;
-						}
-						break;
-#endif
 					break;
 				case SDL_QUIT:
 					set_quitflag();

@@ -118,10 +118,6 @@ void releasetest::start()
 	if (dotest(m_test_framefile_parse)) test_framefile_parse();
 	if (dotest(m_test_samples)) test_samples();
 
-#ifdef GP2X
-	if (dotest(m_test_gp2x_timer)) test_gp2x_timer();
-#endif // GP2X
-
 	// Only test these functions if we've built with MMX code,
 	//  otherwise the test is useless
 #ifdef USE_MMX
@@ -458,11 +454,7 @@ void releasetest::test_yuv_hwaccel()
 				if (windowed == 0) sdl_flags |= SDL_FULLSCREEN;
 
 				SDL_Delay(1000);	// wait a second to give video card a chance to catch its breath (especially Radeon's)
-#ifndef GP2X
 				g_screen = SDL_SetVideoMode(640, 480, 0, sdl_flags);
-#else
-				g_screen = SDL_SetVideoMode(320, 240, 0, SDL_HWSURFACE);	// gp2x settings, only supports 320x240
-#endif
 				if (g_screen)
 				{
 					bool bAccel = false;	// to avoid compiler warnings
@@ -1084,31 +1076,3 @@ void releasetest::test_sound_mixing()
 
 	SDL_PauseAudio(0);	// start up other audio thread again
 }
-
-#ifdef GP2X
-void releasetest::test_gp2x_timer()
-{
-	unsigned int uTime[4];
-	uTime[0] = GP2X_GetTicks(~1);	// 2 before wraparound
-	uTime[1] = GP2X_GetTicks(~0);	// 1 before wraparound
-	uTime[2] = GP2X_GetTicks(0);	// wraparound
-	uTime[3] = GP2X_GetTicks(1);	// 1 after wraparound
-
-	bool bPassed = true;
-
-	for (unsigned int u = 0; u < 4; u++)
-	{
-		string s = "U " + numstr::ToStr(u) + " : " + numstr::ToStr(uTime[u]);
-		printline(s.c_str());
-	}
-
-	// make sure timer doesn't ever become less when it wraps around
-	for (unsigned int v = 1; v < 4; v++)
-	{
-		if (uTime[v] < uTime[v-1]) bPassed = false;
-	}
-
-	logtest(bPassed, "GP2X Timer Test");
-	
-}
-#endif // GP2X

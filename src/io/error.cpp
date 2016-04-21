@@ -39,12 +39,8 @@
 #include "../video/video.h"
 #include "../video/SDL_DrawText.h"
 
-#ifndef GP2X
 //const char *instr = "Please read the daphne_log.txt file for more information";
 const char *instr = "Read daphne_log.txt for help";
-#else
-const char *instr = "Read daphne_log.txt for help";
-#endif
 
 const char CRLF[3] = { 13, 10, 0 };	// carriage return / linefeed combo, for the addlog statements in this file
 

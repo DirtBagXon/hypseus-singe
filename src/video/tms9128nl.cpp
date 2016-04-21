@@ -737,7 +737,6 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
 void tms9128nl_outcommand(char *s,int col,int row)
 {
 // gp2x doesn't have enough resolution to display this schlop anyway...
-#ifndef GP2X
     SDL_Rect dest;
 
     dest.x = (short) ((col*6) + 200);
@@ -752,7 +751,6 @@ void tms9128nl_outcommand(char *s,int col,int row)
 	    SDLDrawText(s, get_screen_blitter(), FONT_SMALL, dest.x, dest.y);
 		// TODO : get this working again under the new video scheme
     }
-#endif
 }
 
 // called everytime the color palette changes

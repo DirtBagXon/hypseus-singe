@@ -214,13 +214,6 @@ int prepare_frame_callback(struct yuv_buf *src)
     return result;
 }
 
-struct sdl_gp2x_yuvhwdata {
-    // the first few fields in this struct
-    Uint8 *YUVBuf[2];
-    unsigned int GP2XAddr[2];
-    unsigned int uBackBuf;
-};
-
 int prepare_yuy2_frame_callback(struct yuy2_buf *src)
 {
     VLDP_BOOL result = VLDP_TRUE;
@@ -229,13 +222,6 @@ int prepare_yuy2_frame_callback(struct yuy2_buf *src)
 #ifdef USE_OVERLAY
     // if locking the video overlay is successful
     if (SDL_LockYUVOverlay(g_hw_overlay) == 0) {
-#ifdef GP2X
-        struct sdl_gp2x_yuvhwdata *pData =
-            (struct sdl_gp2x_yuvhwdata *)g_hw_overlay->hwdata;
-        pData->GP2XAddr[pData->uBackBuf] =
-            src->uPhysAddress; // redirect sdl's buffer to the buffer that
-                               // already has the image
-#endif                         // GP2X
         SDL_UnlockYUVOverlay(g_hw_overlay);
     } else
         result = VLDP_FALSE;
@@ -380,11 +366,6 @@ int main(int argc, char **argv)
     if (pvldp_init) {
         g_local_info.prepare_frame = prepare_frame_callback;
         g_local_info.display_frame = display_frame_callback;
-#ifdef GP2X
-        // gp2x receives a yuy2 frame directly
-        g_local_info.prepare_yuy2_frame = prepare_yuy2_frame_callback;
-        g_local_info.display_yuy2_frame = display_yuy2_frame_callback;
-#endif
         g_local_info.report_parse_progress  = report_parse_progress_callback;
         g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
         g_local_info.render_blank_frame     = blank_overlay_callback;
