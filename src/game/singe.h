@@ -133,8 +133,8 @@ class singe : public game
 
     // By RDG2010
     // Copying expanded keyboard handling technique from Thayer's driver.
-    void process_keydown(SDLKey, int[][2]);
-    void process_keyup(SDLKey, int[][2]);
+    void process_keydown(SDL_Keycode, int[][2]);
+    void process_keyup(SDL_Keycode, int[][2]);
 
   private:
     // callback function for singe to pass error messages to us
@@ -151,6 +151,6 @@ class singe : public game
     int i_keyboard_mode; // Stores the keyboard access mode. Valid values are:
                          // KEYBD_NORMAL - Tells SINGE to use daphne.ini keys.
     // KEYBD_FULL   - Tells SINGE to scan the full keyboard (a la Thayers).
-    static const int i_full_keybd_defs[]; // Array with discrete SDLKey values.
+    static const int i_full_keybd_defs[]; // Array with discrete SDL_Keycode values.
                                           // Used in process_keyup/keydown.
 };

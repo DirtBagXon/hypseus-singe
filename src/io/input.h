@@ -80,8 +80,8 @@ void toggle_console();
 #endif
 
 void process_event(SDL_Event *event);
-void process_keydown(SDLKey key);
-void process_keyup(SDLKey key);
+void process_keydown(SDL_Keycode key);
+void process_keyup(SDL_Keycode key);
 void process_joystick_motion(SDL_Event *event);
 void process_joystick_hat_motion(SDL_Event *event);
 bool get_consoledown();

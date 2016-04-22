@@ -43,8 +43,8 @@ class thayers : public game
     void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
     Uint8 port_read(Uint16 port);                 // read from port
     void port_write(Uint16 port, Uint8 value);    // write to a port
-    void process_keydown(SDLKey);
-    void process_keyup(SDLKey);
+    void process_keydown(SDL_Keycode);
+    void process_keyup(SDL_Keycode);
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
     void video_repaint();

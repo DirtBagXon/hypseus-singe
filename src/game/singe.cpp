@@ -354,7 +354,7 @@ double singe::get_singe_version()
 
 // Have SINGE deal directly with SDL input
 // This handles when a key is pressed down
-void singe::process_keydown(SDLKey key, int keydefs[][2])
+void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
 {
     /* Normal Daphne use has the program look for a set of default keys.
      * These are read from daphne.ini (or if daphne.ini is absent, then set
@@ -428,7 +428,7 @@ void singe::process_keydown(SDLKey key, int keydefs[][2])
 }
 
 // this is called when the user releases a key
-void singe::process_keyup(SDLKey key, int keydefs[][2])
+void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
 {
     /* Process_keyup is handled differently in SINGE.
      *

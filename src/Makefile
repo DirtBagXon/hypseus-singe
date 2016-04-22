@@ -32,7 +32,7 @@ export AS := $(TOOLCHAIN)-$(AS)
 endif
  
 PKG_CONFIG=pkg-config
-SDL_CONFIG=sdl-config
+SDL_CONFIG=sdl2-config
 STRIP=strip
 WINDRES=windres
 
@@ -56,8 +56,8 @@ EXE = ../$(EXE_BASE)$(EXE_EXT)
 
 # ...  by RDG2010
 ifeq ($(BUILD_SINGE),1)
-LIBS += $(shell ${PKG_CONFIG} --libs lua SDL_mixer SDL_image SDL_ttf)
-PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL_mixer SDL_image SDL_ttf)
+LIBS += $(shell ${PKG_CONFIG} --libs lua SDL2_mixer SDL2_image SDL2_ttf)
+PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL2_mixer SDL2_image SDL2_ttf)
 OBJS += game/singe/*.o
 endif
 

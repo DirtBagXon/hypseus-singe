@@ -65,7 +65,6 @@ bool init_display();
 
 #ifdef USE_OPENGL
 bool init_opengl();
-void take_screenshot_GL();
 #endif // USE_OPENGL
 
 void shutdown_display();
@@ -106,8 +105,6 @@ Uint16 get_video_width();
 void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
-void take_screenshot(SDL_Overlay *yuvimage);
-void save_screenshot(SDL_Surface *shot);
 void yuv2rgb(SDL_Color *result, int y, int u, int v);
 void draw_string(const char *, int, int, SDL_Surface *);
 void vid_toggle_fullscreen();

@@ -550,7 +550,7 @@ void thayers::video_repaint()
 }
 
 // this handles _any_ keypress on the keyboard
-void thayers::process_keydown(SDLKey key)
+void thayers::process_keydown(SDL_Keycode key)
 {
     static int volume = 64;
 
@@ -665,7 +665,7 @@ void thayers::process_keydown(SDLKey key)
 }
 
 // this is called when the user releases a key
-void thayers::process_keyup(SDLKey key)
+void thayers::process_keyup(SDL_Keycode key)
 {
     // left coin chute release
     if (key == SDLK_F5) {
