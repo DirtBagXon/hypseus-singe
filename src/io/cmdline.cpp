@@ -720,11 +720,6 @@ bool parse_cmd_line(int argc, char **argv)
                 log_was_disabled = true;
             }
 
-            // disable YUV hardware acceleration
-            else if (strcasecmp(s, "-nohwaccel") == 0) {
-                set_yuv_hwaccel(false);
-            }
-
             // by RDG2010
             // Preliminary light gun support.
             // Creates a borderless, no title bar window the size of the desktop

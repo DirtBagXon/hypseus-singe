@@ -78,10 +78,6 @@ class releasetest : public game
     void test_rgb2yuv();
     bool m_test_rgb2yuv; // runs rgb2yuv test if true
 
-    // tests the ability to enable/disable hardware acceleration
-    void test_yuv_hwaccel();
-    bool m_test_yuv_hwaccel;
-
     // tests think_delay function
     void test_think_delay();
     bool m_test_think_delay;

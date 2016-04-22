@@ -70,7 +70,7 @@ const unsigned int REL_COLOR_COUNT = 256;
 releasetest::releasetest()
     : m_test_all(true), // run all tests by default
       m_test_line_parse(false), m_test_framefile_parse(false), m_test_rgb2yuv(false),
-      m_test_yuv_hwaccel(false), m_test_think_delay(false), m_test_vldp(false),
+      m_test_think_delay(false), m_test_vldp(false),
       m_test_vldp_render(false), m_test_blend(false), m_test_mix(false),
 #ifdef USE_OPENGL
       m_test_gl_offset(false),
@@ -134,9 +134,6 @@ void releasetest::start()
     // this test should come near the end as it messes with YUV overlay stuff
     // (which may be unstable on some platforms)
     if (dotest(m_test_vldp_render)) test_vldp_render();
-
-    // this test should come near last as it messes w/ video modes
-    if (dotest(m_test_yuv_hwaccel)) test_yuv_hwaccel();
 
     // grab any bugs that happened to be logged during this process!
     list<string> ldp_bug_log;
@@ -418,91 +415,6 @@ void releasetest::test_rgb2yuv()
     logtest(passed, "RGB2YUV Complete Exerciser");
 }
 
-// NOTE : this test might well be done at the very end since it messes with the
-// video modes
-void releasetest::test_yuv_hwaccel()
-{
-    bool test_result = false;
-
-#ifdef USE_OPENGL
-    // if we're not in opengl mode, then proceed
-    if (!get_use_opengl()) {
-#endif
-        delete g_ldp; // make sure that any yuv overlays which are allocated get
-                      // deleted
-
-        printline("Beginning YUV hardware acceleration test (this test should "
-                  "be last since it may mess up the video modes beyond use)");
-
-        // test set/get environment variable functions
-        set_yuv_hwaccel(false);
-        logtest(get_yuv_hwaccel() == false, "Env Var Test #1");
-
-        set_yuv_hwaccel(true);
-        logtest(get_yuv_hwaccel() == true, "Env Var Test #2");
-
-        set_yuv_hwaccel(false);
-        logtest(get_yuv_hwaccel() == false, "Env Var Test #3");
-
-        // windowed, w/ accel
-        // windowed, w/o accel
-        // fullscreen w/ accel
-        // fullscreen w/o accel
-        for (int accel = 0; accel < 2; accel++) {
-            for (int windowed = 0; windowed < 2; windowed++) {
-                test_result      = false;
-                Uint32 sdl_flags = SDL_SWSURFACE; // sw surface if acceleration
-                                                  // is disabled (see video.cpp
-                                                  // notes)
-
-                // if hwaccel is enabled, use hw surface (see video.cpp notes)
-                if (accel == 1) {
-                    sdl_flags = SDL_HWSURFACE;
-                }
-                if (windowed == 0) sdl_flags |= SDL_FULLSCREEN;
-
-                SDL_Delay(1000); // wait a second to give video card a chance to
-                                 // catch its breath (especially Radeon's)
-                g_screen = SDL_SetVideoMode(640, 480, 0, sdl_flags);
-                if (g_screen) {
-                    bool bAccel = false; // to avoid compiler warnings
-                    if (accel) bAccel = true;
-
-                    set_yuv_hwaccel(bAccel);
-                    // make sure environment variable got set correctly
-                    if (get_yuv_hwaccel() == (bool)bAccel) {
-                        SDL_Delay(1000);
-                        SDL_Overlay *overlay =
-                            SDL_CreateYUVOverlay(640, 480, SDL_YUY2_OVERLAY, g_screen);
-                        if (overlay) {
-                            if (overlay->hw_overlay == (unsigned int)accel) {
-                                test_result = true;
-                            }
-                            SDL_FreeYUVOverlay(overlay);
-                        }
-                    }
-                }
-                // else screen creation failed
-
-                string msg = "YUV Hwaccel (windowed = " + numstr::ToStr(windowed) +
-                             ") and (accel = " + numstr::ToStr(accel) + ")";
-                logtest(test_result, msg.c_str());
-                // make_delay(1000);	// just so the vidmodes aren't switching
-                // mind-numbingly fast
-            }
-        }
-
-        // restore g_ldp to a value
-        g_ldp = new ldp(); // just create generic NOLDP for now ...
-#ifdef USE_OPENGL
-    }
-    // else we're in opengl mode
-    else {
-        printline("YUV hwaccel test skipped because we're in opengl mode...");
-    }
-#endif
-}
-
 void releasetest::test_think_delay()
 {
     unsigned int uStartTime = GET_TICKS();
@@ -656,8 +568,6 @@ void releasetest::test_vldp_render()
         // framefile)
 
         // create the overlay
-        set_yuv_hwaccel(true); // by having hwaccel turned on, we also
-                               // implicitly test our screenshot code
         unsigned int width  = REL_VID_W << 1;
         unsigned int height = REL_VID_H << 1;
         report_mpeg_dimensions_callback(width, height);

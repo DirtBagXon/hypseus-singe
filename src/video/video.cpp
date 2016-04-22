@@ -115,33 +115,9 @@ bool init_display()
     bool abnormalscreensize      = true; // assume abnormal
     const SDL_VideoInfo *vidinfo = NULL;
     Uint8 suggested_bpp          = 0;
-    Uint32 sdl_flags             = 0; // the default for this depends on whether we are
-                          // using HW accelerated YUV overlays or not
+    Uint32 sdl_flags             = 0;
 
-    char *hw_env = getenv("SDL_VIDEO_YUV_HWACCEL");
-
-    // if HW acceleration has been disabled, we need to use a SW surface due to
-    // some oddities with crashing and fullscreen
-    if (hw_env && (hw_env[0] == '0')) {
-        sdl_flags = SDL_SWSURFACE;
-    }
-
-    // else if HW acceleration hasn't been explicitely disabled ...
-    else {
-
-        sdl_flags = SDL_HWSURFACE;
-        // Win32 notes (may not apply to linux) :
-        // After digging around in the SDL source code, I've discovered a few
-        // things ...
-        // When using fullscreen mode, you should always use SDL_HWSURFACE
-        // because otherwise
-        // you can't use YUV hardware overlays due to SDL creating an extra
-        // surface without
-        // your consent (which seems retarded to me hehe).
-        // SDL_SWSURFACE + hw accelerated YUV overlays will work in windowed
-        // mode, but might
-        // as well just use SDL_HWSURFACE for everything.
-    }
+    sdl_flags = SDL_HWSURFACE;
 
     char s[250] = {0};
     Uint32 x    = 0; // temporary index
@@ -1144,38 +1120,6 @@ void vid_toggle_fullscreen()
         g_screen->format->BitsPerPixel,
         g_screen->flags ^ SDL_FULLSCREEN);
         */
-}
-
-// NOTE : put into a separate function to make autotesting easier
-void set_yuv_hwaccel(bool enabled)
-{
-    const char *val = "0";
-    if (enabled) val = "1";
-#ifdef WIN32
-    SetEnvironmentVariable("SDL_VIDEO_YUV_HWACCEL", val);
-    string sEnv = "SDL_VIDEO_YUV_HWACCEL=";
-    sEnv += val;
-    putenv(sEnv.c_str());
-#else
-    setenv("SDL_VIDEO_YUV_HWACCEL", val, 1);
-#endif
-}
-
-bool get_yuv_hwaccel()
-{
-    bool result = true; // it is enabled by default
-#ifdef WIN32
-    char buf[30];
-    ZeroMemory(buf, sizeof(buf));
-    GetEnvironmentVariable("SDL_VIDEO_YUV_HWACCEL", buf, sizeof(buf));
-    if (buf[0] == '0') result = false;
-#else
-    char *hw_env = getenv("SDL_VIDEO_YUV_HWACCEL");
-
-    // if HW acceleration has been disabled
-    if (hw_env && (hw_env[0] == '0')) result = false;
-#endif
-    return result;
 }
 
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
