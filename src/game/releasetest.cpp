@@ -47,9 +47,6 @@
 #include "../sound/sound.h"
 #include "../sound/samples.h"
 #include "../sound/mix.h"
-#ifdef USE_OPENGL
-#include "../ldp-out/ldp-vldp-gl.h"
-#endif
 
 extern SDL_Overlay *g_hw_overlay;      // to do overlay tests
 extern struct yuv_buf g_blank_yuv_buf; // to do overlay tests
@@ -72,9 +69,6 @@ releasetest::releasetest()
       m_test_line_parse(false), m_test_framefile_parse(false), m_test_rgb2yuv(false),
       m_test_think_delay(false), m_test_vldp(false),
       m_test_vldp_render(false), m_test_blend(false), m_test_mix(false),
-#ifdef USE_OPENGL
-      m_test_gl_offset(false),
-#endif
       m_test_samples(false), m_test_sound_mixing(false)
 // m_test_gp2x_timer(false)
 {
@@ -122,10 +116,6 @@ void releasetest::start()
     if (dotest(m_test_blend)) test_blend();
     if (dotest(m_test_mix)) test_mix();
 #endif // USE_MMX
-
-#ifdef USE_OPENGL
-    if (dotest(m_test_gl_offset)) test_gl_offset();
-#endif
 
     if (dotest(m_test_think_delay)) test_think_delay();
 
@@ -556,10 +546,6 @@ void releasetest::test_vldp_render()
 {
     bool test_result = false;
 
-#ifdef USE_OPENGL
-    // make sure we're not in opengl mode
-    if (!get_use_opengl()) {
-#endif
         delete g_ldp; // whatever player we've got, de-allocate it so we can
                       // force VLDP as our player
         g_ldp = new ldp_vldp(); // now we're using VLDP for sure ...
@@ -663,14 +649,6 @@ void releasetest::test_vldp_render()
         free_yuv_overlay(); // we're done
 
         logtest(test_result, "VLDP Overlay w/ Vertical Offset Render");
-#ifdef USE_OPENGL
-    }
-    // else we're in opengl mode
-    else {
-        printline("VLDP YUV vertical offset render test skipped because we're "
-                  "in opengl more");
-    }
-#endif
 }
 
 void releasetest::test_blend()
@@ -756,131 +734,6 @@ void releasetest::test_mix()
 
     logtest(result, "AUDIO MIX accuracy test");
 }
-
-#ifdef USE_OPENGL
-void releasetest::test_gl_offset()
-{
-    bool test_result = false;
-
-    // only proceed if we're using opengl and our screen size is what we expect
-    // it to be
-    if (get_use_opengl() && (g_screen->w == 640) && (g_screen->h == 480)) {
-        unsigned char *ptrPixels = MPO_MALLOC(g_screen->w * g_screen->h * 3); // RGB buffer for screenshot
-
-        // the top line is the last line in the buffer,
-        //  because opengl goes bottom to top
-        unsigned char *ptrTopLine    = ptrPixels + (479 * 640 * 3);
-        unsigned char *ptrBottomLine = ptrPixels;
-
-        // force VLDP to be our laserdisc player type
-        delete g_ldp;
-        g_ldp = new ldp_vldp();
-
-        // make sure vertical offset calculation has been done
-        init_vldp_opengl();
-
-        // get texture buffers allocated
-        report_mpeg_dimensions_GL_callback(g_screen->w, g_screen->h);
-
-        m_video_overlay_needs_update = true;
-        video_blit(); // prepare our video overlay for testing
-
-        //		int iOverlayWidth = m_video_overlay[m_active_video_overlay]->w;
-        //		int iOverlayHeight = m_video_overlay[m_active_video_overlay]->h;
-
-        test_result = true;
-
-        // it doesn't matter what this value is.
-        // As long as it is different each time the gl_think function is called,
-        //  it will force gl_think to draw a new frame.
-        // NOTE : this must start at 1 to ensure that the first frame is drawn
-        unsigned int uVblankDummy = 1;
-
-        // go through a broad video offset range
-        for (m_video_row_offset = -239;
-             (m_video_row_offset < (int)240) && test_result; ++m_video_row_offset) {
-            // draw blank frame with overlay on top ...
-            render_blank_frame_GL_callback();
-            ldp_vldp_gl_think(uVblankDummy++); // draw it ...
-
-            // 8 black RGB pixels
-            unsigned char black[] = {0x00, 0x00, 0x00, 0, 0,    0,   0x0, 0x00,
-                                     0x0,  0,    0,    0, 0x00, 0x0, 0,   0,
-                                     0,    0,    0,    0, 0,    0,   0,   0};
-
-            // 8 dotted RGB pixels
-            unsigned char dotted[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xff, 0xff,
-                                      0,    0,    0,    0,    0,    0,
-                                      0xFF, 0xFF, 0xFF, 0xff, 0xff, 0xff,
-                                      0,    0,    0,    0,    0,    0};
-
-            unsigned char *expected_top    = black;
-            unsigned char *expected_bottom = black;
-
-            // if the topmost line is dotted, set up our bytes accordingly
-            if ((m_video_row_offset == -239) || (m_video_row_offset == 0) ||
-                (m_video_row_offset == 239)) {
-                switch (m_video_row_offset) {
-                case -239:
-                    expected_top    = dotted;
-                    expected_bottom = black;
-                    break;
-                case 239:
-                    expected_top    = black;
-                    expected_bottom = dotted;
-                    break;
-                default:
-                    expected_top    = dotted;
-                    expected_bottom = dotted;
-                    break;
-                }
-            }
-
-            // take screenshot into buffer, for examination
-            glReadPixels(0, 0, g_screen->w, g_screen->h, GL_RGB, GL_UNSIGNED_BYTE, ptrPixels);
-
-            // 12 bytes = 8 pixels
-            for (int i = 0; i < 24; i++) {
-                // check the top
-                // if resulting value is not close enough
-                if (!i_close_enuf(ptrTopLine[i], expected_top[i], 1)) {
-                    string msg = "Pixel mismatch on offset " +
-                                 numstr::ToStr(m_video_row_offset) +
-                                 ", ptrTopLine[" + numstr::ToStr(i) + "] is " +
-                                 numstr::ToStr(ptrTopLine[i]) +
-                                 ", expected_top[" + numstr::ToStr(i) +
-                                 "] is " + numstr::ToStr(expected_top[i]);
-                    printline(msg.c_str());
-                    test_result = false;
-                }
-
-                // check the bottom
-                if (!i_close_enuf(ptrBottomLine[i], expected_bottom[i], 1)) {
-                    string msg = "Pixel mismatch on offset " +
-                                 numstr::ToStr(m_video_row_offset) +
-                                 ", ptrBottomLine[" + numstr::ToStr(i) +
-                                 "] is " + numstr::ToStr(ptrBottomLine[i]) +
-                                 ", expected_bottom[" + numstr::ToStr(i) +
-                                 "] is " + numstr::ToStr(expected_bottom[i]);
-                    printline(msg.c_str());
-                    test_result = false;
-                }
-            }
-        } // end for loop
-
-        m_video_row_offset = 0; // restore
-
-        MPO_FREE(ptrPixels);
-
-        free_gl_resources();
-
-        logtest(test_result, "OpenGL vertical offset");
-    } else {
-        printline("NOTE: Skipped OpenGL offset test since we're not in OpenGL "
-                  "mode...");
-    }
-}
-#endif // USE_OPENGL
 
 void releasetest::test_samples()
 {

@@ -314,12 +314,6 @@ void reset_logfile(int argc, char **argv)
     snprintf(s, sizeof(s), "--OS : %s || Video : %s", get_os_description(),
              get_video_description());
     printline(s);
-    outstr("--OpenGL: ");
-#ifdef USE_OPENGL
-    printline("Compiled In");
-#else
-    printline("Not Compiled In");
-#endif // USE_OPENGL
 
     outstr("--RGB2YUV Function: ");
 #ifdef USE_MMX

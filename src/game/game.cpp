@@ -54,14 +54,6 @@
 #include "../video/palette.h"
 #include "game.h"
 
-#ifdef USE_OPENGL
-#ifdef MAC_OSX
-#include <glew.h>
-#else
-#include <GL/glew.h>
-#endif
-#endif
-
 using namespace std; // for STL string to compile without problems ...
 
 ///////////////////////////////////////////////////////////
@@ -517,10 +509,6 @@ void game::video_blit()
         // otherwise we do nothing because the yuv_callback in ldp-vldp.cpp will
         // take care of it
         if (!g_ldp->is_vldp()) {
-#ifdef USE_OPENGL
-            // if we're not in OpenGL mode
-            if (!get_use_opengl()) {
-#endif
                 // If we're not scaling the video
                 if (!m_bFullScale) {
                     vid_blit(m_video_overlay[m_active_video_overlay], 0, 0);
@@ -530,37 +518,6 @@ void game::video_blit()
                           m_video_overlay_scaled, m_video_overlay_matrix);
                     vid_blit(m_video_overlay_scaled, 0, 0);
                 } /*endelse*/
-#ifdef USE_OPENGL
-            }
-            // else we're using OpenGL
-            else {
-                vid_blank(); // openGL requires this
-
-                if (!m_bFullScale) {
-                    SDL_Surface *srf = m_video_overlay[m_active_video_overlay];
-
-                    // blit in the center of the screen
-                    vid_blit(srf, (m_video_screen_width >> 1) - (srf->w >> 1),
-                             (m_video_screen_height >> 1) - (srf->h >> 1));
-                }
-
-                // else if 'fullscale' is enabled
-                else {
-                    GLfloat fXScale = (GLfloat)m_video_screen_width / m_video_overlay_width;
-                    GLfloat fYScale = (GLfloat)m_video_screen_height / m_video_overlay_height;
-
-                    glPushMatrix();
-                    glScalef(fXScale, fYScale, 1.0);
-
-                    // blit in the center of the screen
-                    SDL_Surface *srf = m_video_overlay[m_active_video_overlay];
-                    vid_blit(srf, (m_video_screen_width >> 1) - (srf->w >> 1),
-                             (m_video_screen_height >> 1) - (srf->h >> 1));
-                    glPopMatrix();
-                }
-            } // end if using opengl
-
-#endif // USE_OPENGL
             vid_flip();
         } // end if this isn't VLDP
 

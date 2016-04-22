@@ -41,25 +41,6 @@
 #include "../ldp-out/ldp.h"
 #include "../ldp-out/ldp-vldp-gl.h"
 
-#ifdef USE_OPENGL
-#ifdef MAC_OSX
-#include <glew.h>
-#else
-#include <GL/glew.h>
-#endif
-
-// This is the max width and height that any .BMP will be, so that we can fit it
-// into
-//  an opengl texture.  If you need to display a bigger .BMP, increase this
-//  number.
-// NOTE : this number must be a power of 2!!!
-#define GL_TEX_SIZE 1024
-
-// pointer to the buffer that we allocate for bitmap blits
-Uint8 *g_pVidTex = NULL;
-
-#endif
-
 using namespace std;
 
 unsigned int g_vid_width = 640, g_vid_height = 480; // default video width and
@@ -95,14 +76,8 @@ int sboverlay_characterset = 1;
 // (this is probably a good idea as a default option)
 bool g_bForceAspectRatio = true;
 
-bool g_bUseOpenGL = false; // whether user has requested we use OpenGL
-
 // the # of degrees to rotate counter-clockwise in opengl mode
 float g_fRotateDegrees = 0.0;
-
-#ifdef USE_OPENGL
-GLuint g_texture_id = 0; // for any blits we have to do in opengl ...
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -222,7 +197,6 @@ bool init_display()
             g_draw_height = g_draw_height * g_scalefactor / 100;
         }
 
-        if (!g_bUseOpenGL) {
             // by RDG2010
             // Step 2. Create a borderless SDL window.
             // If doing fullscreen window, make the window bordeless (no title
@@ -235,18 +209,6 @@ bool init_display()
             SDL_WM_SetCaption(
                 "DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]",
                 "daphne");
-
-        } else {
-#ifdef USE_OPENGL
-            init_opengl();
-            glGenTextures(1, &g_texture_id); // generate texture buffer for use
-                                             // in this file
-            g_pVidTex =
-                MPO_MALLOC(GL_TEX_SIZE * GL_TEX_SIZE * 4); // 32-bit bits per
-                                                           // pixel, width and
-                                                           // height the same
-#endif
-        }
 
 /* by RDG2010
  * Step 3. Move window to the top-left corner of the screen.
@@ -309,10 +271,10 @@ bool init_display()
 
             // sometimes the screen initializes to white, so this attempts to
             // prevent that
-            vid_blank();
-            vid_flip();
-            vid_blank();
-            vid_flip();
+            SDL_FillRect(g_screen, NULL, 0);
+            SDL_Flip(g_screen);
+            SDL_FillRect(g_screen, NULL, 0);
+            SDL_Flip(g_screen);
         }
     }
 
@@ -324,95 +286,6 @@ bool init_display()
     return (result);
 }
 
-#ifdef USE_OPENGL
-bool init_opengl()
-{
-    bool bResult = false;
-
-    Uint32 sdl_flags = SDL_SWSURFACE | SDL_OPENGL;
-
-    // fullscreen is broken
-    if (get_fullscreen()) sdl_flags |= SDL_FULLSCREEN;
-
-    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    // by RDG2010
-    // Step 2. Create a borderless SDL window (on the OpenGL side).
-    // If doing fullscreen window, make the window bordeless (no title bar).
-    // This is achieved by adding the SDL_NOFRAME flag.
-    // Tested OK on both Windows and Ubuntu Linux.
-
-    if (get_fakefullscreen()) sdl_flags = sdl_flags | SDL_NOFRAME;
-
-    g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, 0, sdl_flags);
-
-    // if SDL_SetVideoMode worked ...
-    if (g_screen) {
-        SDL_WM_SetCaption("DAPHNE: Now in experimental OpenGL mode :)",
-                          "daphne");
-
-        // glShadeModel(GL_SMOOTH);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_NORMALIZE); // since we are doing scaling, we need this ...
-        glFrontFace(GL_CCW);
-        glCullFace(GL_BACK);
-        glEnable(GL_CULL_FACE); // this should give us some optimization for
-                                // free
-        glDisable(GL_LIGHTING);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        /* Set the clear color. */
-        glClearColor(0, 0.0, 0, 1);
-
-        /* Setup our viewport. */
-        glViewport(0, 0, g_screen->w, g_screen->h);
-
-        // ENABLE 2D MODE (ORTHO)
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        // The idea is to have the center of the image be at 0,0 to make
-        // rotation, scaling, etc
-        //  easier.
-        glOrtho(-g_screen->w / 2, // left
-                g_screen->w / 2,  // right
-                -g_screen->h / 2, // bottom
-                g_screen->h / 2,  // top
-                -10, 10);
-
-        glMatrixMode(GL_MODELVIEW);
-
-        glEnable(GL_TEXTURE_2D);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-        // handle optional rotation
-        // if we're to one side or the other, scale the image so it will fit
-        if ((g_fRotateDegrees == 90.0) || (g_fRotateDegrees == 270.0)) {
-            // NOTE : this can either shrink or enlarge depending on whether the
-            // width or height is bigger
-            GLfloat fFactor = (GLfloat)g_vid_height / g_vid_width;
-            glScalef(fFactor, fFactor, 1.0);
-        }
-
-        // only rotate if we have a need to
-        if (g_fRotateDegrees != 0) {
-            glRotatef(g_fRotateDegrees, 0, 0, 1.0);
-        }
-
-        bResult = true;
-    }
-    // else SetVideoMode failed ...
-
-    return bResult;
-}
-#endif // USE_OPENGL
-
 // shuts down video display
 void shutdown_display()
 {
@@ -423,138 +296,18 @@ void shutdown_display()
         g_console_initialized = false;
     }
 
-#ifdef USE_OPENGL
-    // free texture buffer from memory
-    MPO_FREE(g_pVidTex);
-#endif
-
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
-
-void vid_flip()
-{
-    // if we're not using OpenGL, then just use the regular SDL Flip ...
-    if (!g_bUseOpenGL) {
-        SDL_Flip(g_screen);
-    } else {
-        SDL_GL_SwapBuffers();
-    }
-}
-
-void vid_blank()
-{
-    if (!g_bUseOpenGL) {
-        SDL_FillRect(g_screen, NULL, 0);
-    } else {
-#ifdef USE_OPENGL
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#endif
-    }
-}
-
-#ifdef USE_OPENGL
-// converts an SDL surface to an opengl texture
-void vid_srf2tex(SDL_Surface *srf, GLuint uTexID)
-{
-    Uint8 *ptrPixelRow      = (Uint8 *)srf->pixels;
-    Uint32 *RGBARow         = (Uint32 *)g_pVidTex;
-    Uint32 *g_puRGBAPalette = get_rgba_palette();
-    for (unsigned int uRow = 0; (uRow < (unsigned)srf->h) && (uRow < GL_TEX_SIZE); ++uRow) {
-        Uint8 *ptrPixel = ptrPixelRow;
-        Uint32 *RGBA    = RGBARow;
-
-        for (unsigned int uCol = 0;
-             (uCol < (unsigned)srf->w) && (uCol < GL_TEX_SIZE); ++uCol) {
-            Uint8 R, G, B;
-
-            // if this is an 8-bit surface
-            if (srf->format->BitsPerPixel == 8) {
-                // retrieve precalculated RGBA value
-                *RGBA = g_puRGBAPalette[*ptrPixel];
-            }
-            // else it doesn't use a color palette
-            else {
-                Uint32 uVal = *((Uint32 *)ptrPixel);
-                R           = ((uVal & srf->format->Rmask) >> srf->format->Rshift)
-                    << srf->format->Rloss;
-                G = ((uVal & srf->format->Gmask) >> srf->format->Gshift)
-                    << srf->format->Gloss;
-                B = ((uVal & srf->format->Bmask) >> srf->format->Bshift)
-                    << srf->format->Bloss;
-                // this may not work for big endian, but we won't know until we
-                // try
-                *RGBA = R | (G << 8) | (B << 16) | 0xFF000000;
-            }
-
-            // move to the next pixel ...
-            ptrPixel += srf->format->BytesPerPixel;
-            ++RGBA;
-        } // end this line
-
-        // move to the next row
-        ptrPixelRow += srf->pitch;
-        RGBARow += GL_TEX_SIZE; // move down one row in the texture memory
-    }
-
-    glBindTexture(GL_TEXTURE_2D, uTexID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    // apply the texture
-    glTexImage2D(GL_TEXTURE_2D,
-                 0, // level is 0
-                 GL_RGBA, GL_TEX_SIZE, GL_TEX_SIZE,
-                 0, // border is 0
-                 GL_RGBA, GL_UNSIGNED_BYTE, g_pVidTex);
-}
-#endif
 
 void vid_blit(SDL_Surface *srf, int x, int y)
 {
     if (g_ldp->is_blitting_allowed()) {
-        if (!g_bUseOpenGL) {
             SDL_Rect dest;
             dest.x = (short)x;
             dest.y = (short)y;
             dest.w = (unsigned short)srf->w;
             dest.h = (unsigned short)srf->h;
             SDL_BlitSurface(srf, NULL, g_screen, &dest);
-        }
-
-        // else, OpenGL mode for blitting ...
-        else {
-#ifdef USE_OPENGL
-
-            // convert surface to a texture
-            vid_srf2tex(srf, g_texture_id);
-
-            // draw the textured rectangle
-            GLfloat fWidth  = (GLfloat)srf->w / GL_TEX_SIZE;
-            GLfloat fHeight = (GLfloat)srf->h / GL_TEX_SIZE;
-
-            // convert y from top-to-bottom to bottom-to-top (SDL -> openGL)
-            y = g_vid_height - y;
-
-            // adjust coordinates so they match up with glOrtho projection
-            x -= (g_vid_width >> 1);
-            y -= (g_vid_height >> 1);
-
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex3i(x, y, 0); // top left
-            glTexCoord2f(0, fHeight);
-            glVertex3i(x, y - srf->h, 0); // bottom left
-            glTexCoord2f(fWidth, fHeight);
-            glVertex3i(x + srf->w, y - srf->h, 0); // bottom right
-            glTexCoord2f(fWidth, 0);
-            glVertex3i(x + srf->w, y, 0); // top right
-            glEnd();
-
-#endif // USE_OPENGL
-        }
     }
     // else blitting isn't allowed, so just ignore
 }
@@ -564,8 +317,8 @@ void vid_blit(SDL_Surface *srf, int x, int y)
 // call this every time you want the display to return to normal
 void display_repaint()
 {
-    vid_blank();
-    vid_flip();
+    SDL_FillRect(g_screen, NULL, 0);
+    SDL_Flip(g_screen);
     g_game->video_force_blit();
 }
 
@@ -895,10 +648,3 @@ void vid_toggle_fullscreen()
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
 
 bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
-
-#ifdef USE_OPENGL
-void set_use_opengl(bool enabled) { g_bUseOpenGL = enabled; }
-
-bool get_use_opengl() { return g_bUseOpenGL; }
-
-#endif // USE_OPENGL

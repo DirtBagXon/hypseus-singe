@@ -113,12 +113,4 @@ void set_force_aspect_ratio(bool bEnabled);
 
 bool get_force_aspect_ratio();
 
-#ifdef USE_OPENGL
-// sets the value of g_bUseOpenGL
-void set_use_opengl(bool enabled);
-
-// returns value of g_bUseOpenGL
-bool get_use_opengl();
-#endif // USE_OPENGL
-
 #endif

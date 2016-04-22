@@ -743,13 +743,6 @@ bool parse_cmd_line(int argc, char **argv)
                 set_scalefactor((Uint16)i);
             }
 
-#ifdef USE_OPENGL
-            else if (strcasecmp(s, "-opengl") == 0) {
-                set_use_opengl(true);
-
-            }
-#endif // USE_OPENGL
-
             else if (strcasecmp(s, "-pal_dl") == 0) {
                 set_frame_modifier(MOD_PAL_DL);
                 printline("Setting DAPHNE up for the PAL Dragon's Lair disc");

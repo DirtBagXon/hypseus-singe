@@ -7,7 +7,7 @@
 		[ -s $@ ] || rm -f $@
 
 OBJS = sony.o pioneer.o ld-v6000.o hitachi.o philips.o ldp.o framemod.o \
-	ldp-combo.o ldp-vldp.o ldp-vldp-audio.o ldp-vldp-gl.o
+	ldp-combo.o ldp-vldp.o ldp-vldp-audio.o
 
 .SUFFIXES:	.cpp
 

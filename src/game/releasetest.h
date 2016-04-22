@@ -99,12 +99,6 @@ class releasetest : public game
     void test_mix();
     bool m_test_mix;
 
-#ifdef USE_OPENGL
-    // test OpenGL vertical offset
-    void test_gl_offset();
-    bool m_test_gl_offset;
-#endif
-
     void test_samples();
     bool m_test_samples;
 
