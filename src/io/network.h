@@ -24,11 +24,8 @@
 #define OS_UNKNOWN 0
 #define OS_X86_LINUX 1
 #define OS_WIN32 2
-#define OS_X86_FREEBSD 3
-#define OS_PS2_LINUX 4
-#define OS_SPARC_SOLARIS 5
-#define OS_MAC_OSX 6
-#define OS_XBOX_NATIVE 7
+#define OS_PS2_LINUX 3
+#define OS_MAC_OSX 4
 ///////////////////////////////////////////////////////////////////////
 
 #define NET_STRSIZE 15

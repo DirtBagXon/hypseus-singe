@@ -106,16 +106,6 @@ void par::close(ILogger *pLogger)
 
 #endif
 
-// FreeBSD code
-#ifdef FREEBSD
-
-#include <machine/sysarch.h>
-#include <sys/types.h>
-#include <machine/cpufunc.h>
-#define ioperm i386_set_ioperm
-
-#endif
-
 // initializes the specified port (0 is LPT1)
 // returns 1 if successful, 0 if failted
 bool par::init(unsigned int port, ILogger *pLogger)

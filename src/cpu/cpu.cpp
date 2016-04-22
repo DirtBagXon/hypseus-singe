@@ -24,11 +24,6 @@
 // by Matt Ownby
 // Designed to do all of the universal CPU functions needed for the emulator
 
-#ifdef _XBOX
-#include "stdafx.h"
-#include "xbox_grafx.h"
-#endif
-
 #ifdef DEBUG
 #include <assert.h>
 #endif
@@ -53,15 +48,6 @@
 #include "../ldp-in/ldv1000.h"	// for ldv1000_reset for strobe stuff
 #include "../ldp-in/ldp1000.h"	// for ldp1000_reset
 #include "../ldp-in/vp931.h"
-
-#ifdef _XBOX
-#include "gamepad.h"
-#include "video\video.h"
-#include "xstuff.h"
-#include "daphne_xbox.h"
-#include "ldp-out\ldp-vldp.h"
-
-#endif
 
 #include <stack>	// for cpu pausing operations
 
@@ -656,11 +642,7 @@ void cpu_execute()
 			// if not enough time has elapsed, slow down
 			while (g_expected_elapsed_ms > actual_elapsed_ms)
 			{
-#ifndef _XBOX
 				SDL_Delay(1);
-#else
-				XBOX_Delay(1);
-#endif
 				actual_elapsed_ms = elapsed_ms_time(g_cpu_timer);
 			}
 		}
@@ -688,26 +670,7 @@ void cpu_execute()
 			if (actual_elapsed_ms > 16)
 			{
 				last_inputcheck = refresh_ms_time();
-#ifndef _XBOX
 				SDL_check_input();	// check for input events (keyboard, joystick, etc)
-#else
-				//if(g_game->get_game_type() != GAME_LAIR2)
-					XBOX_ReadPads();
-
-				// check for quit to menu
-				if (XBOX_QuitGame())
-				{
-					if (VideoThreadActive || GameInfo.LaserIndex == NOLDP)
-						set_quitflag();
-				}
-
-				// draw the scoreboard if we need to
-				if ( (GameInfo.LaserIndex == NOLDP) || (VideoThreadActive == FALSE))
-				{
-					display_repaint();
-					XBOX_RenderScene();
-				}			
-#endif
 			}
 
 			// be nice to cpu if we're looping here ...

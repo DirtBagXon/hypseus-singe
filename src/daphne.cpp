@@ -47,11 +47,7 @@ using namespace std;
 #include "mmxdefs.h"
 #endif
 
-#ifndef FREEBSD
 #include <SDL_main.h>
-#else
-#include "/usr/local/include/SDL11/SDL_main.h"
-#endif
 
 #ifdef WIN32
 // win32 doesn't have regular chdir apparently

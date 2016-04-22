@@ -40,11 +40,6 @@
 #define strcasecmp stricmp
 #endif
 
-#ifdef _XBOX
-#include "../xbox/xbox_grafx.h"
-#include "../cpu/mamewrap.h"
-#endif
-
 #include <stdio.h> // for sprintf
 #include <math.h>  // for pow() in palette gamma
 #include "mach3.h"
@@ -56,17 +51,7 @@
 #include "../sound/sound.h"
 #include "../cpu/nes6502.h"
 #include "../cpu/cpu-debug.h" // for set_cpu_trace when we use it
-#ifndef _XBOX
 #include "../cpu/x86/i86intf.h"
-#else
-#include "../cpu/i86intf.h"
-#endif
-
-#ifdef _XBOX
-#include "../xbox/daphne_xbox.h"
-#include "../xbox/xfile.h"
-#include "../xbox/gamepad.h"
-#endif
 
 // MACK3 :)
 // Memory Map (partial)

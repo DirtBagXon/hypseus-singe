@@ -41,11 +41,6 @@
 //#include <uuids.h>
 #endif
 
-#ifdef FREEBSD
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif
-
 #ifdef LINUX
 #include <sys/utsname.h> // MATT : I'm not sure if this is good for UNIX in general so I put it here
 #include <sys/sysinfo.h>
@@ -170,12 +165,6 @@ unsigned int get_sys_mem()
     mem = info.totalram * (unsigned long long)info.mem_unit;
 #endif
 
-#ifdef FREEBSD
-    size_t len;
-    len = sizeof(mem);
-    sysctlbyname("hw.physmem", &mem, &len, NULL, NULL);
-#endif
-
 #ifdef WIN32
     MEMORYSTATUSEX memstat;
     memstat.dwLength = sizeof(memstat);
@@ -210,10 +199,6 @@ char *get_video_description()
 #ifdef NATIVE_CPU_MIPS
     strcpy(result, "Playstation2"); // assume PS2 for now hehe
 #endif                              // MIPS
-#endif
-
-#ifdef FREEBSD
-// I haven't found a nice way to get graphic adaptor informations :(
 #endif
 
 #ifdef WIN32
@@ -319,10 +304,6 @@ char *get_cpu_name()
     strcpy(result, "MIPS R5900 V2.0"); // assume playstation 2 for now
 #endif                                 // NATIVE_CPU_MIPS
 
-#ifdef NATIVE_CPU_SPARC
-    strcpy(result, "Sparc");
-#endif // NATIVE_CPU_SPARC
-
 // On Mac, we can tell what type of CPU by simply checking the ifdefs thanks to
 // the universal binary.
 #ifdef MAC_OSX
@@ -373,17 +354,6 @@ char *get_os_description()
 
 #endif
 
-#ifdef FREEBSD
-    size_t len;
-    char buff[16] = {"Unknown"};
-    len = sizeof(buff);
-    sysctlbyname("kern.ostype", &buff, &len, NULL, NULL);
-    strcpy(result, buff);
-    strcat(result, " ");
-    sysctlbyname("kern.osrelease", &buff, &len, NULL, NULL);
-    strcat(result, buff);
-#endif
-
 #ifdef WIN32
     OSVERSIONINFO info;
     memset(&info, 0, sizeof(OSVERSIONINFO));
@@ -423,10 +393,6 @@ char *get_os_description()
         strcpy(result, "Unknown Windows");
         break;
     }
-#endif
-
-#ifdef SOLARIS
-    strcpy(result, "Solaris");
 #endif
 
 #ifdef MAC_OSX
@@ -492,16 +458,6 @@ void net_send_data_to_server()
                 g_packet.os = OS_PS2_LINUX;
 #endif
 #endif // end LINUX
-
-#ifdef FREEBSD
-                g_packet.os = OS_X86_FREEBSD;
-#endif
-
-#ifdef SOLARIS
-#ifdef NATIVE_CPU_SPARC
-                g_packet.os = OS_SPARC_SOLARIS;
-#endif
-#endif // end SOLARIS
 
 #ifdef MAC_OSX
                 g_packet.os = OS_MAC_OSX;
