@@ -3261,9 +3261,8 @@ unsigned holmes(unsigned nelm, unsigned char *elm, short *samp_base)
     parwave_init(&klatt_global);
 
     /* Set stress attack/decay slope */
-    stress_s.t = 40;
-    stress_e.t = 40;
-    stress_e.v = 0.0;
+    stress_s.t = stress_e.t = 40;
+    stress_s.v = stress_e.v = 0.0;
 
     for (j = 0; j < nEparm; j++) {
         flt[j].v = le->p[j].stdy;

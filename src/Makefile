@@ -66,7 +66,7 @@ PFLAGS += $(shell ${PKG_CONFIG} --cflags libmpeg2 libmpeg2convert)
 LIBS += $(shell ${PKG_CONFIG} --libs libmpeg2 libmpeg2convert)
 
 # Platform specific cflags defined in the Makefile.vars file
-export CFLAGS = $(shell ${SDL_CONFIG} --cflags) ${PFLAGS} -Wall
+export CFLAGS = $(shell ${SDL_CONFIG} --cflags) ${PFLAGS} -Werror
 LIBS += $(shell ${SDL_CONFIG} --libs)
 
 OBJS += ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \

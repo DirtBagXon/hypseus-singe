@@ -48,6 +48,7 @@ void mpo_test()
         int b;
 
         b = 5 / i; // force crash
+        fprintf(stderr, "%d", b);
     }
 }
 
