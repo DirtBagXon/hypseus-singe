@@ -108,7 +108,7 @@ clean:	clean_deps
 	$(SILENT)rm -f ${EXE}
 
 testvldp:	testvldp.c
-	${CC} ${CFLAGS} -DSHOW_FRAMES -DUSE_OVERLAY testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
+	${CC} ${CFLAGS} -DSHOW_FRAMES testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
 
 %.d : %.cpp
 	$(GEN_MSG)

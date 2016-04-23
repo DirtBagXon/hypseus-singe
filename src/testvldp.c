@@ -1,3 +1,5 @@
+#include <SDL.h>
+
 #include "vldp/vldp.h"     // VLDP stuff
 #include "io/dll.h"        // for DLL stuff
 #include "video/yuv2rgb.h" // to bypass SDL's yuv overlay and do it ourselves ...
@@ -34,223 +36,33 @@ unsigned int g_uFrameCount = 0; // to measure framerate
 
 unsigned int g_uQuitFlag = 0;
 
-SDL_Surface *g_screen = NULL;
-
-#ifdef USE_OVERLAY
-SDL_Rect *g_screen_clip_rect = NULL; // used a lot, we only want to calulcate
-                                     // once
-SDL_Overlay *g_hw_overlay = NULL;
-#endif // USE_OVERLAY
-
-Uint8 *g_line_buf = NULL;  // temp sys RAM for doing calculations so we can do
-                           // fastest copies to slow video RAM
-Uint8 *g_line_buf2 = NULL; // 2nd buf
-Uint8 *g_line_buf3 = NULL; // 3rd buf
+SDL_Window *g_window     = NULL;
+SDL_Renderer *g_renderer = NULL;
+SDL_Texture *g_texture   = NULL;
+SDL_RendererInfo g_rendererinfo;
 
 void printerror(const char *cpszErrMsg) { puts(cpszErrMsg); }
 
-// This function converts the YV12-formatted 'src' to a YUY2-formatted overlay
-// (which Xbox-Daphne may be using) copies the contents of src into dst assumes
-// destination overlay is locked and *IMPORTANT* assumes src and dst are the
-// same resolution
-void buf2overlay_YUY2(SDL_Overlay *dst, struct yuv_buf *src)
-{
-    unsigned int channel0_pitch = dst->pitches[0];
-    Uint8 *dst_ptr              = (Uint8 *)dst->pixels[0];
-    Uint8 *Y                    = (Uint8 *)src->Y;
-    Uint8 *Y2                   = ((Uint8 *)src->Y) + dst->w;
-    Uint8 *U                    = (Uint8 *)src->U;
-    Uint8 *V                    = (Uint8 *)src->V;
-    int col, row;
-
-    // do 2 rows at a time
-    for (row = 0; row < (dst->h >> 1); row++) {
-        // do 4 bytes at a time, but only iterate for w_half
-        for (col = 0; col < (dst->w << 1); col += 4) {
-            unsigned int Y_chunk  = *((Uint16 *)Y);
-            unsigned int Y2_chunk = *((Uint16 *)Y2);
-            unsigned int V_chunk  = *V;
-            unsigned int U_chunk  = *U;
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-            // Little-Endian (PC)
-            *((Uint32 *)(g_line_buf + col)) = (Y_chunk & 0xFF) | (U_chunk << 8) |
-                                              ((Y_chunk & 0xFF00) << 8) |
-                                              (V_chunk << 24);
-            *((Uint32 *)(g_line_buf2 + col)) = (Y2_chunk & 0xFF) | (U_chunk << 8) |
-                                               ((Y2_chunk & 0xFF00) << 8) |
-                                               (V_chunk << 24);
-#else
-            // Big-Endian (Mac)
-            *((Uint32 *)(g_line_buf + col)) = ((Y_chunk & 0xFF00) << 16) |
-                                              ((U_chunk) << 16) |
-                                              ((Y_chunk & 0xFF) << 8) | (V_chunk);
-            *((Uint32 *)(g_line_buf2 + col)) = ((Y2_chunk & 0xFF00) << 16) |
-                                               ((U_chunk) << 16) |
-                                               ((Y2_chunk & 0xFF) << 8) | (V_chunk);
-#endif
-
-            Y += 2;
-            Y2 += 2;
-            U++;
-            V++;
-        }
-
-        memcpy(dst_ptr, g_line_buf, (dst->w << 1));
-        memcpy(dst_ptr + channel0_pitch, g_line_buf2, (dst->w << 1));
-
-        dst_ptr += (channel0_pitch << 1); // we've done 2 rows, so skip a row
-        Y += dst->w; // we've done 2 vertical Y pixels, so skip a row
-        Y2 += dst->w;
-    }
-}
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define MAKE16(R, G, B) (((R & 0xF8) << 8) | ((G & 0xFC) << 3) | (B >> 3))
-//#define MAKE16(R,G,B) (((0xF8) << 8) | ((0xFC) << 3) | ((0 & 0xF8) >> 3))
-#else
-#endif
-
-int prepare_frame_callback(struct yuv_buf *src)
+int prepare_frame_callback(uint8_t *const *buf, int Y_size, int UV_size)
 {
     VLDP_BOOL result = VLDP_TRUE;
 
 #ifdef SHOW_FRAMES
-#ifdef USE_OVERLAY
-    // if locking the video overlay is successful
-    if (SDL_LockYUVOverlay(g_hw_overlay) == 0) {
-        buf2overlay_YUY2(g_hw_overlay, src);
-        SDL_UnlockYUVOverlay(g_hw_overlay);
-    } else
-        result = VLDP_FALSE;
-#else
-    if (SDL_LockSurface(g_screen) == 0) {
-        unsigned int uPitch = g_screen->pitch;
-        Uint8 *dst_ptr      = (Uint8 *)g_screen->pixels;
-        unsigned int uW     = uVidWidth;
-        unsigned int uH     = uVidHeight;
-        Uint8 *Y            = (Uint8 *)src->Y;
-        // Y's width is assumed to be the same size as output screen
-        Uint8 *Y2 = ((Uint8 *)src->Y) + uVidWidth;
-        Uint8 *U  = (Uint8 *)src->U;
-        Uint8 *V  = (Uint8 *)src->V;
-        int col, row;
-
-        // do 2 rows at a time
-        for (row = 0; row < (uH >> 1); row++) {
-            // do a 2x2 block at a time (2 pixels = 4 bytes)
-            for (col = 0; col < (uW << 1); col += 4) {
-                // read as int32's for faster memory efficiency
-                unsigned int Y_chunk32  = *((Uint32 *)Y);
-                unsigned int Y2_chunk32 = *((Uint32 *)Y2);
-                unsigned int V_chunk32  = *((Uint32 *)V);
-                unsigned int U_chunk32  = *((Uint32 *)U);
-
-                // encourage these to be registers
-                register unsigned int uR, uG, uB, uR2, uG2, uB2;
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                // Little-Endian (x86)
-
-                /*
-                                // 0x0
-                                YUV2RGB(Y_chunk32 & 0xFF, U_chunk32 & 0xFF,
-                   V_chunk32 & 0xFF, uR, uG, uB);
-                                // 1x0
-                                YUV2RGB((Y_chunk32 >> 8) & 0xFF, U_chunk32 &
-                   0xFF, V_chunk32 & 0xFF, uR2, uG2, uB2);
-                                *((Uint32 *) (g_line_buf + col)) = MAKE16(uR,
-                   uG, uB) | (MAKE16(uR2, uG2, uB2) << 16);
-
-                                // 0x1
-                                YUV2RGB(Y2_chunk32 & 0xFF, U_chunk32 & 0xFF,
-                   V_chunk32 & 0xFF, uR, uG, uB);
-                                // 1x1
-                                YUV2RGB((Y2_chunk32 >> 8) & 0xFF, U_chunk32 &
-                   0xFF, V_chunk32 & 0xFF, uR2, uG2, uB2);
-                                *((Uint32 *) (g_line_buf2 + col)) = MAKE16(uR,
-                   uG, uB) | (MAKE16(uR2, uG2, uB2) << 16);
-                */
-
-                // black and white, just a test to see if our logic thus far is
-                // good
-                uR  = Y_chunk32 & 0xFF;
-                uR2 = (Y_chunk32 >> 8) & 0xFF;
-                *((Uint32 *)(g_line_buf + col)) =
-                    MAKE16(uR, uR, uR) | (MAKE16(uR2, uR2, uR2) << 16);
-                uR  = Y2_chunk32 & 0xFF;
-                uR2 = (Y2_chunk32 >> 8) & 0xFF;
-                *((Uint32 *)(g_line_buf2 + col)) =
-                    MAKE16(uR, uR, uR) | (MAKE16(uR2, uR2, uR2) << 16);
-#else
-#endif // LIL ENDIAN
-
-                Y += 2;
-                Y2 += 2;
-                U++;
-                V++;
-            }
-
-            memcpy(dst_ptr, g_line_buf, uW << 1);
-            memcpy(dst_ptr + uPitch, g_line_buf2, uW << 1);
-
-            dst_ptr += (uPitch << 1); // we've done 2 rows, so skip a row
-            Y += uW; // we've done 2 vertical Y pixels, so skip a row
-            Y2 += uW;
-        }
-        SDL_UnlockSurface(g_screen);
-    }
-/*
-    else
-    {
-        printerror("Can't lock surface!");
-    }
-*/
-
-#endif // USE_OVERLAY
+    SDL_UpdateYUVTexture(g_texture, NULL, buf[0], Y_size, buf[1], UV_size, buf[2], UV_size);
 #endif // SHOW FRAMES
 
     return result;
 }
 
-int prepare_yuy2_frame_callback(struct yuy2_buf *src)
+void display_frame_callback()
 {
-    VLDP_BOOL result = VLDP_TRUE;
-
-#ifdef SHOW_FRAMES
-#ifdef USE_OVERLAY
-    // if locking the video overlay is successful
-    if (SDL_LockYUVOverlay(g_hw_overlay) == 0) {
-        SDL_UnlockYUVOverlay(g_hw_overlay);
-    } else
-        result = VLDP_FALSE;
-#endif // USE_OVERLAY
-#endif // SHOW FRAMES
-
-    return result;
-}
-
-void display_frame_callback(struct yuv_buf *buf)
-{
-#ifdef SHOW_FRAMES
-#ifdef USE_OVERLAY
-    SDL_DisplayYUVOverlay(g_hw_overlay, g_screen_clip_rect);
-#else
-    SDL_Flip(g_screen); // display it!
-#endif // USE_OVERLAY
-#endif // SHOW_FRAMES
-
     g_uFrameCount++;
-}
 
-void display_yuy2_frame_callback()
-{
 #ifdef SHOW_FRAMES
-#ifdef USE_OVERLAY
-    SDL_DisplayYUVOverlay(g_hw_overlay, g_screen_clip_rect);
-#endif
-#endif
-    g_uFrameCount++;
+    SDL_RenderClear(g_renderer);
+    SDL_RenderCopy(g_renderer, g_texture, NULL, NULL);
+    SDL_RenderPresent(g_renderer); // display it!
+#endif                             // SHOW_FRAMES
 }
 
 void report_parse_progress_callback(double percent_complete_01) {}
@@ -260,31 +72,11 @@ void report_parse_progress_callback(double percent_complete_01) {}
 void report_mpeg_dimensions_callback(int width, int height)
 {
 #ifdef SHOW_FRAMES
-#ifdef USE_OVERLAY
-    g_hw_overlay = SDL_CreateYUVOverlay(width, height, SDL_YUY2_OVERLAY, g_screen);
-    printf("HW Overlay: %u\n", g_hw_overlay->hw_overlay);
-
-    // if we're not using hardware, then abort this "test"
-    if (g_hw_overlay->hw_overlay == 0) {
-        printf("Since we have no accel, we're shutting down ...\n");
-        raise(SIGTRAP);
-        g_uQuitFlag = 1;
+    if (!g_texture) {
+        SDL_SetWindowSize(g_window, width, height);
+        g_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
+                                      SDL_TEXTUREACCESS_STATIC, width, height);
     }
-
-    g_screen_clip_rect = &g_screen->clip_rect; // used a lot, we only want to
-                                               // calculate it once
-#else
-    if ((width != uVidWidth) || (height != uVidHeight)) {
-        printf("mpeg is the wrong dimensions (%d x %d)\n", width, height);
-        g_uQuitFlag = 1;
-    }
-#endif // USE_OVERLAY
-
-    // yuy2 needs twice as much space across for lines
-    g_line_buf  = MPO_MALLOC(width * 2);
-    g_line_buf2 = MPO_MALLOC(width * 2);
-    g_line_buf3 = MPO_MALLOC(width * 2);
-
 #endif // SHOW_FRAMES
 }
 
@@ -294,6 +86,8 @@ unsigned int get_ticks() { return SDL_GetTicks(); }
 
 void start_test(const char *cpszMpgName)
 {
+    SDL_Event event;
+
     g_uFrameCount = 0;
     if (g_vldp_info->open_and_block(cpszMpgName)) {
         unsigned int uStartMs = get_ticks();
@@ -305,7 +99,16 @@ void start_test(const char *cpszMpgName)
                    (g_uFrameCount < 720)) {
                 g_local_info.uMsTimer = get_ticks();
                 usleep(1000);
-                //				SDL_Delay(1);
+                while (SDL_PollEvent(&event)) switch (event.type) {
+                    case SDL_QUIT:
+                        g_uQuitFlag = 1;
+                        break;
+                    case SDL_WINDOWEVENT_RESIZED:
+                        SDL_SetWindowSize(g_window, event.window.data1, event.window.data2);
+                        break;
+                    default:
+                        break;
+                    }
             }
             uEndMs  = get_ticks();
             uDiffMs = uEndMs - uStartMs;
@@ -331,7 +134,7 @@ void set_cur_dir(const char *exe_loc)
     if (index >= 0) {
         strncpy(path, exe_loc, index);
         path[index] = 0;
-        chdir(path);
+        if (chdir(path) != 0) printf("Unable to chdir: %s\n", path);
     }
 }
 
@@ -342,18 +145,17 @@ int main(int argc, char **argv)
     set_cur_dir(argv[0]);
 #ifdef SHOW_FRAMES
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_ShowCursor(SDL_DISABLE); // always hide mouse for gp2x
-    g_screen = SDL_SetVideoMode(uVidWidth, uVidHeight, 0, SDL_HWSURFACE);
-    printf("Video mode set to %d bpp\n", g_screen->format->BitsPerPixel);
-
-    // just a test ...
-    printf("Making dummy overlay\n");
-    SDL_Overlay *pDummy = SDL_CreateYUVOverlay(320, 240, SDL_YUY2_OVERLAY, g_screen);
-    if (pDummy) {
-        printf("Hw accel of dummy is %u\n", pDummy->hw_overlay);
-        SDL_FreeYUVOverlay(pDummy);
+    g_window = SDL_CreateWindow("testvldp", SDL_WINDOWPOS_UNDEFINED,
+                                SDL_WINDOWPOS_UNDEFINED, uVidWidth, uVidHeight,
+                                SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    g_renderer = SDL_CreateRenderer(g_window, -1, 0);
+    if (!g_renderer) {
+        printf("Unable to create renderer: %s\n", SDL_GetError());
+        exit(1);
     }
 
+    SDL_GetRendererInfo(g_renderer, &g_rendererinfo);
+    printf("Using %s rendering\n", g_rendererinfo.name);
 #endif
 
     pvldp_init = (initproc)&vldp_init;
@@ -381,20 +183,8 @@ int main(int argc, char **argv)
     }
 
 #ifdef SHOW_FRAMES
-
-#ifdef USE_OVERLAY
-    if (g_hw_overlay) {
-        SDL_FreeYUVOverlay(g_hw_overlay);
-    }
-    g_hw_overlay = NULL;
-#endif // USE_OVERLAY
-
-    MPO_FREE(g_line_buf);
-    MPO_FREE(g_line_buf2);
-    MPO_FREE(g_line_buf3);
-
+    SDL_DestroyTexture(g_texture);
     SDL_Quit();
-
 #endif // SHOW_FRAMES
 
     return 0;

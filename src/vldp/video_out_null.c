@@ -33,11 +33,18 @@
 #include "vldp_common.h"
 #include "vldp_internal.h"
 
-#define YUV_BUF_COUNT 3
-struct yuv_buf g_yuv_buf[YUV_BUF_COUNT];
+typedef struct {
+    vo_instance_t vo;
+    int width;
+    int height;
+    int chroma_width;
+    int chroma_height;
+} null_instance_t;
 
-static void null_draw_frame(vo_instance_t *instance, uint8_t *const *buf, void *id)
+static void null_draw_frame(vo_instance_t *_instance, uint8_t *const *buf, void *id)
 {
+    null_instance_t *instance = (null_instance_t *)_instance;
+
     Sint32 correct_elapsed_ms = 0;
     Sint32 actual_elapsed_ms  = 0;
     unsigned int uStallFrames = 0;
@@ -55,7 +62,7 @@ static void null_draw_frame(vo_instance_t *instance, uint8_t *const *buf, void *
             s_extra_delay_ms = 0;
 
             if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks)) {
-                if (g_in_info->prepare_frame(&g_yuv_buf[(uintptr_t)id])) {
+                if (g_in_info->prepare_frame(buf, instance->width, instance->chroma_width)) {
                     while (((Sint32)(g_in_info->uMsTimer - s_timer) < correct_elapsed_ms) &&
                            (!bFrameNotShownDueToCmd)) {
                         SDL_Delay(1);
@@ -78,7 +85,7 @@ static void null_draw_frame(vo_instance_t *instance, uint8_t *const *buf, void *
                     }
 
                     if (!bFrameNotShownDueToCmd) {
-                        g_in_info->display_frame(&g_yuv_buf[(uintptr_t)id]);
+                        g_in_info->display_frame();
                     }
                 }
             }
@@ -134,66 +141,39 @@ static void null_draw_frame(vo_instance_t *instance, uint8_t *const *buf, void *
 #endif
 }
 
-static void null_setup_fbuf(vo_instance_t *_instance, uint8_t **buf, void **id)
-{
-    static uintptr_t buffer_index = 0;
-    *id                           = (int *)buffer_index;
-    buf[0]                        = g_yuv_buf[buffer_index].Y;
-    buf[1]                        = g_yuv_buf[buffer_index].U;
-    buf[2]                        = g_yuv_buf[buffer_index].V;
-
-    buffer_index++;
-
-    if (buffer_index >= YUV_BUF_COUNT) buffer_index = 0;
-}
-
-static void null_close(vo_instance_t *instance)
-{
-    for (int i = 0; i < YUV_BUF_COUNT; i++) {
-        free(g_yuv_buf[i].Y);
-        free(g_yuv_buf[i].U);
-        free(g_yuv_buf[i].V);
-        g_yuv_buf[i].Y = NULL;
-        g_yuv_buf[i].U = NULL;
-        g_yuv_buf[i].V = NULL;
-    }
-}
-
 static vo_instance_t *
 internal_open(int setup(vo_instance_t *, unsigned int, unsigned int,
                         unsigned int, unsigned int, vo_setup_result_t *),
               void draw(vo_instance_t *, uint8_t *const *, void *))
 {
-    vo_instance_t *instance;
+    null_instance_t *instance;
 
-    instance = (vo_instance_t *)malloc(sizeof(vo_instance_t));
+    instance = (null_instance_t *)malloc(sizeof(null_instance_t));
+
     if (instance == NULL) return NULL;
 
-    instance->setup      = setup;
-    instance->setup_fbuf = null_setup_fbuf;
-    instance->set_fbuf   = NULL;
-    instance->start_fbuf = NULL;
-    instance->draw       = draw;
-    instance->discard    = NULL;
-    instance->close      = null_close;
+    instance->vo.setup      = setup;
+    instance->vo.setup_fbuf = NULL;
+    instance->vo.set_fbuf   = NULL;
+    instance->vo.start_fbuf = NULL;
+    instance->vo.draw       = draw;
+    instance->vo.discard    = NULL;
+    instance->vo.close      = (void (*)(vo_instance_t *))free;
 
-    memset(g_yuv_buf, 0, sizeof(g_yuv_buf));
-
-    return instance;
+    return (vo_instance_t *)instance;
 }
 
-static int null_setup(vo_instance_t *instance, unsigned int width,
+static int null_setup(vo_instance_t *_instance, unsigned int width,
                       unsigned int height, unsigned int chroma_width,
                       unsigned int chroma_height, vo_setup_result_t *result)
 {
 
-    for (int i = 0; i < YUV_BUF_COUNT; i++) {
-        g_yuv_buf[i].Y_size  = width * height;
-        g_yuv_buf[i].UV_size = width * height;
-        if (!g_yuv_buf[i].Y) g_yuv_buf[i].Y = malloc(g_yuv_buf[i].Y_size);
-        if (!g_yuv_buf[i].U) g_yuv_buf[i].U = malloc(g_yuv_buf[i].UV_size);
-        if (!g_yuv_buf[i].V) g_yuv_buf[i].V = malloc(g_yuv_buf[i].UV_size);
-    }
+    null_instance_t *instance = (null_instance_t *)_instance;
+
+    instance->width         = width;
+    instance->height        = height;
+    instance->chroma_width  = chroma_width;
+    instance->chroma_height = chroma_height;
 
     result->convert = NULL;
     return 0;

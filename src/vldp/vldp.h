@@ -66,12 +66,12 @@ struct vldp_in_info {
     // VLDP to sleep
     // until it's time for the frame to be displayed.
     // This returns 1 if the frame was prepared successfully, or 0 on error
-    int (*prepare_frame)(struct yuv_buf *buf);
+    int (*prepare_frame)(uint8_t *const *buf, int ywidth, int uvwidth);
 
     // VLDP calls this when it wants the frame that was earlier prepared to be
     // displayed
     // ASAP
-    void (*display_frame)(struct yuv_buf *buf);
+    void (*display_frame)();
 
     // VLDP calls this when it is doing the time consuming process of reporting
     // an mpeg parse

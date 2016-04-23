@@ -785,8 +785,8 @@ void ivldp_respond_req_play()
     g_out_info.status = STAT_PLAYING; // we strive for instant response (and
                                       // catch-up to maintain timing)
     ivldp_ack_command();              // acknowledge the play command
-    s_paused         = 0;             // we to not want to pause on 1 frame
-    s_blanked        = 0;             // we want to see the video
+    s_paused  = 0;                    // we to not want to pause on 1 frame
+    s_blanked = 0;                    // we want to see the video
     // skip no frames, just play from current position
     // this value is reset again as soon as we confirm that we are playing
     s_frames_to_skip = s_frames_to_skip_with_inc = 0;
@@ -989,7 +989,7 @@ void idle_handler_search(int skip)
     ivldp_ack_command(); // acknowledge search/skip command
 
     // reset libmpeg2 so it is prepared to start from a new spot
-    mpeg2_reset(g_mpeg_data, 1);
+    mpeg2_reset(g_mpeg_data, 0);
 
     vldp_process_sequence_header(); // we need to process the sequence header
                                     // before we can jump around the file for
@@ -1090,7 +1090,7 @@ void idle_handler_search(int skip)
 
         io_seek(proposed_pos);
         // go to the place in the stream where the I frame begins
-        // fseek(g_mpeg_handle, proposed_pos, SEEK_SET); 
+        // fseek(g_mpeg_handle, proposed_pos, SEEK_SET);
 
         // if we're seeking, we can change the frame right now ...
         if (!skip) {
@@ -1195,10 +1195,10 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
         // if we don't read 4 bytes, it means we've hit the EOF and we're done
         while (fread(&g_frame_position[g_totalframes], 4, 1, data_file) == 1) {
 #ifdef VLDP_DEBUG
-            // FILE *tmp_F = fopen("frame_report.txt", "ab");
-            // fprintf(tmp_F, "Frame %d has offset of %x\n", g_totalframes,
-            //         g_frame_position[g_totalframes]);
-            // fclose(tmp_F);
+// FILE *tmp_F = fopen("frame_report.txt", "ab");
+// fprintf(tmp_F, "Frame %d has offset of %x\n", g_totalframes,
+//         g_frame_position[g_totalframes]);
+// fclose(tmp_F);
 #endif
             g_totalframes++;
 
@@ -1336,10 +1336,11 @@ VLDP_BOOL io_open_precached(unsigned int uIdx)
     if ((!g_mpeg_handle) && (!s_bPreCacheEnabled)) {
         // make sure index is within range ...
         if (uIdx < s_uPreCacheIdxCount) {
-            bResult            = VLDP_TRUE;
-            s_uCurPreCacheIdx  = uIdx;
-            s_bPreCacheEnabled = VLDP_TRUE;
-            s_sPreCacheEntries[s_uCurPreCacheIdx].uPos = 0; // rewind to beginning
+            bResult                                    = VLDP_TRUE;
+            s_uCurPreCacheIdx                          = uIdx;
+            s_bPreCacheEnabled                         = VLDP_TRUE;
+            s_sPreCacheEntries[s_uCurPreCacheIdx].uPos = 0; // rewind to
+                                                            // beginning
         }
         // else out of range ...
     }
