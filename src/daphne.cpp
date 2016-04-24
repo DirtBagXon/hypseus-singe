@@ -66,7 +66,6 @@ using namespace std;
 #include "io/serial.h"
 #include "sound/sound.h"
 #include "io/conout.h"
-#include "io/conin.h"
 #include "io/cmdline.h"
 #include "io/network.h"
 #include "video/video.h"

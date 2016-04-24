@@ -31,7 +31,6 @@
 #include <string.h>
 #include "../daphne.h"
 #include "conout.h"
-#include "conin.h"
 #include "input.h"
 #include "../game/game.h"
 #include "../sound/sound.h"

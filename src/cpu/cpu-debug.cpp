@@ -31,7 +31,6 @@
 #include <ctype.h>
 #include "mamewrap.h"
 #include "../io/conout.h"
-#include "../io/conin.h"
 #include "../daphne.h"
 #include "../daphne.h"
 #include "../game/game.h"

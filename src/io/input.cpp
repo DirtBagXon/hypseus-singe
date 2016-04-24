@@ -295,11 +295,6 @@ int SDL_input_init()
 
     idle_timer = refresh_ms_time(); // added by JFA for -idleexit
 
-#ifdef UNIX
-    // enable non-blocking stdin (see conin.cpp UNIX stdin stuff)
-    /*int iRes =*/fcntl(fileno(stdin), F_SETFL, O_NONBLOCK);
-#endif
-
     // if the mouse is disabled, then filter mouse events out ...
     if (!g_game->getMouseEnabled()) {
         FilterMouseEvents(true);
