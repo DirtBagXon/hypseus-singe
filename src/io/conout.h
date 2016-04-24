@@ -32,7 +32,6 @@ void outstr(const char *s);
 void outchr(const char ch);
 void printline(const char *s);
 void newline();
-void con_flush();
 void noflood_printline(char *s);
 void safe_itoa(int num, char *a, int sizeof_a);
 

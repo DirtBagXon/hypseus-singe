@@ -22,5 +22,6 @@
 
 // header file for conin.cpp
 
-char con_getkey();
-void con_getline(char *buf, int length);
+#include <SDL.h>
+
+SDL_Scancode con_getkey();

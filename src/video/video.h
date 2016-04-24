@@ -92,7 +92,6 @@ void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
 SDL_Surface *get_screen();
 SDL_Surface *get_screen_blitter();
-int get_console_initialized();
 bool get_fullscreen();
 void set_fullscreen(bool value);
 bool get_fakefullscreen();           // by RDG2010

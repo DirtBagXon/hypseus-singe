@@ -36,47 +36,23 @@
 // returns an ASCII character from the keyboard; will wait here forever until a
 // key is pressed
 // not all characters are supported
-char con_getkey()
+SDL_Scancode con_getkey()
 {
 
-    unsigned char result = 0;
+    SDL_Scancode result;
     SDL_Event event;
 
-#ifdef CPU_DEBUG
-    con_flush(); // print current line
-#endif
-
-    SDL_EnableUNICODE(1);
     while (!result && !get_quitflag()) {
         if (SDL_PollEvent(&event)) {
             switch (event.type) {
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                case SDLK_BACKSPACE:
-                    result = 8;
-                    break;
-                case SDLK_RETURN:
-                    result = 13;
-                    break;
-                case SDLK_ESCAPE:
-                    result = 27;
-                    break;
-                case SDLK_BACKQUOTE:
-#ifdef CPU_DEBUG
-                    toggle_console();
-#endif
-                    result = 0;
-                    break;
-                default:
-                    result = (unsigned char)event.key.keysym.unicode;
-                    break;
-                }
+            case SDL_KEYUP:
+                result = event.key.keysym.scancode;
                 break;
             // WO: make any joystick button = enter,
             // so lazy folks (like me) can pass the issues screen
             // without going to the keyboard :)
             case SDL_JOYBUTTONDOWN:
-                result = 13;
+                result = SDL_SCANCODE_RETURN;
                 break;
             case SDL_QUIT:
                 set_quitflag();
@@ -86,20 +62,9 @@ char con_getkey()
             }
         } // end if
 
-        check_console_refresh();
         SDL_Delay(1); // sleep to be CPU friendly
 
-#ifdef UNIX
-        // NOTE : non-blocking I/O should be enabled, so we will get EOF if
-        // there is nothing waiting for us ...
-        int iRes = getchar();
-        if (iRes != EOF) {
-            result = (unsigned char)iRes;
-        }
-#endif
-
     } // end while
-    SDL_EnableUNICODE(0);
 
     return (result);
 }
@@ -110,47 +75,53 @@ char con_getkey()
 // 'length' is the maximum size of 'buf'
 
 void con_getline(char *buf, int length)
-
 {
 
     int index = 0;
-    char ch   = 0;
+    char ch = 0;
+    SDL_Event event;
 
+    SDL_StartTextInput();
     // loop until we encounter a linefeed or carriage return, or until we run
     // out of space
     while (!get_quitflag()) {
-        ch = con_getkey();
+        if (SDL_PollEvent(&event)) {
+            if(event.type == SDL_TEXTINPUT) {
+                ch = con_getkey();
 
-        // if we get a linefeed or carriage return, we're done ...
-        if ((ch == 10) || (ch == 13)) {
-            break;
-        }
+                // if we get a linefeed or carriage return, we're done ...
+                if ((ch == 10) || (ch == 13)) {
+                    break;
+                }
 
-        // backspace, it works but it doesn't look pretty on the screen
-        else if (ch == 8) {
-            if (index > 0) {
-                index = index - 1;
-                outstr("[BACK]");
+                // backspace, it works but it doesn't look pretty on the screen
+                else if (ch == 8) {
+                    if (index > 0) {
+                        index = index - 1;
+                        outstr("[BACK]");
+                    }
+                }
+
+                // if we've run out of space, terminate the string prematurely to avoid
+                // crashing
+        
+                else if (index >= (length - 1)) {
+                    break;
+                }
+        
+                // otherwise if we get a printable character, add it to the string
+                else if (ch >= ' ') {
+        
+                    outchr(ch); // echo it to the screen
+                    buf[index] = ch;
+                    index      = index + 1;
+                }
+
+                // else it was a non-printable character, so we ignore it
             }
         }
-
-        // if we've run out of space, terminate the string prematurely to avoid
-        // crashing
-
-        else if (index >= (length - 1)) {
-            break;
-        }
-
-        // otherwise if we get a printable character, add it to the string
-        else if (ch >= ' ') {
-
-            outchr(ch); // echo it to the screen
-            buf[index] = ch;
-            index      = index + 1;
-        }
-
-        // else it was a non-printable character, so we ignore it
     }
+    SDL_StopTextInput();
 
     buf[index] = 0; // terminate the string
     newline();      // go to the next line

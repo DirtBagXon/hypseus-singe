@@ -75,18 +75,11 @@ void FilterMouseEvents(bool bFilteredOut);
 
 void SDL_check_input();
 
-#ifdef CPU_DEBUG
-void toggle_console();
-#endif
-
 void process_event(SDL_Event *event);
 void process_keydown(SDL_Keycode key);
 void process_keyup(SDL_Keycode key);
 void process_joystick_motion(SDL_Event *event);
 void process_joystick_hat_motion(SDL_Event *event);
-bool get_consoledown();
-void set_consoledown(bool);
-void check_console_refresh();
 void input_enable(Uint8);
 void input_disable(Uint8);
 inline void add_coin_to_queue(bool enabled, Uint8 val);

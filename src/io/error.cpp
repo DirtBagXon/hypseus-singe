@@ -56,7 +56,7 @@ void printerror(const char *s)
 
     // if video has been initialized
     // FIXME: if bmp hasn't been loaded this might blow up
-    if (get_console_initialized()) {
+    if (true) {
         SDL_Surface *srfScreen = get_screen_blitter();
         unsigned int uXOffset  = 0;
 
@@ -113,7 +113,7 @@ void printerror(const char *s)
 // this should be called after video has successfully been initialized
 void printnowookin(const char *s)
 {
-    if (get_console_initialized()) {
+    if (true) {
         SDL_Surface *srfScreen = get_screen_blitter();
 
         vid_blank();
@@ -135,7 +135,7 @@ void printnowookin(const char *s)
 // prints a notice to the screen
 void printnotice(const char *s)
 {
-    if (get_console_initialized()) {
+    if (true) {
         char ch                = 0;
         SDL_Surface *srfScreen = get_screen_blitter();
 
@@ -147,11 +147,8 @@ void printnotice(const char *s)
         vid_blit(srfScreen, 0, 0);
         vid_flip();
 
-        ch = con_getkey(); // wait for keypress
-
-        // if they pressed escape, quit
-        if (ch == 27) {
+        // if they press escape, quit
+        if (con_getkey() == SDL_SCANCODE_ESCAPE)
             set_quitflag();
-        }
     }
 }

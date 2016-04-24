@@ -27,7 +27,6 @@
 #include "conout.h"
 #include "homedir.h"
 #include "../video/video.h"
-#include "../video/SDL_Console.h"
 #include "../daphne.h"
 #include "../timer/timer.h"
 #include "../game/game.h"
@@ -54,7 +53,6 @@ const int JOY_AXIS_MID = (int)(32768 * (0.75)); // how far they have to move the
 
 SDL_Joystick *G_joystick = NULL;  // pointer to joystick object
 bool g_use_joystick      = true;  // use a joystick by default
-bool g_consoledown       = false; // whether the console is down or not
 bool g_alt_pressed       = false; // whether the ALT key is presssed (for ALT-Enter
                                   // combo)
 unsigned int idle_timer;          // added by JFA for -idleexit
@@ -105,7 +103,7 @@ int g_key_defs[SWITCH_COUNT][2] = {
     {SDL_SCANCODE_F12, SDL_SCANCODE_F11},     // take screenshot
     {SDL_SCANCODE_ESCAPE, SDL_SCANCODE_Q},    // Quit DAPHNE
     {SDL_SCANCODE_P, 0},                      // pause game
-    {SDL_SCANCODE_GRAVE, 0},                  // toggle console
+    {SDL_SCANCODE_GRAVE, 0},                  // toggle console (TODO)
     {SDL_SCANCODE_T, 0},                      // Tilt/Slam switch
 };
 
@@ -338,27 +336,8 @@ void SDL_check_input()
     SDL_Event event;
 
     while ((SDL_PollEvent(&event)) && (!get_quitflag())) {
-        // if they press the tilda key to bring down the console
-        // this is somewhat of a hacked if statement but I can't see
-        // a better way based on the SDL_Console API ...
-        if ((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDL_SCANCODE_GRAVE)) {
-            // we must not bring down the console if blitting is not allowed
-            if (g_ldp->is_blitting_allowed()) {
-#ifdef CPU_DEBUG
-                toggle_console();
-#endif
-            }
-        }
-        // if we've got the console down, process events
-        else if (g_consoledown) {
-            ConsoleEvents(&event);
-        }
-        // else handle events normally
-        else {
-            process_event(&event);
-        }
+        process_event(&event);
     }
-    check_console_refresh();
 
     // added by JFA for -idleexit
     if (get_idleexit() > 0 && elapsed_ms_time(idle_timer) > get_idleexit())
@@ -391,25 +370,6 @@ void SDL_check_input()
     }
     // else the coin queue is empty, so we needn't do anything ...
 }
-
-#ifdef CPU_DEBUG
-void toggle_console()
-{
-    if (get_console_initialized()) {
-        // if console is down, get rid of it
-        if (g_consoledown) {
-            g_consoledown = false;
-            SDL_EnableUNICODE(0);
-            display_repaint();
-        }
-        // if console is not down, display it
-        else {
-            g_consoledown = true;
-            SDL_EnableUNICODE(1);
-        }
-    }
-}
-#endif
 
 // processes incoming input
 void process_event(SDL_Event *event)
@@ -697,29 +657,6 @@ void process_joystick_hat_motion(SDL_Event *event)
     prev_hat_position = event->jhat.value;
 }
 
-// functions to help us avoid 'extern' statements
-bool get_consoledown() { return (g_consoledown); }
-
-void set_consoledown(bool value) { g_consoledown = value; }
-
-// draws console if it's down and if there's been enough of a delay
-void check_console_refresh()
-{
-
-    static unsigned int console_refresh = 0;
-    const unsigned int refresh_every    = 125; // refreshes console every (this
-                                               // many) ms
-
-    if (g_consoledown) {
-        if (elapsed_ms_time(console_refresh) > refresh_every) {
-            DrawConsole();
-            vid_blit(get_screen_blitter(), 0, 0);
-            vid_flip();
-            console_refresh = refresh_ms_time();
-        }
-    }
-}
-
 // if user has pressed a key/moved the joystick/pressed a button
 void input_enable(Uint8 move)
 {
@@ -753,12 +690,7 @@ void input_enable(Uint8 move)
         }
         break;
     case SWITCH_CONSOLE:
-        // we must not bring down the console if blitting is not allowed
-        if (g_ldp->is_blitting_allowed()) {
-#ifdef CPU_DEBUG
-            toggle_console();
-#endif
-        }
+        // TODO: implement for SDL2
         break;
     }
 }

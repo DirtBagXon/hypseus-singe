@@ -32,15 +32,12 @@
 #include "conout.h"
 #include "../daphne.h"
 #include "../video/video.h"
-#include "../video/SDL_Console.h"
 #include "../timer/timer.h"
 #include "input.h"
 #include "mpo_fileio.h"
 #include "homedir.h"
 
 using namespace std;
-
-char G_curline[CHARS_PER_LINE] = {0}; // current line of output
 
 // false = write log entries to g_lsPendingLog, true = write to daphne_log.txt
 // This should be false until the command line has finished parsing.
@@ -55,15 +52,6 @@ list<string> g_lsPendingLog;
 // Returns 1 on success, 0 on failure
 void outstr(const char *s)
 {
-// the console consumes quite a bit of cpu, so we don't want to have
-//  it enabled by default
-#ifdef CPU_DEBUG
-    if (get_console_initialized()) {
-        if (strlen(s) + strlen(G_curline) < CHARS_PER_LINE) {
-            strcat(G_curline, s);
-        }
-    }
-#endif
 #ifdef UNIX
     fputs(s, stdout);
 #endif
@@ -103,23 +91,12 @@ void newline()
     // So we can read the blasted thing in notepad
     static char newline_str[3] = {13, 10, 0};
 
-#ifdef CPU_DEBUG
-    if (get_console_initialized()) {
-        ConOut(G_curline);
-        G_curline[0] = 0; // erase line
-    }
-#endif
 #ifdef UNIX
     printf("\n");
 #endif
 
     addlog(newline_str);
 }
-
-#ifdef CPU_DEBUG
-// prints the current line even if we haven't hit a linefeed yet
-void con_flush() { ConOutstr(G_curline); }
-#endif
 
 // flood-safe printline
 // it only prints every second and anything else is thrown out

@@ -72,7 +72,6 @@ using namespace std;
 #include "video/video.h"
 #include "video/led.h"
 #include "ldp-out/ldp.h"
-#include "video/SDL_Console.h"
 #include "io/error.h"
 #include "cpu/cpu-debug.h"
 #include "cpu/cpu.h"

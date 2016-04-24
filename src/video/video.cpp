@@ -36,7 +36,6 @@
 #include "../io/error.h"
 #include "../io/mpo_fileio.h"
 #include "../io/mpo_mem.h"
-#include "SDL_Console.h"
 #include "../game/game.h"
 #include "../ldp-out/ldp.h"
 #include "../ldp-out/ldp-vldp-gl.h"
@@ -63,7 +62,6 @@ SDL_Surface *g_screen              = NULL; // our primary display
 SDL_Surface *g_screen_blitter      = NULL; // the surface we blit to (we don't blit
                                       // directly to g_screen because opengl
                                       // doesn't like that)
-bool g_console_initialized = false; // 1 once console is initialized
 bool g_fullscreen          = false; // whether we should initialize video in fullscreen
                                     // mode or not
 bool g_fakefullscreen = false; // by RDG2010 -- whether daphne should do
@@ -260,14 +258,8 @@ bool init_display()
                     g_screen->h, g_screen->format->BitsPerPixel, g_screen->flags);
             printline(s);
 
-            // initialize SDL console in the background
-            if (ConsoleInit("pics/ConsoleFont.bmp", g_screen_blitter, 100) == 0) {
-                AddCommand(g_cpu_break, "break");
-                g_console_initialized = true;
-                result                = true;
-            } else {
-                printerror("Error initializing SDL console =(");
-            }
+            // NOTE: SDL Console was initialized here.
+            result                = true;
 
             // sometimes the screen initializes to white, so this attempts to
             // prevent that
@@ -290,11 +282,6 @@ bool init_display()
 void shutdown_display()
 {
     printline("Shutting down video display...");
-
-    if (g_console_initialized) {
-        ConsoleShutdown();
-        g_console_initialized = false;
-    }
 
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
@@ -526,8 +513,6 @@ void free_one_bmp(SDL_Surface *candidate) { SDL_FreeSurface(candidate); }
 SDL_Surface *get_screen() { return g_screen; }
 
 SDL_Surface *get_screen_blitter() { return g_screen_blitter; }
-
-int get_console_initialized() { return g_console_initialized; }
 
 bool get_fullscreen() { return g_fullscreen; }
 
