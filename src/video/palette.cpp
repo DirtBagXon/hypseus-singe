@@ -25,7 +25,6 @@
 #include "palette.h"
 #include "rgb2yuv.h"
 #include "../video/video.h"
-#include "../ldp-out/ldp-vldp-gl.h" // for palette changing
 
 #ifdef DEBUG
 #include <assert.h>

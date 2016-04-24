@@ -38,7 +38,6 @@
 #include "../io/mpo_mem.h"
 #include "../game/game.h"
 #include "../ldp-out/ldp.h"
-#include "../ldp-out/ldp-vldp-gl.h"
 
 using namespace std;
 
