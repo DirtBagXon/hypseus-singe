@@ -27,6 +27,7 @@
 #define BITMAP_H
 
 #include <SDL.h>
+#include "SDL_FontCache.h"
 
 #define LED_RANGE 17 // 16 is normal, the 17th is for the 'A' in SAE
 
@@ -90,12 +91,11 @@ SDL_Surface *load_one_bmp(const char *);
 void free_one_bmp(SDL_Surface *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
-SDL_Surface *get_screen();
+SDL_Renderer *get_screen();
 SDL_Surface *get_screen_blitter();
+FC_Font *get_font();
 bool get_fullscreen();
 void set_fullscreen(bool value);
-bool get_fakefullscreen();           // by RDG2010
-void set_fakefullscreen(bool value); // by RDG2010
 int get_scalefactor();               // by RDG2010
 void set_scalefactor(int value);     // by RDG2010
 void set_rotate_degrees(float fDegrees);
@@ -105,7 +105,7 @@ void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
 void yuv2rgb(SDL_Color *result, int y, int u, int v);
-void draw_string(const char *, int, int, SDL_Surface *);
+void draw_string(const char *, int, int, SDL_Renderer *);
 void vid_toggle_fullscreen();
 
 void set_force_aspect_ratio(bool bEnabled);

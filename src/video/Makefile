@@ -6,7 +6,7 @@
 		| sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@; \
 		[ -s $@ ] || rm -f $@
 
-OBJS = video.o tms9128nl.o SDL_DrawText.o \
+OBJS = video.o tms9128nl.o SDL_FontCache.o \
 	led.o palette.o rgb2yuv.o blend.o
 
 .SUFFIXES:	.cpp

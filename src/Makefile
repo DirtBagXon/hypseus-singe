@@ -56,8 +56,8 @@ EXE = ../$(EXE_BASE)$(EXE_EXT)
 
 # ...  by RDG2010
 ifeq ($(BUILD_SINGE),1)
-LIBS += $(shell ${PKG_CONFIG} --libs lua SDL2_mixer SDL2_image SDL2_ttf)
-PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL2_mixer SDL2_image SDL2_ttf)
+LIBS += $(shell ${PKG_CONFIG} --libs lua SDL2_mixer SDL2_image)
+PFLAGS += -DBUILD_SINGE $(shell ${PKG_CONFIG} --cflags SDL2_mixer SDL2_image)
 OBJS += game/singe/*.o
 endif
 
@@ -67,7 +67,7 @@ LIBS += $(shell ${PKG_CONFIG} --libs libmpeg2 libmpeg2convert)
 
 # Platform specific cflags defined in the Makefile.vars file
 export CFLAGS = $(shell ${SDL_CONFIG} --cflags) ${PFLAGS} -Werror
-LIBS += $(shell ${SDL_CONFIG} --libs)
+LIBS += $(shell ${SDL_CONFIG} --libs) $(shell ${PKG_CONFIG} --libs SDL2_ttf)
 
 OBJS += ldp-out/*.o cpu/*.o game/*.o io/*.o timer/*.o ldp-in/*.o video/*.o \
 	sound/*.o daphne.o cpu/x86/*.o scoreboard/*.o ${VLDP_OBJS}
@@ -110,7 +110,7 @@ clean:	clean_deps
 testvldp: CFLAGS += -DVLDP_BENCHMARK
 testvldp: vldp testvldp.c
 	$(CC_MSG)
-	$(SILENT)${CC} ${CFLAGS} -DSHOW_FRAMES testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
+	$(SILENT)${CC} ${CFLAGS} -DSHOW_FRAMES testvldp.c video/SDL_FontCache.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
 
 %.d : %.cpp
 	$(GEN_MSG)

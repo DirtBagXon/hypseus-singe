@@ -143,14 +143,14 @@ void palette_finalize()
 
             // if we have a video overlay to set the colors no ...
             if (video_overlay) {
-                SDL_SetColors(video_overlay, g_rgb_palette, 0, g_palette_size);
+                SDL_SetPaletteColors(video_overlay->format->palette, g_rgb_palette, 0, g_palette_size);
             } else {
                 break;
             }
         }
 
         if (g_game->IsFullScaleEnabled()) {
-            SDL_SetColors(g_game->get_scaled_video_overlay(), g_rgb_palette, 0, g_palette_size);
+            SDL_SetPaletteColors(g_game->get_scaled_video_overlay()->format->palette, g_rgb_palette, 0, g_palette_size);
         }
     }
 

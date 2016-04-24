@@ -31,7 +31,6 @@
 #include <SDL_syswm.h> // rdg2010
 #include "video.h"
 #include "palette.h"
-#include "SDL_DrawText.h"
 #include "../io/conout.h"
 #include "../io/error.h"
 #include "../io/mpo_fileio.h"
@@ -55,16 +54,17 @@ const Uint16 cg_normalheights[] = {480, 600, 768, 960, 1024, 1200};
 // ratio is enforced)
 unsigned int g_draw_width = 640, g_draw_height = 480;
 
+FC_Font *g_font = NULL;
 SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
+SDL_Window  *g_window              = NULL;
+SDL_Renderer *g_renderer           = NULL;
 SDL_Surface *g_screen              = NULL; // our primary display
 SDL_Surface *g_screen_blitter      = NULL; // the surface we blit to (we don't blit
                                       // directly to g_screen because opengl
                                       // doesn't like that)
 bool g_fullscreen          = false; // whether we should initialize video in fullscreen
                                     // mode or not
-bool g_fakefullscreen = false; // by RDG2010 -- whether daphne should do
-                               // fullscreen window
 int g_scalefactor = 100; // by RDG2010 -- scales the image to this percentage
                          // value (for CRT TVs with overscan problems).
 int sboverlay_characterset = 1;
@@ -84,12 +84,9 @@ bool init_display()
 {
 
     bool result                  = false; // whether video initialization is successful or not
-    bool abnormalscreensize      = true; // assume abnormal
-    const SDL_VideoInfo *vidinfo = NULL;
-    Uint8 suggested_bpp          = 0;
     Uint32 sdl_flags             = 0;
 
-    sdl_flags = SDL_HWSURFACE;
+    sdl_flags = SDL_WINDOW_SHOWN;
 
     char s[250] = {0};
     Uint32 x    = 0; // temporary index
@@ -97,76 +94,7 @@ bool init_display()
     // if we were able to initialize the video properly
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
 
-        vidinfo       = SDL_GetVideoInfo();
-        suggested_bpp = vidinfo->vfmt->BitsPerPixel;
-
-        // if we were in 8-bit mode, try to get at least 16-bit color
-        // because we definitely use more than 256 colors in daphne
-        if (suggested_bpp < 16) {
-            suggested_bpp = 32;
-        }
-
-        // By RDG2010
-        // Have cursor disabled always.
-        // Useful for ALG SINGE games
-        // If there is a game that needs to show the cursor icon of the OS
-        // then modify.
-        SDL_ShowCursor(SDL_DISABLE); // hide mouse in fullscreen mode
-        if (g_fullscreen) {
-            // SDL_ShowCursor(SDL_DISABLE);	// hide mouse in fullscreen mode
-            sdl_flags |= SDL_FULLSCREEN;
-        }
-
-        // go through each standard resolution size to see if we are using a
-        // standard resolution
-        for (x = 0; x < (sizeof(cg_normalwidths) / sizeof(Uint16)); x++) {
-            // if we find a match, we know we're using a standard res
-            if ((g_vid_width == cg_normalwidths[x]) &&
-                (g_vid_height == cg_normalheights[x])) {
-                abnormalscreensize = false;
-            }
-        }
-
-        // if we're using a non-standard resolution
-        if (abnormalscreensize) {
-            printline("WARNING : You have specified an abnormal screen "
-                      "resolution! Normal screen resolutions are:");
-            // print each standard resolution
-            for (x = 0; x < (sizeof(cg_normalwidths) / sizeof(Uint16)); x++) {
-                sprintf(s, "%d x %d", cg_normalwidths[x], cg_normalheights[x]);
-                printline(s);
-            }
-            newline();
-        }
-
-        /* by RDG2010
-         * Adding preliminary lightgun support.
-         * For now that means a fake fullscreen.
-         * A borderless, no title bar window the same size as the desktop.
-         * This is done in three steps:
-         * 1. Get desktop resolution.
-         * 2. Make SDL window borderless.
-         * 3. Move window to top-left corner of the screen.
-         *
-         * Tested OK on both Windows and Ubuntu Linux.
-         * TODO: Provide a better solution.
-         *
-         */
-
-        if (get_fakefullscreen()) {
-
-            // Step 1. Get desktop resolution.
-            // Get the current resolution of the system's desktop.
-            const SDL_VideoInfo *info = SDL_GetVideoInfo(); // For SDL 1.3 use
-                                                            // SDL_GetDesktopDisplayMode()
-                                                            // instead.
-            int desktopWidth  = info->current_w;
-            int desktopHeight = info->current_h;
-            // Update variables here, before initializing any surfaces.
-            g_vid_width  = desktopWidth;
-            g_vid_height = desktopHeight;
-        }
-        // RDG2010
+        if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN;
 
         g_draw_width  = g_vid_width;
         g_draw_height = g_vid_height;
@@ -200,78 +128,39 @@ bool init_display()
             // bar).
             // This is achieved by adding the SDL_NOFRAME flag.
 
-            if (get_fakefullscreen()) sdl_flags = sdl_flags | SDL_NOFRAME;
+        g_window = SDL_CreateWindow("DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]",
+                                    SDL_WINDOWPOS_UNDEFINED,
+                                    SDL_WINDOWPOS_UNDEFINED,
+                                    g_vid_width,
+                                    g_vid_height,
+                                    sdl_flags);
+        if (!g_window) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize window: %s", SDL_GetError());
+        } else {
+            g_renderer = SDL_CreateRenderer(g_window, -1, 0);
+	    if (!g_renderer) {
+                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize renderer: %s", SDL_GetError());
+	    } else {
+                g_font = FC_CreateFont();
+                FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
 
-            g_screen = SDL_SetVideoMode(g_vid_width, g_vid_height, suggested_bpp, sdl_flags);
-            SDL_WM_SetCaption(
-                "DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]",
-                "daphne");
-
-/* by RDG2010
- * Step 3. Move window to the top-left corner of the screen.
- *
- * The task of positioning the window is OS dependant.
- * When using a window the same size of the desktop, X11 will
- * automatically position it to the top-left corner of the screen.
- * In the case of Windows, it has to be done manually.
- *
- */
-
-#ifdef WIN32
-        if (get_fakefullscreen()) {
-
-            // Access to SDL's OS specific structure.
-            SDL_SysWMinfo windowInfo;
-            SDL_VERSION(&windowInfo.version);
-
-            if (SDL_GetWMInfo(&windowInfo)) {
-                // Retrieve the Windows handle to the SDL window.
-                HWND handle = windowInfo.window;
-                // Position Window to top-left corner of the screen.
-                if (!SetWindowPos(handle, NULL, 0, 0, 0, 0,
-                                  SWP_NOREPOSITION | SWP_NOZORDER | SWP_NOSIZE)) {
-                    printline("Error occurred with 'SetWindowPos'. Fullscreen "
-                              "window failed.");
-                    result = 0;
+                // create a 32-bit surface
+                g_screen_blitter =
+                    SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 32,
+                                         0xff, 0xFF00, 0xFF0000, 0xFF000000);
+        
+                if (g_screen && g_screen_blitter) {
+                    sprintf(s, "Set %dx%d at %d bpp with flags: %x", g_screen->w,
+                            g_screen->h, g_screen->format->BitsPerPixel, g_screen->flags);
+                    printline(s);
+        
+                    // NOTE: SDL Console was initialized here.
+                    result                = true;
                 }
-
-            } else {
-                // Error occurred with 'SDL_GetWMInfo'
-                printline("Error occurred with 'SDL_GetWMInfo'. Fullscreen "
-                          "window failed.");
-                result = 0;
-
-            } // endif
-
-        } // endif
-
-#endif
-
-        // create a 32-bit surface
-        g_screen_blitter =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 32,
-                                 0xff, 0xFF00, 0xFF0000, 0xFF000000);
-
-        if (g_screen && g_screen_blitter) {
-            sprintf(s, "Set %dx%d at %d bpp with flags: %x", g_screen->w,
-                    g_screen->h, g_screen->format->BitsPerPixel, g_screen->flags);
-            printline(s);
-
-            // NOTE: SDL Console was initialized here.
-            result                = true;
-
-            // sometimes the screen initializes to white, so this attempts to
-            // prevent that
-            SDL_FillRect(g_screen, NULL, 0);
-            SDL_Flip(g_screen);
-            SDL_FillRect(g_screen, NULL, 0);
-            SDL_Flip(g_screen);
+            }
         }
-    }
-
-    if (result == 0) {
-        sprintf(s, "Could not initialize video display: %s", SDL_GetError());
-        printerror(s);
+    } else {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s", SDL_GetError());
     }
 
     return (result);
@@ -303,8 +192,8 @@ void vid_blit(SDL_Surface *srf, int x, int y)
 // call this every time you want the display to return to normal
 void display_repaint()
 {
-    SDL_FillRect(g_screen, NULL, 0);
-    SDL_Flip(g_screen);
+    SDL_RenderClear(g_renderer);
+    SDL_RenderPresent(g_renderer);
     g_game->video_force_blit();
 }
 
@@ -400,7 +289,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 
     dest.x = start_x;
     dest.w = num_digits * OVERLAY_LED_WIDTH;
-    SDL_UpdateRects(overlay, 1, &dest);
+    //SDL_UpdateRects(overlay, 1, &dest); FIXME
 }
 
 // Draw LDP1450 overlay characters to the screen (added by Brad O.)
@@ -509,7 +398,7 @@ void free_one_bmp(SDL_Surface *candidate) { SDL_FreeSurface(candidate); }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-SDL_Surface *get_screen() { return g_screen; }
+SDL_Renderer *get_screen() { return g_renderer; }
 
 SDL_Surface *get_screen_blitter() { return g_screen_blitter; }
 
@@ -518,11 +407,6 @@ bool get_fullscreen() { return g_fullscreen; }
 // sets our g_fullscreen bool (determines whether will be in fullscreen mode or
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
-
-// by RDG2010
-bool get_fakefullscreen() { return g_fakefullscreen; }
-
-void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 
 int get_scalefactor() { return g_scalefactor; }
 void set_scalefactor(int value)
@@ -597,7 +481,12 @@ void yuv2rgb(SDL_Color *result, int y, int u, int v)
     result->b = (unsigned char)b;
 }
 
-void draw_string(const char *t, int col, int row, SDL_Surface *overlay)
+FC_Font *get_font()
+{
+    return g_font;
+}
+
+void draw_string(const char *t, int col, int row, SDL_Renderer *renderer)
 {
     SDL_Rect dest;
 
@@ -608,10 +497,10 @@ void draw_string(const char *t, int col, int row, SDL_Surface *overlay)
                                               // string)
     dest.h = 13;                              // height of area (height of font)
 
-    SDL_FillRect(overlay, &dest, 0); // erase anything at our destination before
-                                     // we print new text
-    SDLDrawText(t, overlay, FONT_SMALL, dest.x, dest.y);
-    SDL_UpdateRects(overlay, 1, &dest);
+    //SDL_FillRect(overlay, &dest, 0); // erase anything at our destination before
+    //                                 // we print new text
+    FC_Draw(g_font, renderer, dest.x, dest.y, t);
+    //SDL_UpdateRects(overlay, 1, &dest); FIXME
 }
 
 // toggles fullscreen mode

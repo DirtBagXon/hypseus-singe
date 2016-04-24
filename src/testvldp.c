@@ -1,8 +1,7 @@
 #include <SDL.h>
 
+#include "video/SDL_FontCache.h"
 #include "vldp/vldp.h"     // VLDP stuff
-#include "io/dll.h"        // for DLL stuff
-#include "video/yuv2rgb.h" // to bypass SDL's yuv overlay and do it ourselves ...
 
 #ifndef WIN32
 #include <unistd.h> // for chdir
@@ -39,6 +38,7 @@ unsigned int g_uQuitFlag = 0;
 SDL_Window *g_window     = NULL;
 SDL_Renderer *g_renderer = NULL;
 SDL_Texture *g_texture   = NULL;
+FC_Font     *g_font      = NULL;
 SDL_RendererInfo g_rendererinfo;
 
 void printerror(const char *cpszErrMsg) { puts(cpszErrMsg); }
@@ -61,6 +61,7 @@ void display_frame_callback()
 #ifdef SHOW_FRAMES
     SDL_RenderClear(g_renderer);
     SDL_RenderCopy(g_renderer, g_texture, NULL, NULL);
+    FC_Draw(g_font, g_renderer, 0, 0, "%d", g_uFrameCount);
     SDL_RenderPresent(g_renderer); // display it!
 #endif                             // SHOW_FRAMES
 }
@@ -140,8 +141,6 @@ void set_cur_dir(const char *exe_loc)
 
 int main(int argc, char **argv)
 {
-    //	DLL_INSTANCE dll_instance = NULL;
-
     set_cur_dir(argv[0]);
 #ifdef SHOW_FRAMES
     SDL_Init(SDL_INIT_VIDEO);
@@ -156,6 +155,10 @@ int main(int argc, char **argv)
 
     SDL_GetRendererInfo(g_renderer, &g_rendererinfo);
     printf("Using %s rendering\n", g_rendererinfo.name);
+
+    g_font = FC_CreateFont();
+    if (FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18, FC_MakeColor(255,255,0,255), TTF_STYLE_NORMAL) == 0)
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "%s", SDL_GetError());
 #endif
 
     pvldp_init = (initproc)&vldp_init;

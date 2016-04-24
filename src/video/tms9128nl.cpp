@@ -24,7 +24,7 @@
 //#define TMS_DEBUG 1
 
 #include <SDL.h>
-#include "SDL_DrawText.h"
+#include "SDL_FontCache.h"
 #include "tms9128nl.h"
 #include "palette.h"
 #include "video.h"
@@ -728,7 +728,7 @@ void tms9128nl_outcommand(char *s, int col, int row)
     // VLDP freaks out if it's not the only thing drawing to the screen
     if (!g_ldp->is_vldp()) {
         vid_blank();
-        SDLDrawText(s, get_screen_blitter(), FONT_SMALL, dest.x, dest.y);
+        FC_Draw(get_font(), get_screen(), dest.x, dest.y, s);
         // TODO : get this working again under the new video scheme
     }
 }
