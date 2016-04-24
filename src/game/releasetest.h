@@ -91,10 +91,6 @@ class releasetest : public game
     void test_vldp_render();
     bool m_test_vldp_render;
 
-    // test blend MMX function
-    void test_blend();
-    bool m_test_blend;
-
     // test mix MMX function
     void test_mix();
     bool m_test_mix;

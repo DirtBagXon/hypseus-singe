@@ -727,7 +727,7 @@ void tms9128nl_outcommand(char *s, int col, int row)
 
     // VLDP freaks out if it's not the only thing drawing to the screen
     if (!g_ldp->is_vldp()) {
-        vid_blank();
+        //vid_blank();
         FC_Draw(get_font(), get_screen(), dest.x, dest.y, s);
         // TODO : get this working again under the new video scheme
     }

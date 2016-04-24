@@ -540,9 +540,9 @@ void gpworld::video_repaint()
     //		}
 
     // draw low or high depending on the state of the shifter
-    const char *t = "HIGH";
-    if (banks[2]) t = "LOW";
-    draw_string(t, 1, 17, m_video_overlay[m_active_video_overlay]);
+    //const char *t = "HIGH";
+    //if (banks[2]) t = "LOW";
+    //draw_string(t, 1, 17, m_video_overlay[m_active_video_overlay]);
 }
 
 // this gets called when the user presses a key or moves the joystick

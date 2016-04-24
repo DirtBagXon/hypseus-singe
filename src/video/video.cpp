@@ -149,14 +149,14 @@ bool init_display()
                     SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 32,
                                          0xff, 0xFF00, 0xFF0000, 0xFF000000);
         
-                if (g_screen && g_screen_blitter) {
-                    sprintf(s, "Set %dx%d at %d bpp with flags: %x", g_screen->w,
-                            g_screen->h, g_screen->format->BitsPerPixel, g_screen->flags);
-                    printline(s);
+                //if (g_screen && g_screen_blitter) {
+                //    sprintf(s, "Set %dx%d at %d bpp with flags: %x", g_screen->w,
+                //            g_screen->h, g_screen->format->BitsPerPixel, g_screen->flags);
+                //    printline(s);
         
                     // NOTE: SDL Console was initialized here.
                     result                = true;
-                }
+                //}
             }
         }
     } else {

@@ -27,6 +27,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include "../vldp/vldp.h"
 
 using namespace std;
 
@@ -196,12 +197,10 @@ class ldp_vldp : public ldp
 
 // functions that cannot be part of the class because we may need to use them as
 // function pointers
-int prepare_frame_callback_with_overlay(struct yuv_buf *buf);
-int prepare_frame_callback_without_overlay(struct yuv_buf *buf);
-void display_frame_callback(struct yuv_buf *buf);
+int prepare_frame_callback_with_overlay(const mpeg2_info_t *info);
+int prepare_frame_callback_without_overlay(const mpeg2_info_t *info);
+void display_frame_callback();
 void set_blend_fields(bool val);
-void buf2overlay(SDL_Overlay *dst, struct yuv_buf *src);
-void buf2overlay_YUY2(SDL_Overlay *dst, struct yuv_buf *src);
 void update_parse_meter();
 void report_parse_progress_callback(double percent_complete);
 void report_mpeg_dimensions_callback(int, int);

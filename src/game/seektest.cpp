@@ -513,10 +513,10 @@ void seektest::video_repaint()
 
     // if video overlay is enabled
     if (m_overlay) {
-        draw_string(m_name, 1, 1, m_video_overlay[m_active_video_overlay]); // draw the game name
+        //draw_string(m_name, 1, 1, m_video_overlay[m_active_video_overlay]); // draw the game name
 
         sprintf(s, "%u x %u", cur_w << 1, cur_h << 1);
-        draw_string(s, 1, 2, m_video_overlay[m_active_video_overlay]); // draw
+        //draw_string(s, 1, 2, m_video_overlay[m_active_video_overlay]); // draw
                                                                        // the
                                                                        // resolution
                                                                        // of the
@@ -530,35 +530,35 @@ void seektest::video_repaint()
             } else {
                 strcat(s, " (UNLOCKED)");
             }
-            draw_string(s, 1, 3, m_video_overlay[m_active_video_overlay]);
+            //draw_string(s, 1, 3, m_video_overlay[m_active_video_overlay]);
 
             if (m_frame_offset != 0) {
                 sprintf(s, "* Adjust framefile by %d frames *", m_frame_offset);
-                draw_string(s, 1, 4, m_video_overlay[m_active_video_overlay]);
+                //draw_string(s, 1, 4, m_video_overlay[m_active_video_overlay]);
             }
 
-            draw_string("1      - Play the disc at 1X", 1, 8,
-                        m_video_overlay[m_active_video_overlay]);
-            draw_string("2      - Play the disc at 2X", 1, 9,
-                        m_video_overlay[m_active_video_overlay]);
-            draw_string("SKILL1 - Play the disc at 4X", 1, 10,
-                        m_video_overlay[m_active_video_overlay]);
-            draw_string("SKILL2 - Play the disc at 8X", 1, 11,
-                        m_video_overlay[m_active_video_overlay]);
-            draw_string("FIRE1  - Lock/Unlock frame", 1, 12,
-                        m_video_overlay[m_active_video_overlay]);
-            draw_string("FIRE2  - Toggle Text Overlay", 1, 13,
-                        m_video_overlay[m_active_video_overlay]);
-            sprintf(s, "UP     - toggle between %u and %u", m_early1, m_early2);
-            draw_string(s, 1, 14, m_video_overlay[m_active_video_overlay]);
+            //draw_string("1      - Play the disc at 1X", 1, 8,
+            //            m_video_overlay[m_active_video_overlay]);
+            //draw_string("2      - Play the disc at 2X", 1, 9,
+            //            m_video_overlay[m_active_video_overlay]);
+            //draw_string("SKILL1 - Play the disc at 4X", 1, 10,
+            //            m_video_overlay[m_active_video_overlay]);
+            //draw_string("SKILL2 - Play the disc at 8X", 1, 11,
+            //            m_video_overlay[m_active_video_overlay]);
+            //draw_string("FIRE1  - Lock/Unlock frame", 1, 12,
+            //            m_video_overlay[m_active_video_overlay]);
+            //draw_string("FIRE2  - Toggle Text Overlay", 1, 13,
+            //            m_video_overlay[m_active_video_overlay]);
+            //sprintf(s, "UP     - toggle between %u and %u", m_early1, m_early2);
+            //draw_string(s, 1, 14, m_video_overlay[m_active_video_overlay]);
 
-            sprintf(s, "DOWN   - toggle between %u and %u", m_late1, m_late2);
-            draw_string(s, 1, 15, m_video_overlay[m_active_video_overlay]);
+            //sprintf(s, "DOWN   - toggle between %u and %u", m_late1, m_late2);
+            //draw_string(s, 1, 15, m_video_overlay[m_active_video_overlay]);
 
-            draw_string("LEFT   - steps down one frame", 1, 16,
-                        m_video_overlay[m_active_video_overlay]);
-            draw_string("RIGHT  - steps up one frame", 1, 17,
-                        m_video_overlay[m_active_video_overlay]);
+            //draw_string("LEFT   - steps down one frame", 1, 16,
+            //            m_video_overlay[m_active_video_overlay]);
+            //draw_string("RIGHT  - steps up one frame", 1, 17,
+            //            m_video_overlay[m_active_video_overlay]);
         }
     } // end if overlay is enabled
 

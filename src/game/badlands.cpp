@@ -453,8 +453,8 @@ void badlands::video_repaint()
     }
 
     if (shoot_led) {
-        const char *t = "SHOOT!";
-        draw_string(t, 20, 17, m_video_overlay[m_active_video_overlay]);
+        //const char *t = "SHOOT!";
+        //draw_string(t, 20, 17, m_video_overlay[m_active_video_overlay]);
     }
 }
 

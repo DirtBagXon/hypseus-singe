@@ -41,14 +41,12 @@
 #include "../timer/timer.h"
 #include "../video/rgb2yuv.h"
 #include "../video/video.h" // for draw_string
-#include "../video/blend.h"
 #include "../ldp-out/ldp-vldp.h"
 #include "../vldp/vldp.h"
 #include "../sound/sound.h"
 #include "../sound/samples.h"
 #include "../sound/mix.h"
 
-extern SDL_Overlay *g_hw_overlay;      // to do overlay tests
 extern struct yuv_buf g_blank_yuv_buf; // to do overlay tests
 extern Sint32 g_vertical_offset;       // to do overlay tests
 extern Uint8 *g_line_buf;  // temp sys RAM for doing calculations so we can do
@@ -68,7 +66,7 @@ releasetest::releasetest()
     : m_test_all(true), // run all tests by default
       m_test_line_parse(false), m_test_framefile_parse(false), m_test_rgb2yuv(false),
       m_test_think_delay(false), m_test_vldp(false),
-      m_test_vldp_render(false), m_test_blend(false), m_test_mix(false),
+      m_test_vldp_render(false), m_test_mix(false),
       m_test_samples(false), m_test_sound_mixing(false)
 // m_test_gp2x_timer(false)
 {
@@ -113,7 +111,6 @@ void releasetest::start()
 //  otherwise the test is useless
 #ifdef USE_MMX
     if (dotest(m_test_rgb2yuv)) test_rgb2yuv();
-    if (dotest(m_test_blend)) test_blend();
     if (dotest(m_test_mix)) test_mix();
 #endif // USE_MMX
 
@@ -203,8 +200,8 @@ void releasetest::video_repaint()
     }
 
     // draw some text to make it interesting
-    draw_string("ReleaseTest video_repaint() was here :)", 1, 3,
-                m_video_overlay[m_active_video_overlay]);
+    //draw_string("ReleaseTest video_repaint() was here :)", 1, 3,
+    //            m_video_overlay[m_active_video_overlay]);
 }
 
 void releasetest::logtest(bool passed, const string &testname)
@@ -561,134 +558,13 @@ void releasetest::test_vldp_render()
         m_video_overlay_needs_update = true;
         video_blit(); // prepare our video overlay for testing
 
-        printline("Beginning VLDP BLEND sanity test...");
-
-        // if overlay creation succeeded
-        if (g_hw_overlay) {
-            // BLEND SANITY TEST
-            g_filter_type = FILTER_BLEND; // this may be redundant because the
-                                          // filter type is already set, but it
-                                          // ensures this test won't break
-                                          // accidently
-            g_blend_line1      = NULL;
-            g_blend_line2      = NULL;
-            g_blend_dest       = NULL;
-            g_blend_iterations = 0;
-            report_mpeg_dimensions_callback(width, height); // should be safe to
-                                                            // call this
-                                                            // function
-                                                            // repeatedly
-
-            // all of this stuff should be set by this function before either of
-            // the prepare_* functions are called
-            if ((g_blend_line1 == g_line_buf) &&
-                (g_blend_line2 == g_line_buf2) && (g_blend_dest == g_line_buf3) &&
-                (g_blend_iterations == (unsigned int)(g_hw_overlay->w << 1)) &&
-                ((g_blend_iterations % 8) == 0) && (g_blend_iterations >= 8)) {
-                test_result = true;
-            }
-            logtest(test_result, "VLDP BLEND Sanity Test");
-
-        } else {
-            logtest(false, "VLDP BLEND Sanity Test (overlay failed)");
-        }
-
         printline("Beginning VLDP Render test...");
         g_filter_type = FILTER_NONE; // no filter for this test
         test_result   = false; // in case g_hw_overlay is NULL, we want the test
                                // result to report failure
-        if (g_hw_overlay) {
-            test_result = true;
-            for (g_vertical_offset = -(REL_VID_H - 1);
-                 (g_vertical_offset < (Sint32)(REL_VID_H)) && test_result;
-                 g_vertical_offset++) {
-                if (prepare_frame_callback_with_overlay(&g_blank_yuv_buf) == VLDP_TRUE) {
-                    // lock so we can read bytes in overlay
-                    if (SDL_LockYUVOverlay(g_hw_overlay) == 0) {
-                        unsigned char *expected = NULL;
-                        unsigned char black[]   = {0x00, 0x7F, 0x00, 0x7F,
-                                                 0x00, 0x7F, 0x00, 0x7F};
-                        unsigned char dotted[] = {0xFF, 0x7F, 0xFF, 0x7F,
-                                                  0x00, 0x7F, 0x00, 0x7F};
-
-                        // if the topmost line is dotted, set up our bytes
-                        // accordingly
-                        if ((g_vertical_offset == ((-REL_VID_H) + 1)) ||
-                            (g_vertical_offset == 0))
-                            expected = dotted;
-                        else
-                            expected = black;
-
-                        unsigned char *pix = (unsigned char *)g_hw_overlay->pixels[0];
-                        for (int i = 0; i < 8; i++) {
-                            // if resulting value is not close enough
-                            if (!i_close_enuf(pix[i], expected[i], 1)) {
-                                string msg = "YUY2 mismatch on half offset " +
-                                             numstr::ToStr(g_vertical_offset) +
-                                             ", pix[i] is " + numstr::ToStr(pix[i]) +
-                                             ", expected[i] is " +
-                                             numstr::ToStr(expected[i]);
-                                printline(msg.c_str());
-                                test_result = false;
-                            }
-                        }
-                        SDL_UnlockYUVOverlay(g_hw_overlay);
-
-                        // it seems when the frame is displayed, its data gets
-                        // corrupted on win32,
-                        //  so we have to test the data for correctness before
-                        //  we display it.
-                        display_frame_callback(NULL);
-                    } else
-                        test_result = false; // if we can't get a lock,
-                                             // something is wrong
-                }
-            }
-        }
-
         free_yuv_overlay(); // we're done
 
         logtest(test_result, "VLDP Overlay w/ Vertical Offset Render");
-}
-
-void releasetest::test_blend()
-{
-    const int BUF_SIZE = 256;
-    unsigned char line1[BUF_SIZE];
-    unsigned char line2[BUF_SIZE];
-    unsigned char dst_C[BUF_SIZE];
-    unsigned char dst_MMX[BUF_SIZE];
-    int i = 0;
-
-    printline("Beginning BLEND accuracy test...");
-
-    // fill lines with values (that are the same each time test is run, to make
-    // reproducing bugs easier)
-    for (i = 0; i < BUF_SIZE; i++) {
-        line1[i] = i;
-        line2[i] = 255 - i;
-    }
-
-    g_blend_line1      = line1;
-    g_blend_line2      = line2;
-    g_blend_dest       = dst_C;
-    g_blend_iterations = BUF_SIZE;
-
-    blend_c(); // do the reference test
-
-    g_blend_dest = dst_MMX;
-    g_blend_func(); // now do the MMX version (unless we have no MMX in which
-                    // case this test is meaningless)
-
-    bool result = true;
-    for (i = 0; i < BUF_SIZE; i++) {
-        if (dst_C[i] != dst_MMX[i]) {
-            result = false;
-            break;
-        }
-    }
-
-    logtest(result, "BLEND accuracy test");
 }
 
 void releasetest::test_mix()
