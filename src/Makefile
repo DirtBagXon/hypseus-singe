@@ -107,8 +107,10 @@ clean:	clean_deps
 	$(SILENT)find . -name "*.o" -exec rm {} \;
 	$(SILENT)rm -f ${EXE}
 
-testvldp:	testvldp.c
-	${CC} ${CFLAGS} -DSHOW_FRAMES testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
+testvldp: CFLAGS += -DVLDP_BENCHMARK
+testvldp: vldp testvldp.c
+	$(CC_MSG)
+	$(SILENT)${CC} ${CFLAGS} -DSHOW_FRAMES testvldp.c ${VLDP_OBJS} ${LIBS} -o ../testvldp$(EXE_EXT)
 
 %.d : %.cpp
 	$(GEN_MSG)

@@ -1365,6 +1365,7 @@ void draw_frame(const mpeg2_info_t *info)
 
             if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks)) {
                 if (g_in_info->prepare_frame(info)) {
+#ifndef VLDP_BENCHMARK
                     while (((Sint32)(g_in_info->uMsTimer - s_timer) < correct_elapsed_ms) &&
                            (!bFrameNotShownDueToCmd)) {
                         SDL_Delay(1);
@@ -1385,7 +1386,7 @@ void draw_frame(const mpeg2_info_t *info)
                             }
                         }
                     }
-
+#endif
                     if (!bFrameNotShownDueToCmd) {
                         g_in_info->display_frame();
                     }
