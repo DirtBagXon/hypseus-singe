@@ -83,28 +83,28 @@ const char *g_key_names[] = {"KEY_UP",      "KEY_LEFT",    "KEY_DOWN",
 // Notice each switch can have two keys assigned to it
 // NOTE : These are in a specific order, corresponding to the enum in daphne.h
 int g_key_defs[SWITCH_COUNT][2] = {
-    {SDL_SCANCODE_UP, SDL_SCANCODE_KP_8},     // up
-    {SDL_SCANCODE_LEFT, SDL_SCANCODE_KP_4},   // left
-    {SDL_SCANCODE_DOWN, SDL_SCANCODE_KP_2},   // down
-    {SDL_SCANCODE_RIGHT, SDL_SCANCODE_KP_6},  // right
-    {SDL_SCANCODE_1, 0},                      // 1 player start
-    {SDL_SCANCODE_2, 0},                      // 2 player start
-    {SDL_SCANCODE_SPACE, SDL_SCANCODE_LCTRL}, // action button 1
-    {SDL_SCANCODE_LALT, 0},                   // action button 2
-    {SDL_SCANCODE_LSHIFT, 0},                 // action button 3
-    {SDL_SCANCODE_5, SDL_SCANCODE_C},         // coin chute left
-    {SDL_SCANCODE_6, 0},                      // coin chute right
-    {SDL_SCANCODE_KP_DIVIDE, 0},              // skill easy
-    {SDL_SCANCODE_KP_MULTIPLY, 0},            // skill medium
-    {SDL_SCANCODE_KP_MINUS, 0},               // skill hard
-    {SDL_SCANCODE_9, 0},                      // service coin
-    {SDL_SCANCODE_F2, 0},                     // test mode
-    {SDL_SCANCODE_F3, 0},                     // reset cpu
-    {SDL_SCANCODE_F12, SDL_SCANCODE_F11},     // take screenshot
-    {SDL_SCANCODE_ESCAPE, SDL_SCANCODE_Q},    // Quit DAPHNE
-    {SDL_SCANCODE_P, 0},                      // pause game
-    {SDL_SCANCODE_GRAVE, 0},                  // toggle console (TODO)
-    {SDL_SCANCODE_T, 0},                      // Tilt/Slam switch
+    {SDLK_UP, SDLK_KP_8},     // up
+    {SDLK_LEFT, SDLK_KP_4},   // left
+    {SDLK_DOWN, SDLK_KP_2},   // down
+    {SDLK_RIGHT, SDLK_KP_6},  // right
+    {SDLK_1, 0},                      // 1 player start
+    {SDLK_2, 0},                      // 2 player start
+    {SDLK_SPACE, SDLK_LCTRL}, // action button 1
+    {SDLK_LALT, 0},                   // action button 2
+    {SDLK_LSHIFT, 0},                 // action button 3
+    {SDLK_5, SDLK_c},         // coin chute left
+    {SDLK_6, 0},                      // coin chute right
+    {SDLK_KP_DIVIDE, 0},              // skill easy
+    {SDLK_KP_MULTIPLY, 0},            // skill medium
+    {SDLK_KP_MINUS, 0},               // skill hard
+    {SDLK_9, 0},                      // service coin
+    {SDLK_F2, 0},                     // test mode
+    {SDLK_F3, 0},                     // reset cpu
+    {SDLK_F12, SDLK_F11},     // take screenshot
+    {SDLK_ESCAPE, SDLK_q},    // Quit DAPHNE
+    {SDLK_p, 0},                      // pause game
+    {SDLK_BACKQUOTE, 0},                  // toggle console (TODO)
+    {SDLK_t, 0},                      // Tilt/Slam switch
 };
 
 ////////////
@@ -540,9 +540,9 @@ void process_keydown(SDL_Keycode key)
     }
 
     // check for ALT-ENTER here
-    if ((key == SDL_SCANCODE_LALT) || (key == SDL_SCANCODE_RALT)) {
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
         g_alt_pressed = true;
-    } else if ((key == SDL_SCANCODE_RETURN) && (g_alt_pressed)) {
+    } else if ((key == SDLK_RETURN) && (g_alt_pressed)) {
         vid_toggle_fullscreen();
     }
     // end ALT-ENTER check
@@ -562,7 +562,7 @@ void process_keyup(SDL_Keycode key)
     }
 
     // if they are releasing an ALT key
-    if ((key == SDL_SCANCODE_LALT) || (key == SDL_SCANCODE_RALT)) {
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
         g_alt_pressed = false;
     }
 }
