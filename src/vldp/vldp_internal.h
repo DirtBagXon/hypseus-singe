@@ -73,6 +73,8 @@ void io_close();
 VLDP_BOOL io_is_open();
 unsigned int io_length();
 
+void draw_frame(const mpeg2_info_t *info);
+
 ///////////////////////////////////////
 
 extern Uint8 s_old_req_cmdORcount; // the last value of the command byte we

@@ -38,7 +38,6 @@
 #include <inttypes.h>
 
 #include <mpeg2.h>
-#include "video_out.h"
 
 // NOTICE : these variables should only be used by the private thread
 // !!!!!!!!!!!!
@@ -96,7 +95,6 @@ struct precache_entry_s s_sPreCacheEntries[MAX_PRECACHE_FILES]; // struct array
 
 static FILE *g_mpeg_handle     = NULL; // mpeg file we currently have open
 static mpeg2dec_t *g_mpeg_data = NULL; // structure for libmpeg2's state
-static vo_instance_t *s_video_output;
 static Uint32 g_frame_position[MAX_LDP_FRAMES] = {0}; // the file position of
                                                       // each I frame
 static Uint16 g_totalframes = 0; // total # of frames in the current mpeg
@@ -125,21 +123,7 @@ int idle_handler(void *surface)
     int done = 0;
     int i;
 
-    vo_driver_t const *drivers;
-    drivers = vo_drivers();
-
-    for (i = 0; drivers[i].name != NULL; i++)
-        if (strcmp(drivers[i].name, "null") == 0)
-            s_video_output = drivers[i].open(); // open 'null' driver (we just
-                                                // pass decoded frames to parent
-                                                // thread)
-
-    if (s_video_output) {
-        g_mpeg_data = mpeg2_init();
-    } else {
-        fprintf(stderr, "VLDP : Error opening LIBVO!\n");
-        done = 1;
-    }
+    g_mpeg_data = mpeg2_init();
 
     // unless we are drawing video to the screen, we just sit here
     // and listen for orders from the parent thread
@@ -213,7 +197,6 @@ int idle_handler(void *surface)
 
     g_out_info.status = STAT_ERROR;
     mpeg2_close(g_mpeg_data);              // shutdown libmpeg2
-    s_video_output->close(s_video_output); // shutdown null driver
 
     // de-allocate any files that have been precached
     while (s_uPreCacheIdxCount > 0) {
@@ -427,11 +410,10 @@ static void decode_mpeg2(uint8_t *current, uint8_t *end)
 {
     const mpeg2_info_t *info;
     mpeg2_state_t state;
-    vo_setup_result_t setup_result;
 
     mpeg2_buffer(g_mpeg_data, current, end);
-
     info = mpeg2_info(g_mpeg_data);
+
     // loop until we return (state is -1)
     while (1) {
         state = mpeg2_parse(g_mpeg_data);
@@ -439,60 +421,6 @@ static void decode_mpeg2(uint8_t *current, uint8_t *end)
         case STATE_BUFFER:
             return;
         case STATE_SEQUENCE:
-            /* might set nb fbuf, convert format, stride */
-            /* might set fbufs */
-            if (s_video_output->setup(s_video_output, info->sequence->width,
-                                      info->sequence->height, info->sequence->chroma_width,
-                                      info->sequence->chroma_height, &setup_result)) {
-                fprintf(stderr, "display setup failed\n"); // this should never
-                                                           // happen
-                exit(1);
-            }
-
-            if (setup_result.convert &&
-                mpeg2_convert(g_mpeg_data, setup_result.convert, NULL)) {
-                fprintf(stderr, "color conversion setup failed\n");
-                exit(1);
-            }
-
-            if (s_video_output->set_fbuf) {
-                uint8_t *buf[3];
-                void *id;
-
-                mpeg2_custom_fbuf(g_mpeg_data, 1);
-                s_video_output->set_fbuf(s_video_output, buf, &id);
-                mpeg2_set_buf(g_mpeg_data, buf, id);
-                s_video_output->set_fbuf(s_video_output, buf, &id);
-                mpeg2_set_buf(g_mpeg_data, buf, id);
-            } else if (s_video_output->setup_fbuf) {
-                uint8_t *buf[3];
-                void *id;
-
-                s_video_output->setup_fbuf(s_video_output, buf, &id);
-                mpeg2_set_buf(g_mpeg_data, buf, id);
-                s_video_output->setup_fbuf(s_video_output, buf, &id);
-                mpeg2_set_buf(g_mpeg_data, buf, id);
-                s_video_output->setup_fbuf(s_video_output, buf, &id);
-                mpeg2_set_buf(g_mpeg_data, buf, id);
-            }
-            mpeg2_skip(g_mpeg_data, (s_video_output->draw == NULL));
-            break;
-        case STATE_PICTURE:
-            /* might skip */
-            /* might set fbuf */
-
-            // all possible stuff we could've done here was removed because the
-            // null driver doesn't do any of it
-            if (s_video_output->set_fbuf) {
-                uint8_t *buf[3];
-                void *id;
-                s_video_output->set_fbuf(s_video_output, buf, &id);
-                mpeg2_set_buf(g_mpeg_data, buf, id);
-            }
-            if (s_video_output->start_fbuf)
-                s_video_output->start_fbuf(s_video_output, info->current_fbuf->buf,
-                                           info->current_fbuf->id);
-
             break;
         case STATE_SLICE:
         case STATE_END:
@@ -500,14 +428,8 @@ static void decode_mpeg2(uint8_t *current, uint8_t *end)
             /* draw current picture */
             /* might free frame buffer */
             if (info->display_fbuf) {
-                if (s_video_output->draw)
-                    s_video_output->draw(s_video_output, info->display_fbuf->buf,
-                                         info->display_fbuf->id);
+                draw_frame(info);
             }
-            if (s_video_output->discard && info->discard_fbuf)
-                s_video_output->discard(s_video_output, info->discard_fbuf->buf,
-                                        info->discard_fbuf->id);
-
             break;
         default:
             break;
@@ -589,11 +511,6 @@ void idle_handler_open()
         // get when switching between mpeg files.
         g_in_info->render_blank_frame();
         g_in_info->render_blank_frame();
-
-        // we need to close this surface, because the new mpeg may have a
-        // different resolution than the old one, and therefore, the YUV buffer
-        // must be re-allocated
-        s_video_output->close(s_video_output);
     }
 
     // if we've been requested to open a real file ...
@@ -1426,4 +1343,98 @@ unsigned int io_length()
     }
 
     return uResult;
+}
+
+void draw_frame(const mpeg2_info_t *info)
+{
+    Sint32 correct_elapsed_ms = 0;
+    Sint32 actual_elapsed_ms  = 0;
+    unsigned int uStallFrames = 0;
+
+    if (!(s_frames_to_skip | s_skip_all)) {
+        do {
+            VLDP_BOOL bFrameNotShownDueToCmd = VLDP_FALSE;
+
+            Sint64 s64Ms = s_uFramesShownSinceTimer;
+            s64Ms        = (s64Ms * 1000000) / g_out_info.uFpks;
+
+            correct_elapsed_ms = (Sint32)(s64Ms) + s_extra_delay_ms;
+            actual_elapsed_ms  = g_in_info->uMsTimer - s_timer;
+
+            s_extra_delay_ms = 0;
+
+            if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks)) {
+                if (g_in_info->prepare_frame(info)) {
+                    while (((Sint32)(g_in_info->uMsTimer - s_timer) < correct_elapsed_ms) &&
+                           (!bFrameNotShownDueToCmd)) {
+                        SDL_Delay(1);
+                        if (ivldp_got_new_command()) {
+                            switch (g_req_cmdORcount & 0xF0) {
+                            case VLDP_REQ_PAUSE:
+                            case VLDP_REQ_STEP_FORWARD:
+                                ivldp_respond_req_pause_or_step();
+                                break;
+                            case VLDP_REQ_SPEEDCHANGE:
+                                ivldp_respond_req_speedchange();
+                                break;
+                            case VLDP_REQ_NONE:
+                                break;
+                            default:
+                                bFrameNotShownDueToCmd = VLDP_TRUE;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!bFrameNotShownDueToCmd) {
+                        g_in_info->display_frame();
+                    }
+                }
+            }
+
+            if (!bFrameNotShownDueToCmd) {
+                ++s_uFramesShownSinceTimer;
+            }
+
+            if (s_paused) {
+                paused_handler();
+            } else {
+                play_handler();
+
+                if (!s_paused) {
+                    if (uStallFrames == 0) {
+                        if (s_uPendingSkipFrame == 0) {
+                            if (!bFrameNotShownDueToCmd) {
+                                ++g_out_info.current_frame;
+
+                                if (s_stall_per_frame > 0) {
+                                    uStallFrames = s_stall_per_frame;
+                                }
+
+                                if (s_skip_per_frame > 0) {
+                                    s_frames_to_skip = s_frames_to_skip_with_inc =
+                                        s_skip_per_frame;
+                                }
+                            }
+                        } else {
+                            g_out_info.current_frame = s_uPendingSkipFrame;
+                            s_uPendingSkipFrame      = 0;
+                        }
+                    } else {
+                        --uStallFrames;
+                    }
+                }
+            }
+        } while ((s_paused || uStallFrames > 0) && !s_skip_all && !s_step_forward);
+
+        s_step_forward = 0;
+    } else {
+        if (s_frames_to_skip > 0) {
+            --s_frames_to_skip;
+            if (s_frames_to_skip_with_inc > 0) {
+                --s_frames_to_skip_with_inc;
+                ++g_out_info.current_frame;
+            }
+        }
+    }
 }

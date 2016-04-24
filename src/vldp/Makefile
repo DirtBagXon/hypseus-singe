@@ -10,7 +10,7 @@
 		| sed 's^\($*\)\.o[ :]*^\1.o $@ : ^g' > $@; \
 		[ -s $@ ] || rm -f $@
 
-OBJS = video_out_null.o video_out.o vldp.o vldp_internal.o mpegscan.o
+OBJS = vldp.o vldp_internal.o mpegscan.o
 
 all:	${OBJS}
 
