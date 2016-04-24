@@ -108,7 +108,6 @@ Uint8 *g_line_buf3 = NULL; // 3rd buf
 // These pointers and typedefs assist us in doing so.
 
 typedef const struct vldp_out_info *(*initproc)(const struct vldp_in_info *in_info);
-initproc pvldp_init; // pointer to the init proc ...
 
 // pointer to all functions the VLDP exposes to us ...
 const struct vldp_out_info *g_vldp_info = NULL;
@@ -163,8 +162,6 @@ bool ldp_vldp::init_player()
     g_vertical_stretch = m_vertical_stretch; // callbacks don't have access to
                                              // m_vertical_stretch
 
-    // load the .DLL first in case we call any of its functions elsewhere
-    if (load_vldp_lib()) {
         // try to read in the framefile
         if (read_frame_conversions()) {
             // just a sanity check to make sure their frame file is correct
@@ -203,7 +200,7 @@ bool ldp_vldp::init_player()
                     g_local_info.blank_during_skips     = m_blank_on_skips;
                     g_local_info.GetTicksFunc           = GetTicksFunc;
 
-                    g_vldp_info = pvldp_init(&g_local_info);
+                    g_vldp_info = vldp_init(&g_local_info);
 
                     // if we successfully made contact with VLDP ...
                     if (g_vldp_info != NULL) {
@@ -318,10 +315,6 @@ bool ldp_vldp::init_player()
             }
             // else the other error messages are more than sufficient
         }
-    } // end if .DLL was loaded properly
-    else {
-        printline("Could not load VLDP dynamic library!!!");
-    }
 
     // if init didn't completely finish, then we need to shutdown everything
     if (!result) {
@@ -345,7 +338,6 @@ void ldp_vldp::shutdown_player()
                       "not be deleted");
         }
     }
-    free_vldp_lib();
     audio_shutdown();
     free_yuv_overlay(); // de-allocate overlay if we have one allocated ...
 
@@ -1081,20 +1073,6 @@ bool ldp_vldp::handle_cmdline_arg(const char *arg)
 }
 
 //////////////////////////////////
-
-// loads the VLDP dynamic library, returning true on success
-bool ldp_vldp::load_vldp_lib()
-{
-    bool result = false;
-
-    pvldp_init = vldp_init;
-    result     = true;
-
-    return result;
-}
-
-// frees the VLDP dynamic library if we loaded it in
-void ldp_vldp::free_vldp_lib() {}
 
 // read frame conversions in from LD-frame to mpeg-frame data file
 bool ldp_vldp::read_frame_conversions()
