@@ -452,35 +452,6 @@ void set_video_height(Uint16 height)
     g_vid_height = height;
 }
 
-// converts YUV to RGB
-// Use this only when you don't care about speed =]
-// NOTE : it is important for y, u, and v to be signed
-void yuv2rgb(SDL_Color *result, int y, int u, int v)
-{
-    // NOTE : Visual C++ 7.0 apparently has a bug
-    // in its floating point optimizations because this function
-    // will return incorrect results when compiled as a Release
-    // Possible workaround: use integer math instead of float? or don't use VC++
-    // 7? hehe
-
-    int b = (int)(1.164 * (y - 16) + 2.018 * (u - 128));
-    int g = (int)(1.164 * (y - 16) - 0.813 * (v - 128) - 0.391 * (u - 128));
-    int r = (int)(1.164 * (y - 16) + 1.596 * (v - 128));
-
-    // clamp values (not sure if this is necessary, but we aren't worried about
-    // speed)
-    if (b > 255) b = 255;
-    if (b < 0) b = 0;
-    if (g > 255) g = 255;
-    if (g < 0) g = 0;
-    if (r > 255) r = 255;
-    if (r < 0) r = 0;
-
-    result->r = (unsigned char)r;
-    result->g = (unsigned char)g;
-    result->b = (unsigned char)b;
-}
-
 FC_Font *get_font()
 {
     return g_font;
