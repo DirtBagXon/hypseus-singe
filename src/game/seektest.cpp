@@ -25,6 +25,8 @@
 
 // used to test mpeg seeking accuracy
 
+#include "config.h"
+
 #include <string.h>
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"

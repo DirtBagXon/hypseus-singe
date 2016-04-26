@@ -25,6 +25,8 @@
 // Purpose: To provide a way for our emulator to track very precise time
 // Second purpose: To keep this source code portable
 
+#include "config.h"
+
 #include "timer.h"
 
 // returns the elapsed time (in milliseconds) since the current

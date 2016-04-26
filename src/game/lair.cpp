@@ -25,6 +25,8 @@
 // contributions made by Mark Broadhead, Robert DiNapoli, Jeff Kulczycki
 // If you don't see your name here, feel free to add it =]
 
+#include "config.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4100) // disable warning about unreferenced parameter
 #endif

@@ -1,0 +1,47 @@
+#define daphne_VERSION_MAJOR    @daphne_VERSION_MAJOR@
+#define daphne_VERSION_MINOR    @daphne_VERSION_MINOR@
+#define daphne_VERSION_POINT    @daphne_VERSION_POINT@
+#define daphne_VERSION          "@daphne_VERSION_MAJOR@.@daphne_VERSION_MINOR@.@daphne_VERSION_POINT@"
+
+#define ${TARGET_SYSTEM}
+#define ${TARGET_ARCH}
+
+#cmakedefine BENCHMARK
+#cmakedefine DEBUG
+#cmakedefine VLDP_DEBUG
+#cmakedefine CPU_DEBUG
+#cmakedefine BUILD_SINGE
+
+/* Makefile.vars CFLAGS now auto-detected by CMake
+   TODO: cleanup and replace in code
+ */
+#ifdef TARGET_LINUX
+#define UNIX
+#define LINUX
+#endif
+
+#ifdef TARGET_WINDOWS
+#ifndef WIN32
+#define WIN32
+#endif
+#endif
+
+#ifdef TARGET_DARWIN
+#define MAC_OSX
+#endif
+
+#ifdef TARGET_I386
+#define USE_MMX
+#endif
+
+#if defined(TARGET_I386) || defined(TARGET_X86_64)
+#define NATIVE_CPU_X86
+#endif
+
+#if defined(TARGET_PPC) || defined(TARGET_PPC64)
+#define NATIVE_CPU_PPC
+#endif
+
+#if defined(TARGET_MIPS)
+#define NATIVE_CPU_MIPS
+#endif

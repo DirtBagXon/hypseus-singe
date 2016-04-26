@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "img_scoreboard.h"
 #include "../video/video.h"
 

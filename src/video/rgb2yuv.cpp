@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "config.h"
+
 #include "rgb2yuv.h"
 
 // if we aren't using the assembly version, then use the C version instead

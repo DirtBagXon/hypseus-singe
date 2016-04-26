@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "logger_factory.h"
 #include "logger_console.h"
 

@@ -27,6 +27,8 @@
 // Fighter laserdisc
 // to play correctly (using skipping)
 
+#include "config.h"
+
 #include "ffr.h"
 #include "../daphne.h" // for get_quitflag
 #include "../ldp-out/ldp.h"

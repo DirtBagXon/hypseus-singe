@@ -28,6 +28,8 @@
 **
 */
 
+#include "config.h"
+
 #include "led.h"
 
 bool g_save_numlock = false, g_save_capital = false, g_save_scroll = false;

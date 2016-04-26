@@ -1,6 +1,8 @@
 // generates the freez80table.h files
 // by Matt Ownby
 
+#include "config.h"
+
 #include <stdio.h>
 
 #include "freez80.h"

@@ -24,6 +24,8 @@
 // by Mark Broadhead
 //
 
+#include "config.h"
+
 #include <string.h>
 #include "starrider.h"
 #include "../cpu/mc6809.h"

@@ -22,6 +22,8 @@
 
 // mix.cpp
 
+#include "config.h"
+
 #include "sound.h"
 #include "../io/mpo_mem.h"
 #include "mix.h"

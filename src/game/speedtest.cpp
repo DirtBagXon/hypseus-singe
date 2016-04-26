@@ -23,6 +23,8 @@
 // speedtest.cpp
 // by Matt Ownby
 
+#include "config.h"
+
 #include <string.h>
 #include "speedtest.h"
 #include "../ldp-out/ldp.h"

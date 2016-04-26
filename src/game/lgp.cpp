@@ -32,6 +32,8 @@
 // e000 e400 Ram (tile video ram)
 // f000 ffff Ram
 
+#include "config.h"
+
 #include <string.h>
 #include "lgp.h"
 #include "../io/conout.h"

@@ -44,6 +44,8 @@
 // If in the future error messages become necessary, you can uncomment the cout's in here for your
 // own purposes.
 
+#include "config.h"
+
 #include "cop.h"
 //#include <iostream.h>
 //#include <iomanip.h>

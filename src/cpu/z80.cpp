@@ -69,6 +69,8 @@
  *		http://www.msxnet.org/tech/Z80/z80undoc.txt
  *****************************************************************************/
 
+#include "config.h"
+
 //#include "driver.h"
 //#include "cpuintrf.h"
 //#include "state.h"

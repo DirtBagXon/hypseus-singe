@@ -37,6 +37,8 @@
 //			might also have been a Japanese only release)
 // Cobra Command (Special version that runs on Hitachi AB hardware)
 
+#include "config.h"
+
 #include <string.h>
 #include "astron.h"
 #include "../io/conout.h"

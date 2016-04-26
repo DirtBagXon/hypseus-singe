@@ -25,6 +25,8 @@
 //   the only way I can accept other people's changes to my code is if they
 //   give me full ownership of those changes.
 
+#include "config.h"
+
 #include "numstr.h"
 
 #ifndef WIN32

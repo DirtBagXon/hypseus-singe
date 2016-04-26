@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "scoreboard_interface.h"
 
 void IScoreboard::PreDeleteInstance()

@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "scoreboard_collection.h"
 
 IScoreboard *ScoreboardCollection::GetInstance(ILogger *pLogger, SDL_Surface *(*pFuncGetActiveOverlay)(), bool bThayersQuest,

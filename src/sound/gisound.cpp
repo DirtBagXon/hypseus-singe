@@ -24,6 +24,8 @@
 // an attempt at a portable AY-3-8910 emulator
 // We assume that there are 4 bytes per sample
 
+#include "config.h"
+
 #include "sound.h"
 #include "gisound.h"
 #include "../io/conout.h"

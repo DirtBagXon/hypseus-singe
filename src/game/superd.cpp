@@ -34,6 +34,8 @@
 // to
 //  the LD-V1000 on the next command strobe.
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 #include "superd.h"

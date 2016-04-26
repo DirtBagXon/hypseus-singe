@@ -23,6 +23,8 @@
 // DAPHNE
 // The sound code in this file uses SDL
 
+#include "config.h"
+
 #ifdef DEBUG
 #include <assert.h>
 #endif

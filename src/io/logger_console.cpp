@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "logger_console.h"
 
 void ConsoleLogger::DeleteInstance() { delete this; }

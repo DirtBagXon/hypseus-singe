@@ -23,7 +23,6 @@
 *				(initial work based on David Hedley's pcemu)                *
 ****************************************************************************/
 
-
 struct i86_timing
 {
 	int		id;

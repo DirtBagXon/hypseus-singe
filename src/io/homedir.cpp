@@ -2,6 +2,8 @@
  *  homedir.cpp
  */
 
+#include "config.h"
+
 #include "homedir.h"
 #include "mpo_fileio.h"
 #include "conout.h"

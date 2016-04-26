@@ -24,6 +24,8 @@
 // four channel square wave generator
 //
 
+#include "config.h"
+
 #include "sound.h"
 #include "tonegen.h"
 #include "../io/conout.h"

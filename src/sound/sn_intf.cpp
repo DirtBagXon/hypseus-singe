@@ -22,6 +22,8 @@
 
 // This code is to interface the Daphne sound system with tms9919-sdl.cpp
 
+#include "config.h"
+
 #ifdef DEBUG
 #include <assert.h>
 #endif

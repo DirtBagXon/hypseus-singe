@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "hw_scoreboard.h"
 #include "../io/parallel.h"
 

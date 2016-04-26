@@ -19,6 +19,8 @@
 */
 // modified for daphne by Mark Broadhead
 
+#include "config.h"
+
 #include "nes_6502.h"
 //#include "NES.h"
 #include <stdio.h>

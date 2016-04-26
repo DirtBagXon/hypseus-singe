@@ -23,6 +23,8 @@
 // Parses our command line and sets our variables accordingly
 // by Matt Ownby
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

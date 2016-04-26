@@ -38,6 +38,8 @@
  * No other original hardware (motherboard, power supply, harness) required!
  */
 
+#include "config.h"
+
 #include <string>
 #include "io/my_stdio.h"
 
@@ -81,7 +83,7 @@ using namespace std;
 
 // -------------------------------------------------------------------------------------------------
 
-const char *get_daphne_version() { return "1.0.13"; }
+const char *get_daphne_version() { return daphne_VERSION; }
 
 unsigned char get_filename(char *s, unsigned char n)
 // prepares a filename using any wildcards we may have

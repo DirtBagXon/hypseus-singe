@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "logger.h"
 
 ILogger::~ILogger() {}

@@ -23,6 +23,8 @@
 // laireuro.cpp
 // by Mark Broadhead
 
+#include "config.h"
+
 #include <string.h> // for memset
 #include "laireuro.h"
 #include "../cpu/cpu.h"

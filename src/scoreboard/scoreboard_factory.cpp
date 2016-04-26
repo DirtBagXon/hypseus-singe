@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "scoreboard_factory.h"
 #include "hw_scoreboard.h"
 #include "null_scoreboard.h"

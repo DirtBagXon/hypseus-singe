@@ -1,5 +1,7 @@
 // samples.cpp
 
+#include "config.h"
+
 #include "../game/game.h" // to get sound names
 #include "../io/conout.h"
 #include "../io/mpo_mem.h" // for endian-independent macros

@@ -28,6 +28,8 @@
 // 0xE000-0xE7FF Battery-backed non-volatile RAM (5126)
 // 0xE800-0xEFFF Volatile RAM (2128)
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 #include "cliff.h"

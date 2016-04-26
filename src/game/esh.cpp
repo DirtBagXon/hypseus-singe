@@ -31,6 +31,8 @@
 // f000 - f3ff video ram
 // f400 - f7ff video control ram
 
+#include "config.h"
+
 #ifdef _MSC_VER
 // disable "unreferenced inline function has been removed" warning
 #pragma warning(disable : 4514)

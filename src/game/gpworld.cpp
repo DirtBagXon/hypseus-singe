@@ -37,6 +37,8 @@
 // samples are needed for game generated sounds
 // game seems to lockup with writes to dac0 and dae0?
 
+#include "config.h"
+
 #include <string.h>
 #include "gpworld.h"
 #include "../io/conout.h"

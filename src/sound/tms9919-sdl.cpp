@@ -26,6 +26,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include "config.h"
+
 #include <memory.h>
 //#include "common.hpp"
 //#include "logger.hpp"

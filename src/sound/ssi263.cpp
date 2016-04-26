@@ -36,6 +36,8 @@
 // by Garry Jordan
 // Uses the (heavily modified) "rsynth" voice synthesis engine.
 
+#include "config.h"
+
 #include <string.h>
 #include "tqsynth.h"
 #include "samples.h"

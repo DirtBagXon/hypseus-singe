@@ -22,6 +22,8 @@
 
 // Handles SDL input functions (low-level keyboard/joystick input)
 
+#include "config.h"
+
 #include <time.h>
 #include "input.h"
 #include "conout.h"

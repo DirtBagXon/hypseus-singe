@@ -9,6 +9,8 @@
 // at the time of this writing (Jan 6, 2001) there are enough wrappers for the z80 core to work.
 // Additional code might be needed to add other mame cpu cores (such as the x86 one)
 
+#include "config.h"
+
 #ifdef _MSC_VER
 #pragma warning (disable:4100)	// disable the warning about unreferenced formal parameters (MSVC++)
 #endif

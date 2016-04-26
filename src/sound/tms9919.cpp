@@ -26,6 +26,8 @@
 //
 //----------------------------------------------------------------------------
 
+#include "config.h"
+
 //#include <stdlib.h>
 #include "SDL.h"
 //#include "common.hpp"

@@ -34,6 +34,8 @@
 // conversion runs either the Pioneer LD-V1000 or Pioneer PR8210 (the 8210
 // version has an extra pcb on top which includes another 6502 and rom).
 
+#include "config.h"
+
 #include <string.h> // for memset
 #include "bega.h"
 #include "../cpu/cpu.h"

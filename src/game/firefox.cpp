@@ -24,6 +24,8 @@
 // by Mark Broadhead
 //
 
+#include "config.h"
+
 #include <string.h>
 #include "firefox.h"
 #include "../cpu/cpu.h"

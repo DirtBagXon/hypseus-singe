@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "null_scoreboard.h"
 #include <stdio.h>	// for NULL
 

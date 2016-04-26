@@ -32,6 +32,8 @@
 // It seems that the conversion board doesn't have any color ram, but this is
 // unverified
 
+#include "config.h"
+
 #include <string.h>
 #include "cobraconv.h"
 #include "../cpu/cpu.h"

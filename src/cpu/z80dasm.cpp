@@ -19,6 +19,8 @@
  *
  *****************************************************************************/
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 #ifdef	CPU_DEBUG

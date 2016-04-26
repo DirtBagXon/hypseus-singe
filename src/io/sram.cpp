@@ -23,6 +23,8 @@
 // sram.cpp -- stores/loads saved static RAM to/from disk
 // by Warren Ondras
 
+#include "config.h"
+
 #include <stdio.h>
 #include <zlib.h> // for compression
 #include "homedir.h"

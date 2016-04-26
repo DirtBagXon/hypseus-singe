@@ -42,6 +42,8 @@ NORMAL_MODE = 0x20
 
 */
 
+#include "config.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4100) // disable warning about unreferenced parameter
 #endif

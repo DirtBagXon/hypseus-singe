@@ -27,6 +27,8 @@
 // Used to test VLDP efficiency
 // VLDP must be recompiled to enable framerate reporting
 
+#include "config.h"
+
 #include <string.h>
 #include "../daphne.h" // for get_quitflag/set_quitflag
 #include "../io/conout.h"

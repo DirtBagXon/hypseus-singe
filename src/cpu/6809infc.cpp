@@ -1,6 +1,8 @@
 // interface for mc6809.c
 // by Mark Broadhead
 
+#include "config.h"
+
 #include <string.h>
 #include "6809infc.h"
 #include "cpu.h"

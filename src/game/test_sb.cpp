@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "test_sb.h"
 #include "../io/logger_factory.h"
 #include "../daphne.h" // for get_quitflag

@@ -23,6 +23,8 @@
 // game.cpp
 // by Matt Ownby
 
+#include "config.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4100) // disable warning about unreferenced parameter
 

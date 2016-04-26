@@ -24,6 +24,8 @@
 // Provides console functionality in a window (replacement for printf, cout,
 // etc)
 
+#include "config.h"
+
 #include <string>
 #include <list>
 #include <stdio.h>

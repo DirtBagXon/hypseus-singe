@@ -24,6 +24,8 @@
 // by Mark Broadhead
 //
 
+#include "config.h"
+
 #include <string.h>
 #include <math.h>
 #include "badlands.h"

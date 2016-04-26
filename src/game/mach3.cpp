@@ -31,6 +31,8 @@
 //  - make test switch a toggle
 //  - add samples for UVT/CC
 
+#include "config.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4100) // disable warning about unreferenced parameter
 #endif

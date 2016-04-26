@@ -55,6 +55,8 @@ Any comments/updates/bug reports to:
 
 */
 
+#include "config.h"
+
 //#include "stdafx.h"
 
 //#include "driver.h"

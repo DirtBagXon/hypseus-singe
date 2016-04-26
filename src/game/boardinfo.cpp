@@ -24,6 +24,8 @@
 
 // written by Matt Ownby
 
+#include "config.h"
+
 #include <string.h>
 #include <stdio.h>
 #include "game.h"

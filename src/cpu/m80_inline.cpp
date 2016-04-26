@@ -35,6 +35,8 @@
 /*	Complete Opcode List	*/
 /*	PDF version of Word document with all instruction tables	*/
 
+#include "config.h"
+
 #include <stdio.h>
 #include "m80.h"
 #ifdef USE_MAME_Z80_DEBUGGER

@@ -85,6 +85,8 @@
 //
 //
 
+#include "config.h"
+
 #include <string.h>
 #include "interstellar.h"
 #include "../cpu/cpu.h"

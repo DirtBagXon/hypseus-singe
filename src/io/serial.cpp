@@ -24,6 +24,8 @@
 // by Matt Ownby
 // started 16 August 1999
 
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "serial.h"

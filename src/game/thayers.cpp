@@ -25,6 +25,8 @@
 // based, in part, on information by Jeff Kulczycki
 //
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>

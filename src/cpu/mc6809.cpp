@@ -43,6 +43,8 @@
  *  version 2.7: nouvelle interface de manipulation de l'état du MC6809E
  */
 
+#include "config.h"
+
 #include <stdio.h>
 #include "mc6809.h"
 

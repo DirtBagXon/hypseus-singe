@@ -27,6 +27,8 @@
 
 #ifdef CPU_DEBUG
 
+#include "config.h"
+
 #include <stdio.h>
 #include <ctype.h>
 #include "mamewrap.h"

@@ -32,6 +32,8 @@
 // Main purpose: to support files larger than 4 gigs
 // Secondary purpose: to not rely on MSCVRT dll in windows
 
+#include "config.h"
+
 #include "mpo_fileio.h"
 
 #ifndef WIN32

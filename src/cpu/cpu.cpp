@@ -24,6 +24,8 @@
 // by Matt Ownby
 // Designed to do all of the universal CPU functions needed for the emulator
 
+#include "config.h"
+
 #ifdef DEBUG
 #include <assert.h>
 #endif

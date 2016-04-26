@@ -27,6 +27,8 @@
 // daphne from ever
 // segfaulting, even if the file is totally corrupt
 
+#include "config.h"
+
 #include "fileparse.h"
 #include "conout.h"
 

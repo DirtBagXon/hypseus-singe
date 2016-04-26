@@ -23,6 +23,8 @@
 *				(initial work based on David Hedley's pcemu)                *
 ****************************************************************************/
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h>
 

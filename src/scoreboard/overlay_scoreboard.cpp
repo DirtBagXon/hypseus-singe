@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "overlay_scoreboard.h"
 #include "../video/video.h"	// for draw_string
 

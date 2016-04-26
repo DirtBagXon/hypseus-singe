@@ -22,6 +22,8 @@
 
 // loads two small programs and runs them in parallel to test multi z80 support
 
+#include "config.h"
+
 #include <stdio.h>
 #include <string.h> // for memset
 #include "multicputest.h"

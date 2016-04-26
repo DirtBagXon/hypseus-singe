@@ -23,6 +23,8 @@
 // error.cpp
 // daphne error handling
 
+#include "config.h"
+
 #ifdef WIN32
 #include <windows.h>
 #endif

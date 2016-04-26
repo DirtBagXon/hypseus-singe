@@ -26,6 +26,8 @@
 // Does automatic tests that require no user intervention, useful for before
 // doing an official release
 
+#include "config.h"
+
 #ifdef _MSC_VER
 #pragma warning(disable : 4786) // disable warning about truncating to 255 in
                                 // debug info
