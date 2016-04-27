@@ -36,7 +36,7 @@ include(InstallRequiredSystemLibraries)
 include(FindPkgConfig)
 
 find_package(SDL2 REQUIRED)
-find_package(SDL2_ttf REQUIRED)
+PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
 PKG_SEARCH_MODULE(MPEG2 REQUIRED libmpeg2)
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
@@ -46,6 +46,11 @@ include_directories(
     ${SDL2_INCLUDE_DIR}
     ${MPEG2_INCLUDE_DIRS}
 )
+
+enable_language( ASM )
+if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
+    set(can_use_assembler TRUE)
+endif()
 
 add_subdirectory(cpu)
 add_subdirectory(game)
@@ -60,4 +65,4 @@ add_subdirectory(vldp)
 
 set(EXECUTABLE_NAME "daphne")
 add_executable( ${EXECUTABLE_NAME} daphne.cpp globals.h )
-target_link_libraries( ${EXECUTABLE_NAME} ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} io timer sound video cpu game )
+target_link_libraries( ${EXECUTABLE_NAME} io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )

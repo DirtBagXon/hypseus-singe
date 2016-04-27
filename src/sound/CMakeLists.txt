@@ -11,6 +11,7 @@ set( LIB_SOURCES
     tonegen.cpp
     samples.cpp
     mix.cpp
+    mix_mmx-gas.s
 )
 
 set( LIB_HEADERS
@@ -25,9 +26,5 @@ set( LIB_HEADERS
     tonegen.h
     tqsynth.h
 )
-
-if (TARGET_I386)
-    list( APPEND LIB_SOURCES mix_mmx-gas.s )
-endif (TARGET_I386)
 
 add_library( sound ${LIB_SOURCES} ${LIB_HEADERS} )

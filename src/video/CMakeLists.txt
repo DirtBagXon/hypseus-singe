@@ -6,6 +6,8 @@ set( LIB_SOURCES
     palette.cpp
     rgb2yuv.cpp
     blend.cpp
+    rgb2yuv-gas.s
+    blend_mmx-gas.s
 )
 
 set( LIB_HEADERS
@@ -18,9 +20,5 @@ set( LIB_HEADERS
     video.h
     yuv2rgb_lookup.h
 )
-
-if (TARGET_I386)
-    list( APPEND LIB_SOURCES rgb2yuv-gas.s blend_mmx-gas.s )
-endif (TARGET_I386)
 
 add_library( video ${LIB_SOURCES} ${LIB_HEADERS} )

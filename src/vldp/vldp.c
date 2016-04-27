@@ -379,7 +379,7 @@ const struct vldp_out_info *vldp_init(const struct vldp_in_info *in_info)
     g_out_info.lock             = vldp_lock;
     g_out_info.unlock           = vldp_unlock;
 
-    private_thread = SDL_CreateThread(idle_handler, NULL); // start our internal
+    private_thread = SDL_CreateThread(idle_handler, "vldp", (void *)NULL); // start our internal
                                                            // thread
 
     // if private thread was created successfully

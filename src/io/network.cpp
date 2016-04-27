@@ -171,7 +171,7 @@ unsigned int get_sys_mem()
     MEMORYSTATUSEX memstat;
     memstat.dwLength = sizeof(memstat);
     GlobalMemoryStatusEx(&memstat);
-    mem = (unsigned long long)memstat.dwTotalPhys;
+    mem = (unsigned long long)memstat.ullTotalPhys;
 #endif
 
     result = (mem / 1024 / 1024) + 32; // for rounding
