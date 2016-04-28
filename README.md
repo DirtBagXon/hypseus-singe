@@ -5,8 +5,8 @@ laserdisc arcade games on one's PC".
 
 ## Compile
 
-In addition to a working [gcc] toolchain and [cmake], you will need
-(at minimum): [zlib], [GLEW], [libmpeg2], [SDL], [vorbis] and [ogg].
+In addition to a working [gcc] toolchain, [cmake] and [autotools], you will need
+(at minimum): [zlib], [GLEW], [SDL2], [vorbis] and [ogg].
 
     mkdir build
     cd build
@@ -34,11 +34,12 @@ process, and publish to Github to foster collaborative development.
 [gcc]: https://gcc.gnu.org/
 [zlib]: http://www.zlib.net/
 [libmpeg2]: http://libmpeg2.sourceforge.net/
-[SDL]: https://www.libsdl.org/download-1.2.php
-[SDL_Image]: https://www.libsdl.org/projects/SDL_image/release-1.2.html
-[SDL_Mixer]: https://www.libsdl.org/projects/SDL_mixer/release-1.2.html
-[SDL_ttf]: https://www.libsdl.org/projects/SDL_ttf/release-1.2.html
+[SDL2]: https://www.libsdl.org/download-2.0.php
+[SDL_Image]: https://www.libsdl.org/projects/SDL_image/
+[SDL_Mixer]: https://www.libsdl.org/projects/SDL_mixer/
+[SDL_ttf]: https://www.libsdl.org/projects/SDL_ttf/
 [GLEW]: http://glew.sourceforge.net/
 [ogg]: https://en.wikipedia.org/wiki/Ogg
 [vorbis]: https://en.wikipedia.org/wiki/Vorbis
 [cmake]: https://cmake.org
+[autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
