@@ -34,10 +34,12 @@ configure_file(
 
 include(InstallRequiredSystemLibraries)
 include(FindPkgConfig)
+include(ExternalProject)
+include(BuildLibMPEG2)
 
 find_package(SDL2 REQUIRED)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
-PKG_SEARCH_MODULE(MPEG2 REQUIRED libmpeg2)
+build_libmpeg2( )
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
 
@@ -62,6 +64,11 @@ add_subdirectory(sound)
 add_subdirectory(timer)
 add_subdirectory(video)
 add_subdirectory(vldp)
+
+add_dependencies( vldp libmpeg2 )
+add_dependencies( ldp-out vldp )
+add_dependencies( game vldp )
+add_dependencies( sound vldp )
 
 set(EXECUTABLE_NAME "daphne")
 add_executable( ${EXECUTABLE_NAME} daphne.cpp globals.h )
