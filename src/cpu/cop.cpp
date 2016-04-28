@@ -1,5 +1,5 @@
 /*
- * cop.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Mark Broadhead
  *

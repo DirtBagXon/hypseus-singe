@@ -1,5 +1,5 @@
 /*
- * network.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2002 Matt Ownby
  *
@@ -39,7 +39,7 @@ struct net_packet {
     unsigned int mem;
     char cpu_name[NET_LONGSTRSIZE];   // long cpu description
     char video_desc[NET_LONGSTRSIZE]; // long video description
-    char daphne_version[NET_STRSIZE];
+    char hypseus_version[NET_STRSIZE];
     char gamename[NET_STRSIZE];
     char ldpname[NET_STRSIZE];
 

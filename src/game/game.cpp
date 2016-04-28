@@ -1,5 +1,5 @@
 /*
- * game.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -38,7 +38,7 @@
 
 #include <zlib.h>      // for CRC checking
 #include <string>      // STL strings, useful to prevent buffer overrun
-#include "../daphne.h" // for get_quitflag()
+#include "../hypseus.h" // for get_quitflag()
 #include "../io/homedir.h"
 #include "../io/conout.h"
 #include "../io/error.h"

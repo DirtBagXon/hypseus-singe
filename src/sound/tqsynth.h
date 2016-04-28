@@ -1,4 +1,6 @@
 /*
+ * ____ DAPHNE COPYRIGHT NOTICE ____
+ *
  * tqsynth.h -- A bare-bones phoneme-based voice synthesizer based on
  *              "rsynth" (C) 1994 by Nick Ing-Simmons, which utilized
  *              the Klatt synthesizer (C) 1982 by Dennis H. Klatt.

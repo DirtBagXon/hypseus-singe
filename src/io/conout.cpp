@@ -1,5 +1,5 @@
 /*
- * conout.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -32,7 +32,7 @@
 #include <string.h>
 #include <SDL.h>
 #include "conout.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../video/video.h"
 #include "../timer/timer.h"
 #include "input.h"
@@ -41,7 +41,7 @@
 
 using namespace std;
 
-// false = write log entries to g_lsPendingLog, true = write to daphne_log.txt
+// false = write log entries to g_lsPendingLog, true = write to hypseus_log.txt
 // This should be false until the command line has finished parsing.
 bool g_log_enabled = false;
 

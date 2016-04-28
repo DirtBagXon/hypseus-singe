@@ -1,5 +1,5 @@
 /*
-* daphne.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2001 Matt Ownby
 *
@@ -63,7 +63,7 @@ using namespace std;
 
 #include "io/homedir.h"
 #include "io/input.h"
-#include "daphne.h"
+#include "hypseus.h"
 #include "timer/timer.h"
 #include "io/serial.h"
 #include "sound/sound.h"
@@ -83,7 +83,7 @@ using namespace std;
 
 // -------------------------------------------------------------------------------------------------
 
-const char *get_daphne_version() { return daphne_VERSION; }
+const char *get_hypseus_version() { return hypseus_VERSION; }
 
 unsigned char get_filename(char *s, unsigned char n)
 // prepares a filename using any wildcards we may have
@@ -118,8 +118,8 @@ bool change_dir(const char *cpszNewDir)
 }
 
 // sets current directory based on the full path of the executable
-// This solves the problem of someone running daphne without first being in the
-// daphne directory
+// This solves the problem of someone running hypseus without first being in the
+// hypseus directory
 void set_cur_dir(const char *exe_loc)
 {
     int index   = strlen(exe_loc) - 1; // start on last character
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
 
     // parse the command line (which allocates game and ldp) and continue if no
     // errors this is important!  if game_type or ldp_type fails to allocate
-    // g_game and g_ldp, then the program will segfault and daphne must NEVER
+    // g_game and g_ldp, then the program will segfault and hypseus must NEVER
     // segfault!  hehe
     if (parse_cmd_line(argc, argv)) {
         // MATT : we have to wait until after the command line is parsed before
@@ -205,7 +205,7 @@ int main(int argc, char **argv)
                                     // the LDP class.
                                     net_send_data_to_server();
 
-                                    result_code = 0; // daphne will exit without
+                                    result_code = 0; // hypseus will exit without
                                                      // any errors
                                 } else {
                                     // exit if returns an error but don't print
@@ -245,10 +245,10 @@ int main(int argc, char **argv)
     // if command line was bogus, quit
     else {
         printerror("Bad command line or initialization problem (see "
-                   "daphne_log.txt for details). \n"
+                   "hypseus_log.txt for details). \n"
                    "To run DAPHNE, you must specify which game to run and "
                    "which laserdisc player you are using. \n"
-                   "For example, try 'daphne lair noldp' to run Dragon's Lair "
+                   "For example, try 'hypseus lair noldp' to run Dragon's Lair "
                    "in testing mode.");
     }
 
@@ -302,7 +302,7 @@ void reset_logfile(int argc, char **argv)
     char s[160];
     string str;
 
-    snprintf(s, sizeof(s), "--DAPHNE version %s", get_daphne_version());
+    snprintf(s, sizeof(s), "--HYPSEUS version %s", get_hypseus_version());
     printline(s);
     str = "--Command line is: ";
     for (i = 0; i < argc; i++) {

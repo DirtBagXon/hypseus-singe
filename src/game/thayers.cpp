@@ -1,5 +1,5 @@
 /*
- * thayers.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Mark Broadhead
  *
@@ -581,7 +581,7 @@ void thayers::process_keydown(SDL_Keycode key)
     else
         switch (key) {
         case SDLK_ESCAPE:
-            // escape quits daphne =]
+            // escape quits hypseus =]
             set_quitflag();
             break;
 

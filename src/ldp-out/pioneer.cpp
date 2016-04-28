@@ -1,5 +1,5 @@
 /*
- * pioneer.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -34,7 +34,7 @@
 #include "../timer/timer.h"
 #include "../io/conout.h"
 #include "pioneer.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../io/input.h"
 
 #include <string>

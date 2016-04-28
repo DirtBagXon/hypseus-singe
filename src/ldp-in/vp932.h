@@ -1,5 +1,5 @@
 /*
- * vp932.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2005-2007 Mark Broadhead
  *

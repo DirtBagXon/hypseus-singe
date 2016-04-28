@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
-// Used by daphne.rc
+// Used by hypseus.rc
 //
 #define IDC_CHECK1                      1000
 #define IDC_A0                          1000

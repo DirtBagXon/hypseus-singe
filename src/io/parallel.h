@@ -1,5 +1,5 @@
 /*
- * parallel.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001-2009 Matt Ownby
  *

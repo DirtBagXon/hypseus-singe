@@ -1,5 +1,5 @@
 /*
- * error.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -21,7 +21,7 @@
  */
 
 // error.cpp
-// daphne error handling
+// hypseus error handling
 
 #include "config.h"
 
@@ -31,16 +31,16 @@
 
 #include <SDL.h>
 #include <string.h>
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "conout.h"
 #include "input.h"
 #include "../game/game.h"
 #include "../sound/sound.h"
 #include "../video/video.h"
 
-// const char *instr = "Please read the daphne_log.txt file for more
+// const char *instr = "Please read the hypseus_log.txt file for more
 // information";
-const char *instr = "Read daphne_log.txt for help";
+const char *instr = "Read hypseus_log.txt for help";
 
 const char CRLF[3] = {13, 10, 0}; // carriage return / linefeed combo, for the
                                   // addlog statements in this file

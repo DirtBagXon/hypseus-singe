@@ -1,5 +1,5 @@
 /*
- * benchmark.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -30,7 +30,7 @@
 #include "config.h"
 
 #include <string.h>
-#include "../daphne.h" // for get_quitflag/set_quitflag
+#include "../hypseus.h" // for get_quitflag/set_quitflag
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
 #include "benchmark.h"

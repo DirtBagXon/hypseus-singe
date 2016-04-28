@@ -1,5 +1,5 @@
 /*
- * input.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -47,7 +47,7 @@ enum {
     SWITCH_CONSOLE,
     SWITCH_TILT,
     SWITCH_COUNT,
-}; // daphne inputs for arcade and additional controls, leave SWITCH_COUNT at
+}; // hypseus inputs for arcade and additional controls, leave SWITCH_COUNT at
    // the end
 
 ///////////////////////

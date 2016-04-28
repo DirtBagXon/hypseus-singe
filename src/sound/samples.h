@@ -1,5 +1,5 @@
 /*
- * samples.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2006 Matt Ownby
  *

@@ -1,5 +1,5 @@
 /*
- * ld-v6000.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -28,7 +28,7 @@
 #include "../io/serial.h"
 #include "../timer/timer.h"
 #include "../io/conout.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../io/input.h"
 #include "ld-v6000.h"
 

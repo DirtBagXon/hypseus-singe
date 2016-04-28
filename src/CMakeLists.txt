@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.9)
 
-project(daphne)
+project(hypseus)
 
 option(BENCHMARK    "Benchmark"  OFF)
 option(DEBUG        "Debug"      OFF)
@@ -22,9 +22,9 @@ string(TOUPPER ${CMAKE_SYSTEM_NAME} TARGET_SYSTEM)
 string(CONCAT TARGET_SYSTEM TARGET_ ${TARGET_SYSTEM})
 string(TOUPPER ${CMAKE_TARGET_ARCHITECTURES} TARGET_ARCH)
 string(CONCAT TARGET_ARCH TARGET_ ${TARGET_ARCH})
-set(daphne_VERSION_MAJOR 1)
-set(daphne_VERSION_MINOR 0)
-set(daphne_VERSION_POINT 13)
+set(hypseus_VERSION_MAJOR 1)
+set(hypseus_VERSION_MINOR 0)
+set(hypseus_VERSION_POINT 13)
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/config.h.in"
@@ -70,6 +70,6 @@ add_dependencies( ldp-out vldp )
 add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
-set(EXECUTABLE_NAME "daphne")
-add_executable( ${EXECUTABLE_NAME} daphne.cpp globals.h )
+set(EXECUTABLE_NAME "hypseus")
+add_executable( ${EXECUTABLE_NAME} hypseus.cpp globals.h )
 target_link_libraries( ${EXECUTABLE_NAME} io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )

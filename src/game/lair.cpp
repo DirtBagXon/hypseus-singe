@@ -1,5 +1,5 @@
 /*
-* lair.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2001 Matt Ownby
 *
@@ -190,7 +190,7 @@ void dle11::patch_roms()
 
     passed_test = verify_required_file("readme11.txt", "dle11", 0x4BF84551);
 
-    // if they failed the test then exit daphne
+    // if they failed the test then exit hypseus
     if (!passed_test) {
         printerror("DLE readme11.txt file is missing or altered.");
         printerror("Please get the original readme11.txt file from "
@@ -360,7 +360,7 @@ void sae::patch_roms()
 
     passed_test = verify_required_file("readme.txt", "sae", 0xCA4E20E6);
 
-    // if they failed the test then exit daphne
+    // if they failed the test then exit hypseus
     if (!passed_test) {
         printerror("The SAE readme.txt file is missing or altered.");
         printerror("Please get the original file from www.d-l-p.com, thanks.");

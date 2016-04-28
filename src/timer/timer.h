@@ -2,7 +2,7 @@
 #define TIMER_H
 
 /*
- * timer.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 1999-2006 Matt Ownby
  *

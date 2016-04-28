@@ -1,5 +1,5 @@
 /*
- * vip9500sg.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Mark Broadhead
  *
@@ -36,7 +36,7 @@
 #include "vip9500sg.h"
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
-#include "../daphne.h" // for set_quitflag
+#include "../hypseus.h" // for set_quitflag
 
 using namespace std;
 

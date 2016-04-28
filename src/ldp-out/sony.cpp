@@ -1,5 +1,5 @@
 /*
- * sony.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Robert DiNapoli
  *
@@ -30,7 +30,7 @@
 #include "../timer/timer.h"
 #include "../io/serial.h"
 #include "../io/conout.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../io/input.h"
 #include "../io/numstr.h"
 #include <string>

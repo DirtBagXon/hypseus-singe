@@ -1,5 +1,5 @@
 /*
-* sound.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2001 Matt Ownby
 *
@@ -47,7 +47,7 @@
 #include "../io/mpo_mem.h"
 #include "../io/numstr.h"
 #include "../game/game.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../ldp-out/ldp-vldp.h" // added by JFA for -startsilent
 
 sample_s g_samples[MAX_NUM_SOUNDS] = {{0}};
@@ -236,7 +236,7 @@ bool sound_init()
     }     // end if sound is enabled
 
     // if sound isn't enabled, then we act is if sound initialization worked so
-    // daphne doesn't quit
+    // hypseus doesn't quit
     if (!is_sound_enabled()) {
         result = true;
     }

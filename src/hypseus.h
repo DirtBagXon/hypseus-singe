@@ -1,5 +1,5 @@
 /*
- * daphne.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-// daphne.h
+// hypseus.h
 
 #ifndef DAPHNE_H
 #define DAPHNE_H
@@ -31,7 +31,7 @@
 // I was having problems with VS6's dependency detector (it wasn't detecting when I was changing
 //  the version in the .h file).  Another advantage to having it here is not having to change
 //  a header file.
-const char *get_daphne_version();
+const char *get_hypseus_version();
 
 unsigned char get_filename(char *s, unsigned char n);
 void set_quitflag();

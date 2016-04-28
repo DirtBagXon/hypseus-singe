@@ -1,5 +1,5 @@
 /*
- * astron.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001-2005 Mark Broadhead
  *

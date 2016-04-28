@@ -1,4 +1,6 @@
 /*
+ * ____ DAPHNE COPYRIGHT NOTICE ____
+ *
  * tqsynth.cpp -- Copyright (C) 2003 Garry Jordan
  *                A bare-bones phoneme-based voice synthesizer based on
  *                "rsynth" (C) 1994 by Nick Ing-Simmons, which utilized

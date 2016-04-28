@@ -1,5 +1,5 @@
 /*
- * m80_internal.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001,2003 Matt Ownby
  *
@@ -32,7 +32,7 @@
 // No actual SDL functions are used, so you can redefine your own variables
 // if you choose.
 
-/* if we are integrating with daphne, define this */
+/* if we are integrating with hypseus, define this */
 #define INTEGRATE 1
 
 #ifdef INTEGRATE

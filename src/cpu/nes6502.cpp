@@ -35,7 +35,7 @@
 */
 
 /*
-** changes for daphne:
+** changes for hypseus:
 **
 ** commented out the stuff in the memory read/write
 ** functions marked as TODO: following cases are N2A03-specific

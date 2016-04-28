@@ -1,5 +1,5 @@
 /*
- * framemod.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -27,7 +27,7 @@
 // such as PAL
 
 #include "framemod.h"
-#include "../daphne.h" // for get_frame_modifer
+#include "../hypseus.h" // for get_frame_modifer
 #include "../io/conout.h"
 
 // returns 0 if no frame conversion is needed, else it returns a 1

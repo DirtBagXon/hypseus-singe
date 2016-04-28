@@ -59,7 +59,7 @@
 
 #include <zlib.h> // for crc32 calculation
 #include "../io/error.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "network.h"
 
 // arbitrary port I've chosen to send incoming data
@@ -477,8 +477,8 @@ void net_send_data_to_server()
                 strncpy(g_packet.video_desc, get_video_description(),
                         sizeof(g_packet.video_desc));
                 strncpy(g_packet.cpu_name, get_cpu_name(), sizeof(g_packet.cpu_name));
-                strncpy(g_packet.daphne_version, get_daphne_version(),
-                        sizeof(g_packet.daphne_version));
+                strncpy(g_packet.hypseus_version, get_hypseus_version(),
+                        sizeof(g_packet.hypseus_version));
 
                 // now compute CRC32 of the rest of the packet
                 g_packet.crc32 = crc32(0L, Z_NULL, 0);

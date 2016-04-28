@@ -4,7 +4,7 @@
 // increase this number every time you change something in this file!!!
 #define SINGE_INTERFACE_API_VERSION 5
 
-// info provided to Singe from Daphne
+// info provided to Singe from Hypseus
 struct singe_in_info
 {
 	// the API version (THIS MUST COME FIRST!)
@@ -12,13 +12,13 @@ struct singe_in_info
 
 	// FUNCTIONS:
 
-	// shuts down daphne
+	// shuts down hypseus
 	void (*set_quitflag)();
 
 	// print a line to the debug console, and the log file (and to stdout on some platforms)
 	void (*printline)(const char *);
 	
-	// notifies daphne of the last error that singe got (so daphne can display it)
+	// notifies hypseus of the last error that singe got (so hypseus can display it)
 	void (*set_last_error)(const char *);
 
 	// From video/video.h
@@ -65,7 +65,7 @@ struct singe_in_info
 	
 };
 
-// info provided from Singe to Daphne
+// info provided from Singe to Hypseus
 struct singe_out_info
 {
 	// the API version (THIS MUST COME FIRST!)

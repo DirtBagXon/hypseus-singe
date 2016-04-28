@@ -1,5 +1,5 @@
 /*
- * ldv1000.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../game/game.h"
 #include "ldv1000.h"
 #include "../game/game.h"

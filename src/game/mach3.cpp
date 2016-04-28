@@ -1,5 +1,5 @@
 /*
-* mach3.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2003-2004 Warren Ondras (warren@dragons-lair-project.com)
 *

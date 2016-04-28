@@ -1,5 +1,5 @@
 /*
- * releasetest.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2005 Matt Ownby
  *
@@ -39,7 +39,7 @@
 #include "../io/input.h"
 #include "../io/fileparse.h"
 #include "../io/mpo_mem.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../timer/timer.h"
 #include "../video/rgb2yuv.h"
 #include "../video/video.h" // for draw_string
@@ -290,11 +290,11 @@ void releasetest::test_framefile_parse()
     // test 2
     const char *FF2     = "../appendage\r0		blah.m2v";
     const char *FFPATH2 = "C:\\Documents and Settings\\Fisher Pricer\\My "
-                          "Documents\\My Games\\Daphne "
+                          "Documents\\My Games\\Hypseus "
                           "Ver0.99.6\\framefile.txt";
     res = vldp->parse_framefile(FF2, FFPATH2, sPath, ffTmp, f_idx, MAX_MPEG_FILES, sErrMsg);
     logtest(res && (sPath == "C:/Documents and Settings/Fisher Pricer/My "
-                             "Documents/My Games/Daphne "
+                             "Documents/My Games/Hypseus "
                              "Ver0.99.6/../appendage/") &&
                 (ffTmp[0].name == "blah.m2v") && (ffTmp[0].frame == 0) && (f_idx == 1),
             "FrameFile Parse #2");

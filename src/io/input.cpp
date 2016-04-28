@@ -1,5 +1,5 @@
 /*
- * input.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -29,7 +29,7 @@
 #include "conout.h"
 #include "homedir.h"
 #include "../video/video.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../timer/timer.h"
 #include "../game/game.h"
 #include "../game/thayers.h"
@@ -71,7 +71,7 @@ Uint64 g_last_coin_cycle_used = 0; // the cycle value that our last coin press
                                    // used
 
 // the ASCII key words that the parser looks at for the key values
-// NOTE : these are in a specific order, corresponding to the enum in daphne.h
+// NOTE : these are in a specific order, corresponding to the enum in hypseus.h
 const char *g_key_names[] = {"KEY_UP",      "KEY_LEFT",    "KEY_DOWN",
                              "KEY_RIGHT",   "KEY_START1",  "KEY_START2",
                              "KEY_BUTTON1", "KEY_BUTTON2", "KEY_BUTTON3",
@@ -83,7 +83,7 @@ const char *g_key_names[] = {"KEY_UP",      "KEY_LEFT",    "KEY_DOWN",
 
 // default key assignments, in case .ini file is missing
 // Notice each switch can have two keys assigned to it
-// NOTE : These are in a specific order, corresponding to the enum in daphne.h
+// NOTE : These are in a specific order, corresponding to the enum in hypseus.h
 int g_key_defs[SWITCH_COUNT][2] = {
     {SDLK_UP, SDLK_KP_8},     // up
     {SDLK_LEFT, SDLK_KP_4},   // left
@@ -526,7 +526,7 @@ void process_event(SDL_Event *event)
 // if a key is pressed, we go here
 void process_keydown(SDL_Keycode key)
 {
-    // go through each key def (defined in enum in daphne.h) and check to see if
+    // go through each key def (defined in enum in hypseus.h) and check to see if
     // the key entered matches
     // If we have a match, the switch to be used is the value of the index
     // "move"
@@ -548,7 +548,7 @@ void process_keydown(SDL_Keycode key)
 // if a key is released, we go here
 void process_keyup(SDL_Keycode key)
 {
-    // go through each key def (defined in enum in daphne.h) and check to see if
+    // go through each key def (defined in enum in hypseus.h) and check to see if
     // the key entered matches
     // If we have a match, the switch to be used is the value of the index
     // "move"

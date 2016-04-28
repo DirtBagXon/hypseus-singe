@@ -1,5 +1,5 @@
 /*
- * hitachi.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Andrew Hepburn
  *
@@ -41,7 +41,7 @@
 #include "../timer/timer.h"
 #include "../io/serial.h"
 #include "../io/conout.h"
-#include "../daphne.h"    // for get_quitflag
+#include "../hypseus.h"    // for get_quitflag
 #include "../game/game.h" // to get game FPS
 #include "hitachi.h"
 

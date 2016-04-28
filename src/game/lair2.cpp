@@ -1,5 +1,5 @@
 /*
- * lair2.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2003 Paul Blagay
  *
@@ -63,7 +63,7 @@ NORMAL_MODE = 0x20
 #include "../io/serial.h" // for controlling a real LDP-1450
 #include "../sound/sound.h"
 #include "../cpu/cpu.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../io/sram.h"
 #include "../timer/timer.h" // for debugging
 #include "../cpu/x86/i86intf.h"

@@ -1,5 +1,5 @@
 /*
- * conout.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -26,7 +26,7 @@
 #ifndef CONOUT_H
 #define CONOUT_H
 
-#define LOGNAME "daphne_log.txt" // name of our logfile if we are using one
+#define LOGNAME "hypseus_log.txt" // name of our logfile if we are using one
 
 void outstr(const char *s);
 void outchr(const char ch);

@@ -1,5 +1,5 @@
 /*
- * cmdline.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -37,7 +37,7 @@
 #include "../io/numstr.h"
 #include "../video/video.h"
 #include "../video/led.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../cpu/cpu-debug.h" // for set_cpu_trace
 #include "../game/lair.h"
 #include "../game/cliff.h"
@@ -140,14 +140,14 @@ bool parse_homedir()
 #ifndef MAC_OSX // Zaph doesn't seem to like this behavior and he is maintaining
                 // the Mac build, so...
         // on unix, if the user doesn't specify a homedir, then we want to
-        // default to ~/.daphne
+        // default to ~/.hypseus
         //  to follow standard unix convention.
         const char *homeenv = getenv("HOME");
 
         // this is always expected to be non-NULL
         if (homeenv != NULL) {
             string strHomeDir = homeenv;
-            strHomeDir += "/.daphne";
+            strHomeDir += "/.hypseus";
             g_homedir.set_homedir(strHomeDir);
         }
 // else we couldn't set the homedir, so just leave it as default
@@ -498,7 +498,7 @@ bool parse_cmd_line(int argc, char **argv)
 
             // If they are defining an alternate 'data' directory, where all
             // other files aside from the executable live.
-            // Primary used for linux to separate binary file (eg. daphne.bin)
+            // Primary used for linux to separate binary file (eg. hypseus.bin)
             // and other datafiles .
             else if (strcasecmp(s, "-datadir") == 0) {
                 get_next_word(s, sizeof(s));
@@ -712,7 +712,7 @@ bool parse_cmd_line(int argc, char **argv)
                 set_force_aspect_ratio(false);
             }
 
-            // run daphne in fullscreen mode
+            // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 set_fullscreen(true);
             }
@@ -772,7 +772,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
 
             // continuously updates SRAM (after every seek)
-            // ensures sram is saved even if Daphne is terminated improperly
+            // ensures sram is saved even if Hypseus is terminated improperly
             else if (strcasecmp(s, "-sram_continuous_update") == 0) {
                 g_ldp->set_sram_continuous_update(true);
             }
@@ -838,8 +838,8 @@ bool parse_cmd_line(int argc, char **argv)
                     lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                     thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
-                    // print a warning instead of an error to make daphne more
-                    // friendly to non-daphneloader frontends
+                    // print a warning instead of an error to make hypseus more
+                    // friendly to non-hypseusloader frontends
                     if (NULL == game_lair_or_sa && NULL == game_thayers) {
                         printline("WARNING: -useoverlaysb is not supported for "
                                   "this game and will be ignored");
@@ -882,7 +882,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
 
             // Scale the game overlay graphics to the virtual screen dimension
-            // this is needed when Daphne is used for overlaying game graphics
+            // this is needed when Hypseus is used for overlaying game graphics
             // over the real
             // laserdisc movie (using a video genlock), and the screen dimension
             // is different

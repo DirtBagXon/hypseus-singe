@@ -1,5 +1,5 @@
 /*
-* ldp-vldp.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2001 Matt Ownby
 *
@@ -45,7 +45,7 @@
 #include "../io/error.h"
 #include "../video/video.h"
 #include "../timer/timer.h"
-#include "../daphne.h" // for get_quitflag, set_quitflag
+#include "../hypseus.h" // for get_quitflag, set_quitflag
 #include "../io/homedir.h"
 #include "../io/input.h"
 #include "../io/fileparse.h"
@@ -153,7 +153,7 @@ ldp_vldp::ldp_vldp()
 
 ldp_vldp::~ldp_vldp() { pre_shutdown(); }
 
-// called when daphne starts up
+// called when hypseus starts up
 bool ldp_vldp::init_player()
 {
     bool result        = false;
@@ -1127,7 +1127,7 @@ bool ldp_vldp::read_frame_conversions()
                         printline("---BEGIN FRAMEFILE CONTENTS---");
                         // print the entire contents of the framefile to make it
                         // easier to us to debug newbie problems using their
-                        // daphne_log.txt
+                        // hypseus_log.txt
                         printline(ff_buf);
                         printline("---END FRAMEFILE CONTENTS---");
                     }
@@ -1991,7 +1991,7 @@ void report_mpeg_dimensions_callback(int width, int height)
             //if (g_yuv_texture->hw_overlay) {
             //    msg = "YUV overlay is hardware accelerated.";
            // }
-            //printline(msg.c_str()); // add it to the daphne_log.txt
+            //printline(msg.c_str()); // add it to the hypseus_log.txt
         }
     }
     // else g_yuv_texture exists, so we don't need to re-allocate it

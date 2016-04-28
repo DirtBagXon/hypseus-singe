@@ -1,5 +1,5 @@
 /*
- * timer.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 1999-2006 Matt Ownby
  *

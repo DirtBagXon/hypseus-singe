@@ -1,5 +1,5 @@
 /*
- * ffr.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -30,7 +30,7 @@
 #include "config.h"
 
 #include "ffr.h"
-#include "../daphne.h" // for get_quitflag
+#include "../hypseus.h" // for get_quitflag
 #include "../ldp-out/ldp.h"
 #include "../timer/timer.h"
 #include "../io/conout.h"

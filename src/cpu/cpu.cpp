@@ -1,5 +1,5 @@
 /*
- * cpu.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -33,7 +33,7 @@
 #include "cpu.h"
 #include <stdio.h>	// for stderr
 #include <string.h>	// for memcpy
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../game/game.h"
 #include "../ldp-out/ldp.h"	// to call pre_think
 #include "../timer/timer.h"
@@ -74,7 +74,7 @@ unsigned int g_uCPUMsBehind = 0;
 //#define CPU_DIAG 1
 
 #ifdef CPU_DIAG
-// how many cpu's cpu diag can support (this has nothing to do with how many cpu's daphne can support)
+// how many cpu's cpu diag can support (this has nothing to do with how many cpu's hypseus can support)
 #define CPU_DIAG_CPUCOUNT 10
 	static unsigned int cd_cycle_count[CPU_DIAG_CPUCOUNT];	// for speed test
 	static unsigned int cd_old_time[CPU_DIAG_CPUCOUNT] = { 0 }; // " " "
@@ -933,7 +933,7 @@ void cpu_generate_irq(Uint8 cpu_id, unsigned int which_irq)
 
 static NES_6502* g_6502 = NULL;
 
-// the glue between daphne and the 6502 core we're using
+// the glue between hypseus and the 6502 core we're using
 void generic_6502_init()
 {
 	g_6502 = new NES_6502();
@@ -1052,7 +1052,7 @@ unsigned int generic_dasm_stub( char *buffer, unsigned pc )
 
 // WARNING : this function appears not to de-allocate anything in g_head's linked list,
 //  so don't use it unless you have verified that g_head has been de-allocated first.
-// (I think it was added for xbox daphne)
+// (I think it was added for xbox hypseus)
 void reset_cpu_globals()
 {
 	g_head = NULL;

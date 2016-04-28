@@ -1,5 +1,5 @@
 /*
- * fileparse.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -24,7 +24,7 @@
 // by Matt Ownby
 
 // some basic file-parsing functions which should be safe enough to prevent
-// daphne from ever
+// hypseus from ever
 // segfaulting, even if the file is totally corrupt
 
 #include "config.h"

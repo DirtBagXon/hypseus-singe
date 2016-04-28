@@ -1,5 +1,5 @@
 /*
- * ldp-vldp-audio.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *

@@ -87,7 +87,7 @@ bool IScoreboard::pre_set_digit(unsigned int uValue, WhichDigit which)
 	bool bRes = false;
 
 	// Don't let them set digits if initialization hasn't occurred
-	// (this is because there was a bug in Daphne where the scoreboard wasn't getting initialized,
+	// (this is because there was a bug in Hypseus where the scoreboard wasn't getting initialized,
 	//  so this forces us to initialize the scoreboard)
 	if (m_bInitialized)
 	{

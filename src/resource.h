@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by daphne.rc
+// Used by hypseus.rc
 
 // Next default values for new objects
 // 

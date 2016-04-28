@@ -1,5 +1,5 @@
 /*
- * philips.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -32,7 +32,7 @@
 #include "../timer/timer.h"
 #include "../io/conout.h"
 #include "philips.h"
-#include "../daphne.h"   // for get_quitflag
+#include "../hypseus.h"   // for get_quitflag
 #include "../io/input.h" // to check input
 
 // define strcasecmp in case we're lame and compiling under windows =]

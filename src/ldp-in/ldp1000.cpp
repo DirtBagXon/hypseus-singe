@@ -1,5 +1,5 @@
 /*
- * ldp1000.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Mark Broadhead
  *
@@ -40,7 +40,7 @@
 #include "../io/numstr.h"
 #include "../ldp-out/ldp.h"
 #include "../video/video.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 
 #include <queue> // for queueing up LDP responses
 
@@ -601,7 +601,7 @@ void ldp1000_enter(void)
                 else {
                     printline("LDP1000 ERROR: tried to queue up two frames, "
                               "this should never happen!");
-                    set_quitflag(); // abort Daphne so the user realizes there
+                    set_quitflag(); // abort Hypseus so the user realizes there
                                     // is a big problem here
                 }
             }

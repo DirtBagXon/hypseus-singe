@@ -1,5 +1,5 @@
 /*
- * cpu.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -25,7 +25,7 @@
 
 #include <SDL.h>	// for Uint definitions
 
-enum { CPU_UNDEFINED, CPU_Z80, CPU_X86, CPU_M6809, CPU_M6502, CPU_COP421, CPU_I88, CPU_COUNT };	// cpu's supported by daphne now, leave CPU_COUNT at the end
+enum { CPU_UNDEFINED, CPU_Z80, CPU_X86, CPU_M6809, CPU_M6502, CPU_COP421, CPU_I88, CPU_COUNT };	// cpu's supported by hypseus now, leave CPU_COUNT at the end
 
 #define CPU_MEM_SIZE	0x100000	// 1 meg for I86
 #define MAX_CONTEXT_SIZE	100	/* max # of bytes that a cpu context can have */
@@ -33,7 +33,7 @@ enum { CPU_UNDEFINED, CPU_Z80, CPU_X86, CPU_M6809, CPU_M6502, CPU_COP421, CPU_I8
 
 struct cpudef;
 
-// structure that defines parameters for each cpu daphne uses
+// structure that defines parameters for each cpu hypseus uses
 struct cpudef
 {
 	// these may all be modified externally
@@ -80,7 +80,7 @@ struct cpudef
 };
 
 void add_cpu(struct cpudef *);	// add a new cpu
-void del_all_cpus();	// delete all cpus that have been added (for shutting down daphne)
+void del_all_cpus();	// delete all cpus that have been added (for shutting down hypseus)
 void cpu_init();	// initialize one cpu
 void cpu_shutdown();	// shutdown all cpus
 void cpu_execute();

@@ -1,5 +1,5 @@
 /*
- * singe.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2006 Scott C. Duensing
  *
@@ -20,7 +20,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "../daphne.h" // for get_quitflag
+#include "../hypseus.h" // for get_quitflag
 #include "game.h"
 #include "../io/conout.h"
 #include "../io/mpo_fileio.h"
@@ -107,7 +107,7 @@ class singe : public game
     // Lets give Singe the ability to query for this.
     static int get_status() { return g_ldp->get_status(); }
     static double get_singe_version(); // Returns version of the Singe engine
-    // Controls VLDP message displays on daphne_log.txt
+    // Controls VLDP message displays on hypseus_log.txt
     static void set_ldp_verbose(bool thisBol) { g_ldp->setVerbose(thisBol); }
 
     // These wrapper functions makes the function set_keyboard_mode and
@@ -149,7 +149,7 @@ class singe : public game
     // by RDG2010
 
     int i_keyboard_mode; // Stores the keyboard access mode. Valid values are:
-                         // KEYBD_NORMAL - Tells SINGE to use daphne.ini keys.
+                         // KEYBD_NORMAL - Tells SINGE to use hypseus.ini keys.
     // KEYBD_FULL   - Tells SINGE to scan the full keyboard (a la Thayers).
     static const int i_full_keybd_defs[]; // Array with discrete SDL_Keycode values.
                                           // Used in process_keyup/keydown.

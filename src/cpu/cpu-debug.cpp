@@ -1,5 +1,5 @@
 /*
- * cpu-debug.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -33,8 +33,7 @@
 #include <ctype.h>
 #include "mamewrap.h"
 #include "../io/conout.h"
-#include "../daphne.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../game/game.h"
 #include "../ldp-out/ldp.h"
 #include "../ldp-in/ldv1000.h"
@@ -58,8 +57,8 @@ void set_debug_cpu(unsigned int which_cpu)
 	g_which_cpu = which_cpu;
 }
 
-// I called this MAME_Debug so that I could test mame cpu cores with daphne (obviously I can't ship mame cpu cores with
-// daphne due to licensing issues)
+// I called this MAME_Debug so that I could test mame cpu cores with hypseus (obviously I can't ship mame cpu cores with
+// hypseus due to licensing issues)
 void MAME_Debug(void)
 {	
 	// if we are in trace mode OR if we've got our desired breakpoint

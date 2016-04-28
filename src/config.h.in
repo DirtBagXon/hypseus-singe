@@ -1,7 +1,7 @@
-#define daphne_VERSION_MAJOR    @daphne_VERSION_MAJOR@
-#define daphne_VERSION_MINOR    @daphne_VERSION_MINOR@
-#define daphne_VERSION_POINT    @daphne_VERSION_POINT@
-#define daphne_VERSION          "@daphne_VERSION_MAJOR@.@daphne_VERSION_MINOR@.@daphne_VERSION_POINT@"
+#define hypseus_VERSION_MAJOR    @hypseus_VERSION_MAJOR@
+#define hypseus_VERSION_MINOR    @hypseus_VERSION_MINOR@
+#define hypseus_VERSION_POINT    @hypseus_VERSION_POINT@
+#define hypseus_VERSION          "@hypseus_VERSION_MAJOR@.@hypseus_VERSION_MINOR@.@hypseus_VERSION_POINT@"
 
 #define ${TARGET_SYSTEM}
 #define ${TARGET_ARCH}

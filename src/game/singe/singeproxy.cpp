@@ -1,5 +1,5 @@
 /*
- * singeproxy.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2006 Scott C. Duensing
  *
@@ -36,7 +36,7 @@ typedef struct g_soundType {
 	Uint8         *buffer;
 } g_soundT;
 
-// These are pointers and values needed by the script engine to interact with Daphne
+// These are pointers and values needed by the script engine to interact with Hypseus
 lua_State    *g_se_lua_context;
 SDL_Surface  *g_se_surface        = NULL;
 int           g_se_overlay_width;
@@ -47,7 +47,7 @@ unsigned int *g_se_uDiscFPKS;
 // used to know whether try to shutdown lua would crash
 bool g_bLuaInitialized = false;
 
-// Communications from the DLL to and from Daphne
+// Communications from the DLL to and from Hypseus
 struct       singe_out_info  g_SingeOut;
 const struct singe_in_info  *g_pSingeIn = NULL;
 
@@ -210,7 +210,7 @@ void sep_die(const char *fmt, ...)
 	
 	strcat(message, temp);
 
-	// tell daphne what our last error was ...
+	// tell hypseus what our last error was ...
 	g_pSingeIn->set_last_error(message);
 
 	// force (clean) shutdown
@@ -489,9 +489,9 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "colorBackground",    sep_color_set_backcolor);
   lua_register(g_se_lua_context, "colorForeground",    sep_color_set_forecolor);
 
-  lua_register(g_se_lua_context, "daphneGetHeight",    sep_daphne_get_height);
-  lua_register(g_se_lua_context, "daphneGetWidth",     sep_daphne_get_width);
-  lua_register(g_se_lua_context, "daphneScreenshot",   sep_screenshot);
+  lua_register(g_se_lua_context, "hypseusGetHeight",    sep_hypseus_get_height);
+  lua_register(g_se_lua_context, "hypseusGetWidth",     sep_hypseus_get_width);
+  lua_register(g_se_lua_context, "hypseusScreenshot",   sep_screenshot);
 
   lua_register(g_se_lua_context, "debugPrint",         sep_debug_say);
 
@@ -694,13 +694,13 @@ static int sep_color_set_forecolor(lua_State *L)
 	return 0;
 }
 
-static int sep_daphne_get_height(lua_State *L)
+static int sep_hypseus_get_height(lua_State *L)
 {
   lua_pushnumber(L, g_pSingeIn->get_video_height());
   return 1;
 }
 
-static int sep_daphne_get_width(lua_State *L)
+static int sep_hypseus_get_width(lua_State *L)
 {
   lua_pushnumber(L, g_pSingeIn->get_video_width());
   return 1;
@@ -1013,7 +1013,7 @@ static int sep_screenshot(lua_State *L)
     g_pSingeIn->request_screenshot();
   }
 	
-	//SDL_SaveBMP(g_se_surface, "/Users/scott/source/daphne/singe/g_se_surface.bmp");
+	//SDL_SaveBMP(g_se_surface, "/Users/scott/source/hypseus/singe/g_se_surface.bmp");
 
   return 0;
 }
@@ -1125,7 +1125,7 @@ static int sep_skip_to_frame(lua_State *L)
 	{
 		if (lua_isnumber(L, 1))
 		{
-			// TODO : implement this for real on the daphne side of things instead of having to do a search/play hack
+			// TODO : implement this for real on the hypseus side of things instead of having to do a search/play hack
 			char s[6] = { 0 };
 			g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
 			g_pSingeIn->pre_search(s, true);
@@ -1290,7 +1290,7 @@ static int sep_keyboard_set_mode(lua_State *L)
 	* Singe can scan keyboard input in two ways:
 	*
 	* MODE_NORMAL - Singe will only check for keys defined
-	* in daphne.ini. This is the default behavior.
+	* in hypseus.ini. This is the default behavior.
 	* 
 	* MODE_FULL   - Singe will scan the keyboard for most keypresses.
 	* 
@@ -1321,7 +1321,7 @@ static int sep_keyboard_get_mode(lua_State *L)
 	* Singe can scan keyboard input in two ways:
 	*
 	* MODE_NORMAL - Singe will only check for keys defined
-	* in daphne.ini. This is the default behavior.
+	* in hypseus.ini. This is the default behavior.
 	* 
 	* MODE_FULL   - Singe will scan the keyboard for most keypresses.
 	* 
@@ -1425,7 +1425,7 @@ static int sep_singe_version(lua_State *L)
 static int sep_ldp_verbose(lua_State *L)
 {
 	/*
-	 * Enables/Disables writing of VLDP playback activity to daphne_log.txt
+	 * Enables/Disables writing of VLDP playback activity to hypseus_log.txt
 	 * Enabled by default.
 	 */
 

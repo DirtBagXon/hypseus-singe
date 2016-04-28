@@ -1,5 +1,5 @@
 /*
- * seektest.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -31,7 +31,7 @@
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
 #include "seektest.h"
-#include "../daphne.h" // for get_quitflag
+#include "../hypseus.h" // for get_quitflag
 #include "../io/input.h"
 #include "../video/palette.h"
 #include "../video/video.h"

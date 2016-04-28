@@ -1,5 +1,5 @@
 /*
- * sram.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2002 Warren Ondras
  *

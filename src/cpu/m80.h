@@ -1,5 +1,5 @@
 /*
- * m80.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001,2003 Matt Ownby
  *
@@ -56,7 +56,7 @@ typedef enum
 
 // These definitions mirror those found in mamewrap.h
 // But I don't want to #include mamewrap.h in this file because I don't
-// want all the daphne z80 games to depend on mamewrap.h
+// want all the hypseus z80 games to depend on mamewrap.h
 #define CLEAR_LINE 0
 #define ASSERT_LINE 1
 

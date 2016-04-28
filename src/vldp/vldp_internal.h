@@ -1,5 +1,5 @@
 /*
- * vldp_internal.h
+ * ____ VLDP COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *

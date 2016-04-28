@@ -1,5 +1,5 @@
 /*
- * releasetest.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2005 Matt Ownby
  *

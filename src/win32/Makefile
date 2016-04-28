@@ -1,6 +1,6 @@
 # sub Makefile
 
-LOCAL_OBJS = daphne.res
+LOCAL_OBJS = hypseus.res
 
 all:	${LOCAL_OBJS}
 

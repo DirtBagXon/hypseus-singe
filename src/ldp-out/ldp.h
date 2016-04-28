@@ -1,5 +1,5 @@
 /*
- * ldp.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -340,13 +340,13 @@ class ldp
     // and m_uCurrentFrame
     unsigned int m_uMsFrameBoundary;
 
-    // How many milliseconds have elapsed since Daphne started
+    // How many milliseconds have elapsed since Hypseus started
     // This value is changed by pre_think() which is called every 1 ms by the
     // cpu loop
     // This value is used to calculate how many emulated vblanks have occurred.
     unsigned int m_uElapsedMsSinceStart;
 
-    // how many vblanks have occurred since Daphne started, as calculated by
+    // how many vblanks have occurred since Hypseus started, as calculated by
     // pre_think()
     unsigned int m_uVblankCount;
 
@@ -372,7 +372,7 @@ class ldp
   private:
     // set to true if pre_init has been called (used to error checking)
     bool m_bPreInitCalled;
-    bool m_bVerbose; // Control message displays on daphne_log.txt -- rdg2010
+    bool m_bVerbose; // Control message displays on hypseus_log.txt -- rdg2010
 };
 
 // same as regular ldp class but has no seek or skip delay (testing skipping

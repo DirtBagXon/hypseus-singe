@@ -4,7 +4,7 @@
 // UPDATE : I don't think the old z80 core works anymore, it hasn't been maintained and some new functions (get elapsed cycles) aren't available
 #define USE_M80	1
 
-#include "../daphne.h"
+#include "../hypseus.h"
 #ifdef USE_M80
 #include "../cpu/m80.h"
 #define Z80_GET_AF	m80_get_reg(M80_AF)

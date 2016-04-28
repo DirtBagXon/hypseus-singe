@@ -1,5 +1,5 @@
 /*
- * interstellar.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2002-2005 Mark Broadhead
  *

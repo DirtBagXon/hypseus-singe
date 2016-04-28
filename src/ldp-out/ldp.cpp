@@ -1,6 +1,6 @@
 
 /*
- * ldp.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -26,7 +26,7 @@
 
 // The code in this file translates general LDP functions into LDP-specific
 // functions
-// Part of the Daphne emulator
+// Part of the Hypseus emulator
 
 #ifdef DEBUG
 #include <assert.h>
@@ -170,7 +170,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
                       "result first! that's bad!");
         if (m_bVerbose) printline(frame);
 
-        // this is definitely a Daphne bug if this happens, so log it!
+        // this is definitely a Hypseus bug if this happens, so log it!
         m_bug_log.push_back("LDP.CPP, pre_search() : tried to search without "
                             "checking for search result first!");
         return false;
@@ -492,7 +492,7 @@ void ldp::pre_play()
             printline("LDP : tried to play without checking to see if we were "
                       "still seeking! that's bad!");
 
-        // if this ever happens, it is a bug in Daphne, so log it
+        // if this ever happens, it is a bug in Hypseus, so log it
         m_bug_log.push_back("LDP.CPP, pre_play() : tried to play without "
                             "checking to see if we're still seeking!");
 

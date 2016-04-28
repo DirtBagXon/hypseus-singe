@@ -1,5 +1,5 @@
 /*
- * ssi263.cpp
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -41,7 +41,7 @@
 #include <string.h>
 #include "tqsynth.h"
 #include "samples.h"
-#include "../daphne.h"
+#include "../hypseus.h"
 #include "../game/thayers.h"
 #include "../io/input.h"
 #include "../cpu/cpu.h"
@@ -393,7 +393,7 @@ bool g_bSamplePlaying = false;
 // Take phoneme text and ship it off to get turned into a speech wavefile. We
 // request a raw waveform because it provides an opportunity exercise a little
 // more control over the playback (could have done this in the tqsynth code,
-// but wanted tqsynth to be somewhat independent of the Daphne code).
+// but wanted tqsynth to be somewhat independent of the Hypseus code).
 void ssi263_say_phones(char *phonemes, int len)
 {
     sample_s the_sample;

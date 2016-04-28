@@ -17,7 +17,7 @@
 ** Any permitted reproduction of these routines, in whole or in part,
 ** must bear this legend.
 */
-// modified for daphne by Mark Broadhead
+// modified for hypseus by Mark Broadhead
 
 #include "config.h"
 

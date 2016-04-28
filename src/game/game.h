@@ -1,5 +1,5 @@
 /*
- * game.h
+ * ____ DAPHNE COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby
  *
@@ -110,7 +110,7 @@ class game
     void pre_shutdown();
 
     // saves this game's static ram to a compressed file
-    // (can be called to ensure sram is saved even if Daphne is terminated
+    // (can be called to ensure sram is saved even if Hypseus is terminated
     // improperly)
     void save_sram();
 
@@ -296,9 +296,9 @@ class game
                                   // the game graphics to the target screen
                                   // dimension
     Uint32 m_video_screen_width;  // the width  of the target screen (according
-                                  // to the graphic mode set by Daphne)
+                                  // to the graphic mode set by Hypseus)
     Uint32 m_video_screen_height; // the height of the target screen (according
-                                  // to the graphic mode set by Daphne)
+                                  // to the graphic mode set by Hypseus)
     Uint32 m_video_screen_size; // m_video_screen_width x m_video_screen_height,
                                 // just to speedup things a bit
     bool m_bFullScale;          // whether fullscale is enabled or not
@@ -346,7 +346,7 @@ class game
     // CONSTRUCTOR
     bool m_bMouseEnabled;
 
-    // logger interface (for writing to daphne_log.txt file)
+    // logger interface (for writing to hypseus_log.txt file)
     ILogger *m_pLogger;
 
 #ifdef CPU_DEBUG

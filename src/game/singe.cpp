@@ -1,5 +1,5 @@
 /*
-* singe.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2006 Scott C. Duensing
 *
@@ -137,11 +137,11 @@ bool singe::init()
         // declaration examples.
         //
         // The function on the right side is the wrapper function.
-        // It's the function that does something on the Daphne side.
+        // It's the function that does something on the Hypseus side.
         //
         // Have a look at the class declaration in singe.h for details.
         // The two lines below basically link these functions together
-        // So when the DLL needs something from Daphne
+        // So when the DLL needs something from Hypseus
         // then the DLL knows which function to call.
         g_SingeIn.cfm_set_keyboard_mode = gfm_set_keyboard_mode;
         g_SingeIn.cfm_get_keyboard_mode = gfm_get_keyboard_mode;
@@ -149,7 +149,7 @@ bool singe::init()
         /*
         Why a wrapper?
 
-        Special case. We can't hook up the function on the Daphne side (CFMs)
+        Special case. We can't hook up the function on the Hypseus side (CFMs)
         directly to the functions inside the singe class
         because their pointer types don't match.
         To do function callbacks you need to provide a static function.
@@ -358,7 +358,7 @@ double singe::get_singe_version()
 // This handles when a key is pressed down
 void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
 {
-    /* Normal Daphne use has the program look for a set of default keys.
+    /* Normal Hypseus use has the program look for a set of default keys.
      * These are read from daphne.ini (or if daphne.ini is absent, then set
      * a default configuration). The rest of the keyboard is ignored.
      * This is the default mode that works for most gamees.

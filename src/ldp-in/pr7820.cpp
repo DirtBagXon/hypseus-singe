@@ -1,5 +1,5 @@
 /*
-* pr7820.cpp
+* ____ DAPHNE COPYRIGHT NOTICE ____
 *
 * Copyright (C) 2003 Warren Ondras
 *
