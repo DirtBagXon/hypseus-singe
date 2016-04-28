@@ -47,8 +47,8 @@ include_directories(
     ${MPEG2_INCLUDE_DIRS}
 )
 
-enable_language( ASM )
 if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
+    enable_language( ASM )
     set(can_use_assembler TRUE)
 endif()
 
