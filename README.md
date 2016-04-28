@@ -66,6 +66,12 @@ Copyright (C) 1999-2013  [Matt Ownby][CUS]
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     [GNU General Public License] for more details.
 
+## Trademark
+
+The "Hypseus" mark is used to uniquely identify this project, and resulting
+binaries, as an Arcade Laserdisc Emulator.  __ANY commercial use of the mark
+"Hypseus", directly or indirectly, is strictly prohibited.__
+
 [project]: https://github.com/zaplabs/daphne
 [issues]: https://github.com/zaplabs/daphne/issues
 [pull requests]: https://github.com/zaplabs/daphne/pulls
