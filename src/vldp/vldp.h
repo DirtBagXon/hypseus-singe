@@ -32,11 +32,7 @@ extern "C" {
 
 // by RDG2010
 // Ubuntu Linux complains with plain <SDL.h>
-#ifdef WIN32
 #include <SDL.h> // only used for threading
-#else
-#include <SDL/SDL.h> // only used for threading
-#endif
 
 #include <mpeg2.h>
 
