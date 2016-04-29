@@ -33,7 +33,7 @@ This software intended for educational purposes only. Please submit [issues] or
 
 **DO NOT submit issues or request support from the official Daphne forums!**
 
-## History
+## About
 
 Open development by the original author, [Matt Ownby][CUS], ceased years ago.
 
@@ -48,7 +48,7 @@ would not be possible.
 
 ## License
 
-**Hypseus**, Multiple Arcade Laserdic Emulator  
+**Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]
 
 **Daphne**, the First Ever Multiple Arcade Laserdisc Emulator  
@@ -68,9 +68,9 @@ Copyright (C) 1999-2013  [Matt Ownby][CUS]
 
 ## Trademark
 
-The "Hypseus" mark is used to uniquely identify this project, and resulting
-binaries, as an Arcade Laserdisc Emulator.  __ANY commercial use of the mark
-"Hypseus", directly or indirectly, is strictly prohibited.__
+The "Hypseus" mark is used to uniquely identify this project  as an Arcade
+Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
+"Hypseus" is strictly prohibited without express permission.__
 
 [project]: https://github.com/zaplabs/daphne
 [issues]: https://github.com/zaplabs/daphne/issues
