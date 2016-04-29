@@ -25,11 +25,6 @@
 
 // handles the audio portion of VLDP (using Ogg Vorbis)
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100) // disable the warning about unreferenced formal
-                                // parameters (MSVC++)
-#endif
-
 #ifdef UNIX
 //#define TRY_MMAP 1	// NOTE : this seems to fail on read-only filesystems
 //(such as NTFS mounted from linux)

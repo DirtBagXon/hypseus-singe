@@ -46,9 +46,6 @@
 #include "m80tables.h"
 #include "m80daa.h"
 #include "../io/conout.h"
-#ifdef _MSC_VER
-#pragma warning (disable:4244)	// disable the warning about possible loss of data
-#endif
 
 struct m80_context g_context;	/* full context for the cpu */
 Uint32	g_cycles_executed = 0;	/* how many cycles we've executed this time around */

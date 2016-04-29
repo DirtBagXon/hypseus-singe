@@ -45,11 +45,6 @@ using namespace std;
 #define strcasecmp stricmp
 #endif
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100) // disable the warning about unrereferenced
-                                // parameters
-#endif
-
 // pioneer constructor
 pioneer::pioneer() { need_serial = true; }
 

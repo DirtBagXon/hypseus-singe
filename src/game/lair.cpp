@@ -27,10 +27,6 @@
 
 #include "config.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100) // disable warning about unreferenced parameter
-#endif
-
 // Win32 doesn't use strcasecmp, it uses stricmp (lame)
 #ifdef WIN32
 #define strcasecmp stricmp

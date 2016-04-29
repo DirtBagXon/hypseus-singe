@@ -48,11 +48,6 @@
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100) // disable the warning about unreferenced
-                                // parameters
-#endif
-
 // generic ldp constructor
 ldp::ldp()
     : need_serial(false), serial_initialized(false), player_initialized(false),

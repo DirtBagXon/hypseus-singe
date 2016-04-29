@@ -32,10 +32,6 @@
 #include "../io/input.h"
 #include "ld-v6000.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100)
-#endif
-
 // two-character codes that represent the digits 0 to 9
 const char *ldv6000_digits[10] = {"3F", "0F", "8F", "4F", "2F",
                                   "AF", "6F", "1F", "9F", "5F"};

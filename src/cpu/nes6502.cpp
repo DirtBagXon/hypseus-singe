@@ -45,10 +45,6 @@
 
 #include "config.h"
 
-#ifdef _MSC_VER
-#pragma warning (disable:4244)	// disable the warning about possible loss of data
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>	// for memcpy

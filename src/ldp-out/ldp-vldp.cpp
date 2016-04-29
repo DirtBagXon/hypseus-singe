@@ -26,14 +26,6 @@
 // pretends to be an LDP, but uses the VLDP library for output
 // (for people who have no laserdisc player)
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100) // disable the warning about unreferenced formal
-                                // parameters (MSVC++)
-#pragma warning(disable : 4786) // disable warning about truncating to 255 in
-                                // debug info
-#define strcasecmp stricmp
-#endif
-
 #ifdef DEBUG
 #include <assert.h>
 #endif

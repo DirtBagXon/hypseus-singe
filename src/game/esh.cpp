@@ -33,11 +33,6 @@
 
 #include "config.h"
 
-#ifdef _MSC_VER
-// disable "unreferenced inline function has been removed" warning
-#pragma warning(disable : 4514)
-#endif
-
 #include <string.h>
 #include <math.h> // for pow
 #include "esh.h"

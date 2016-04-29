@@ -51,10 +51,6 @@
 #include "cpu-debug.h"	// MPO
 #include "mamewrap.h"// for CPU INFO
 
-#ifdef _MSC_VER
-#pragma warning (disable:4244)	// disable the warning about possible loss of data
-#endif
-
 int taille[]=
 {2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2
 ,0,0,1,1,1,1,3,3,1,1,2,1,2,1,2,2

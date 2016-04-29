@@ -11,10 +11,6 @@
 
 #include "config.h"
 
-#ifdef _MSC_VER
-#pragma warning (disable:4100)	// disable the warning about unreferenced formal parameters (MSVC++)
-#endif
-
 #include <stdio.h>
 
 #include "generic_z80.h"

@@ -25,17 +25,6 @@
 
 #include "config.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100) // disable warning about unreferenced parameter
-
-// this doesn't disable the warnings I want disabled :(
-#pragma warning(disable : 4244) // disable stupid warnings in MSVC's include
-                                // files
-#pragma warning(disable : 4511)
-#pragma warning(disable : 4512)
-#pragma warning(disable : 4663)
-#endif
-
 #include <zlib.h>      // for CRC checking
 #include <string>      // STL strings, useful to prevent buffer overrun
 #include "../hypseus.h" // for get_quitflag()

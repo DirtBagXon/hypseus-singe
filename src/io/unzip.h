@@ -40,13 +40,6 @@
    PkWare has also a specification at :
       ftp://ftp.pkware.com/probdesc.zip */
 
-// start MATT
-#ifdef _MSC_VER
-#pragma warning(disable : 4131) // disable the warning about using old-styled
-                                // parameter
-#endif
-// end MATT
-
 #ifndef _unz_H
 #define _unz_H
 

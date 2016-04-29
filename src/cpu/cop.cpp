@@ -50,10 +50,6 @@
 //#include <iostream.h>
 //#include <iomanip.h>
 
-#ifdef _MSC_VER
-#pragma warning (disable:4244)	// disable the warning about possible loss of data
-#endif
-
 // Internal functions
 void preinst(void); // Function for pre intruction execution
 void pc_inc(void); // Function for PC incrementing

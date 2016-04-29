@@ -41,11 +41,6 @@ enum {
 
 using namespace std;
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4786) // disable warning about truncating to 255 in
-                                // debug info
-#endif
-
 #define FRAME_SIZE 5
 
 // the size to make your frame array (the frame + the NULL terminator)

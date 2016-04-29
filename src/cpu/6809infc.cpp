@@ -8,11 +8,6 @@
 #include "cpu.h"
 #include "../game/game.h"
 
-#ifdef _MSC_VER
-#pragma warning (disable:4244)	// disable the warning about possible loss of data
-#pragma warning (disable:4100) // disable warning about unreferenced parameter
-#endif
-
 Uint8 *g_cpumem = NULL;	// where this cpu's memory begins
 
 // MATT : sets where the memory begins for the cpu core

@@ -45,10 +45,6 @@
 #include "../game/game.h" // to get game FPS
 #include "hitachi.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4100)
-#endif
-
 // constructor
 hitachi::hitachi()
 {

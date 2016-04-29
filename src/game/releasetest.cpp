@@ -28,11 +28,6 @@
 
 #include "config.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable : 4786) // disable warning about truncating to 255 in
-                                // debug info
-#endif
-
 #include "releasetest.h"
 #include "../io/conout.h"
 #include "../io/numstr.h"
