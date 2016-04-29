@@ -187,8 +187,6 @@ struct vldp_out_info {
     ////////////////////////////////////////////////////////////
 
     // State information for the parent thread's benefit
-    unsigned int uApiVersion; // so parent thread knows if it's compatible with
-                              // this version of VLDP
     unsigned int uFpks; // FPKS = frames per kilosecond (FPS = uFpks / 1000.0)
     unsigned int u2milDivFpks; // (2000000) / uFpks (pre-calculated, used to
                                // determine whether to drop frames)

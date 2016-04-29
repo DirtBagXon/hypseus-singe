@@ -204,8 +204,6 @@ bool ldp_vldp::init_player()
 
                     // if we successfully made contact with VLDP ...
                     if (g_vldp_info != NULL) {
-                        // make sure we are using the API that we expect
-                        if (g_vldp_info->uApiVersion == API_VERSION) {
                             // this number is used repeatedly, so we calculate
                             // it once
                             g_vertical_offset = g_game->get_video_row_offset();
@@ -279,10 +277,6 @@ bool ldp_vldp::init_player()
                                 printerror(
                                     "LDP-VLDP ERROR : precaching failed");
                             }
-                        } // end if API matches up
-                        else {
-                            printerror("VLDP library is the wrong version!");
-                        }
 
                     } // end if reading the frame conversion file worked
                     else {
