@@ -62,7 +62,7 @@ unsigned int s_uSkipAllCount = 0;
 Uint32 s_timer = 0; // FPS timer used by the blitting code to run at the right
                     // speed
 
-// any extra delay that null_draw_frame() will use before drawing a frame
+// any extra delay that draw_frame() will use before drawing a frame
 // (intended for laserdisc seek delay simulation)
 // NOTE : this value gets reset to 0 after it has been 'used'
 Uint32 s_extra_delay_ms = 0;
@@ -273,7 +273,7 @@ void paused_handler()
     if (g_out_info.status != STAT_PAUSED) {
         g_out_info.status = STAT_PAUSED;
 
-        // reset these vars because otherwise null_draw_frame will loop
+        // reset these vars because otherwise draw_frame will loop
         // redundantly for no good reason
         s_timer = g_in_info->uMsTimer; // since we have just rendered the frame
                                        // we searched to, we refresh the timer
@@ -1012,7 +1012,7 @@ void idle_handler_search(int skip)
         // if we're seeking, we can change the frame right now ...
         if (!skip) {
             g_out_info.current_frame =
-                req_frame; // this is no longer incremented in null_draw_frame
+                req_frame; // this is no longer incremented in draw_frame
                            // due to s_paused being set
             s_uPendingSkipFrame = 0;
         }

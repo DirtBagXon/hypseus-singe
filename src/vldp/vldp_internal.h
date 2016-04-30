@@ -93,7 +93,7 @@ extern unsigned int s_uSkipAllCount; // how many frames we've skipped when
 extern int s_step_forward;           // if this is set, we step forward 1 frame
 extern Uint32 s_timer; // FPS timer used by the blitting code to run at the
                        // right speed
-extern Uint32 s_extra_delay_ms; // any extra delay that null_draw_frame() will
+extern Uint32 s_extra_delay_ms; // any extra delay that draw_frame() will
                                 // use before drawing a frame (intended for
                                 // laserdisc seek delay simulation)
 extern Uint32 s_uFramesShownSinceTimer; // how many frames should've been
