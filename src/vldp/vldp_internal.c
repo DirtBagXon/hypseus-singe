@@ -121,7 +121,6 @@ static unsigned int g_header_buf_size = 0; // size of the header buffer
 int idle_handler(void *surface)
 {
     int done = 0;
-    int i;
 
     g_mpeg_data = mpeg2_init();
 

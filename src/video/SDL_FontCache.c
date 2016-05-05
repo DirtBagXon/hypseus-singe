@@ -287,7 +287,7 @@ FC_Effect FC_MakeEffect(FC_AlignEnum alignment, FC_Scale scale, SDL_Color color)
     return e;
 }
 
-FC_GlyphData FC_MakeGlyphData(int cache_level, Sint16 x, Sint16 y, Uint16 w, Uint16 h)
+FC_GlyphData FC_MakeGlyphData(uint8_t cache_level, Sint16 x, Sint16 y, Uint16 w, Uint16 h)
 {
     FC_GlyphData gd;
 
@@ -936,7 +936,7 @@ static Uint8 FC_GrowGlyphCache(FC_Font* font)
     return 1;
 }
 
-Uint8 FC_UploadGlyphCache(FC_Font* font, int cache_level, SDL_Surface* data_surface)
+Uint8 FC_UploadGlyphCache(FC_Font* font, uint8_t cache_level, SDL_Surface* data_surface)
 {
     if(font == NULL || data_surface == NULL)
         return 0;
@@ -1039,7 +1039,7 @@ static FC_GlyphData* FC_PackGlyphData(FC_Font* font, Uint32 codepoint, Uint16 wi
 }
 
 
-FC_Image* FC_GetGlyphCacheLevel(FC_Font* font, int cache_level)
+FC_Image* FC_GetGlyphCacheLevel(FC_Font* font, uint8_t cache_level)
 {
     if(font == NULL || cache_level < 0 || cache_level > font->glyph_cache_count)
         return NULL;
@@ -1047,13 +1047,13 @@ FC_Image* FC_GetGlyphCacheLevel(FC_Font* font, int cache_level)
     return font->glyph_cache[cache_level];
 }
 
-Uint8 FC_SetGlyphCacheLevel(FC_Font* font, int cache_level, FC_Image* cache_texture)
+Uint8 FC_SetGlyphCacheLevel(FC_Font* font, uint8_t cache_level, FC_Image* cache_texture)
 {
     if(font == NULL || cache_level < 0)
         return 0;
 
     // Must be sequentially added
-    if(cache_level > font->glyph_cache_count + 1)
+    if(font->glyph_cache_count + 1 < cache_level)
         return 0;
 
     if(cache_level == font->glyph_cache_count)

@@ -104,7 +104,7 @@ typedef struct FC_Font FC_Font;
 typedef struct FC_GlyphData
 {
     SDL_Rect rect;
-    int cache_level;
+    uint8_t cache_level;
 
 } FC_GlyphData;
 
@@ -121,7 +121,7 @@ SDL_Color FC_MakeColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 FC_Effect FC_MakeEffect(FC_AlignEnum alignment, FC_Scale scale, SDL_Color color);
 
-FC_GlyphData FC_MakeGlyphData(int cache_level, Sint16 x, Sint16 y, Uint16 w, Uint16 h);
+FC_GlyphData FC_MakeGlyphData(uint8_t cache_level, Sint16 x, Sint16 y, Uint16 w, Uint16 h);
 
 
 
@@ -227,14 +227,14 @@ FC_Rect FC_DefaultRenderCallback(FC_Image* src, FC_Rect* srcrect, FC_Target* des
 int FC_GetNumCacheLevels(FC_Font* font);
 
 /*! Returns the cache source texture at the given cache level. */
-FC_Image* FC_GetGlyphCacheLevel(FC_Font* font, int cache_level);
+FC_Image* FC_GetGlyphCacheLevel(FC_Font* font, uint8_t cache_level);
 
 // TODO: Specify ownership of the texture (should be shareable)
 /*! Sets a cache source texture for rendering.  New cache levels must be sequential. */
-Uint8 FC_SetGlyphCacheLevel(FC_Font* font, int cache_level, FC_Image* cache_texture);
+Uint8 FC_SetGlyphCacheLevel(FC_Font* font, uint8_t cache_level, FC_Image* cache_texture);
 
 /*! Copies the given surface to the given cache level as a texture.  New cache levels must be sequential. */
-Uint8 FC_UploadGlyphCache(FC_Font* font, int cache_level, SDL_Surface* data_surface);
+Uint8 FC_UploadGlyphCache(FC_Font* font, uint8_t cache_level, SDL_Surface* data_surface);
 
 
 /*! Returns the number of codepoints that are stored in the font's glyph data map. */

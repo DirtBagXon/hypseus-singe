@@ -90,9 +90,6 @@ bool init_display()
 
     sdl_flags = SDL_WINDOW_SHOWN;
 
-    char s[250] = {0};
-    Uint32 x    = 0; // temporary index
-
     // if we were able to initialize the video properly
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
 

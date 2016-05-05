@@ -21,4 +21,6 @@ set( LIB_HEADERS
     yuv2rgb_lookup.h
 )
 
+set_source_files_properties(SDL_FontCache.c PROPERTIES COMPILE_FLAGS -Wno-maybe-uninitialized)
+
 add_library( video ${LIB_SOURCES} ${LIB_HEADERS} )
