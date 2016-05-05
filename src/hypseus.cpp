@@ -246,7 +246,7 @@ int main(int argc, char **argv)
     else {
         printerror("Bad command line or initialization problem (see "
                    "hypseus_log.txt for details). \n"
-                   "To run DAPHNE, you must specify which game to run and "
+                   "To run, you must specify which game to run and "
                    "which laserdisc player you are using. \n"
                    "For example, try 'hypseus lair noldp' to run Dragon's Lair "
                    "in testing mode.");

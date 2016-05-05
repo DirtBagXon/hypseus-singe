@@ -738,7 +738,7 @@ bool parse_cmd_line(int argc, char **argv)
 
             else if (strcasecmp(s, "-pal_dl") == 0) {
                 set_frame_modifier(MOD_PAL_DL);
-                printline("Setting DAPHNE up for the PAL Dragon's Lair disc");
+                printline("Setting up for the PAL Dragon's Lair disc");
                 cpu_change_irq(0, 0,
                                LAIR_IRQ_PERIOD * (23.976 / 25.0)); // change IRQ
                                                                    // 0 of CPU 0
@@ -746,21 +746,21 @@ bool parse_cmd_line(int argc, char **argv)
                 // IRQ slightly
             } else if (strcasecmp(s, "-pal_sa") == 0) {
                 set_frame_modifier(MOD_PAL_SA);
-                printline("Setting DAPHNE up for the PAL Space Ace disc");
+                printline("Setting up for the PAL Space Ace disc");
             } else if (strcasecmp(s, "-pal_dl_sc") == 0) {
                 set_frame_modifier(MOD_PAL_DL_SC);
-                printline("Setting DAPHNE up for the PAL Dragon's Lair "
+                printline("Setting up for the PAL Dragon's Lair "
                           "Software Corner disc");
                 cpu_change_irq(0, 0, LAIR_IRQ_PERIOD * (23.976 / 25.0));
                 // DL Amiga runs at a different speed so we need to overclock
                 // the IRQ slightly
             } else if (strcasecmp(s, "-pal_sa_sc") == 0) {
                 set_frame_modifier(MOD_PAL_SA_SC);
-                printline("Setting DAPHNE up for the PAL Space Ace Software "
+                printline("Setting up for the PAL Space Ace Software "
                           "Corner disc");
             } else if (strcasecmp(s, "-spaceace91") == 0) {
                 set_frame_modifier(MOD_SA91);
-                printline("Setting DAPHNE to play a Space Ace '91 disc");
+                printline("Setting to play a Space Ace '91 disc");
             } else if (strcasecmp(s, "-preset") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
@@ -798,7 +798,7 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("CPU tracing enabled");
                 set_cpu_trace(1);
 #else
-                printline("DAPHNE needs to be compiled in debug mode for this "
+                printline("Needs to be compiled in debug mode for this "
                           "to work");
                 result = false;
 #endif

@@ -130,7 +130,7 @@ bool init_display()
             // bar).
             // This is achieved by adding the SDL_NOFRAME flag.
 
-        g_window = SDL_CreateWindow("DAPHNE: First Ever Multiple Arcade Laserdisc Emulator =]",
+        g_window = SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
                                     SDL_WINDOWPOS_UNDEFINED,
                                     SDL_WINDOWPOS_UNDEFINED,
                                     g_vid_width,
@@ -199,7 +199,7 @@ void display_repaint()
     g_game->video_force_blit();
 }
 
-// loads all the .bmp's used by DAPHNE
+// loads all the .bmp's
 // returns true if they were all successfully loaded, or a false if they weren't
 bool load_bmps()
 {
@@ -223,7 +223,7 @@ bool load_bmps()
     g_other_bmps[B_DL_PLAYER2]    = load_one_bmp("pics/player2.bmp");
     g_other_bmps[B_DL_LIVES]      = load_one_bmp("pics/lives.bmp");
     g_other_bmps[B_DL_CREDITS]    = load_one_bmp("pics/credits.bmp");
-    g_other_bmps[B_DAPHNE_SAVEME] = load_one_bmp("pics/saveme.bmp");
+    g_other_bmps[B_HYPSEUS_SAVEME] = load_one_bmp("pics/saveme.bmp");
     g_other_bmps[B_GAMENOWOOK]    = load_one_bmp("pics/gamenowook.bmp");
 
     if (sboverlay_characterset != 2)

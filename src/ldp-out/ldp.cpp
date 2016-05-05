@@ -88,10 +88,8 @@ bool ldp::pre_init()
     // or if we are controlling a combo and DVD initialized properly,
     // then initialize the serial port here
     if (need_serial) {
-        printline("NOTE : You are attempting to use DAPHNE with a real "
-                  "laserdisc player!");
-        printline(
-            "If you don't have DAPHNE plugged into a real laserdisc player,");
+        printline("NOTE : You are attempting to use a real laserdisc player!");
+        printline("If you don't have a real laserdisc player,");
         printline("you should be using VLDP instead.");
         serial_initialized = serial_init(get_serial_port(), get_baud_rate());
         temp               = serial_initialized;
@@ -943,7 +941,7 @@ int ldp::get_status()
             m_status = LDP_PAUSED;
 
             // Update sram after every search if user desires it
-            //  (so that the DAPHNE can be improperly terminated, if it's inside
+            //  (allow for improper termination, if it's inside
             //  a cab and powered off, for example)
             // This is the best place to do this because it's right after a seek
             // which can take a second or two anyway.

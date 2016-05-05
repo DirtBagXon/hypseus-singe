@@ -55,7 +55,7 @@ void printerror(const char *s)
     addlog(CRLF);
 
 #ifdef WIN32
-    MessageBox(NULL, s, "DAPHNE encountered an error", MB_OK | MB_ICONERROR);
+    MessageBox(NULL, s, "Encountered an error", MB_OK | MB_ICONERROR);
 #else
     printf("%s\n", s);
 #endif

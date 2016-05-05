@@ -319,7 +319,7 @@ bool serial_init(int port, int baudrate)
     }
 
     else {
-        printline("DAPHNE for unix only supports 9600 and 4800 baud, using "
+        printline("Unix only supports 9600 and 4800 baud, using "
                   "9600 baud.");
         baud_symbol = B9600;
     }
