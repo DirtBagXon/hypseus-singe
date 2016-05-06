@@ -56,7 +56,7 @@ bool pioneer::init_player()
 
     bool success = false;
 
-    outstr("Initializing Pioneer Laserdisc Player...");
+    printline("Initializing Pioneer Laserdisc Player...");
     send_tx_string("CL"); // clear buffer
     success = check_result(1000, true);
     serial_rxflush();
@@ -422,7 +422,7 @@ void pioneer::printmodel()
         }
 
         else if (strcasecmp(model, "P1502") == 0) {
-            outstr("Pioneer LD-V4200");
+            printline("Pioneer LD-V4200");
             if (strcasecmp(firmware, "04") == 0) {
                 printline("-Enhanced detected!");
             } else if (strcasecmp(firmware, "03") == 0) {
@@ -433,11 +433,7 @@ void pioneer::printmodel()
         }
 
         else {
-            outstr("Unknown Pioneer model ");
-            outstr(id);
-            printline(" detected.");
-            printline("Please contact Matt Ownby and tell him which Pioneer "
-                      "model you are using!");
+            printline("Unknown Pioneer model '%s' detected.", id);
         }
     }
 

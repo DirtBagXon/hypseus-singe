@@ -40,7 +40,6 @@
 #include "../timer/timer.h"
 #include "../io/input.h"
 #include "../io/sram.h"
-#include "../io/logger_console.h" // for writing to daphne_log.txt file
 #include "../video/video.h"       // for get_screen
 #include "../video/palette.h"
 #include "game.h"
@@ -129,14 +128,10 @@ game::game()
     m_crc_disabled   = false;
     m_prefer_samples = false; // default to emulated sound
     m_fastboot       = false;
-
-    m_pLogger = ConsoleLogger::GetInstance();
 }
 
 game::~game()
 {
-    // cleanup logger
-    m_pLogger->DeleteInstance();
 }
 
 // call this instead of init() directly to ensure that some universal stuff gets
@@ -821,11 +816,7 @@ bool game::load_rom(const char *filename, Uint8 *buf, Uint32 size)
     bool result               = false;
     string fullpath           = g_homedir.get_romfile(filename); // pathname to roms
                                                                  // directory
-    string s = "";
-
-    outstr("Loading ");
-    outstr(fullpath.c_str());
-    outstr(" ... ");
+    string s = "Loading " + fullpath + " ... ";
 
     F = mpo_open(fullpath.c_str(), MPO_OPEN_READONLY);
 
@@ -839,14 +830,13 @@ bool game::load_rom(const char *filename, Uint8 *buf, Uint32 size)
         }
         // notify the user what the problem is
         else {
-            s = "error in rom_load: expected " + numstr::ToStr(size) +
+            s += "error in rom_load: expected " + numstr::ToStr(size) +
                 " but only read " + numstr::ToStr((unsigned int)bytes_read);
-            printline(s.c_str());
         }
         mpo_close(F);
     }
 
-    s = numstr::ToStr((unsigned int)bytes_read) + " bytes read into memory";
+    s += numstr::ToStr((unsigned int)bytes_read) + " bytes read into memory";
     printline(s.c_str());
 
     return (result);
@@ -869,9 +859,9 @@ bool game::load_compressed_rom(const char *filename, unzFile opened_zip_file,
 {
     bool result = false;
 
-    outstr("Loading compressed ROM image ");
-    outstr(filename);
-    outstr("...");
+    string s = "Loading compressed ROM image ";
+    s.append(filename);
+    s += " ... ";
 
     // try to locate requested rom file inside .ZIP archive and proceed if
     // successful
@@ -885,19 +875,19 @@ bool game::load_compressed_rom(const char *filename, unzFile opened_zip_file,
 
             // if we read what we expected to read ...
             if (bytes_read == size) {
-                char s[81];
-                sprintf(s, "%d bytes read.", bytes_read);
-                printline(s);
+                s += numstr::ToStr(bytes_read) + " bytes read.";
                 result = true;
             } else {
-                printline("unexpected read result!");
+                s += "unexpected read result!";
             }
         } else {
-            printline("could not open current file!");
+            s += "could not open current file!";
         }
     } else {
-        printline("file not found in .ZIP archive!");
+        s += "file not found in .ZIP archive!";
     }
+
+    printline(s.c_str());
 
     return result;
 }

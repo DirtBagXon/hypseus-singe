@@ -186,8 +186,7 @@ void repaint_helper(IScoreboard *pScoreboard, bool bRepaintUsed)
 
 TEST_CASE(scoreboard_img)
 {
-	ILogger *pLog = NullLogger::GetInstance();
-	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::NULLTYPE, pLog, 0);
+	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::NULLTYPE, 0);
 	TEST_REQUIRE(pScoreboard);
 
 	test_scoreboard_helper(pScoreboard);
@@ -197,7 +196,7 @@ TEST_CASE(scoreboard_img)
 	pScoreboard->PreDeleteInstance();
 
 	// image scoreboard
-	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::IMAGE, pLog, 0);
+	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::IMAGE, 0);
 	TEST_REQUIRE(pScoreboard);
 
 	test_scoreboard_helper(pScoreboard);
@@ -206,7 +205,6 @@ TEST_CASE(scoreboard_img)
 	repaint_helper(pScoreboard, true);	// repaint is used with image
 
 	pScoreboard->PreDeleteInstance();
-	pLog->DeleteInstance();
 }
 
 SDL_Surface *g_stub_surface = NULL;
@@ -219,8 +217,7 @@ SDL_Surface *stub_function()
 TEST_CASE(scoreboard_overlay)
 {
 	bool bRes = false;
-	ILogger *pLog = NullLogger::GetInstance();
-	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::NULLTYPE, pLog, 0);
+	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::NULLTYPE, 0);
 	TEST_REQUIRE(pScoreboard);
 
 	// overlay scoreboard
@@ -230,7 +227,7 @@ TEST_CASE(scoreboard_overlay)
 
 	g_stub_surface = pSurface;
 
-	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::OVERLAY, pLog, stub_function);
+	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::OVERLAY, stub_function);
 	TEST_REQUIRE(pScoreboard);
 
 	test_scoreboard_helper(pScoreboard);
@@ -259,7 +256,7 @@ TEST_CASE(scoreboard_overlay)
 	pScoreboard->PreDeleteInstance();
 
 	// now do the same visibility test, except with Thayer's Quest
-	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::OVERLAY, pLog, stub_function, true);
+	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::OVERLAY, stub_function, true);
 	TEST_REQUIRE(pScoreboard);
 
 	bRes = pScoreboard->ChangeVisibility(false);
@@ -282,14 +279,11 @@ TEST_CASE(scoreboard_overlay)
 	pScoreboard->PreDeleteInstance();
 
 	SDL_FreeSurface(pSurface);
-
-	pLog->DeleteInstance();
 }
 
 TEST_CASE(scoreboard_hw)
 {
-	ILogger *pLog = NullLogger::GetInstance();
-	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::HARDWARE, pLog, 0);
+	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::HARDWARE, 0);
 	TEST_REQUIRE(pScoreboard);
 
 	test_scoreboard_helper(pScoreboard);
@@ -297,13 +291,11 @@ TEST_CASE(scoreboard_hw)
 	repaint_helper(pScoreboard, false);
 
 	pScoreboard->PreDeleteInstance();
-	pLog->DeleteInstance();
 }
 
 TEST_CASE(scoreboard_collection)
 {
-	ILogger *pLog = NullLogger::GetInstance();
-	IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(pLog);
+	IScoreboard *pScoreboard = ScoreboardCollection::GetInstance();
 	TEST_REQUIRE(pScoreboard);
 
 	// image + hardware is a valid configuration
@@ -323,7 +315,7 @@ TEST_CASE(scoreboard_collection)
 	g_stub_surface = pSurface;
 
 	// now try another valid configuration
-	pScoreboard = ScoreboardCollection::GetInstance(pLog, stub_function);
+	pScoreboard = ScoreboardCollection::GetInstance(stub_function);
 	TEST_REQUIRE(pScoreboard);
 
 	// overlay + hardware is a valid configuration
@@ -336,7 +328,6 @@ TEST_CASE(scoreboard_collection)
 
 	pScoreboard->PreDeleteInstance();
 	SDL_FreeSurface(pSurface);
-	pLog->DeleteInstance();
 }
 
 void annunciator_helper(IScoreboard *pScoreboard, IScoreboard::WhichDigit digit, bool bRepaintExpected)
@@ -360,8 +351,7 @@ void annunciator_helper(IScoreboard *pScoreboard, IScoreboard::WhichDigit digit,
 TEST_CASE(annunciator)
 {
 	bool bRes = false;
-	ILogger *pLog = NullLogger::GetInstance();
-	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::IMAGE, pLog, 0, false, false);
+	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::IMAGE, 0, false, false);
 	TEST_REQUIRE(pScoreboard);
 
 	annunciator_helper(pScoreboard, IScoreboard::PLAYER1_3, false);
@@ -374,7 +364,7 @@ TEST_CASE(annunciator)
 	pScoreboard->PreDeleteInstance();
 
 	// now re-create with annunciator mode enabled
-	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::IMAGE, pLog, 0, false, true);
+	pScoreboard = ScoreboardFactory::GetInstance(ScoreboardFactory::IMAGE, 0, false, true);
 
 	annunciator_helper(pScoreboard, IScoreboard::PLAYER1_0, false);
 	annunciator_helper(pScoreboard, IScoreboard::PLAYER1_1, false);
@@ -387,6 +377,4 @@ TEST_CASE(annunciator)
 	annunciator_helper(pScoreboard, IScoreboard::LIVES1, true);
 	annunciator_helper(pScoreboard, IScoreboard::CREDITS1_0, false);
 	annunciator_helper(pScoreboard, IScoreboard::CREDITS1_1, false);
-
-	pLog->DeleteInstance();
 }

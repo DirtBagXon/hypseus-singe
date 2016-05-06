@@ -387,8 +387,7 @@ bool parse_game_type()
     } else if (strcasecmp(s, "uvt") == 0) {
         g_game = new uvt();
     } else {
-        outstr("ERROR: Unknown game type specified : ");
-        printline(s);
+        printline("ERROR: Unknown game type specified : %s", s);
         result = false;
     }
 
@@ -851,9 +850,8 @@ bool parse_cmd_line(int argc, char **argv)
                             game_thayers->init_overlay_scoreboard();
                     }
                 } else {
-                    outstr("-useoverlaysb requires an argument such as 0 or 1 "
-                           "after it. Instead, found: ");
-                    printline(s);
+                    printline("-useoverlaysb requires an argument such as 0 or 1 "
+                           "after it. Instead, found: %s", s);
                     result = false;
                 }
             }

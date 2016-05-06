@@ -153,7 +153,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     char frame[FRAME_ARRAY_SIZE] = {0};
     Uint16 frame_number          = 0; // frame to search to
     bool result                  = false;
-    char s1[81]                  = {0};
+    string s1;
 
     // safety check, if they try to search without checking the search result
     // ...
@@ -200,25 +200,22 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
         Uint16 unadjusted_frame = frame_number;
         frame_number = (Uint16)do_frame_conversion(frame_number);
         framenum_to_frame(frame_number, frame);
-        sprintf(s1, "Search to %d (formerly %d) received", frame_number, unadjusted_frame);
+        s1 = "Search to " + numstr::ToStr(frame_number) + " (formerly " + numstr::ToStr(unadjusted_frame) + ") received";
     } else {
-        sprintf(s1, "Search to %d received", frame_number);
+        s1 = "Search to " + numstr::ToStr(frame_number) + " received";
     }
 
-    if (m_bVerbose) outstr(s1);
-
     // notify us if we're still using outdated blocking searching
-    if (block_until_search_finishes && m_bVerbose) outstr(" [blocking] ");
+    if (block_until_search_finishes && m_bVerbose) s1 += " [blocking] ";
+
+    if (m_bVerbose) printline(s1.c_str());
 
     // if it's Dragon's Lair/Space Ace, print the board we are on
     if ((g_game->get_game_type() == GAME_LAIR) || (g_game->get_game_type() == GAME_DLE1) ||
         (g_game->get_game_type() == GAME_DLE2) || (g_game->get_game_type() == GAME_ACE)) {
         Uint8 *cpumem = get_cpu_mem(0); // get the memory for the first (and
                                         // only)
-        outstr(" - ");
         print_board_info(cpumem[0xA00E], cpumem[0xA00F], cpumem[Z80_GET_IY]);
-    } else {
-        if (m_bVerbose) newline();
     }
 
     // If the user requested a delay before seeking, make it now

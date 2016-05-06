@@ -30,7 +30,6 @@
 
 #include <memory.h>
 //#include "common.hpp"
-//#include "logger.hpp"
 #include "SDL.h"
 #include "sound.h" // to get max volume
 #include "tms9919.hpp"

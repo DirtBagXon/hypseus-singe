@@ -31,6 +31,7 @@
 
 #include <SDL.h>
 #include <string.h>
+#include <g3log/g3log.hpp>
 #include "../hypseus.h"
 #include "conout.h"
 #include "input.h"
@@ -42,22 +43,16 @@
 // information";
 const char *instr = "Read hypseus_log.txt for help";
 
-const char CRLF[3] = {13, 10, 0}; // carriage return / linefeed combo, for the
-                                  // addlog statements in this file
-
 // notifies the user of an error that has occurred
 void printerror(const char *s)
 {
     //	SDL_Rect region = { 0, 180, get_video_width(),
     //(Uint16)(get_video_height() >> 1) };
 
-    addlog(s);
-    addlog(CRLF);
-
 #ifdef WIN32
     MessageBox(NULL, s, "Encountered an error", MB_OK | MB_ICONERROR);
 #else
-    printf("%s\n", s);
+    LOG(FATAL) << s;
 #endif
 }
 
@@ -65,11 +60,11 @@ void printerror(const char *s)
 // this should be called after video has successfully been initialized
 void printnowookin(const char *s)
 {
-    printf("%s\n", s);
+    LOG(FATAL) << s;
 }
 
 // prints a notice to the screen
 void printnotice(const char *s)
 {
-    printf("%s\n", s);
+    LOG(FATAL) << s;
 }

@@ -8,11 +8,11 @@ void HwScoreboard::DeleteInstance()
 	delete this;
 }
 
-IScoreboard *HwScoreboard::GetInstance(unsigned int uParallelPort, ILogger *pLogger)
+IScoreboard *HwScoreboard::GetInstance(unsigned int uParallelPort)
 {
 	HwScoreboard *pRes = 0;
 
-	pRes = new HwScoreboard(uParallelPort, pLogger);
+	pRes = new HwScoreboard(uParallelPort);
 
 	// try to init, if this fails, we fail
 	// (NOTE: ParInit must be called first because Init calls set_digit)
@@ -27,19 +27,18 @@ IScoreboard *HwScoreboard::GetInstance(unsigned int uParallelPort, ILogger *pLog
 
 bool HwScoreboard::ParInit()
 {
-	bool bRes = par::init(m_uParallelPort, m_pLogger);
+	bool bRes = par::init(m_uParallelPort);
 	return bRes;
 }
 
 void HwScoreboard::ParShutdown()
 {
-	par::close(m_pLogger);
+	par::close();
 }
 
-HwScoreboard::HwScoreboard(unsigned int uParallelPort, ILogger *pLogger)
+HwScoreboard::HwScoreboard(unsigned int uParallelPort)
 {
 	m_uParallelPort = uParallelPort;
-	m_pLogger = pLogger;
 }
 
 HwScoreboard::~HwScoreboard()

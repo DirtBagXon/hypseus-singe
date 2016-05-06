@@ -228,7 +228,7 @@ bool sound_init()
 
             // if audio device could not be opened (ie no sound card)
             else {
-                outstr("WARNING: Audio device could not be opened: ");
+                printline("WARNING: Audio device could not be opened: ");
                 printline(SDL_GetError());
                 g_sound_enabled = false;
             }
@@ -315,7 +315,7 @@ int load_waves()
             }
             // else specs are not correct
             else {
-                outstr("ERROR: Audio specs are not correct for ");
+                printline("ERROR: Audio specs are not correct for ");
                 printline(filename.c_str());
                 result = 0;
             }
@@ -324,7 +324,7 @@ int load_waves()
         // TODO : add .OGG loading support in here
 
         else {
-            outstr("ERROR: Could not open sample file ");
+            printline("ERROR: Could not open sample file ");
             printline(filename.c_str());
             result = 0;
         }

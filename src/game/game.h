@@ -74,7 +74,6 @@ enum {
 #include "../sound/sound.h"
 #include "../cpu/cpu.h"  // for CPU_MEM_SIZE
 #include "../io/input.h" // for SWITCH definitions, most/all games need them
-#include "../io/logger.h"
 
 typedef void *unzFile; // because including the unzip header file gives some
                        // compiler error
@@ -345,9 +344,6 @@ class game
     // if the game uses the mouse, this should be set to true IN THE GAME'S
     // CONSTRUCTOR
     bool m_bMouseEnabled;
-
-    // logger interface (for writing to hypseus_log.txt file)
-    ILogger *m_pLogger;
 
 #ifdef CPU_DEBUG
     struct addr_name *addr_names;

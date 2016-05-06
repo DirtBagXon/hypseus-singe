@@ -61,6 +61,10 @@ using namespace std;
 #include <unistd.h> // for chdir
 #endif
 
+#include <g3log/g3log.hpp>
+#include <g3log/logmessage.hpp>
+#include <g3log/logworker.hpp>
+#include <iostream>
 #include "io/homedir.h"
 #include "io/input.h"
 #include "hypseus.h"
@@ -146,6 +150,29 @@ int main(int argc, char **argv)
     int result_code = 1; // assume an error unless we find otherwise
 
     set_cur_dir(argv[0]); // set active directory
+
+    struct ColorCoutSink {
+        enum FG_Color { YELLOW = 33, RED = 31, GREEN = 32, WHITE = 97 };
+        FG_Color GetColor(const LEVELS level) const {
+            if (level.value == WARNING.value) { return YELLOW; }
+            if (level.value == DBUG.value) { return GREEN; }
+            if (g3::internal::wasFatal(level)) { return RED; }
+            return WHITE;
+        }
+    
+        void ReceiveLogMessage(g3::LogMessageMover logEntry) {
+            auto level = logEntry.get()._level;
+            auto color = GetColor(level);
+            std::cout << "\033[" << color << "m"
+                << logEntry.get().toString() << "\033[m";
+        }
+    };
+
+    auto logworker = g3::LogWorker::createLogWorker();
+    auto sinkHandle = logworker->addSink(std2::make_unique<ColorCoutSink>(),
+		    &ColorCoutSink::ReceiveLogMessage);
+
+    g3::initializeLogging(logworker.get());
 
     reset_logfile(argc, argv);
 
@@ -299,40 +326,33 @@ unsigned int get_scoreboard_port() { return (rsb_port); }
 void reset_logfile(int argc, char **argv)
 {
     int i = 0;
-    char s[160];
     string str;
 
-    snprintf(s, sizeof(s), "--HYPSEUS version %s", get_hypseus_version());
-    printline(s);
-    str = "--Command line is: ";
+    LOG(INFO) << "Version " << get_hypseus_version();
     for (i = 0; i < argc; i++) {
         str = str + argv[i] + " ";
     }
-    printline(str.c_str());
-    snprintf(s, sizeof(s), "--CPU : %s || Mem : %d megs", get_cpu_name(), get_sys_mem());
-    printline(s);
-    snprintf(s, sizeof(s), "--OS : %s || Video : %s", get_os_description(),
-             get_video_description());
-    printline(s);
-
-    outstr("--RGB2YUV Function: ");
+    LOG(INFO) << "Command line: " << str;
+    LOG(INFO) << "CPU : " << get_cpu_name() << " || Mem : " << get_sys_mem() << " megs";
+    LOG(INFO) << "OS : " << get_os_description() << " || Video : " << get_video_description();
+    LOG(INFO) << "RGB2YUV Function: "
 #ifdef USE_MMX
-    printline("MMX");
+    << "MMX";
 #else
-    printline("C");
+    << "C";
 #endif
-    outstr("--Line Blending Function: ");
+    LOG(INFO) << "Line Blending Function: "
 #ifdef USE_MMX
-    printline("MMX");
+    << "MMX";
 #else
-    printline("C");
+    << "C";
 #endif // blend MMX
 
-    outstr("--Audio Mixing Function: ");
+    LOG(INFO) << "Audio Mixing Function: "
 #ifdef USE_MMX
-    printline("MMX");
+    << "MMX";
 #else
-    printline("C");
+    << "C";
 #endif // blend MMX
 }
 

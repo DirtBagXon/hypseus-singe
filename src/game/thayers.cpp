@@ -121,7 +121,7 @@ bool thayers::init()
         cpu_init();
 
         IScoreboard *pScoreboard =
-            ScoreboardCollection::GetInstance(m_pLogger, tq_get_active_overlay,
+            ScoreboardCollection::GetInstance(tq_get_active_overlay,
                                               true,  // we are thayers quest
                                               false, // not using annunciator,
                                                      // that's just for Space

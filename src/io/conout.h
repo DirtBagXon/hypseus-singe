@@ -28,16 +28,12 @@
 
 #define LOGNAME "hypseus_log.txt" // name of our logfile if we are using one
 
-void outstr(const char *s);
 void outchr(const char ch);
-void printline(const char *s);
-void newline();
+void printline(const char *fmt, ...);
 void noflood_printline(char *s);
 void safe_itoa(int num, char *a, int sizeof_a);
 
 // enables/disables log from being written to disk
 void set_log_enabled(bool val);
-
-void addlog(const char *s);
 
 #endif

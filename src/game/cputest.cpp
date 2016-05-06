@@ -150,7 +150,7 @@ void cputest::update_pc(Uint32 new_pc)
             Z80_SET_PC(new_pc); // return from call
             Z80_SET_SP(sp + 2); // pop return address off stack
         } else {
-            printf("Warning, unknown command received at 5!\n");
+            printline("Warning, unknown command received at 5!\n");
             set_quitflag();
         }
     }

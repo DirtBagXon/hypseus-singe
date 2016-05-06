@@ -3,9 +3,6 @@
 
 #include "scoreboard_interface.h"
 
-// parallel port code does logging, so we need a logger
-#include "../io/logger.h"
-
 class ScoreboardFactory;
 
 class HwScoreboard : public IScoreboard
@@ -16,7 +13,7 @@ class HwScoreboard : public IScoreboard
 public:
 	// I made GetInstance public so my 'clear_hw_scoreboard' program could access this
 	//  directly without linking against the other scoreboard types.
-	static IScoreboard *GetInstance(unsigned int uParallelPort, ILogger *pLogger);
+	static IScoreboard *GetInstance(unsigned int uParallelPort);
 
 	void DeleteInstance();
 
@@ -40,11 +37,10 @@ private:
 	// shutdown the parallel port
 	void ParShutdown();
 
-	HwScoreboard(unsigned int uParallelPort, ILogger  *pLogger);
+	HwScoreboard(unsigned int uParallelPort);
 	virtual ~HwScoreboard();
 
 	unsigned int m_uParallelPort;
-	ILogger *m_pLogger;
 };
 
 #endif // HW_SCOREBOARD_H

@@ -20,17 +20,15 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "logger.h"
-
 // This is now a static class to hide the global member variable(s) that it
 // uses.
 class par
 {
   public:
-    static bool init(unsigned int port, ILogger *pLogger);
+    static bool init(unsigned int port);
     static void base0(unsigned char data);
     static void base2(unsigned char data);
-    static void close(ILogger *pLogger);
+    static void close();
 
   private:
     // index into the port arrays for the purpose of getting the port addresses

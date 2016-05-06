@@ -36,11 +36,13 @@ configure_file(
     "${PROJECT_BINARY_DIR}/config.h"
 )
 
-
+include(BuildSupport)
 include(InstallRequiredSystemLibraries)
 include(FindPkgConfig)
 include(ExternalProject)
 include(BuildLibMPEG2)
+
+use_cxx11()
 
 find_package(SDL2 REQUIRED)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
@@ -58,6 +60,8 @@ if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
     enable_language( ASM )
     set(can_use_assembler TRUE)
 endif()
+
+add_subdirectory(3rdparty)
 
 add_subdirectory(cpu)
 add_subdirectory(game)
@@ -77,7 +81,7 @@ add_dependencies( sound vldp )
 
 set(EXECUTABLE_NAME "hypseus")
 add_executable( ${EXECUTABLE_NAME} hypseus.cpp globals.h )
-target_link_libraries( ${EXECUTABLE_NAME} io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )
+target_link_libraries( ${EXECUTABLE_NAME} g3logger io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )
 
 set_source_files_properties( testvldp.c PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.c )

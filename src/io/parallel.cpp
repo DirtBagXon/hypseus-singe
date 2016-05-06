@@ -22,6 +22,8 @@
 
 #include "config.h"
 
+#include <g3log/g3log.hpp>
+
 #include "parallel.h"
 #include "numstr.h"
 
@@ -46,7 +48,7 @@ typedef void(WINAPI *Out32_t)(short PortAddress, short data);
 Out32_t Out32;
 HINSTANCE g_hInstInpout;
 
-bool par::init(unsigned int port, ILogger *pLogger)
+bool par::init(unsigned int port)
 // initializes parallel port for use
 // port 0 is LPT1
 // port 1 is LPT2
@@ -61,9 +63,7 @@ bool par::init(unsigned int port, ILogger *pLogger)
 
     m_uPortIdx = port;
 
-    string s = "Opening parallel port at address 0x";
-    s += numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
-    pLogger->Log(s);
+    LOG(INFO) << "Opening parallel port at address 0x" << numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
 
     g_hInstInpout = LoadLibrary("inpout32.dll");
     if (g_hInstInpout == NULL) {
@@ -86,10 +86,10 @@ void par::base0(unsigned char data) { Out32(m_base0[m_uPortIdx], data); }
 // writes a byte to the port at base+2
 void par::base2(unsigned char data) { Out32(m_base2[m_uPortIdx], data); }
 
-void par::close(ILogger *pLogger)
+void par::close()
 {
     // does nothing with current win32 implementation
-    pLogger->Log("Closing parallel port");
+    LOG(INFO) << "Closing parallel port";
 
     FreeLibrary(g_hInstInpout);
     g_hInstInpout = NULL;
@@ -110,14 +110,12 @@ void par::close(ILogger *pLogger)
 
 // initializes the specified port (0 is LPT1)
 // returns 1 if successful, 0 if failted
-bool par::init(unsigned int port, ILogger *pLogger)
+bool par::init(unsigned int port)
 {
 
     bool result = false;
-    char s[81]  = {0};
 
-    sprintf(s, "Opening parallel port %d", port);
-    pLogger->Log(s);
+    LOGF(INFO, "Opening parallel port %d", port);
 
     if (port > 1) // if port is not LPT1 or LPT2, a custom address for the port
                   // was specified
@@ -144,7 +142,7 @@ void par::base0(unsigned char data) { outb(data, par::m_base0[m_uPortIdx]); }
 void par::base2(unsigned char data) { outb(data, par::m_base2[m_uPortIdx]); }
 
 // closes parallel port
-void par::close(ILogger *pLogger)
+void par::close()
 {
     // we don't have to do anything here
 }
@@ -153,11 +151,11 @@ void par::close(ILogger *pLogger)
 #else  // end NATIVE_CPU_X86
 
 // here is the code for systems that have no parallel support
-bool par::init(unsigned int port, ILogger *pLogger) { return false; }
+bool par::init(unsigned int port) { return false; }
 
 void par::base0(unsigned char data) {}
 
 void par::base2(unsigned char data) {}
 
-void par::close(ILogger *pLogger) {}
+void par::close() {}
 #endif

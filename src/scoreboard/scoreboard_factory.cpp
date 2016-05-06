@@ -5,9 +5,8 @@
 #include "null_scoreboard.h"
 #include "img_scoreboard.h"
 #include "overlay_scoreboard.h"
-#include "../io/logger.h"
 
-IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type, ILogger *pLogger,
+IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type,
 											SDL_Surface *(*pFuncGetActiveOverlay)(), bool bThayers,
 											bool bUsingAnnunciator,
 											unsigned int uWhichPort)
@@ -26,7 +25,7 @@ IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type, ILogger *pLogge
 		pRes = OverlayScoreboard::GetInstance(pFuncGetActiveOverlay, bThayers);
 		break;
 	case HARDWARE:	// hardware scoreboard via parallel port
-		pRes = HwScoreboard::GetInstance(uWhichPort, pLogger);
+		pRes = HwScoreboard::GetInstance(uWhichPort);
 		break;
 	}
 

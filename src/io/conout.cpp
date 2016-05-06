@@ -27,10 +27,12 @@
 #include "config.h"
 
 #include <string>
+#include <iostream>
 #include <list>
 #include <stdio.h>
 #include <string.h>
 #include <SDL.h>
+#include <g3log/g3log.hpp>
 #include "conout.h"
 #include "../hypseus.h"
 #include "../video/video.h"
@@ -50,17 +52,6 @@ bool g_log_enabled = false;
 // (using a list because it is faster than a vector)
 list<string> g_lsPendingLog;
 
-// Prints a "c string" to the screen
-// Returns 1 on success, 0 on failure
-void outstr(const char *s)
-{
-#ifdef UNIX
-    fputs(s, stdout);
-#endif
-
-    addlog(s); // add to our logfile
-}
-
 // Prints a single character to the screen
 // Returns 1 on success, 0 on failure
 void outchr(const char ch)
@@ -73,31 +64,15 @@ void outchr(const char ch)
         s[1] = 0;
     }
 
-    outstr(s);
+    printf(s);
 }
 
-// prints a null-terminated string to the screen
-// and adds a line feed
-// 1 = success
-void printline(const char *s)
+void printline(const char *fmt, ...)
 {
-    outstr(s);
-    newline();
-}
-
-// moves to the next line without printing anything
-void newline()
-{
-
-    // Carriage return followed by line feed
-    // So we can read the blasted thing in notepad
-    static char newline_str[3] = {13, 10, 0};
-
-#ifdef UNIX
-    printf("\n");
-#endif
-
-    addlog(newline_str);
+    va_list args;
+    va_start(args, fmt);
+    LOGF(INFO, fmt, args);
+    va_end(args);
 }
 
 // flood-safe printline
@@ -153,42 +128,3 @@ void safe_itoa(int num, char *a, int sizeof_a)
 }
 
 void set_log_enabled(bool val) { g_log_enabled = val; }
-
-// adds a string to a log file (creates the logfile if it does not exist)
-void addlog(const char *s)
-{
-    // if logging is enabled
-    if (g_log_enabled) {
-        mpo_io *io     = NULL;
-        string logname = g_homedir.get_homedir();
-        logname += "/";
-        logname += LOGNAME;
-
-        io = mpo_open(logname.c_str(), MPO_OPEN_APPEND);
-        if (io) {
-            // if our list has stuff in it waiting to be written out to disk,
-            // then do so now
-            if (!g_lsPendingLog.empty()) {
-                // empty the log of its contents
-                for (list<string>::iterator i = g_lsPendingLog.begin();
-                     i != g_lsPendingLog.end(); i++) {
-                    mpo_write((*i).c_str(), (*i).size(), NULL, io);
-                }
-                g_lsPendingLog.clear();
-            }
-            mpo_write(s, strlen(s), NULL, io);
-            mpo_close(io);
-        }
-        // else directory is read-only so we will just ignore for now
-        else {
-#ifdef UNIX
-            printf("Cannot write to '%s', do you have write permissions?\n",
-                   logname.c_str());
-#endif
-        }
-    }
-    // else logging is disabled, so we have to store log entries to memory
-    else {
-        g_lsPendingLog.push_back(s); // store to RAM for now ...
-    }
-}

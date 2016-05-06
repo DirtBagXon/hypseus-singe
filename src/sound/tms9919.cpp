@@ -31,7 +31,6 @@
 //#include <stdlib.h>
 #include "SDL.h"
 //#include "common.hpp"
-//#include "logger.hpp"
 #include "tms9919.hpp"
 
 // DBG_REGISTER ( __FILE__ );

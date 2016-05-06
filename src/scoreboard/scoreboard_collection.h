@@ -9,7 +9,7 @@ using namespace std;
 class ScoreboardCollection : public IScoreboard
 {
 public:
-	static IScoreboard *GetInstance(ILogger *pLogger, SDL_Surface *(*pFuncGetActiveOverlay)() = 0, bool bThayersQuest = false,
+	static IScoreboard *GetInstance(SDL_Surface *(*pFuncGetActiveOverlay)() = 0, bool bThayersQuest = false,
 		bool bUsingAnnunciactor = false,
 		unsigned int uWhichPort = 0);
 
@@ -40,8 +40,6 @@ private:
 	bool AddType(ScoreboardFactory::ScoreboardType type);
 	
 	list <IScoreboard *> m_lScoreboards;
-
-	ILogger *m_pLogger;
 
 	SDL_Surface *(*m_pFuncGetActiveOverlay)();
 

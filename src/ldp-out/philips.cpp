@@ -206,10 +206,7 @@ bool philips::check_result(const char *result_string, Uint32 timeout_val, bool w
         if (strcasecmp(result_string, s) == 0) {
             result = true;
         } else {
-            outstr("PHILIPS player returned unexpected response.  We wanted ");
-            outstr(result_string);
-            outstr(" but we got ");
-            printline(s);
+            printline("PHILIPS player returned unexpected response.  We wanted %s but we got %s", result_string, s);
         }
     }
 

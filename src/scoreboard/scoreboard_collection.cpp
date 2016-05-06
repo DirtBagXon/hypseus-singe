@@ -2,14 +2,13 @@
 
 #include "scoreboard_collection.h"
 
-IScoreboard *ScoreboardCollection::GetInstance(ILogger *pLogger, SDL_Surface *(*pFuncGetActiveOverlay)(), bool bThayersQuest,
+IScoreboard *ScoreboardCollection::GetInstance(SDL_Surface *(*pFuncGetActiveOverlay)(), bool bThayersQuest,
 		bool bUsingAnnunciactor,
 		unsigned int uWhichPort)
 {
 	ScoreboardCollection *pInstance = new ScoreboardCollection();
 	if (pInstance)
 	{
-		pInstance->m_pLogger = pLogger;
 		pInstance->m_pFuncGetActiveOverlay = pFuncGetActiveOverlay;
 		pInstance->m_bThayersQuest = bThayersQuest;
 		pInstance->m_bUsingAnnunciator = bUsingAnnunciactor;
@@ -38,7 +37,7 @@ bool ScoreboardCollection::AddType(ScoreboardFactory::ScoreboardType type)
 {
 	bool bRes = false;
 
-	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(type, m_pLogger, m_pFuncGetActiveOverlay, m_bThayersQuest,
+	IScoreboard *pScoreboard = ScoreboardFactory::GetInstance(type, m_pFuncGetActiveOverlay, m_bThayersQuest,
 		m_bUsingAnnunciator, m_uWhichPort);
 
 	if (pScoreboard)
@@ -145,7 +144,6 @@ bool ScoreboardCollection::get_digit(unsigned int &uValue, WhichDigit which)
 
 
 ScoreboardCollection::ScoreboardCollection() :
-m_pLogger(NULL),
 m_pFuncGetActiveOverlay(NULL),
 m_bThayersQuest(false),
 m_bUsingAnnunciator(false),

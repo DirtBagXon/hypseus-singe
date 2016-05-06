@@ -45,8 +45,6 @@ bool ImgScoreboard::RepaintIfNeeded()
 
 	if (m_bNeedsRepaint)
 	{
-		vid_blank();
-
 		// draw all scoreboard decorations
 		draw_othergfx(B_DL_PLAYER1, player_title_x, player1_title_y, false);
 		draw_othergfx(B_DL_PLAYER2, player_title_x, player2_title_y, false);
@@ -100,8 +98,6 @@ bool ImgScoreboard::RepaintIfNeeded()
 			uValue = m_DigitValues[which];
 			draw_led(uValue, coord_x, coord_y);
 		}
-
-		vid_flip();
 
 		bRepainted = true;
 		m_bNeedsRepaint = false;

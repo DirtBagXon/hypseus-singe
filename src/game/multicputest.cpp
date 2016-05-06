@@ -115,8 +115,7 @@ void mcputest::port_write(Uint16 Port, Uint8 Value)
         return;
     }
 
-    sprintf(s, "CPU #%u sends %u to port %u ... ", which_cpu, Value, Port);
-    outstr(s);
+    printline("CPU #%u sends %u to port %u ... ", which_cpu, Value, Port);
 
     if (which_cpu == 0) {
         expected_val[0][Port] = (Uint8)(old_val[0][Port] + 1);

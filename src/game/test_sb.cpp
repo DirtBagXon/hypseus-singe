@@ -1,7 +1,6 @@
 #include "config.h"
 
 #include "test_sb.h"
-#include "../io/logger_factory.h"
 #include "../hypseus.h" // for get_quitflag
 #include "../io/input.h"
 #include "../ldp-out/ldp.h"
@@ -15,8 +14,7 @@ test_sb::test_sb()
 
 void test_sb::start()
 {
-    ILogger *pLogger         = LoggerFactory::GetInstance(LoggerFactory::NULLTYPE);
-    IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(pLogger);
+    IScoreboard *pScoreboard = ScoreboardCollection::GetInstance();
     unsigned int which       = IScoreboard::PLAYER1_0;
 
     // this is mainly used to test the hardware scoreboard, so we'll add an
@@ -45,5 +43,4 @@ void test_sb::start()
     }
 
     pScoreboard->PreDeleteInstance();
-    pLogger->DeleteInstance();
 }

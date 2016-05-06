@@ -723,7 +723,7 @@ bool lair::init()
     cpu_init();
 
     IScoreboard *pScoreboard =
-        ScoreboardCollection::GetInstance(m_pLogger, lair_get_active_overlay,
+        ScoreboardCollection::GetInstance(lair_get_active_overlay,
                                           false, // we aren't thayer's quest
                                           m_bUseAnnunciator, get_scoreboard_port());
 
