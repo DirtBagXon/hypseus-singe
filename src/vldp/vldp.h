@@ -37,11 +37,11 @@ extern "C" {
 #include <mpeg2.h>
 
 struct yuv_buf {
-    unsigned char *Y;     // Y channel
-    unsigned char *U;     // U channel
-    unsigned char *V;     // V channel
-    unsigned int Y_size;  // size in bytes of Y
-    unsigned int UV_size; // size in bytes of U and V
+    uint8_t *Y;     // Y channel
+    uint8_t *U;     // U channel
+    uint8_t *V;     // V channel
+    int Y_size;     // size in bytes of Y
+    int UV_size;    // size in bytes of U and V
 };
 
 // safe strcpy that null-terminates the end of a string
@@ -64,7 +64,7 @@ struct vldp_in_info {
     // VLDP to sleep
     // until it's time for the frame to be displayed.
     // This returns 1 if the frame was prepared successfully, or 0 on error
-    int (*prepare_frame)(const mpeg2_info_t *info);
+    int (*prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 
     // VLDP calls this when it wants the frame that was earlier prepared to be
     // displayed

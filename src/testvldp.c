@@ -43,12 +43,15 @@ SDL_RendererInfo g_rendererinfo;
 
 void printerror(const char *cpszErrMsg) { puts(cpszErrMsg); }
 
-int prepare_frame_callback(const mpeg2_info_t *info)
+int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch)
 {
     VLDP_BOOL result = VLDP_FALSE;
 
 #ifdef SHOW_FRAMES
-    result = (SDL_UpdateYUVTexture(g_texture, NULL, info->display_fbuf->buf[0], info->sequence->width, info->display_fbuf->buf[1], info->sequence->chroma_width, info->display_fbuf->buf[2], info->sequence->chroma_width) == 0) ? VLDP_TRUE : VLDP_FALSE;
+    result = (SDL_UpdateYUVTexture(g_texture, NULL,
+			    Yplane, Ypitch,
+			    Uplane, Upitch,
+			    Vplane, Vpitch) == 0) ? VLDP_TRUE : VLDP_FALSE;
 #endif // SHOW FRAMES
 
     return result;

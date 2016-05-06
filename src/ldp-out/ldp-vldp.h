@@ -192,8 +192,7 @@ class ldp_vldp : public ldp
 
 // functions that cannot be part of the class because we may need to use them as
 // function pointers
-int prepare_frame_callback_with_overlay(const mpeg2_info_t *info);
-int prepare_frame_callback_without_overlay(const mpeg2_info_t *info);
+int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 void display_frame_callback();
 void set_blend_fields(bool val);
 void update_parse_meter();

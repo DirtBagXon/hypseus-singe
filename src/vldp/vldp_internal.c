@@ -1363,7 +1363,14 @@ void draw_frame(const mpeg2_info_t *info)
             s_extra_delay_ms = 0;
 
             if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks)) {
-                if (g_in_info->prepare_frame(info)) {
+                if (g_in_info->prepare_frame(
+                        info->display_fbuf->buf[0],
+                        info->display_fbuf->buf[1],
+                        info->display_fbuf->buf[2],
+                        info->sequence->width,
+                        info->sequence->chroma_width,
+                        info->sequence->chroma_width
+                    )) {
 #ifndef VLDP_BENCHMARK
                     while (((Sint32)(g_in_info->uMsTimer - s_timer) < correct_elapsed_ms) &&
                            (!bFrameNotShownDueToCmd)) {

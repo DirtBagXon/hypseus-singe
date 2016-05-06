@@ -170,20 +170,7 @@ bool ldp_vldp::init_player()
                 }
 
                 if (audio_init() && !get_quitflag()) {
-                    // if our game is using video overlay,
-                    // AND if we're not doing tests that an overlay would
-                    // interfere with
-                    // we'll use our slower callback
-                    if (g_game->get_active_video_overlay() && !m_testing) {
-                        g_local_info.prepare_frame = prepare_frame_callback_with_overlay;
-                    }
-
-                    // otherwise we can draw the frame much faster w/o worrying
-                    // about
-                    // video overlay
-                    else {
-                        g_local_info.prepare_frame = prepare_frame_callback_without_overlay;
-                    }
+                    g_local_info.prepare_frame          = prepare_frame_callback;
                     g_local_info.display_frame          = display_frame_callback;
                     g_local_info.report_parse_progress  = report_parse_progress_callback;
                     g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
@@ -1530,11 +1517,14 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
 //////////////////////////////////////////////////////////////////////
 
 // returns VLDP_TRUE on success, VLDP_FALSE on failure
-int prepare_frame_callback_with_overlay(const mpeg2_info_t *info)
+int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch)
 {
     int result = VLDP_FALSE;
 
-    result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, info->display_fbuf->buf[0], info->sequence->width, info->display_fbuf->buf[1], info->sequence->chroma_width, info->display_fbuf->buf[2], info->sequence->chroma_width) == 0) ? VLDP_TRUE : VLDP_FALSE;
+    result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+			    Yplane, Ypitch,
+			    Uplane, Upitch,
+			    Vplane, Vpitch) == 0) ? VLDP_TRUE : VLDP_FALSE;
 
 /*
         SDL_Surface *gamevid =
@@ -1762,37 +1752,6 @@ int prepare_frame_callback_with_overlay(const mpeg2_info_t *info)
     return result;
 }
 
-// faster callback because it assumes we have no overlay
-// returns VLDP_TRUE on success, VLDP_FALSE on failure
-int prepare_frame_callback_without_overlay(const mpeg2_info_t *info)
-{
-    int result = VLDP_FALSE;
-
-    result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, info->display_fbuf->buf[0], info->sequence->width, info->display_fbuf->buf[1], info->sequence->chroma_width, info->display_fbuf->buf[2], info->sequence->chroma_width) == 0) ? VLDP_TRUE : VLDP_FALSE;
-
-/*
-    // if locking the video overlay is successful
-    if (SDL_LockYUVOverlay(g_yuv_texture) == 0) {
-        buf2overlay_YUY2(g_yuv_texture, buf);
-
-        // if we've been instructed to take a screenshot, do so now that the
-        // overlay is in place
-        if (g_take_screenshot) {
-            g_take_screenshot = false;
-            take_screenshot(g_yuv_texture);
-        }
-
-        SDL_UnlockYUVOverlay(g_yuv_texture);
-
-        result = VLDP_TRUE;
-    }
-*/
-
-    // else just ignore
-
-    return result;
-}
-
 // displays the frame as fast as possible
 void display_frame_callback()
 {
@@ -1998,8 +1957,7 @@ void blank_overlay()
 {
     // FIXME
     // only do this if the HW overlay has already been allocated
-    //if (g_yuv_texture) {
-    //    g_local_info.prepare_frame(&g_blank_yuv_buf);
-    //    g_local_info.display_frame(&g_blank_yuv_buf);
-   // }
+    if (g_yuv_texture) {
+        g_local_info.display_frame();
+    }
 }
