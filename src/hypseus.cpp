@@ -169,7 +169,7 @@ int main(int argc, char **argv)
         change_led(false, false, false); // turns all keyboard leds off
 
         // if the display initialized properly
-        if (load_bmps() && init_display()) {
+        if (init_display() && load_bmps()) {
             if (sound_init()) {
                 if (SDL_input_init()) {
                     // if the roms were loaded successfully

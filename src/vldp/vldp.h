@@ -198,6 +198,10 @@ struct vldp_out_info {
                                 // are on
     unsigned int uLastCachedIndex; // the index of the file that was last
                                    // precached (if any)
+
+    SDL_mutex *YUVlock;
+    SDL_cond  *canUpdate;
+    SDL_cond  *canDisplay;
 };
 
 enum { STAT_ERROR, STAT_BUSY, STAT_STOPPED, STAT_PLAYING, STAT_PAUSED };

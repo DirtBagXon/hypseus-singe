@@ -87,8 +87,8 @@ void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y,
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
 void free_bmps();
-SDL_Surface *load_one_bmp(const char *);
-void free_one_bmp(SDL_Surface *);
+SDL_Texture *load_one_bmp(const char *);
+void free_one_bmp(SDL_Texture *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
 SDL_Renderer *get_renderer();

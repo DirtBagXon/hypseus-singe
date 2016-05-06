@@ -57,8 +57,8 @@ const Uint16 cg_normalheights[] = {480, 600, 768, 960, 1024, 1200};
 unsigned int g_draw_width = 640, g_draw_height = 480;
 
 FC_Font *g_font = NULL;
-SDL_Surface *g_led_bmps[LED_RANGE] = {0};
-SDL_Surface *g_other_bmps[B_EMPTY] = {0};
+SDL_Texture *g_led_bmps[LED_RANGE] = {0};
+SDL_Texture *g_other_bmps[B_EMPTY] = {0};
 SDL_Window  *g_window              = NULL;
 SDL_Renderer *g_renderer           = NULL;
 SDL_Texture *g_screen              = NULL; // our primary display
@@ -181,7 +181,7 @@ void shutdown_display()
 
 void vid_flip()
 {
-    SDL_RenderCopy(g_renderer, g_screen, NULL, NULL);
+    //SDL_RenderCopy(g_renderer, g_screen, NULL, NULL);
     SDL_RenderPresent(g_renderer);
 }
 
@@ -191,26 +191,13 @@ void vid_blank()
     SDL_RenderClear(g_renderer);
 }
 
-void vid_blit(SDL_Surface *srf, int x, int y)
+void vid_blit(SDL_Texture *tx, int x, int y)
 {
-    void *pixels;
-    int pitch;
-    if (g_ldp->is_blitting_allowed()) {
-            SDL_Rect dest;
-            dest.x = (short)x;
-            dest.y = (short)y;
-            dest.w = (unsigned short)srf->w;
-            dest.h = (unsigned short)srf->h;
-            SDL_BlitSurface(srf, NULL, g_screen_blitter, &dest);
-	    SDL_LockTexture(g_screen, NULL, &pixels, &pitch);
-	    SDL_ConvertPixels(g_screen_blitter->w, g_screen_blitter->h,
-			    g_screen_blitter->format->format,
-			    g_screen_blitter->pixels, g_screen_blitter->pitch,
-			    SDL_PIXELFORMAT_RGBA8888,
-			    pixels, pitch);
-	    SDL_UnlockTexture(g_screen);
-    }
-    // else blitting isn't allowed, so just ignore
+    SDL_Rect dest;
+    dest.x = (short)x;
+    dest.y = (short)y;
+    SDL_QueryTexture(tx, NULL, NULL, &dest.w, &dest.h);
+    SDL_RenderCopy(g_renderer, tx, NULL, &dest);
 }
 
 // redraws the proper display (Scoreboard, etc) on the screen, after first
@@ -267,17 +254,21 @@ bool load_bmps()
     return (result);
 }
 
-SDL_Surface *load_one_bmp(const char *filename)
+SDL_Texture *load_one_bmp(const char *filename)
 {
+    SDL_Texture *texture = NULL;
     SDL_Surface *result = SDL_LoadBMP(filename);
 
-    if (!result) {
-        string err = "Could not load bitmap : ";
-        err = err + filename;
-        printerror(err.c_str());
+    if (result)
+        texture = SDL_CreateTextureFromSurface(g_renderer, result);
+
+    if (!texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not load bitmap: %s", SDL_GetError());
+    } else {
+        SDL_FreeSurface(result);
     }
 
-    return (result);
+    return (texture);
 }
 
 // Draw's one of our LED's to the screen
@@ -309,7 +300,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
     /* Draw the digit(s) */
     for (int i = 0; i < num_digits; i++) {
         src.x = values[i] * OVERLAY_LED_WIDTH;
-        SDL_BlitSurface(g_other_bmps[B_OVERLAY_LEDS], &src, overlay, &dest);
+        SDL_RenderCopy(g_renderer, g_other_bmps[B_OVERLAY_LEDS], &src, &dest);
         dest.x += OVERLAY_LED_WIDTH;
     }
 
@@ -367,7 +358,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
                           // space
 
         src.x = value * OVERLAY_LDP1450_WIDTH;
-        SDL_BlitSurface(g_other_bmps[B_OVERLAY_LDP1450], &src, overlay, &dest);
+        SDL_RenderCopy(g_renderer, g_other_bmps[B_OVERLAY_LDP1450], &src, &dest);
 
         dest.x += OVERLAY_LDP1450_CHARACTER_SPACING;
     }
@@ -382,16 +373,17 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 //  'which' corresponds to enumerated values
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
 {
-    SDL_Surface *srf = g_other_bmps[which];
+    // NOTE : this is drawn to g_screen_blitter, not to g_screen,
+    //  to be more friendly to our opengl implementation!
+    SDL_Texture *tx = g_other_bmps[which];
     SDL_Rect dest;
     dest.x = (short)x;
     dest.y = (short)y;
-    dest.w = (unsigned short)srf->w;
-    dest.h = (unsigned short)srf->h;
+    SDL_QueryTexture(tx, NULL, NULL, &dest.w, &dest.h);
 
     // if we should blit this to the screen blitter for later use ...
     if (bSendToScreenBlitter) {
-        SDL_BlitSurface(srf, NULL, g_screen_blitter, &dest);
+        SDL_RenderCopy(g_renderer, tx, NULL, &dest);
     }
     // else blit it now
     else {
@@ -418,7 +410,7 @@ void free_bmps()
     }
 }
 
-void free_one_bmp(SDL_Surface *candidate) { SDL_FreeSurface(candidate); }
+void free_one_bmp(SDL_Texture *candidate) { SDL_DestroyTexture(candidate); }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 

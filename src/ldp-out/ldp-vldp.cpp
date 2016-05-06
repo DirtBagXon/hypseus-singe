@@ -374,7 +374,7 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
             // redraw screen blitter before we display it
             update_parse_meter();
             vid_blank();
-            vid_blit(get_screen_blitter(), 0, 0);
+            //vid_blit(get_screen_blitter(), 0, 0);
             vid_flip();
             g_bGotParseUpdate = false;
         }
@@ -1760,6 +1760,7 @@ void display_frame_callback()
     //vid_blit(gamevid, 0, 0);
     //vid_flip();
     SDL_RenderPresent(g_renderer); // display it!
+//    display_repaint();
 }
 
 ///////////////////

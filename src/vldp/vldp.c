@@ -144,6 +144,9 @@ void vldp_shutdown()
         vldp_cmd(VLDP_REQ_QUIT);
         SDL_WaitThread(private_thread, NULL); // wait for private thread to
                                               // terminate
+        SDL_DestroyMutex(g_out_info.YUVlock);
+        SDL_DestroyCond(g_out_info.canUpdate);
+        SDL_DestroyCond(g_out_info.canDisplay);
     }
     p_initialized = 0;
 }
@@ -373,6 +376,10 @@ const struct vldp_out_info *vldp_init(const struct vldp_in_info *in_info)
     g_out_info.speedchange      = vldp_speedchange;
     g_out_info.lock             = vldp_lock;
     g_out_info.unlock           = vldp_unlock;
+
+    g_out_info.YUVlock          = SDL_CreateMutex();
+    g_out_info.canUpdate        = SDL_CreateCond();
+    g_out_info.canDisplay       = SDL_CreateCond();
 
     private_thread = SDL_CreateThread(idle_handler, "vldp", (void *)NULL); // start our internal
                                                            // thread

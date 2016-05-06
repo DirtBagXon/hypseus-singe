@@ -1363,6 +1363,7 @@ void draw_frame(const mpeg2_info_t *info)
             s_extra_delay_ms = 0;
 
             if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks)) {
+                SDL_LockMutex(g_out_info.YUVlock);
                 if (g_in_info->prepare_frame(
                         info->display_fbuf->buf[0],
                         info->display_fbuf->buf[1],
@@ -1397,6 +1398,7 @@ void draw_frame(const mpeg2_info_t *info)
                         g_in_info->display_frame();
                     }
                 }
+                SDL_UnlockMutex(g_out_info.YUVlock);
             }
 
             if (!bFrameNotShownDueToCmd) {
