@@ -386,9 +386,9 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
         if (g_bGotParseUpdate) {
             // redraw screen blitter before we display it
             update_parse_meter();
-            //vid_blank();
-            //vid_blit(get_screen_blitter(), 0, 0);
-            //vid_flip();
+            vid_blank();
+            vid_blit(get_screen_blitter(), 0, 0);
+            vid_flip();
             g_bGotParseUpdate = false;
         }
 
@@ -1796,8 +1796,10 @@ int prepare_frame_callback_without_overlay(const mpeg2_info_t *info)
 // displays the frame as fast as possible
 void display_frame_callback()
 {
-    SDL_RenderClear(g_renderer);
     SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL);
+    //SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This could change at any
+    //vid_blit(gamevid, 0, 0);
+    //vid_flip();
     SDL_RenderPresent(g_renderer); // display it!
 }
 

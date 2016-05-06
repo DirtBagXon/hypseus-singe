@@ -61,7 +61,7 @@ SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
 SDL_Window  *g_window              = NULL;
 SDL_Renderer *g_renderer           = NULL;
-SDL_Surface *g_screen              = NULL; // our primary display
+SDL_Texture *g_screen              = NULL; // our primary display
 SDL_Surface *g_screen_blitter      = NULL; // the surface we blit to (we don't blit
                                       // directly to g_screen because opengl
                                       // doesn't like that)
@@ -136,26 +136,33 @@ bool init_display()
         if (!g_window) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize window: %s", SDL_GetError());
         } else {
-            g_renderer = SDL_CreateRenderer(g_window, -1, 0);
+            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+            SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+
 	    if (!g_renderer) {
                 SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize renderer: %s", SDL_GetError());
 	    } else {
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
 
+		g_screen = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, g_vid_width, g_vid_height);
+
                 // create a 32-bit surface
                 g_screen_blitter =
                     SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 32,
                                          0xff, 0xFF00, 0xFF0000, 0xFF000000);
         
-                //if (g_screen && g_screen_blitter) {
-                //    sprintf(s, "Set %dx%d at %d bpp with flags: %x", g_screen->w,
-                //            g_screen->h, g_screen->format->BitsPerPixel, g_screen->flags);
-                //    printline(s);
-        
+                if (g_screen && g_screen_blitter) {
+
+                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Set %dx%d at %d bpp, flags: %x", g_screen_blitter->w,
+                            g_screen_blitter->h, g_screen_blitter->format->BitsPerPixel, g_screen_blitter->flags);
+
+                    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+                    SDL_RenderClear(g_renderer);
+                    SDL_RenderPresent(g_renderer);
                     // NOTE: SDL Console was initialized here.
                     result                = true;
-                //}
+                }
             }
         }
     } else {
@@ -173,15 +180,36 @@ void shutdown_display()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
+void vid_flip()
+{
+    SDL_RenderCopy(g_renderer, g_screen, NULL, NULL);
+    SDL_RenderPresent(g_renderer);
+}
+
+void vid_blank()
+{
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(g_renderer);
+}
+
 void vid_blit(SDL_Surface *srf, int x, int y)
 {
+    void *pixels;
+    int pitch;
     if (g_ldp->is_blitting_allowed()) {
             SDL_Rect dest;
             dest.x = (short)x;
             dest.y = (short)y;
             dest.w = (unsigned short)srf->w;
             dest.h = (unsigned short)srf->h;
-            SDL_BlitSurface(srf, NULL, g_screen, &dest);
+            SDL_BlitSurface(srf, NULL, g_screen_blitter, &dest);
+	    SDL_LockTexture(g_screen, NULL, &pixels, &pitch);
+	    SDL_ConvertPixels(g_screen_blitter->w, g_screen_blitter->h,
+			    g_screen_blitter->format->format,
+			    g_screen_blitter->pixels, g_screen_blitter->pitch,
+			    SDL_PIXELFORMAT_RGBA8888,
+			    pixels, pitch);
+	    SDL_UnlockTexture(g_screen);
     }
     // else blitting isn't allowed, so just ignore
 }
@@ -191,8 +219,8 @@ void vid_blit(SDL_Surface *srf, int x, int y)
 // call this every time you want the display to return to normal
 void display_repaint()
 {
-    SDL_RenderClear(g_renderer);
-    SDL_RenderPresent(g_renderer);
+    vid_blank();
+    vid_flip();
     g_game->video_force_blit();
 }
 
@@ -355,8 +383,6 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 //  'which' corresponds to enumerated values
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
 {
-    // NOTE : this is drawn to g_screen_blitter, not to g_screen,
-    //  to be more friendly to our opengl implementation!
     SDL_Surface *srf = g_other_bmps[which];
     SDL_Rect dest;
     dest.x = (short)x;
@@ -397,7 +423,9 @@ void free_one_bmp(SDL_Surface *candidate) { SDL_FreeSurface(candidate); }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-SDL_Renderer *get_screen() { return g_renderer; }
+SDL_Renderer *get_renderer() { return g_renderer; }
+
+SDL_Texture *get_screen() { return g_screen; }
 
 SDL_Surface *get_screen_blitter() { return g_screen_blitter; }
 

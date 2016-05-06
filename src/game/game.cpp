@@ -481,39 +481,39 @@ void game::video_blit()
     // probably get called regularly on each screen refresh,
     // and we don't want to call the potentially expensive video_repaint()
     // unless we have to)
-    //if (m_video_overlay_needs_update) {
-    //    m_active_video_overlay++; // move to the next video buffer (in case we
-    //                              // are supporting more than one buffer)
+    if (m_video_overlay_needs_update) {
+        m_active_video_overlay++; // move to the next video buffer (in case we
+                                  // are supporting more than one buffer)
 
-    //    // check for wraparound ... (the count will be the last index+1, which
-    //    // is why we do >= instead of >)
-    //    if (m_active_video_overlay >= m_video_overlay_count) {
-    //        m_active_video_overlay = 0;
-    //    }
+        // check for wraparound ... (the count will be the last index+1, which
+        // is why we do >= instead of >)
+        if (m_active_video_overlay >= m_video_overlay_count) {
+            m_active_video_overlay = 0;
+        }
         video_repaint(); // call game-specific function to get palette refreshed
-    //    m_video_overlay_needs_update =
-    //        false; // game will need to set this value to true next time it
-    //               // becomes needful for us to redraw the screen
+        m_video_overlay_needs_update =
+            false; // game will need to set this value to true next time it
+                   // becomes needful for us to redraw the screen
 
-    //    // if we are in non-VLDP mode, then we can blit to the main surface
-    //    // right here,
-    //    // otherwise we do nothing because the yuv_callback in ldp-vldp.cpp will
-    //    // take care of it
-    //    if (!g_ldp->is_vldp()) {
-    //            // If we're not scaling the video
-    //            if (!m_bFullScale) {
-    //                vid_blit(m_video_overlay[m_active_video_overlay], 0, 0);
-    //            } else {
-    //                // scale game graphics to the screen dimensions
-    //                Scale(m_video_overlay[m_active_video_overlay],
-    //                      m_video_overlay_scaled, m_video_overlay_matrix);
-    //                vid_blit(m_video_overlay_scaled, 0, 0);
-    //            } /*endelse*/
-    //        vid_flip();
-    //    } // end if this isn't VLDP
+        // if we are in non-VLDP mode, then we can blit to the main surface
+        // right here,
+        // otherwise we do nothing because the yuv_callback in ldp-vldp.cpp will
+        // take care of it
+        //if (!g_ldp->is_vldp()) {
+        //        // If we're not scaling the video
+        //        if (!m_bFullScale) {
+        //            vid_blit(m_video_overlay[m_active_video_overlay], 0, 0);
+        //        } else {
+        //            // scale game graphics to the screen dimensions
+        //            Scale(m_video_overlay[m_active_video_overlay],
+        //                  m_video_overlay_scaled, m_video_overlay_matrix);
+        //            vid_blit(m_video_overlay_scaled, 0, 0);
+        //        } /*endelse*/
+        //        vid_flip();
+        //} // end if this isn't VLDP
 
-    //    m_finished_video_overlay = m_active_video_overlay;
-    //}
+        m_finished_video_overlay = m_active_video_overlay;
+    }
 }
 
 // forces the video overlay to be redrawn to the screen

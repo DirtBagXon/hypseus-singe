@@ -91,7 +91,8 @@ SDL_Surface *load_one_bmp(const char *);
 void free_one_bmp(SDL_Surface *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
-SDL_Renderer *get_screen();
+SDL_Renderer *get_renderer();
+SDL_Texture *get_screen();
 SDL_Surface *get_screen_blitter();
 FC_Font *get_font();
 bool get_fullscreen();
