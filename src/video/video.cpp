@@ -94,7 +94,7 @@ bool init_display()
     // if we were able to initialize the video properly
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
 
-        if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN;
+        if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 
         g_draw_width  = g_vid_width;
         g_draw_height = g_vid_height;
@@ -498,16 +498,19 @@ void draw_string(const char *t, int col, int row, SDL_Renderer *renderer)
 // toggles fullscreen mode
 void vid_toggle_fullscreen()
 {
-    // Commented out because it creates major problems with YUV overlays and
-    // causing segfaults..
-    // The real way to toggle fullscreen is to kill overlay, kill surface, make
-    // surface, make overlay.
-    /*
-    g_screen = SDL_SetVideoMode(g_screen->w,
-        g_screen->h,
-        g_screen->format->BitsPerPixel,
-        g_screen->flags ^ SDL_FULLSCREEN);
-        */
+    Uint32 flags = (SDL_GetWindowFlags(g_window) ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
+    if (SDL_SetWindowFullscreen(g_window, flags) < 0)
+    {
+	    LOGF(WARNING, "Toggle fullscreen failed: %s", SDL_GetError());
+	    return;
+    }
+    if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
+    {
+	    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	    SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+	    return;
+    }
+    SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
 }
 
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
