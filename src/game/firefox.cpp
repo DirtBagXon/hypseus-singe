@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <g3log/g3log.hpp>
 #include "firefox.h"
 #include "../cpu/cpu.h"
 #include "../cpu/mc6809.h"
@@ -330,7 +331,7 @@ Uint8 firefox::cpu_mem_read(Uint16 addr)
             result = banks[5];
             break;
         default:
-            printline("Invalid A/D Converter channel");
+            LOG(WARNING) << "Invalid A/D Converter channel";
             break;
         }
     }
@@ -462,7 +463,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
             }
             break;
         default:
-            printline("Firefox ERROR 0x4280-0x4287 section");
+            LOG(WARNING) << "Firefox ERROR 0x4280-0x4287 section";
             break;
         }
     }
@@ -478,7 +479,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
         } else {
             sprintf(s, "Led %x on", (addr & 0x03) + 1);
         }
-        printline(s);
+        LOG(DBUG) << s;
     }
 
     // Rom paging @ 3000 (WRTREG)
@@ -508,8 +509,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
             //			printline(s);
             break;
         default:
-            sprintf(s, "Invalid bank switch, %x", value);
-            printline(s);
+            LOGF(WARNING, "Invalid bank switch, %x", value);
             break;
         }
     }
@@ -525,12 +525,11 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // Program ROM
     else if (addr >= 0x4400) {
-        printline("ERROR: Write to program rom!");
+        LOG(WARNING) << "Write to program rom!";
     }
 
     else {
-        //		sprintf(s, "Unmapped write to %x with %x", addr, value);
-        //		printline(s);
+        LOGF(WARNING, "Unmapped write to %x with %x", addr, value);
     }
 
     m_cpumem[addr] = value;
@@ -703,7 +702,7 @@ bool firefox::set_bank(unsigned char which_bank, unsigned char value)
         banks[3] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        printline("ERROR: Bank specified is out of range!");
+        LOG(WARNING) << "Bank specified is out of range!";
         result = false;
         break;
     }

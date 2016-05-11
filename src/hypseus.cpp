@@ -163,8 +163,10 @@ int main(int argc, char **argv)
         void ReceiveLogMessage(g3::LogMessageMover logEntry) {
             auto level = logEntry.get()._level;
             auto color = GetColor(level);
+	    string ls = logEntry.get().toString();
+	    ls.erase(std::remove(ls.begin(), ls.end(), '\n'), ls.end());
             std::cout << "\033[" << color << "m"
-                << logEntry.get().toString() << "\033[m";
+                << ls << "\033[m" << std::endl;
         }
     };
 
@@ -218,7 +220,7 @@ int main(int argc, char **argv)
                             if (g_ldp->pre_init()) {
                                 if (g_game->pre_init()) // initialize all cpu's
                                 {
-                                    printline("Booting ROM ...");
+                                    LOG(DBUG) << "Booting ROM ...";
                                     g_game->start(); // HERE IS THE MAIN LOOP
                                                      // RIGHT HERE
                                     g_game->pre_shutdown();

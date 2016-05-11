@@ -31,6 +31,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <g3log/g3log.hpp>
 
 #include "SDL.h"
 #include "SDL_audio.h"
@@ -149,7 +150,7 @@ bool sound_init()
     Uint16 audio_format = AUDIO_FORMAT;
     int audio_channels  = AUDIO_CHANNELS;
 
-    printline("Initializing sound system ... ");
+    LOG(DBUG) << "Initializing sound system ... ";
 
     // if the user has not disabled sound from the command line
     if (is_sound_enabled()) {
@@ -201,7 +202,7 @@ bool sound_init()
                                 " samples for sound buffer, but got " +
                                 numstr::ToStr(specObtained.samples) +
                                 " samples";
-                            printline(strWarning.c_str());
+                            LOG(WARNING) << strWarning;
 
                             // reset memory allocations
                             set_soundbuf_size(specObtained.samples);
@@ -216,20 +217,19 @@ bool sound_init()
                     }
                     // else if loading waves failed
                     else {
-                        printline("ERROR: one or more required sound sample "
-                                  "files could not be loaded!");
+                        LOG(WARNING) << "ERROR: one or more required sound sample "
+                                  "files could not be loaded!";
                     }
                 } // end if audio specs are correct
                 else {
-                    printline(
-                        "ERROR: unable to obtain desired audio configuration");
+                    LOG(WARNING) << 
+                        "ERROR: unable to obtain desired audio configuration";
                 }
             } // end if audio device could be opened ...
 
             // if audio device could not be opened (ie no sound card)
             else {
-                printline("WARNING: Audio device could not be opened: ");
-                printline(SDL_GetError());
+                LOGF(WARNING, "Audio device could not be opened: %s", SDL_GetError());
                 g_sound_enabled = false;
             }
         } // end if sound initializtion worked
@@ -249,7 +249,7 @@ void sound_shutdown()
 {
     // shutdown sound only if we previously initialized it
     if (g_sound_initialized) {
-        printline("Shutting down sound system...");
+        LOG(DBUG) << "Shutting down sound system...";
         SDL_PauseAudio(1);
         SDL_CloseAudio();
         free_waves();
@@ -315,8 +315,7 @@ int load_waves()
             }
             // else specs are not correct
             else {
-                printline("ERROR: Audio specs are not correct for ");
-                printline(filename.c_str());
+                LOGF(WARNING, "ERROR: Audio specs are not correct for %s", filename.c_str());
                 result = 0;
             }
         } // end if loading worked ...
@@ -324,8 +323,7 @@ int load_waves()
         // TODO : add .OGG loading support in here
 
         else {
-            printline("ERROR: Could not open sample file ");
-            printline(filename.c_str());
+            LOGF(WARNING, "ERROR: Could not open sample file %s", filename.c_str());
             result = 0;
         }
     }
@@ -333,7 +331,7 @@ int load_waves()
     // load "saveme" sound in
     if (!SDL_LoadWAV("sound/saveme.wav", &spec, &g_sample_saveme.pu8Buf,
                      &g_sample_saveme.uLength)) {
-        printline("Loading 'saveme.wav' failed...");
+        LOG(WARNING) << "Loading 'saveme.wav' failed...";
         result = 0;
     }
 
@@ -474,7 +472,7 @@ unsigned int add_soundchip(struct sounddef *candidate)
         cur->stream_callback          = tonegen_stream;
         break;
     default:
-        printline("FATAL ERROR : unknown sound chip added");
+        LOG(WARNING) << "FATAL ERROR : unknown sound chip added";
         set_quitflag(); // force user to deal with this problem
         break;
     }
@@ -547,8 +545,8 @@ void init_soundchip()
             if (cur->init_callback) {
                 cur->internal_id = cur->init_callback(cur->hz);
                 if (cur->internal_id == -1) {
-                    printline(
-                        "sound.cpp Error : sound chip failed to initialize");
+                    LOG(WARNING) <<
+                        "Error : sound chip failed to initialize";
                     set_quitflag(); // force dev to deal with this problem
                 }
                 // else everything initialized correctly
@@ -737,15 +735,13 @@ void set_soundchip_volume(struct sounddef *cur, unsigned int uChannel, unsigned 
             update_soundchip_volumes();
             UNLOCK_AUDIO();
         } else {
-            printline("sound.cpp, set_soundchip_volume() ERROR: volume is out "
-                      "of range, shutting down");
+            LOG(WARNING) << "ERROR: volume is out of range";
             set_quitflag(); // force dev to deal with this :)
         }
     }
     // channel was out of range
     else {
-        printline("sound.cpp, set_soundchip_volume() ERROR : channel is out of "
-                  "range");
+        LOG(WARNING) << "ERROR : channel is out of range";
         set_quitflag(); // force dev to fix this
     }
 }
@@ -758,7 +754,7 @@ void set_soundchip_vldp_volume(unsigned int uVolume)
         update_soundchip_volumes();
         UNLOCK_AUDIO();
     } else {
-        printline("WARNING : request VLDP volume is out of range");
+        LOG(WARNING) << "request VLDP volume is out of range";
     }
 }
 
@@ -770,7 +766,7 @@ void set_soundchip_nonvldp_volume(unsigned int uVolume)
         update_soundchip_volumes();
         UNLOCK_AUDIO();
     } else {
-        printline("WARNING : request non-VLDP volume is out of range");
+        LOG(WARNING) << "request non-VLDP volume is out of range";
     }
 }
 

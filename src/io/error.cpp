@@ -52,7 +52,7 @@ void printerror(const char *s)
 #ifdef WIN32
     MessageBox(NULL, s, "Encountered an error", MB_OK | MB_ICONERROR);
 #else
-    LOG(FATAL) << s;
+    LOG(WARNING) << "ERROR: " << s;
 #endif
 }
 
@@ -60,11 +60,11 @@ void printerror(const char *s)
 // this should be called after video has successfully been initialized
 void printnowookin(const char *s)
 {
-    LOG(FATAL) << s;
+    LOG(WARNING) << "ERROR: " << s;
 }
 
 // prints a notice to the screen
 void printnotice(const char *s)
 {
-    LOG(FATAL) << s;
+    LOG(WARNING) << "ERROR: " << s;
 }

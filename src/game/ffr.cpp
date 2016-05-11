@@ -29,6 +29,7 @@
 
 #include "config.h"
 
+#include <g3log/g3log.hpp>
 #include "ffr.h"
 #include "../hypseus.h" // for get_quitflag
 #include "../ldp-out/ldp.h"
@@ -161,8 +162,7 @@ void ffr::start()
 
             // safety check ...
             if (g_ldp->get_current_frame() != m_pClips[index].end) {
-                printline("FFR FAILED! Current frame was past where it "
-                          "should've been!");
+                LOG(WARNING) << "Current frame was past where it should've been!";
                 finished = true;
                 break;
             }

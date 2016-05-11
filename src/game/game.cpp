@@ -27,6 +27,7 @@
 
 #include <zlib.h>      // for CRC checking
 #include <string>      // STL strings, useful to prevent buffer overrun
+#include <g3log/g3log.hpp>
 #include "../hypseus.h" // for get_quitflag()
 #include "../io/homedir.h"
 #include "../io/conout.h"
@@ -68,8 +69,8 @@ void g_cpu_break(char *s)
 #ifdef CPU_DEBUG
     set_cpu_trace(1);
 #else
-    printline(
-        "You have to compile with CPU_DEBUG defined to use the debugger!");
+    LOG(WARNING) << 
+        "You have to compile with CPU_DEBUG defined to use the debugger!";
 #endif
 }
 
@@ -214,15 +215,15 @@ void game::do_irq(unsigned int which_irq)
     if (which_irq) {
     }
 
-    printline("WARNING : Unhandled IRQ in generic game class!  This is "
-              "probably not what you want!");
+    LOG(WARNING) << "Unhandled IRQ in generic game class!  This is "
+                    "probably not what you want!";
 }
 
 // does anything special needed to send an NMI
 void game::do_nmi()
 {
-    printline("WARNING : Unhandled NMI in generic game class!  This is "
-              "probably not what you want!");
+    LOG(WARNING) << "Unhandled NMI in generic game class!  This is "
+                    "probably not what you want!";
 }
 
 // reads a byte from a 16-bit address space
@@ -240,27 +241,18 @@ void game::cpu_mem_write(Uint32 addr, Uint8 value) { m_cpumem[addr] = value; }
 // reads a byte from the cpu's port
 Uint8 game::port_read(Uint16 port)
 {
-    char s[81] = {0};
-
     port &= 0xFF;
-    sprintf(s, "ERROR: CPU port %x read requested, but this function is "
-               "unimplemented!",
-            port);
-    printline(s);
-
+    LOGF(WARNING, "CPU port %x read requested, but this function is "
+                  "unimplemented!", port);
     return (0);
 }
 
 // writes a byte to the cpu's port
 void game::port_write(Uint16 port, Uint8 value)
 {
-    char s[81] = {0};
-
     port &= 0xFF;
-    sprintf(s, "ERROR: CPU port %x write requested (value %x) but this "
-               "function is unimplemented!",
-            port, value);
-    printline(s);
+    LOGF(WARNING, "CPU port %x write requested (value %x) but this "
+                  "function is unimplemented!", port, value);
 }
 
 // notifies us of the new Program Counter (which most games usually don't care
@@ -278,7 +270,7 @@ void game::input_enable(Uint8 input)
     if (input) {
     }
 
-    printline("Warning: generic input_enable function called, does nothing");
+    LOG(WARNING) << "generic input_enable function called, does nothing";
 }
 
 void game::input_disable(Uint8 input)
@@ -287,7 +279,7 @@ void game::input_disable(Uint8 input)
     if (input) {
     }
 
-    printline("Warning: generic input_disable function called, does nothing");
+    LOG(WARNING) << "generic input_disable function called, does nothing";
 }
 
 // Added by ScottD
@@ -297,7 +289,7 @@ void game::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
     if (x || y || xrel || yrel) {
     }
 
-    printline("Warning: generic mouse_motion function called, does nothing");
+    LOG(WARNING) << "generic mouse_motion function called, does nothing";
 }
 
 // by default, this is ignored, but it should be used by specific game drivers
@@ -362,7 +354,7 @@ bool game::video_init()
                 // pixmap
                 if ((m_video_overlay_matrix =
                          (long *)MPO_MALLOC(sizeof(long) * w * h)) == NULL) {
-                    printline("MEM ERROR : malloc failed in video_init!");
+                    LOG(WARNING) << "MEM ERROR : malloc failed in video_init!";
                     return false;
                 } /*endif*/
 
@@ -391,8 +383,8 @@ bool game::video_init()
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {
-                    printline("ODD ERROR : SDL_CreateRGBSurface failed in "
-                              "video_init!");
+                    LOG(WARNING) << "ODD ERROR : SDL_CreateRGBSurface failed in "
+                                    "video_init!";
                     result = false;
                 }
             }
@@ -411,8 +403,8 @@ bool game::video_init()
         // if the game has not explicitely specified those variables that we
         // need ...
         else {
-            printerror("See video_init() inside game.cpp for what you need to "
-                       "do to fix a problem");
+            LOG(WARNING) << "See video_init() inside game.cpp for what you need to "
+                       "do to fix a problem";
             // If your game doesn't use video overlay, set
             // m_game_uses_video_overlay to false ...
         }
@@ -564,15 +556,15 @@ void game::set_fastboot(bool value) { m_fastboot = value; }
 // generic preset function, does nothing
 void game::set_preset(int preset)
 {
-    printline(
-        "NOTE: There are no presets defined for the game you have chosen!");
+    LOG(INFO) <<
+        "There are no presets defined for the game you have chosen!";
 }
 
 // generic version function, does nothing
 void game::set_version(int version)
 {
-    printline("NOTE: There are no alternate versions defined for the game you "
-              "have chosen!");
+    LOG(INFO) << "There are no alternate versions defined for the game you "
+                 "have chosen!";
 }
 
 // returns false if there was an error trying to set the bank value (ie if the
@@ -582,8 +574,8 @@ bool game::set_bank(unsigned char which_bank, unsigned char value)
     bool result = false; // give them an error to help them troubleshoot any
                          // problem they are having with their command line
 
-    printline(
-        "ERROR: The ability to set bank values is not supported in this game.");
+    LOG(WARNING) <<
+        "ERROR: The ability to set bank values is not supported in this game.";
 
     return result;
 }
@@ -691,8 +683,7 @@ bool game::load_roms()
                         sprintf(s, "ROM CRC checked failed for %s, expected "
                                    "%x, got %x",
                                 rom->filename, rom->crc32, crc);
-                        printerror(s); // warn them about this disaster :)
-                        printline(s);
+                        LOG(WARNING) << s;
                     }
                 }
             }
@@ -705,7 +696,7 @@ bool game::load_roms()
                 s += path;
                 s += "/, or in ";
                 s += zip_path;
-                printerror(s.c_str());
+		LOG(WARNING) << s;
                 // if this game borrows roms from another game, point that out
                 // to the user to help
                 // them troubleshoot
@@ -713,12 +704,12 @@ bool game::load_roms()
                     s = "NOTE : this ROM comes from the folder '";
                     s += rom->dir;
                     s += "', which belongs to another game.";
-                    printline(s.c_str());
+                    LOG(WARNING) << s;
                     s = "You also NEED to get the ROMs for the game that uses "
                         "the directory '";
                     s += rom->dir;
                     s += "'.";
-                    printline(s.c_str());
+                    LOG(WARNING) << s;
                 }
             }
 
@@ -837,7 +828,7 @@ bool game::load_rom(const char *filename, Uint8 *buf, Uint32 size)
     }
 
     s += numstr::ToStr((unsigned int)bytes_read) + " bytes read into memory";
-    printline(s.c_str());
+    LOG(INFO) << s;
 
     return (result);
 }
@@ -887,7 +878,11 @@ bool game::load_compressed_rom(const char *filename, unzFile opened_zip_file,
         s += "file not found in .ZIP archive!";
     }
 
-    printline(s.c_str());
+    if (result) {
+    	LOG(INFO) << s;
+    } else {
+        LOG(WARNING) << s;
+    }
 
     return result;
 }

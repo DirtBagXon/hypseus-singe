@@ -28,3 +28,4 @@ set( LIB_HEADERS
 )
 
 add_library( sound ${LIB_SOURCES} ${LIB_HEADERS} )
+target_link_libraries( sound g3logger )

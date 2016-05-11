@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> // for memset
+#include <g3log/g3log.hpp>
 #include "cputest.h"
 #include "../cpu/cpu-debug.h"
 #include "../cpu/cpu.h"
@@ -71,8 +72,8 @@ bool cputest::init()
     // way that the update_pc callback will get called.
     bSuccess = true;
 #else
-    printline("This build was not compiled with CPU_DEBUG defined.  Recompile "
-              "with CPU_DEBUG defined in order to run the cpu tests.");
+    LOG(WARNING) << "This build was not compiled with CPU_DEBUG defined.  Recompile "
+              "with CPU_DEBUG defined in order to run the cpu tests.";
 #endif // CPU_DEBUG
 
     return bSuccess;
@@ -82,10 +83,7 @@ void cputest::shutdown()
 {
     Uint32 elapsed_ms = GET_TICKS() - m_speedtimer;
 
-    string s = "Z80 cputest executed in ";
-    s += numstr::ToStr(elapsed_ms);
-    s += " ms";
-    printline(s.c_str());
+    LOGF(INFO, "Z80 cputest executed in %d ms", elapsed_ms);
 }
 
 void cputest::start()
@@ -104,7 +102,7 @@ void cputest::update_pc(Uint32 new_pc)
     // this halts the tests
     if (new_pc == 0) {
         if (m_bStarted && !get_quitflag()) {
-            printline("PC went to 0 (test complete)");
+            LOG(INFO) << "PC went to 0 (test complete)";
             set_quitflag();
         }
     }
@@ -131,14 +129,14 @@ void cputest::update_pc(Uint32 new_pc)
                 i++;
             }
             s[i] = 0;     // terminate string
-            printline(s); // and print it to the console
+            LOG(INFO) << s; // and print it to the console
 
             Z80_SET_PC(new_pc); // return from call
             Z80_SET_SP(sp + 2); // pop return address off stack
         }
         // if C is 0, it means to terminate the program (I think!)
         else if (command == 0) {
-            printline("Got quit command!\n");
+            LOG(INFO) << "Got quit command!";
             set_quitflag();
         }
         // print just one character to the console
@@ -150,7 +148,7 @@ void cputest::update_pc(Uint32 new_pc)
             Z80_SET_PC(new_pc); // return from call
             Z80_SET_SP(sp + 2); // pop return address off stack
         } else {
-            printline("Warning, unknown command received at 5!\n");
+            LOG(WARNING) << "unknown command received at 5!";
             set_quitflag();
         }
     }
@@ -186,7 +184,7 @@ void cputest::set_preset(int val)
         m_rom_list = branchtest_rom;
         break;
     default:
-        printline("Bad preset!");
+        LOG(WARNING) << "Bad preset!";
         set_quitflag();
         break;
     } // end switch

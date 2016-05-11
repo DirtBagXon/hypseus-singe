@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include <math.h>
+#include <g3log/g3log.hpp>
 #include "badlands.h"
 #include "../cpu/cpu.h"
 #include "../cpu/mc6809.h"
@@ -141,7 +142,7 @@ void badlands::do_irq(unsigned int which_irq)
         }
         break;
     default:
-        printline("Invalid IRQ set in badlands.cpp!");
+        LOG(WARNING) << "Invalid IRQ set";
         break;
     }
 }
@@ -186,8 +187,6 @@ Uint8 badlands::cpu_mem_read(Uint16 addr)
 
 void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
 {
-    char s[81] = {0};
-
     // sound data
     if (addr == 0x0000 && !m_prefer_samples) {
         // reverse all the bits (the chip is wired up so D0 goes to D7, D1 to
@@ -290,8 +289,7 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
     }
 
     else {
-        sprintf(s, "Write to %x with %x", addr, value);
-        printline(s);
+        LOGF(WARNING, "Write to %x with %x", addr, value);
     }
 
     m_cpumem[addr] = value;
@@ -299,8 +297,6 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
 
 Uint8 badlandp::cpu_mem_read(Uint16 addr)
 {
-    char s[81] = {0};
-
     Uint8 result = m_cpumem[addr];
 
     // Laserdisc
@@ -324,8 +320,7 @@ Uint8 badlandp::cpu_mem_read(Uint16 addr)
     // ROM
     else if (addr >= 0xc000) {
     } else {
-        sprintf(s, "Read from %x", addr);
-        printline(s);
+        LOGF(WARNING, "Read from %x", addr);
     }
 
     return result;
@@ -333,8 +328,6 @@ Uint8 badlandp::cpu_mem_read(Uint16 addr)
 
 void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
 {
-    char s[81] = {0};
-
     // Laserdisc
     if (addr == 0x0400) {
         write_ldv1000(value);
@@ -384,8 +377,7 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
     // scratch ram
     else if (addr >= 0x2800 && addr <= 0x2fff) {
     } else {
-        sprintf(s, "Write to %x with %x", addr, value);
-        printline(s);
+        LOGF(WARNING, "Write to %x with %x", addr, value);
     }
 
     m_cpumem[addr] = value;
@@ -488,7 +480,7 @@ void badlands::input_enable(Uint8 move)
     case SWITCH_TEST:
         break;
     default:
-        printline("Error, bug in move enable");
+        LOG(WARNING) << "bug in move enable";
         break;
     }
 }
@@ -523,7 +515,7 @@ void badlands::input_disable(Uint8 move)
                       // during boot
         break;
     default:
-        printline("Error, bug in move enable");
+        LOG(WARNING) << "bug in move enable";
         break;
     }
 }
@@ -541,7 +533,7 @@ bool badlands::set_bank(unsigned char which_bank, unsigned char value)
         banks[2] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        printline("ERROR: Bank specified is out of range!");
+        LOG(WARNING) << "Bank specified is out of range!";
         result = false;
         break;
     }

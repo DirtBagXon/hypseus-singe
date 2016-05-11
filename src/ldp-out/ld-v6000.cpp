@@ -108,7 +108,7 @@ bool v6000::nonblocking_search(char *frame)
             serial_tx(ldv6000_digits[index][0]);
             serial_tx(ldv6000_digits[index][1]);
         } else {
-            LOG(FATAL) << "Bug in v6000_search function";
+            LOG(WARNING) << "Bug in v6000_search function";
         }
     } // end for loop
     serial_tx('F');
@@ -166,7 +166,7 @@ bool v6000::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
         serial_tx('8');
         serial_tx('0'); // skip forward command
     } else {
-        LOG(FATAL) << "Cannot skip more than 100 frames!";
+        LOG(WARNING) << "Cannot skip more than 100 frames!";
     }
 
     return result;
@@ -187,7 +187,7 @@ unsigned int v6000::play()
         success = wait_for_finished();
 
         if (!success) {
-            LOG(FATAL) << "play: Failed";
+            LOG(WARNING) << "play: Failed";
             make_delay(10); // wait 10 ms before trying again
             attempts++;
         }

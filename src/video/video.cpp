@@ -31,6 +31,7 @@
 #include <string.h>
 #include <string>      // for some error messages
 #include <SDL_syswm.h> // rdg2010
+#include <g3log/g3log.hpp>
 #include "video.h"
 #include "palette.h"
 #include "../io/conout.h"
@@ -134,12 +135,12 @@ bool init_display()
                                     g_vid_height,
                                     sdl_flags);
         if (!g_window) {
-            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize window: %s", SDL_GetError());
+            LOGF(WARNING, "Could not initialize window: %s", SDL_GetError());
         } else {
             g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
 
 	    if (!g_renderer) {
-                SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize renderer: %s", SDL_GetError());
+                LOGF(WARNING, "Could not initialize renderer: %s", SDL_GetError());
 	    } else {
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
@@ -153,7 +154,7 @@ bool init_display()
         
                 if (g_screen && g_screen_blitter) {
 
-                    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "Set %dx%d at %d bpp, flags: %x", g_screen_blitter->w,
+                    LOGF(INFO, "Set %dx%d at %d bpp, flags: %x", g_screen_blitter->w,
                             g_screen_blitter->h, g_screen_blitter->format->BitsPerPixel, g_screen_blitter->flags);
 
                     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
@@ -165,7 +166,7 @@ bool init_display()
             }
         }
     } else {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize SDL: %s", SDL_GetError());
+        LOGF(WARNING, "Could not initialize SDL: %s", SDL_GetError());
     }
 
     return (result);
@@ -174,7 +175,7 @@ bool init_display()
 // shuts down video display
 void shutdown_display()
 {
-    printline("Shutting down video display...");
+    LOG(DBUG) << "Shutting down video display...";
 
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
@@ -265,7 +266,7 @@ SDL_Texture *load_one_bmp(const char *filename)
         texture = SDL_CreateTextureFromSurface(g_renderer, result);
 
     if (!texture) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not load bitmap: %s", SDL_GetError());
+        LOGF(WARNING, "Could not load bitmap: %s", SDL_GetError());
     } else {
         SDL_FreeSurface(result);
     }
@@ -434,7 +435,7 @@ void set_scalefactor(int value)
     if (value > 100 || value < 50) // Validating in case user inputs crazy
                                    // values.
     {
-        printline("Invalid scale value. Ignoring -scalefactor parameter.");
+        LOG(WARNING) << "Invalid scale value. Ignoring -scalefactor parameter.";
         g_scalefactor = 100;
 
     } else {

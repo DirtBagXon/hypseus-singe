@@ -35,6 +35,7 @@
 
 #include <string.h>
 #include <math.h> // for pow
+#include <g3log/g3log.hpp>
 #include "esh.h"
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
@@ -161,7 +162,7 @@ void esh::set_version(int version)
              {NULL}};
         m_rom_list = roms;
     } else {
-        printline("ESH:  Unsupported -version paramter, ignoring...");
+        LOG(WARNING) << "Unsupported -version paramter, ignoring...";
     }
 }
 
@@ -265,7 +266,6 @@ void esh::cpu_mem_write(Uint16 addr, Uint8 value)
 
 Uint8 esh::port_read(Uint16 port)
 {
-    char s[81];
     Uint8 result = 0;
 
     switch (port & 0xFF) {
@@ -287,8 +287,7 @@ Uint8 esh::port_read(Uint16 port)
         //		printline(s);
         break;
     default:
-        sprintf(s, "Port %x being read at PC %x\n", port & 0xFF, Z80_GET_PC);
-        printline(s);
+        LOGF(DBUG, "Port %x being read at PC %x\n", port & 0xFF, Z80_GET_PC);
         break;
     }
 
@@ -297,7 +296,6 @@ Uint8 esh::port_read(Uint16 port)
 
 void esh::port_write(Uint16 port, Uint8 value)
 {
-    char s[81];
     static unsigned int lastbeep = 0;
 
     //	static Uint8 lastmode=1;  //invalid default to guarantee screen updates
@@ -351,9 +349,7 @@ void esh::port_write(Uint16 port, Uint8 value)
         // turns on action button lights?
         break;
     default:
-        sprintf(s, "Port %x being written at PC %x with a value of %x",
-                port & 0xFF, Z80_GET_PC, value);
-        printline(s);
+        LOGF(DBUG, "Port %x being written at PC %x with a value of %x", port & 0xFF, Z80_GET_PC, value);
         break;
     }
 }
@@ -514,7 +510,7 @@ void esh::patch_roms()
         m_cpumem[0xCBC] = 0; // NOP out code that decrements # of remaning lives
         m_cpumem[0xCBD] = 0x18; // change branch if we're not out of lives to
                                 // unconditional branch
-        printline("Esh infinite lives cheat enabled!");
+        LOG(INFO) << "Esh infinite lives cheat enabled!";
     }
 }
 
@@ -554,7 +550,7 @@ void esh::input_enable(Uint8 move)
         banks[0] &= ~0x10;
         break;
     default:
-        printline("Error, bug in move enable");
+        LOG(WARNING) << "bug in move enable";
         break;
     }
 }
@@ -596,7 +592,7 @@ void esh::input_disable(Uint8 move)
         banks[0] |= 0x10;
         break;
     default:
-        printline("Error, bug in move disable");
+        LOG(WARNING) << "bug in move disable";
         break;
     }
 }

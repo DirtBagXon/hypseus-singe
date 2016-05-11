@@ -163,7 +163,7 @@ int ldv1000_stack_push(unsigned char value)
         g_ldv1000_output_stack[g_ldv1000_output_stack_pointer++] = value;
         result                                                   = 1;
     } else {
-        LOG(FATAL) << "ERROR: LD-V1000 stack overflow (increase its size)";
+        LOG(WARNING) << "ERROR: LD-V1000 stack overflow (increase its size)";
     }
 
     return (result);
@@ -311,7 +311,7 @@ void write_ldv1000(unsigned char value)
             if (g_ldp->get_use_nonblocking_searching()) {
                 // if search command was not accepted
                 if (g_ldp->pre_search(ldv1000_frame, false) == false) {
-                    LOG(FATAL) << "Search command was not accepted!";
+                    LOG(WARNING) << "Search command was not accepted!";
                     g_ldv1000_output = 0x90; // search failed code
                 }
 
@@ -401,7 +401,7 @@ void write_ldv1000(unsigned char value)
             if (g_game->get_game_type() == GAME_BADLANDS) {
                 g_ldp->framenum_to_frame((g_ldp->get_current_frame() - 16), s);
                 if (g_ldp->pre_search(s, true) == false) {
-                    LOG(FATAL) << "on Badlands custom skip!";
+                    LOG(WARNING) << "on Badlands custom skip!";
                     // push search failure code for the LD-V1000 onto stack
                     g_ldv1000_output = 0x90; // does this command really expect
                                              // a response?
@@ -513,7 +513,7 @@ void pre_audio1()
             g_ldp->enable_audio1();
             break;
         default:
-            LOG(FATAL) << "Ummm... you shouldn't get this";
+            LOG(WARNING) << "Ummm... you shouldn't get this";
         }
         clear();
     }
@@ -545,7 +545,7 @@ void pre_audio2()
             g_ldp->enable_audio2();
             break;
         default:
-            LOG(FATAL) << "Ummm... you shouldn't get this";
+            LOG(WARNING) << "Ummm... you shouldn't get this";
         }
         clear();
     }

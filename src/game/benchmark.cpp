@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <g3log/g3log.hpp>
 #include "../hypseus.h" // for get_quitflag/set_quitflag
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
@@ -83,7 +84,7 @@ void benchmark::set_preset(int val)
         m_video_overlay_needs_update = true; // we only need to update it once
         break;
     default:
-        printline("Unknown preset!");
+        LOG(DBUG) << "Unknown preset!";
         break;
     }
 }
@@ -110,14 +111,14 @@ void benchmark::video_repaint()
             m_video_overlay_height = cur_h;
             video_shutdown();
             if (!video_init()) {
-                printline(
-                    "Fatal Error, trying to re-create the surface failed!");
+                LOG(WARNING) <<
+                    "Fatal Error, trying to re-create the surface failed!";
                 set_quitflag();
             }
             g_ldp->unlock_overlay(1000); // unblock game video overlay
         } else {
-            printline("SEEKTEST ERROR : Timed out trying to get a lock on the "
-                      "yuv overlay");
+            LOG(WARNING) << "SEEKTEST : Timed out trying to get a lock on the "
+                      "yuv overlay";
         }
     } // end if dimensions are incorrect
 
