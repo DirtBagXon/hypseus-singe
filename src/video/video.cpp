@@ -136,7 +136,7 @@ bool init_display()
         if (!g_window) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize window: %s", SDL_GetError());
         } else {
-            g_renderer = SDL_CreateRenderer(g_window, -1, 0 );
+            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
 
 	    if (!g_renderer) {
                 SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Could not initialize renderer: %s", SDL_GetError());
@@ -146,9 +146,9 @@ bool init_display()
 
 		g_screen = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, g_vid_width, g_vid_height);
 
-                // create a 32-bit surface
+                // create a 24-bit surface
                 g_screen_blitter =
-                    SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 32,
+                    SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 24,
                                          0xff, 0xFF00, 0xFF0000, 0xFF000000);
         
                 if (g_screen && g_screen_blitter) {
@@ -193,11 +193,13 @@ void vid_blank()
 
 void vid_blit(SDL_Texture *tx, int x, int y)
 {
+    SDL_SetRenderTarget(g_renderer, g_screen);
     SDL_Rect dest;
     dest.x = (short)x;
     dest.y = (short)y;
     SDL_QueryTexture(tx, NULL, NULL, &dest.w, &dest.h);
     SDL_RenderCopy(g_renderer, tx, NULL, &dest);
+    SDL_SetRenderTarget(g_renderer, NULL);
 }
 
 // redraws the proper display (Scoreboard, etc) on the screen, after first
