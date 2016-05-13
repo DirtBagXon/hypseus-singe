@@ -72,9 +72,9 @@ The "Hypseus" mark is used to uniquely identify this project  as an Arcade
 Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 "Hypseus" is strictly prohibited without express permission.__
 
-[project]: https://github.com/zaplabs/daphne
-[issues]: https://github.com/zaplabs/daphne/issues
-[pull requests]: https://github.com/zaplabs/daphne/pulls
+[project]: https://github.com/btolab/daphne
+[issues]: https://github.com/btolab/daphne/issues
+[pull requests]: https://github.com/btolab/daphne/pulls
 [Daphne]: http://www.daphne-emu.com
 [CUS]: http://www.daphne-emu.com/site3/statement.php
 [gcc]: https://gcc.gnu.org/
