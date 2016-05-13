@@ -8,7 +8,7 @@ endif()
 
 externalproject_add( libmpeg2
 	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty
-	URL https://github.com/zaplabs/libmpeg2/archive/master.zip
+	URL https://github.com/btolab/libmpeg2/archive/master.zip
 	UPDATE_COMMAND autoreconf -f -i
 	CONFIGURE_COMMAND <SOURCE_DIR>/configure ${CONFIGURE_ARGS} --prefix=${CMAKE_CURRENT_BINARY_DIR}/3rdparty --disable-shared --enable-static --disable-sdl
 	BUILD_IN_SOURCE 1
