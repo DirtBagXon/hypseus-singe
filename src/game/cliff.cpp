@@ -32,7 +32,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "cliff.h"
 #include "../io/conout.h"
 #include "../sound/sound.h"
@@ -269,7 +269,7 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
         }
 
         else {
-            LOGF(WARNING, "A bank out of range was requested! %x", Value);
+            LOGW << fmt("A bank out of range was requested! %x", Value);
         }
         break;
 
@@ -307,7 +307,7 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
         // printline("LED Off");
         break;
     default:
-        LOGF(WARNING, "Unsupported Port Output-> %x : %x", Port, Value);
+        LOGW << fmt("Unsupported Port Output-> %x : %x", Port, Value);
         break;
     }
 }
@@ -363,7 +363,7 @@ Uint8 cliff::port_read(Uint16 Port)
         result = m_banks[m_banks_index];
         break;
     default:
-        LOGF(WARNING, "Unsupported Port Input-> %x (PC is %x)", Port, Z80_GET_PC);
+        LOGW << fmt("Unsupported Port Input-> %x (PC is %x)", Port, Z80_GET_PC);
         break;
     }
     return (result);
@@ -474,13 +474,13 @@ void cliff::cliff_set_service_mode(int enabled)
 
     // turn on service mode
     if (enabled) {
-        LOG(DBUG) << "Enabling service mode";
+        LOGD << "Enabling service mode";
         m_banks[3] &= DIP12_SERVICE;
     }
 
     // turn off service mode
     else {
-        LOG(DBUG) << "Disabling service mode";
+        LOGD << "Disabling service mode";
         m_banks[3] |= ~DIP12_SERVICE;
     }
 }
@@ -490,10 +490,10 @@ void cliff::cliff_set_service_mode(int enabled)
 void cliff::cliff_set_test_mode(int enabled)
 {
     if (enabled) {
-        LOG(DBUG) << "Enabling test mode";
+        LOGD << "Enabling test mode";
         m_banks[3] &= DIP13_SWITCHES;
     } else {
-        LOG(DBUG) << "Disabling test mode";
+        LOGD << "Disabling test mode";
         m_banks[3] |= ~DIP13_SWITCHES;
     }
 }
@@ -548,7 +548,7 @@ void cliff::input_enable(Uint8 move)
         break;
 
     default:
-        LOGF(WARNING, "Bug in Cliffy's input enable.  Input was %x", move);
+        LOGW << fmt("Bug in Cliffy's input enable.  Input was %x", move);
         break;
     }
 }
@@ -594,7 +594,7 @@ void cliff::input_disable(Uint8 move)
         m_banks[5] |= 128;
         break;
     default:
-        LOGF(WARNING, "bug in Cliffy's input disable, input was %x", move);
+        LOGW << fmt("bug in Cliffy's input disable, input was %x", move);
         break;
     }
 }
@@ -618,7 +618,7 @@ bool cliff::set_bank(unsigned char which_bank, unsigned char value)
         m_banks[1] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOG(WARNING) << "Bank specified is out of range!";
+        LOGW << "Bank specified is out of range!";
         result = false;
         break;
     }
@@ -641,7 +641,7 @@ void cliff::patch_roms()
         m_cpumem[0xD37] = 0;
         m_cpumem[0xD38] = 0;
 
-        LOG(DBUG) << "Cliff hanger infinite lives cheat enabled!";
+        LOGD << "Cliff hanger infinite lives cheat enabled!";
     }
 
     // MATT : commented out since we can now support more than one ROM set

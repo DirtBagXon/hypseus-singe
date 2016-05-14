@@ -35,7 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "lair.h"
 #include "../ldp-in/ldv1000.h"
 #include "../ldp-in/pr7820.h"
@@ -189,8 +189,8 @@ void dle11::patch_roms()
 
     // if they failed the test then exit hypseus
     if (!passed_test) {
-        LOG(INFO) << "DLE readme11.txt file is missing or altered.";
-        LOG(INFO) << "Please get the original readme11.txt file from "
+        LOGI << "DLE readme11.txt file is missing or altered.";
+        LOGI << "Please get the original readme11.txt file from "
                      "www.d-l-p.com, thanks.";
         set_quitflag();
     }
@@ -239,7 +239,7 @@ void dle2::set_version(int version)
 
         m_rom_list = roms;
     } else {
-        LOG(WARNING) << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version paramter, ignoring...";
     }
 }
 
@@ -250,15 +250,15 @@ void dle2::patch_roms()
 
     if (strcasecmp(m_shortgamename, "dle20") == 0) {
         if (!(passed_test = verify_required_file("readme20.txt", "dle20", 0x51C50010))) {
-            LOG(INFO) << "DLE readme20.txt file is missing or altered.";
-            LOG(INFO) << "Please get the original file from "
+            LOGI << "DLE readme20.txt file is missing or altered.";
+            LOGI << "Please get the original file from "
                          "http://www.d-l-p.com.  Thanks.";
             set_quitflag();
         }
     } else {
         if (!(passed_test = verify_required_file("readme21.txt", "dle21", 0xA68F0D21))) {
-            LOG(INFO) << "DLE readme21.txt file is missing or altered.";
-            LOG(INFO) << "Please get the original file from "
+            LOGI << "DLE readme21.txt file is missing or altered.";
+            LOGI << "Please get the original file from "
                          "http://www.d-l-p.com.  Thanks.";
             set_quitflag();
         }
@@ -314,7 +314,7 @@ void ace::set_version(int version)
              {NULL}};
         m_rom_list = ace_roms;
     } else {
-        LOG(WARNING) << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version paramter, ignoring...";
     }
 }
 
@@ -359,8 +359,8 @@ void sae::patch_roms()
 
     // if they failed the test then exit hypseus
     if (!passed_test) {
-        LOG(INFO) << "The SAE readme.txt file is missing or altered.";
-        LOG(INFO) << "Please get the original file from www.d-l-p.com, thanks.";
+        LOGI << "The SAE readme.txt file is missing or altered.";
+        LOGI << "Please get the original file from www.d-l-p.com, thanks.";
         set_quitflag();
     }
 }
@@ -461,7 +461,7 @@ void lairalt::set_version(int version)
 // lairalt old revs don't use the LDV1000, so there are no strobe -presets
 void lairalt::set_preset(int preset)
 {
-    LOG(INFO) << "lairalt has no presets defined.  The -preset option will "
+    LOGI << "lairalt has no presets defined.  The -preset option will "
                  "be ignored.";
 }
 
@@ -534,7 +534,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                         }
                         // else unknown sound, play an error
                         else {
-                            LOG(WARNING) << "Unknown dragon's lair sound!";
+                            LOGW << "Unknown dragon's lair sound!";
                         }
                     }
                 }
@@ -655,7 +655,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 }
                 break;
             default: {
-                LOGF(WARNING, "Unknown hardware output at %x, value of %x, PC %x",
+                LOGW << fmt("Unknown hardware output at %x, value of %x, PC %x",
                         Addr, Value, Z80_GET_PC);
             } break;
             } // end switch
@@ -669,7 +669,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
     // if we are trying to write below 0xA000, it means we are trying to write
     // to ROM
     else {
-        LOGF(WARNING, "Error, program attempting to write to ROM (%x), PC is %x", Addr, Z80_GET_PC);
+        LOGW << fmt("Error, program attempting to write to ROM (%x), PC is %x", Addr, Z80_GET_PC);
     }
 }
 
@@ -817,20 +817,20 @@ void lair::video_repaint()
                 m_video_overlay_width  = cur_w;
                 m_video_overlay_height = cur_h;
 
-                LOGF(DBUG, "%s : Re-allocated overlay surface (%d x %d)...",
+                LOGD << fmt("%s : Re-allocated overlay surface (%d x %d)...",
                         m_shortgamename, m_video_overlay_width, m_video_overlay_height);
 
                 video_shutdown();
 
                 if (!video_init()) {
-                    LOG(WARNING) <<
+                    LOGW <<
                         "Fatal Error trying to re-allocate overlay surface!";
                     set_quitflag();
                 }
 
                 g_ldp->unlock_overlay(1000); // unblock game video overlay
             } else {
-                LOGF(WARNING, "%s : Timed out trying to get a lock on the yuv "
+                LOGW << fmt("%s : Timed out trying to get a lock on the yuv "
                            "overlay", m_shortgamename);
             }
         } // end if dimensions are incorrect
@@ -847,9 +847,9 @@ void lair::video_repaint()
 void lair::set_preset(int preset)
 {
     if (preset == 1) {
-        LOG(DBUG) << "LD-V1000 strobes enabled!";
+        LOGD << "LD-V1000 strobes enabled!";
     } else if (preset == 2) {
-        LOG(WARNING) << "WARNING: You've requested that the LD-V1000 strobes be "
+        LOGW << "WARNING: You've requested that the LD-V1000 strobes be "
                   "disabled, but this option has been removed!"
                   "(instant strobes were incompatible with seek delay, and not "
                   "accurate emulation anyway)";
@@ -870,7 +870,7 @@ bool lair::set_bank(unsigned char which_bank, unsigned char value)
         m_switchB = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOG(WARNING) << "Bank specified is out of range!";
+        LOGW << "Bank specified is out of range!";
         result = false;
         break;
     }
@@ -985,7 +985,7 @@ void lair::input_enable(Uint8 move)
     default:
         // unused key, take no action
 
-        LOG(WARNING) << "Error, bug in Dragon's Lair's input enable";
+        LOGW << "Error, bug in Dragon's Lair's input enable";
         break;
     }
 }
@@ -1033,7 +1033,7 @@ void lair::input_disable(Uint8 move)
     default:
         // unused key, take no action
 
-        LOG(WARNING) << "Error, bug in Dragon's Lair's move disable";
+        LOGW << "Error, bug in Dragon's Lair's move disable";
         break;
     }
 }

@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 
 #include "parallel.h"
 #include "numstr.h"
@@ -63,7 +63,7 @@ bool par::init(unsigned int port)
 
     m_uPortIdx = port;
 
-    LOG(INFO) << "Opening parallel port at address 0x" << numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
+    LOGI << "Opening parallel port at address 0x" << numstr::ToStr(m_base0[m_uPortIdx], 16, 4);
 
     g_hInstInpout = LoadLibrary("inpout32.dll");
     if (g_hInstInpout == NULL) {
@@ -89,7 +89,7 @@ void par::base2(unsigned char data) { Out32(m_base2[m_uPortIdx], data); }
 void par::close()
 {
     // does nothing with current win32 implementation
-    LOG(INFO) << "Closing parallel port";
+    LOGI << "Closing parallel port";
 
     FreeLibrary(g_hInstInpout);
     g_hInstInpout = NULL;

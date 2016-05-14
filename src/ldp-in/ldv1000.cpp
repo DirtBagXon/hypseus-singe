@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "../hypseus.h"
 #include "../game/game.h"
 #include "ldv1000.h"
@@ -119,7 +119,7 @@ unsigned char read_ldv1000()
                 if (stat == LDP_PAUSED) {
                     g_ldv1000_output         = 0xD0;
                     g_ldv1000_search_pending = false;
-                    LOG(DBUG) << "search succeeded d0";
+                    LOGD << "search succeeded d0";
                 }
                 // search failed for whatever reason ...
                 else if (stat == LDP_ERROR) {
@@ -163,7 +163,7 @@ int ldv1000_stack_push(unsigned char value)
         g_ldv1000_output_stack[g_ldv1000_output_stack_pointer++] = value;
         result                                                   = 1;
     } else {
-        LOG(WARNING) << "ERROR: LD-V1000 stack overflow (increase its size)";
+        LOGW << "ERROR: LD-V1000 stack overflow (increase its size)";
     }
 
     return (result);
@@ -237,7 +237,7 @@ void write_ldv1000(unsigned char value)
             // it is necessary to set the playspeed because otherwise the
             // ld-v1000 ignores skip commands
             if (g_ldp->get_status() != LDP_PLAYING) {
-                LOG(DBUG) << "LDV1000: Forward 1X (muted)";
+                LOGD << "LDV1000: Forward 1X (muted)";
 
                 // if not already playing, FORWARD 1X plays with no audio (until
                 // the next PLAY),
@@ -264,7 +264,7 @@ void write_ldv1000(unsigned char value)
             g_ldp->pre_change_speed(5, 1);
             break;
         case 0xF9: // Reject - Stop the laserdisc player from playing
-            LOG(DBUG) << "Reject received (ignored)";
+            LOGD << "Reject received (ignored)";
             g_ldv1000_output = 0x7c; // LD-V1000 is PARK'd and NOT READY
             // FIXME: laserdisc state should go into parked mode, but most
             // people probably don't want this to happen (I sure don't)
@@ -277,7 +277,7 @@ void write_ldv1000(unsigned char value)
             g_ldp->pre_play();
             g_ldv1000_output = 0x54; // autostop is active
             {
-                LOGF(DBUG, "Auto-Stop requested at frame %u", g_ldv1000_autostop_frame);
+                LOGD << fmt("Auto-Stop requested at frame %u", g_ldv1000_autostop_frame);
             }
             break;
         case 0xFD: // Play
@@ -311,7 +311,7 @@ void write_ldv1000(unsigned char value)
             if (g_ldp->get_use_nonblocking_searching()) {
                 // if search command was not accepted
                 if (g_ldp->pre_search(ldv1000_frame, false) == false) {
-                    LOG(WARNING) << "Search command was not accepted!";
+                    LOGW << "Search command was not accepted!";
                     g_ldv1000_output = 0x90; // search failed code
                 }
 
@@ -333,7 +333,7 @@ void write_ldv1000(unsigned char value)
                     ldv1000_stack_push(0x50);
                     ldv1000_stack_push(0x50);
                     ldv1000_stack_push(0x50);
-                    LOG(DBUG) << "using slower seeking";
+                    LOGD << "using slower seeking";
                 }
 
                 // if seek failed ...
@@ -391,7 +391,7 @@ void write_ldv1000(unsigned char value)
             g_ldv1000_output = 0x65; // stopped and not ready
             break;
         case 0x20: // Badlands custom command (see below)
-            LOG(DBUG) << "Got a 0x20";
+            LOGD << "Got a 0x20";
                    // UPDATE : This doesn't work so I am disabling it for now :)
                    //			g_ldp->pre_skip_backward(16);
 
@@ -401,7 +401,7 @@ void write_ldv1000(unsigned char value)
             if (g_game->get_game_type() == GAME_BADLANDS) {
                 g_ldp->framenum_to_frame((g_ldp->get_current_frame() - 16), s);
                 if (g_ldp->pre_search(s, true) == false) {
-                    LOG(WARNING) << "on Badlands custom skip!";
+                    LOGW << "on Badlands custom skip!";
                     // push search failure code for the LD-V1000 onto stack
                     g_ldv1000_output = 0x90; // does this command really expect
                                              // a response?
@@ -416,7 +416,7 @@ void write_ldv1000(unsigned char value)
             // command which is 0x20 0x31.  This command skips backwards 16
             // frames.  It is
             // used on scenes such as the twirling axe and the red eyes (bats).
-            LOG(DBUG) << "Got a 0x31";
+            LOGD << "Got a 0x31";
             break;
         case 0xFF: // NO ENTRY
             // it's legal to send the LD-V1000 as many of these as you want, we
@@ -424,7 +424,7 @@ void write_ldv1000(unsigned char value)
             g_ldv1000_output |= 0x80; // set highbit just in case
             break;
         default: // Unsupported Command
-            LOGF(WARNING, "Unsupported LD-V1000 Command Received: %x", value);
+            LOGW << fmt("Unsupported LD-V1000 Command Received: %x", value);
             break;
         }
     }
@@ -445,10 +445,10 @@ void write_ldv1000(unsigned char value)
 }
 
 // As you can see we are currently not supporting display disable
-void pre_display_disable() { LOG(WARNING) << "Display disable received (unsupported)"; }
+void pre_display_disable() { LOGW << "Display disable received (unsupported)"; }
 
 // We are not currently supporting display enable
-void pre_display_enable() { LOG(WARNING) << "Display enable received (unsupported)"; }
+void pre_display_enable() { LOGW << "Display enable received (unsupported)"; }
 
 // Make the LD-V1000 appear to perform instantaneous searches
 // NOTE : Doesn't work with all games
@@ -458,7 +458,7 @@ void ldv1000_enable_instant_seeking()
 {
     // WDO 1/2005 - disabled this message because
     // it occurs before the -nolog option takes effect
-    LOG(DBUG) << "Instantaneous seeking enabled!";
+    LOGD << "Instantaneous seeking enabled!";
     g_instant_seeking = true;
 }
 
@@ -513,7 +513,7 @@ void pre_audio1()
             g_ldp->enable_audio1();
             break;
         default:
-            LOG(WARNING) << "Ummm... you shouldn't get this";
+            LOGW << "Ummm... you shouldn't get this";
         }
         clear();
     }
@@ -545,7 +545,7 @@ void pre_audio2()
             g_ldp->enable_audio2();
             break;
         default:
-            LOG(WARNING) << "Ummm... you shouldn't get this";
+            LOGW << "Ummm... you shouldn't get this";
         }
         clear();
     }
@@ -639,7 +639,7 @@ void ldv1000_event_callback(void *eventType)
         // no more events until next vsync
         break;
     default:
-        LOG(WARNING) << "unhandled ldv1000 event, fix this!";
+        LOGW << "unhandled ldv1000 event, fix this!";
         set_quitflag();
         break;
     }
@@ -717,5 +717,5 @@ void ldv1000_set_seconds_per_search(double d)
 
 void print_ldv1000_info()
 {
-    LOGF(DBUG, "The last LD-V1000 event was %d", g_ldv1000_last_event);
+    LOGD << fmt("The last LD-V1000 event was %d", g_ldv1000_last_event);
 }

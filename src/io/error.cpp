@@ -31,7 +31,7 @@
 
 #include <SDL.h>
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "../hypseus.h"
 #include "conout.h"
 #include "input.h"
@@ -52,7 +52,7 @@ void printerror(const char *s)
 #ifdef WIN32
     MessageBox(NULL, s, "Encountered an error", MB_OK | MB_ICONERROR);
 #else
-    LOG(WARNING) << "ERROR: " << s;
+    LOGE << s;
 #endif
 }
 
@@ -60,11 +60,11 @@ void printerror(const char *s)
 // this should be called after video has successfully been initialized
 void printnowookin(const char *s)
 {
-    LOG(WARNING) << "ERROR: " << s;
+    LOGE << s;
 }
 
 // prints a notice to the screen
 void printnotice(const char *s)
 {
-    LOG(WARNING) << "ERROR: " << s;
+    LOGE << s;
 }

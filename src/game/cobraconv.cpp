@@ -35,7 +35,7 @@
 #include "config.h"
 
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "cobraconv.h"
 #include "../cpu/cpu.h"
 #include "../cpu/nes6502.h"
@@ -138,7 +138,7 @@ void cobraconv::do_irq(unsigned int which_irq)
     switch (cpu_getactivecpu()) {
     default:
         // this should never happen
-        LOG(WARNING) << "unhandled IRQ received";
+        LOGW << "unhandled IRQ received";
         break;
     case 0:
         nes6502_irq();
@@ -240,7 +240,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
         }
 
         else {
-            LOGF(WARNING, "CPU 0: Unmapped read from %x", addr);
+            LOGW << fmt("CPU 0: Unmapped read from %x", addr);
         }
         break;
     case 1:
@@ -254,7 +254,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
         }
 
         else {
-            LOGF(WARNING, "CPU 1: Unmapped read from %x", addr);
+            LOGW << fmt("CPU 1: Unmapped read from %x", addr);
         }
         break;
     }
@@ -276,7 +276,7 @@ void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
         //	else if (addr >= 0x2000 && addr <= 0x2fff)
         {
             if (value != m_cpumem[addr]) {
-                LOGF(DBUG, "Video write to %x with value %x", addr, value);
+                LOGD << fmt("Video write to %x with value %x", addr, value);
                 m_video_overlay_needs_update = true;
             }
         }
@@ -328,11 +328,11 @@ void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
 
         // main rom
         else if (addr >= 0x4000) {
-            LOGF(WARNING, "write to main rom at %x", addr);
+            LOGW << fmt("write to main rom at %x", addr);
         }
 
         else {
-            LOGF(WARNING, "CPU 0: Unmapped write to %x with value %x", addr, value);
+            LOGW << fmt("CPU 0: Unmapped write to %x with value %x", addr, value);
         }
 
         m_cpumem[addr] = value;
@@ -343,7 +343,7 @@ void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
         } else if (addr == 0x4000) {
             m_soundchip_address_latch = value;
         } else {
-            LOGF(WARNING, "CPU 1: Unmapped write to %x with value %x", addr, value);
+            LOGW << fmt("CPU 1: Unmapped write to %x with value %x", addr, value);
         }
         m_cpumem2[addr] = value;
         break;
@@ -443,7 +443,7 @@ bool cobraconv::set_bank(unsigned char which_bank, unsigned char value)
         banks[2] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOG(WARNING) << "Bank specified is out of range!";
+        LOGW << "Bank specified is out of range!";
         result = false;
         break;
     }
@@ -497,7 +497,7 @@ void cobraconv::input_enable(Uint8 move)
                           // for tilt detector)
         break;
     default:
-        LOG(WARNING) << "bug in move enable";
+        LOGW << "bug in move enable";
         break;
     }
 }
@@ -547,7 +547,7 @@ void cobraconv::input_disable(Uint8 move)
         banks[3] &= ~0x01;
         break;
     default:
-        LOG(WARNING) << "bug in move enable";
+        LOGW << "bug in move enable";
         break;
     }
 }

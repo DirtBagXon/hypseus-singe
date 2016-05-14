@@ -81,7 +81,7 @@ add_dependencies( sound vldp )
 
 set(EXECUTABLE_NAME "hypseus")
 add_executable( ${EXECUTABLE_NAME} hypseus.cpp globals.h )
-target_link_libraries( ${EXECUTABLE_NAME} g3logger io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )
+target_link_libraries( ${EXECUTABLE_NAME} plog io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )
 
 set_source_files_properties( testvldp.c PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.c )

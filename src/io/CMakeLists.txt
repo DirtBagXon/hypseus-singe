@@ -17,7 +17,7 @@ find_package(ZLIB REQUIRED)
 include_directories( ${ZLIB_INCLUDE_DIRS} )
 
 add_library( io ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( io ldp-out game g3logger ${ZLIB_LIBRARIES} )
+target_link_libraries( io ldp-out game plog ${ZLIB_LIBRARIES} )
 if( WIN32 )
     target_link_libraries( io ws2_32 )
 endif( WIN32 )

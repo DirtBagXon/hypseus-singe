@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <set>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "../io/conout.h"
 #include "../io/error.h"
 #include "../video/video.h"
@@ -193,7 +193,7 @@ bool ldp_vldp::init_player()
                                 list<string> lstrPassed, lstrFailed;
                                 run_tests(lstrPassed, lstrFailed);
                                 // run releasetest to see actual results now ...
-                                LOG(INFO) << "Run releasetest to see printed results!";
+                                LOGI << "Run releasetest to see printed results!";
                                 set_quitflag();
                             }
 
@@ -247,29 +247,29 @@ bool ldp_vldp::init_player()
 
                                     result = true;
                                 } else {
-                                    LOGF(WARNING, "LDP-VLDP: first video "
+                                    LOGW << fmt("LDP-VLDP: first video "
                                               "file could not be opened!");
                                 }
                             } // end if it's ok to proceed
                             // else precaching failed
                             else {
-                                LOG(WARNING) << "precaching failed";
+                                LOGW << "precaching failed";
                             }
 
                     } // end if reading the frame conversion file worked
                     else {
-                        LOG(WARNING) << "vldp_init returned NULL (which shouldn't ever happen)";
+                        LOGW << "vldp_init returned NULL (which shouldn't ever happen)";
                     }
                 } // if audio init succeeded
                 else {
                     // only report an audio problem if there is one
                     if (!get_quitflag()) {
-                        LOG(WARNING) << "Could not initialize VLDP audio!";
+                        LOGW << "Could not initialize VLDP audio!";
                     }
 
                     // otherwise report that they quit
                     else {
-                        LOG(INFO) << "Quit requested, shutting down!";
+                        LOGI << "Quit requested, shutting down!";
                     }
                 } // end if audio init failed or if user opted to quit instead
                   // of parse
@@ -281,7 +281,7 @@ bool ldp_vldp::init_player()
             // if the user didn't specify a framefile from the command-line,
             // then give them a little hint.
             if (!m_bFramefileSet) {
-                LOG(WARNING) << "You must specify a -framefile argument when using VLDP.";
+                LOGW << "You must specify a -framefile argument when using VLDP.";
             }
             // else the other error messages are more than sufficient
         }
@@ -304,7 +304,7 @@ void ldp_vldp::shutdown_player()
 
     if (is_sound_enabled()) {
         if (!delete_soundchip(m_uSoundChipID)) {
-            LOG(WARNING) << "sound chip could not be deleted";
+            LOGW << "sound chip could not be deleted";
         }
     }
     audio_shutdown();
@@ -419,7 +419,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
         seek_delay_ms = (unsigned int)(frame_delta / m_seek_frames_per_ms);
 
 #ifdef DEBUG
-        LOGF(DBUG, "LDP-VLDP: frame delta is %d and seek_delay_ms is %d",
+        LOGD << fmt("LDP-VLDP: frame delta is %d and seek_delay_ms is %d",
                      frame_delta, seek_delay_ms);
 #endif
     }
@@ -454,7 +454,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
                     m_audio_file_opened = open_audio_stream(oggname.c_str());
                 }
             } else {
-                LOGF(WARNING, "LDP-VLDP: Could not open video file %s",
+                LOGW << fmt("LDP-VLDP: Could not open video file %s",
                                 filename.c_str());
                 result = false;
             }
@@ -482,7 +482,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
                 // NOTE: AVOID this if you can because it makes seeking less
                 // accurate
                 if (g_game->get_disc_fpks() != uFPKS) {
-                    LOGF(INFO,
+                    LOGI << fmt(
                                 "NOTE: converting FPKS from %d to %d. This may be less accurate.",
                                 g_game->get_disc_fpks(), uFPKS);
                     m_target_mpegframe =
@@ -497,14 +497,14 @@ bool ldp_vldp::nonblocking_search(char *frame)
                     result = seek_audio(u64AudioTargetPos);
                 }
             } else {
-                LOG(WARNING) << "Search failed in video file";
+                LOGW << "Search failed in video file";
             }
         }
         // else opening the file failed
     }
     // else mpeg_info() wasn't able to provide a filename ...
     else {
-        LOG(WARNING) << "LDP-VLDP.CPP ERROR: frame could not be converted to file, "
+        LOGW << "LDP-VLDP.CPP ERROR: frame could not be converted to file, "
                       "probably due to a framefile error."
                       "Your framefile must begin no later than frame "
                       "This most likely is your problem!";
@@ -557,7 +557,7 @@ unsigned int ldp_vldp::play()
             }
 
         } else {
-            LOGF(WARNING,
+            LOGW << fmt(
                 "in play() function, could not open mpeg file %s",
 		m_mpeginfo[0].name.c_str());
         }
@@ -576,7 +576,7 @@ unsigned int ldp_vldp::play()
     }
 
     if (!result) {
-        LOG(WARNING) << "play command failed!";
+        LOGW << "play command failed!";
     }
 
     return result;
@@ -627,13 +627,13 @@ bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
             if (g_vldp_info->skip(target_frame)) {
                 result = true;
             } else {
-                LOG(WARNING) << "video skip failed";
+                LOGW << "video skip failed";
             }
         } else {
-            LOG(WARNING) << "Skipping not supported with mpegs that use fields (such as this one)";
+            LOGW << "Skipping not supported with mpegs that use fields (such as this one)";
         }
     } else {
-	LOGF(WARNING, "Skipping not supported when the mpeg's "
+	LOGW << fmt("Skipping not supported when the mpeg's "
                    "framerate differs from the disc's (%f vs %f)",
                    (uFPKS / 1000.0), (uDiscFPKS / 1000.0));
     }
@@ -644,7 +644,7 @@ bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
 void ldp_vldp::pause()
 {
 #ifdef DEBUG
-    LOGF(DBUG, "g_vldp_info's current frame is %d (%d adjusted)",
+    LOGD << fmt("g_vldp_info's current frame is %d (%d adjusted)",
                g_vldp_info->current_frame, (m_cur_ldframe_offset + g_vldp_info->current_frame));
 #endif
     g_vldp_info->pause();
@@ -671,7 +671,7 @@ bool ldp_vldp::change_speed(unsigned int uNumerator, unsigned int uDenominator)
         if (seek_audio(u64AudioTargetPos)) {
             audio_play(m_uElapsedMsSincePlay);
         } else {
-            LOG(WARNING) << "trying to seek audio after playing at 1X failed";
+            LOGW << "trying to seek audio after playing at 1X failed";
         }
     }
 
@@ -731,20 +731,20 @@ unsigned int ldp_vldp::get_current_frame()
     if ((unsigned int)result != m_uCurrentFrame) {
         // if VLDP is ahead, that is especially disturbing
         if ((unsigned int)result > m_uCurrentFrame) {
-            LOGF(DBUG,
+            LOGD << fmt(
                          "ldp-vldp::get_current_frame() [vldp ahead]: internal frame is %d, "
                          "vldp's current frame is %d", m_uCurrentFrame, result);
 
-            LOGF(DBUG,
+            LOGD << fmt(
                          "g_local_info.uMsTimer is %d, which means frame offset %f (%f)",
                          g_local_info.uMsTimer, (g_local_info.uMsTimer * uFPKS) / 1000000,
                          (g_local_info.uMsTimer * uFPKS * 0.000001));
 
-            LOGF(DBUG,
+            LOGD << fmt(
                          "m_uCurrentOffsetFrame is %d, m_last_seeked frame is %d",
                          m_uCurrentOffsetFrame, m_last_seeked_frame);
 
-            LOGF(DBUG,
+            LOGD << fmt(
                          "correct elapsed ms is %x (%f), which is frame offset %d (%f)",
                          ((result - m_last_seeked_frame) * 1000000 / uFPKS),
                          ((result - m_last_seeked_frame) * 1000000.0 / uFPKS),
@@ -1069,31 +1069,31 @@ bool ldp_vldp::read_frame_conversions()
                                         m_mpeg_path, &m_mpeginfo[0], m_file_index,
                                         sizeof(m_mpeginfo) / sizeof(struct fileframes),
                                         err_msg)) {
-                        LOGF(INFO,
+                        LOGI << fmt(
                                "Framefile parse succeeded. Video/Audio directory is: %s",
                                m_mpeg_path.c_str());
                         result = true;
                     } else {
-                        LOGF(WARNING,
+                        LOGW << fmt(
                                "Framefile Parse Error: %s", err_msg.c_str());
-                        LOGF(WARNING,
+                        LOGW << fmt(
                                "Mpeg Path: %s", m_mpeg_path.c_str());
                         // print the entire contents of the framefile to make it
                         // easier to us to debug newbie problems using their
                         // hypseus_log.txt
-                        LOGF(WARNING,
+                        LOGW << fmt(
                                "---BEGIN FRAMEFILE CONTENTS---\n%s---END FRAMEFILE CONTENTS---",
 			       ff_buf);
                     }
                 } else
-                    LOG(WARNING) << "framefile read error";
+                    LOGW << "framefile read error";
             } else
-                LOG(WARNING) << "framefile read error";
+                LOGW << "framefile read error";
         } else
-            LOG(WARNING) << "mem alloc error";
+            LOGW << "mem alloc error";
         mpo_close(p_ioFileConvert);
     } else {
-        LOGF(WARNING, "Could not open framefile: %s",
+        LOGW << fmt("Could not open framefile: %s",
                         m_framefile.c_str());
     }
 
@@ -1120,7 +1120,7 @@ bool ldp_vldp::first_video_file_exists()
             printerror(full_path.c_str());
         }
     } else {
-        LOG(WARNING) << "Framefile seems empty, it's probably invalid. Read the documentation to learn how to create framefiles.";
+        LOGW << "Framefile seems empty, it's probably invalid. Read the documentation to learn how to create framefiles.";
     }
 
     return result;
@@ -1164,7 +1164,7 @@ void ldp_vldp::parse_all_video()
                                                  // to watch while he/she waits
             think(); // let opengl have a chance to display the frame
         } else {
-            LOGF(WARNING, "Could not parse video because file %s could not be opened.",
+            LOGW << fmt("Could not parse video because file %s could not be opened.",
                        m_mpeginfo[i].name.c_str());
             break;
         }
@@ -1201,7 +1201,7 @@ bool ldp_vldp::precache_all_video()
             }
             // else file can't be opened ...
             else {
-                LOGF(WARNING, "when precaching, the file  %s could not be opened.",
+                LOGW << fmt("when precaching, the file  %s could not be opened.",
                            full_path.c_str());
                 bResult = false;
                 break;
@@ -1232,7 +1232,7 @@ bool ldp_vldp::precache_all_video()
                     } else {
                         full_path = m_mpeg_path + m_mpeginfo[i].name;
 
-                        LOGF(WARNING, "precaching of file %s failed.",
+                        LOGW << fmt("precaching of file %s failed.",
                                    full_path.c_str());
                         bResult = false;
                     }
@@ -1241,7 +1241,7 @@ bool ldp_vldp::precache_all_video()
                   // again
             }
         } else {
-            LOGF(WARNING, "Not enough memory to precache video stream. You have about %d but need %d", uMegs, uReqMegs);
+            LOGW << fmt("Not enough memory to precache video stream. You have about %d but need %d", uMegs, uReqMegs);
             bResult = false;
         }
     }
@@ -1298,7 +1298,7 @@ Uint16 ldp_vldp::mpeg_info(string &filename, Uint16 ld_frame)
             mpeg_frame           = (Uint16)(ld_frame - m_mpeginfo[index].frame);
             m_cur_ldframe_offset = m_mpeginfo[index].frame;
         } else {
-            LOG(WARNING) << "no filename found";
+            LOGW << "no filename found";
             mpeg_frame = 0;
         }
     }
@@ -1902,7 +1902,7 @@ void report_mpeg_dimensions_callback(int width, int height)
 
         // safety check
         if (!g_yuv_texture) {
-            LOG(WARNING) << "YUV texture creation failed!";
+            LOGW << "YUV texture creation failed!";
             set_quitflag();
         }
 

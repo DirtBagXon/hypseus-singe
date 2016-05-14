@@ -25,7 +25,7 @@
 #include "config.h"
 
 #include <time.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "input.h"
 #include "conout.h"
 #include "homedir.h"
@@ -153,7 +153,7 @@ void CFG_Keys()
 
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
-        LOG(DBUG) << "Remapping input ...";
+        LOGD << "Remapping input ...";
 
         cur_line = "";
 
@@ -161,7 +161,7 @@ void CFG_Keys()
         while (strcasecmp(cur_line.c_str(), "[KEYBOARD]") != 0) {
             read_line(io, cur_line);
             if (io->eof) {
-                LOG(WARNING) <<
+                LOGW <<
                     "CFG_Keys() : never found [KEYBOARD] header, aborting";
                 break;
             }
@@ -214,25 +214,25 @@ void CFG_Keys()
                                     if (!found_match) {
                                         cur_line = "Unrecognized key name " +
                                                    key_name;
-                                        LOG(WARNING) << cur_line;
+                                        LOGW << cur_line;
                                         corrupt_file = true;
                                     }
 
                                 } else
-                                    LOG(WARNING) << "Expected 3 integers, only found 2";
+                                    LOGW << "Expected 3 integers, only found 2";
                             } else
-                                LOG(WARNING) << "Expected 3 integers, only found 1";
+                                LOGW << "Expected 3 integers, only found 1";
                         } else
-                            LOG(WARNING) << "Expected 3 integers, found none";
+                            LOGW << "Expected 3 integers, found none";
                     } // end equals sign
                     else
-                        LOG(WARNING) << "Expected an '=' sign, didn't find it";
+                        LOGW << "Expected an '=' sign, didn't find it";
                 } // end if we found key_name
                 else
-                    LOG(WARNING) << "Weird unexpected error happened"; // this really shouldn't ever happen
+                    LOGW << "Weird unexpected error happened"; // this really shouldn't ever happen
 
                 if (corrupt_file) {
-                    LOG(WARNING) << "input remapping file was not in proper format, so we are aborting";
+                    LOGW << "input remapping file was not in proper format, so we are aborting";
                     break;
                 }
             } // end if we didn't find a blank line
@@ -270,24 +270,24 @@ int SDL_input_init()
                                                   // automatically choose the
                                                   // first joystick
                 if (G_joystick != NULL) {
-                    LOG(DBUG) << "Joystick #0 was successfully opened";
+                    LOGD << "Joystick #0 was successfully opened";
                 } else {
-                    LOG(WARNING) << "Error opening joystick!";
+                    LOGW << "Error opening joystick!";
                 }
             } else {
-                LOG(INFO) << "No joysticks detected";
+                LOGI << "No joysticks detected";
             }
         }
         // notify user that their attempt to disable the joystick is successful
         else {
-            LOG(INFO) << "Joystick usage disabled";
+            LOGI << "Joystick usage disabled";
         }
 
         CFG_Keys(); // NOTE : for some freak reason, this should not be done
                     // BEFORE the joystick is initialized, I don't know why!
         result = 1;
     } else {
-        LOG(WARNING) << "Input initialization failed!";
+        LOGW << "Input initialization failed!";
     }
 
     idle_timer = refresh_ms_time(); // added by JFA for -idleexit
@@ -662,7 +662,7 @@ void input_enable(Uint8 move)
         g_game->reset();
         break;
     case SWITCH_SCREENSHOT:
-        LOG(DBUG) << "Screenshot requested!";
+        LOGD << "Screenshot requested!";
         g_ldp->request_screenshot();
         break;
     case SWITCH_PAUSE:

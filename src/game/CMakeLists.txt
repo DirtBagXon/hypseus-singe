@@ -67,7 +67,7 @@ if( BUILD_SINGE )
 endif( BUILD_SINGE )
 
 add_library( game ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( game sound scoreboard video io )
+target_link_libraries( game sound scoreboard video io plog )
 if( BUILD_SINGE )
     target_link_libraries( game singeproxy )
 endif( BUILD_SINGE )

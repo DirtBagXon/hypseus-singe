@@ -50,7 +50,7 @@ NORMAL_MODE = 0x20
 #endif
 
 #include <stdio.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "lair2.h"
 #include "../ldp-out/ldp.h"
 #include "../ldp-in/ldp1000.h"
@@ -875,7 +875,7 @@ Uint8 lair2::port_read(Uint16 port)
         // this should never happen, so it's safe to put an error to notify us
         // if something weird is going on
         else
-            LOG(WARNING) << "tried to read from serial port when "
+            LOGW << "tried to read from serial port when "
                             "no char was waiting";
         break;
 
@@ -917,7 +917,7 @@ bool lair2::set_bank(unsigned char which_bank, unsigned char value)
 {
     bool result = true;
 
-    LOG(WARNING) << "no dip switches, uses onscreen setup";
+    LOGW << "no dip switches, uses onscreen setup";
     result = false;
 
     return result;
@@ -1011,7 +1011,7 @@ void lair2::video_repaint()
     // If the width or height of the mpeg video has changed since we last were
     // here (ie, opening a new mpeg) then reallocate the video overlay buffer.
     if ((cur_w != m_video_overlay_width) || (cur_h != m_video_overlay_height)) {
-        LOG(WARNING) << "Surface does not match disc video, re-allocating "
+        LOGW << "Surface does not match disc video, re-allocating "
                         "surface!";
 
         // in order to re-initialize our video we need to stop the yuv callback
@@ -1025,7 +1025,7 @@ void lair2::video_repaint()
 
         // if the yuv callback is not responding to our stop request
         else {
-            LOG(WARNING) <<
+            LOGW <<
                 "Timed out trying to get a lock on the yuv overlay";
         }
     } // end if video resizing is required
@@ -1073,7 +1073,7 @@ void lair2::EEPROM_9536_write(Uint8 value)
                     sprintf(s, "EEP unhandled OPCode %x with address %x", nv_opcode, nv_address);
                     banks[1] |= 0x01; // set bit 0 high to indicate we aren't
                                       // busy
-                    LOG(WARNING) << s;
+                    LOGW << s;
                 }
 
                 banks[1] = (banks[1] & ~0x01) | ((EEPROM_9536[nv_address] >> 15) & 0x01);

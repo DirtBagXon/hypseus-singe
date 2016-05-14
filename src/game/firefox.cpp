@@ -27,7 +27,7 @@
 #include "config.h"
 
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "firefox.h"
 #include "../cpu/cpu.h"
 #include "../cpu/mc6809.h"
@@ -331,7 +331,7 @@ Uint8 firefox::cpu_mem_read(Uint16 addr)
             result = banks[5];
             break;
         default:
-            LOG(WARNING) << "Invalid A/D Converter channel";
+            LOGW << "Invalid A/D Converter channel";
             break;
         }
     }
@@ -463,7 +463,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
             }
             break;
         default:
-            LOG(WARNING) << "Firefox ERROR 0x4280-0x4287 section";
+            LOGW << "Firefox ERROR 0x4280-0x4287 section";
             break;
         }
     }
@@ -479,7 +479,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
         } else {
             sprintf(s, "Led %x on", (addr & 0x03) + 1);
         }
-        LOG(DBUG) << s;
+        LOGD << s;
     }
 
     // Rom paging @ 3000 (WRTREG)
@@ -509,7 +509,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
             //			printline(s);
             break;
         default:
-            LOGF(WARNING, "Invalid bank switch, %x", value);
+            LOGW << fmt("Invalid bank switch, %x", value);
             break;
         }
     }
@@ -525,11 +525,11 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // Program ROM
     else if (addr >= 0x4400) {
-        LOG(WARNING) << "Write to program rom!";
+        LOGW << "Write to program rom!";
     }
 
     else {
-        LOGF(WARNING, "Unmapped write to %x with %x", addr, value);
+        LOGW << fmt("Unmapped write to %x with %x", addr, value);
     }
 
     m_cpumem[addr] = value;
@@ -702,7 +702,7 @@ bool firefox::set_bank(unsigned char which_bank, unsigned char value)
         banks[3] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOG(WARNING) << "Bank specified is out of range!";
+        LOGW << "Bank specified is out of range!";
         result = false;
         break;
     }

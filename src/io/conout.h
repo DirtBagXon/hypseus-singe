@@ -26,8 +26,11 @@
 #ifndef CONOUT_H
 #define CONOUT_H
 
+#include <string>
+
 #define LOGNAME "hypseus_log.txt" // name of our logfile if we are using one
 
+std::string fmt(const std::string fmt_str, ...);
 void outchr(const char ch);
 void printline(const char *fmt, ...);
 void noflood_printline(char *s);

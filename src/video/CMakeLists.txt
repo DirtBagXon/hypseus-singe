@@ -24,4 +24,4 @@ set( LIB_HEADERS
 set_source_files_properties(SDL_FontCache.c PROPERTIES COMPILE_FLAGS -Wno-maybe-uninitialized)
 
 add_library( video ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( video g3logger )
+target_link_libraries( video plog )

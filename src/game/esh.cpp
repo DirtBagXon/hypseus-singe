@@ -35,7 +35,7 @@
 
 #include <string.h>
 #include <math.h> // for pow
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "esh.h"
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
@@ -162,7 +162,7 @@ void esh::set_version(int version)
              {NULL}};
         m_rom_list = roms;
     } else {
-        LOG(WARNING) << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version paramter, ignoring...";
     }
 }
 
@@ -287,7 +287,7 @@ Uint8 esh::port_read(Uint16 port)
         //		printline(s);
         break;
     default:
-        LOGF(DBUG, "Port %x being read at PC %x\n", port & 0xFF, Z80_GET_PC);
+        LOGD << fmt("Port %x being read at PC %x\n", port & 0xFF, Z80_GET_PC);
         break;
     }
 
@@ -349,7 +349,7 @@ void esh::port_write(Uint16 port, Uint8 value)
         // turns on action button lights?
         break;
     default:
-        LOGF(DBUG, "Port %x being written at PC %x with a value of %x", port & 0xFF, Z80_GET_PC, value);
+        LOGD << fmt("Port %x being written at PC %x with a value of %x", port & 0xFF, Z80_GET_PC, value);
         break;
     }
 }
@@ -510,7 +510,7 @@ void esh::patch_roms()
         m_cpumem[0xCBC] = 0; // NOP out code that decrements # of remaning lives
         m_cpumem[0xCBD] = 0x18; // change branch if we're not out of lives to
                                 // unconditional branch
-        LOG(INFO) << "Esh infinite lives cheat enabled!";
+        LOGI << "Esh infinite lives cheat enabled!";
     }
 }
 
@@ -550,7 +550,7 @@ void esh::input_enable(Uint8 move)
         banks[0] &= ~0x10;
         break;
     default:
-        LOG(WARNING) << "bug in move enable";
+        LOGW << "bug in move enable";
         break;
     }
 }
@@ -592,7 +592,7 @@ void esh::input_disable(Uint8 move)
         banks[0] |= 0x10;
         break;
     default:
-        LOG(WARNING) << "bug in move disable";
+        LOGW << "bug in move disable";
         break;
     }
 }

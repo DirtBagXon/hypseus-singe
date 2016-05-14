@@ -37,7 +37,7 @@
 #include "config.h"
 
 #include <string.h> // for memset
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "bega.h"
 #include "../cpu/cpu.h"
 #include "../cpu/nes6502.h"
@@ -178,7 +178,7 @@ void bega::set_version(int version)
              {NULL}};
         m_rom_list = bega_roms;
     } else {
-        LOG(WARNING) << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version paramter, ignoring...";
     }
 }
 
@@ -213,7 +213,7 @@ cobra::cobra() // dedicated version of Cobra Command
 // we need to override bega::set_version so we don't load the wrong roms
 void cobra::set_version(int version)
 {
-    LOG(WARNING) << "Unsupported -version paramter, ignoring...";
+    LOGW << "Unsupported -version paramter, ignoring...";
 }
 
 roadblaster::roadblaster() // dedicated version of Cobra Command
@@ -285,7 +285,7 @@ void roadblaster::patch_roms()
     if (m_cheat_requested) {
         // infinite lives cheat
         m_cpumem[0xC41c] = 0x00; // Dec "0" from total lives!
-        LOG(INFO) << "infinite lives cheat enabled!";
+        LOGI << "infinite lives cheat enabled!";
     }
 }
 
@@ -302,7 +302,7 @@ bool bega::set_bank(unsigned char which_bank, unsigned char value)
         banks[2] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOG(WARNING) << "Bank specified is out of range!";
+        LOGW << "Bank specified is out of range!";
         result = false;
         break;
     }
@@ -405,7 +405,7 @@ Uint8 bega::cpu_mem_read(Uint16 addr)
         }
 
         else {
-            LOGF(DBUG, "CPU: 0  - Unmapped read from %x", addr);
+            LOGD << fmt("CPU: 0  - Unmapped read from %x", addr);
         }
     }
 
@@ -426,7 +426,7 @@ Uint8 bega::cpu_mem_read(Uint16 addr)
         }
 
         else {
-            LOGF(DBUG, "CPU: 1  - Unmapped read from %x", addr);
+            LOGD << fmt("CPU: 1  - Unmapped read from %x", addr);
         }
     }
 
@@ -517,12 +517,12 @@ void bega::cpu_mem_write(Uint16 addr, Uint8 value)
 
         // main rom (0x4000 - 0xFFFF)
         else if (addr >= 0x4000) {
-            LOGF(WARNING, "write to main rom at %x", addr);
+            LOGW << fmt("write to main rom at %x", addr);
         }
 
         else {
             //         m_cpumem[addr] = value;	// MPO : seems redundant
-	    LOGF(DBUG, "CPU 0 - Unmapped write to %x with value %x", addr, value);
+	    LOGD << fmt("CPU 0 - Unmapped write to %x with value %x", addr, value);
         }
 
         m_cpumem[addr] = value;
@@ -546,7 +546,7 @@ void bega::cpu_mem_write(Uint16 addr, Uint8 value)
         }
         // main rom (0xE000 - 0xFFFF)
         else if (addr >= 0xe000) {
-            LOGF(WARNING, "Error! write to main rom at %x", addr);
+            LOGW << fmt("Error! write to main rom at %x", addr);
         } else {
             m_cpumem2[addr] = value;
             // sprintf(s, "CPU 1 - Unmapped write to %x with value %x", addr,
@@ -671,7 +671,7 @@ void bega::input_enable(Uint8 move)
     case SWITCH_TEST:
         break;
     default:
-        LOG(WARNING) << "Error, bug in move enable";
+        LOGW << "Error, bug in move enable";
         break;
     }
 }
@@ -720,7 +720,7 @@ void bega::input_disable(Uint8 move)
     case SWITCH_TEST:
         break;
     default:
-        LOG(WARNING) << "Error, bug in move enable";
+        LOGW << "Error, bug in move enable";
         break;
     }
 }
@@ -839,68 +839,68 @@ Uint8 bega::read_m6850_status() { return mc6850_status; }
 void bega::write_m6850_control(Uint8 data)
 {
     if ((data & 0x03) == 0x03) {
-        LOG(DBUG) << "Master Reset!";
+        LOGD << "Master Reset!";
         mc6850_status = 0x02;
     } else {
         switch (data & 0x03) {
         case 0x00:
-            LOG(DBUG) << "clock set to x1";
+            LOGD << "clock set to x1";
             break;
         case 0x01:
-            LOG(DBUG) << "clock set to x16";
+            LOGD << "clock set to x16";
             break;
         case 0x02:
-            LOG(DBUG) << "clock set to x32";
+            LOGD << "clock set to x32";
             break;
         }
 
         switch (data & 0x1c) {
         case 0x00:
-            LOG(DBUG) << "7 Bits+Even Parity+2 Stop Bits";
+            LOGD << "7 Bits+Even Parity+2 Stop Bits";
             break;
         case 0x04:
-            LOG(DBUG) << "7 Bits+Odd Parity+2 Stop Bits";
+            LOGD << "7 Bits+Odd Parity+2 Stop Bits";
             break;
         case 0x08:
-            LOG(DBUG) << "7 Bits+Even Parity+1 Stop Bits";
+            LOGD << "7 Bits+Even Parity+1 Stop Bits";
             break;
         case 0x0c:
-            LOG(DBUG) << "7 Bits+Odd Parity+1 Stop Bits";
+            LOGD << "7 Bits+Odd Parity+1 Stop Bits";
             break;
         case 0x10:
-            LOG(DBUG) << "8 Bits+2 Stop Bits";
+            LOGD << "8 Bits+2 Stop Bits";
             break;
         case 0x14:
-            LOG(DBUG) << "8 Bits+1 Stop Bits";
+            LOGD << "8 Bits+1 Stop Bits";
             break;
         case 0x18:
-            LOG(DBUG) << "8 Bits+Even Parity+1 Stop Bits";
+            LOGD << "8 Bits+Even Parity+1 Stop Bits";
             break;
         case 0x1c:
-            LOG(DBUG) << "8 Bits+Odd Parity+1 Stop Bits";
+            LOGD << "8 Bits+Odd Parity+1 Stop Bits";
             break;
         }
 
         switch (data & 0x60) {
         case 0x00:
-            LOG(DBUG) << "/RTS=low, Transmitting Interrupt Disabled";
+            LOGD << "/RTS=low, Transmitting Interrupt Disabled";
             break;
         case 0x20:
-            LOG(DBUG) << "/RTS=low, Transmitting Interrupt Enabled";
+            LOGD << "/RTS=low, Transmitting Interrupt Enabled";
             break;
         case 0x40:
-            LOG(DBUG) << "/RTS=high, Transmitting Interrupt Disabled";
+            LOGD << "/RTS=high, Transmitting Interrupt Disabled";
             break;
         case 0x60:
-            LOG(DBUG) << "/RTS=low, Transmits break level on Transmit "
+            LOGD << "/RTS=low, Transmits break level on Transmit "
                       "Data Output, Transmitting Interrupt Disabled";
             break;
         }
 
         if (data & 0x80) {
-            LOG(DBUG) << "Recieve Interrupt Enabled";
+            LOGD << "Recieve Interrupt Enabled";
         } else {
-            LOG(DBUG) << "Recieve Interrupt Disabled";
+            LOGD << "Recieve Interrupt Disabled";
         }
     }
 }

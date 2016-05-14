@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> // for memset
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "cputest.h"
 #include "../cpu/cpu-debug.h"
 #include "../cpu/cpu.h"
@@ -72,7 +72,7 @@ bool cputest::init()
     // way that the update_pc callback will get called.
     bSuccess = true;
 #else
-    LOG(WARNING) << "This build was not compiled with CPU_DEBUG defined.  Recompile "
+    LOGW << "This build was not compiled with CPU_DEBUG defined.  Recompile "
               "with CPU_DEBUG defined in order to run the cpu tests.";
 #endif // CPU_DEBUG
 
@@ -83,7 +83,7 @@ void cputest::shutdown()
 {
     Uint32 elapsed_ms = GET_TICKS() - m_speedtimer;
 
-    LOGF(INFO, "Z80 cputest executed in %d ms", elapsed_ms);
+    LOGI << fmt("Z80 cputest executed in %d ms", elapsed_ms);
 }
 
 void cputest::start()
@@ -102,7 +102,7 @@ void cputest::update_pc(Uint32 new_pc)
     // this halts the tests
     if (new_pc == 0) {
         if (m_bStarted && !get_quitflag()) {
-            LOG(INFO) << "PC went to 0 (test complete)";
+            LOGI << "PC went to 0 (test complete)";
             set_quitflag();
         }
     }
@@ -129,14 +129,14 @@ void cputest::update_pc(Uint32 new_pc)
                 i++;
             }
             s[i] = 0;     // terminate string
-            LOG(INFO) << s; // and print it to the console
+            LOGI << s; // and print it to the console
 
             Z80_SET_PC(new_pc); // return from call
             Z80_SET_SP(sp + 2); // pop return address off stack
         }
         // if C is 0, it means to terminate the program (I think!)
         else if (command == 0) {
-            LOG(INFO) << "Got quit command!";
+            LOGI << "Got quit command!";
             set_quitflag();
         }
         // print just one character to the console
@@ -148,7 +148,7 @@ void cputest::update_pc(Uint32 new_pc)
             Z80_SET_PC(new_pc); // return from call
             Z80_SET_SP(sp + 2); // pop return address off stack
         } else {
-            LOG(WARNING) << "unknown command received at 5!";
+            LOGW << "unknown command received at 5!";
             set_quitflag();
         }
     }
@@ -184,7 +184,7 @@ void cputest::set_preset(int val)
         m_rom_list = branchtest_rom;
         break;
     default:
-        LOG(WARNING) << "Bad preset!";
+        LOGW << "Bad preset!";
         set_quitflag();
         break;
     } // end switch

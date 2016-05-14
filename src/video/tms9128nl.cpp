@@ -26,6 +26,7 @@
 //#define TMS_DEBUG 1
 
 #include <SDL.h>
+#include <plog/Log.h>
 #include "SDL_FontCache.h"
 #include "tms9128nl.h"
 #include "palette.h"
@@ -216,7 +217,7 @@ void tms9128nl_write_port1(unsigned char value)
                                                     // clear the overlay
                     {
 #ifdef TMS_DEBUG
-                        printline("TMS: mode 2");
+                        LOGD << "mode 2";
 #endif
                         tms9128nl_clear_overlay();
                         prevg_vidmode = g_vidmode;
@@ -225,11 +226,11 @@ void tms9128nl_write_port1(unsigned char value)
                 // if the B&W bit is set, flag an error
                 if (lowbyte & 1) {
 #ifdef TMS_DEBUG
-                    printline("TMS: B&W bit set, unsupported");
+                    LOGD << "B&W bit set, unsupported";
 #endif
                 } else {
 #ifdef TMS_DEBUG
-                    printline("TMS : B&W bit cleared");
+                    LOGD << "B&W bit cleared";
 #endif
                 }
                 break;
@@ -240,14 +241,14 @@ void tms9128nl_write_port1(unsigned char value)
                 // if bit 0 is set, MAG
                 if (lowbyte & 1) {
 #ifdef TMS_DEBUG
-                    printline("TMS: double sprite size not supported");
+                    LOGD << "double sprite size not supported";
 #endif
                 }
 
                 // if bit 1 is set, 16x16 sprites is what we use, else 8x8
                 if (lowbyte & 2) {
 #ifdef TMS_DEBUG
-                    printline("TMS: 16x16 sprites requested");
+                    LOGD << "16x16 sprites requested";
 #endif
                 } else {
 #ifdef TMS_DEBUG
@@ -264,7 +265,7 @@ void tms9128nl_write_port1(unsigned char value)
                                                     // clear the overlay
                     {
 #ifdef TMS_DEBUG
-                        printline("TMS: mode 3");
+                        LOGD << "mode 3";
 #endif
                         tms9128nl_clear_overlay();
                         prevg_vidmode = g_vidmode;
@@ -279,7 +280,7 @@ void tms9128nl_write_port1(unsigned char value)
                                                     // clear the overlay
                     {
 #ifdef TMS_DEBUG
-                        printline("TMS: mode 1");
+                        LOGD << "mode 1";
 #endif
                         tms9128nl_clear_overlay();
                         prevg_vidmode = g_vidmode;
@@ -296,7 +297,7 @@ void tms9128nl_write_port1(unsigned char value)
                                                     // clear the overlay
                     {
 #ifdef TMS_DEBUG
-                        printline("TMS: g_vidmode 0 special");
+                        LOGD << "g_vidmode 0 special";
 #endif
                         tms9128nl_clear_overlay();
                         prevg_vidmode = g_vidmode;
@@ -307,7 +308,7 @@ void tms9128nl_write_port1(unsigned char value)
 #ifdef TMS_DEBUG
                     // if they weren't previously enabled
                     if (!g_tms_interrupt_enabled) {
-                        printline("TMS: Generate interrupts enabled");
+                        LOGD << "Generate interrupts enabled";
                     }
 #endif
                     // don't print anything since this is what we expect
@@ -316,7 +317,7 @@ void tms9128nl_write_port1(unsigned char value)
 #ifdef TMS_DEBUG
                     // only notify us if they weren't already disabled
                     if (g_tms_interrupt_enabled) {
-                        printline("TMS: Generate interrupts disabled");
+                        LOGD << "Generate interrupts disabled";
                     }
 #endif
                     g_tms_interrupt_enabled = 0;
@@ -332,7 +333,7 @@ void tms9128nl_write_port1(unsigned char value)
 
                     tms9128nl_clear_overlay();
 #ifdef TMS_DEBUG
-                    printline("TMS: VIDEO DISPLAY TO BE BLANKED!");
+                    LOGD << "VIDEO DISPLAY TO BE BLANKED!";
 #endif
                 }
 
@@ -344,7 +345,7 @@ void tms9128nl_write_port1(unsigned char value)
                     // don't print anything since this is what we expect
                 } else {
 #ifdef TMS_DEBUG
-                    printline("TMS: 4k ram selected, unsupported");
+                    LOGD << "4k ram selected, unsupported";
 #endif
                 }
                 break;
@@ -356,8 +357,7 @@ void tms9128nl_write_port1(unsigned char value)
                 unsigned char temp =
                     (unsigned char)(lowbyte & 0xF); // only lowest 4 bits
                 if (temp != g_tms_pnt_addr) {
-                    sprintf(s, "TMS: Pattern Name Table Address changed to %x", g_tms_pnt_addr);
-                    printline(s);
+                    LOGD << fmt("Pattern Name Table Address changed to %x", g_tms_pnt_addr);
                 }
             }
 #endif
@@ -368,8 +368,7 @@ void tms9128nl_write_port1(unsigned char value)
             case 3:
 #ifdef TMS_DEBUG
                 if (lowbyte != g_tms_ct_addr) {
-                    sprintf(s, "TMS: Color Table Address changed to %x", g_tms_ct_addr);
-                    printline(s);
+                    LOGD << fmt("Color Table Address changed to %x", g_tms_ct_addr);
                 }
 #endif
 
@@ -382,8 +381,7 @@ void tms9128nl_write_port1(unsigned char value)
             {
                 unsigned char temp = (unsigned char)(lowbyte & 7);
                 if (temp != g_tms_pgt_addr) {
-                    sprintf(s, "TMS: Pattern Generation Table changed to %x", g_tms_pgt_addr);
-                    printline(s);
+                    LOGD << fmt("Pattern Generation Table changed to %x", g_tms_pgt_addr);
                 }
             }
 #endif
@@ -398,10 +396,9 @@ void tms9128nl_write_port1(unsigned char value)
             {
                 unsigned char temp = (unsigned char)(lowbyte & 0x7F);
                 if (temp != g_tms_sat_addr) {
-                    sprintf(s,
-                            "TMS: Sprite Attribute Table address changed to %x",
+                    LOGD << fmt(
+                            "Sprite Attribute Table address changed to %x",
                             g_tms_sat_addr);
-                    printline(s);
                 }
             }
 #endif
@@ -415,10 +412,9 @@ void tms9128nl_write_port1(unsigned char value)
             {
                 unsigned char temp = (unsigned char)(lowbyte & 0x7);
                 if (temp != g_tms_sgt_addr) {
-                    sprintf(s,
-                            "TMS: Sprite Generator Table address changed to %x",
+                    LOGD << fmt(
+                            "Sprite Generator Table address changed to %x",
                             g_tms_sgt_addr);
-                    printline(s);
                 }
             }
 #endif
@@ -433,12 +429,10 @@ void tms9128nl_write_port1(unsigned char value)
                 unsigned char t1 = (unsigned char)((lowbyte & 0xF0) >> 4);
                 unsigned char t2 = (unsigned char)(lowbyte & 0x0F);
                 if (t1 != g_tms_foreground_color) {
-                    sprintf(s, "TMS : Foreground color changed to %x", g_tms_foreground_color);
-                    printline(s);
+                    LOGD << fmt("Foreground color changed to %x", g_tms_foreground_color);
                 }
                 if (t2 != g_tms_background_color) {
-                    sprintf(s, "TMS : Background color changed to %x", g_tms_background_color);
-                    printline(s);
+                    LOGD << fmt("Background color changed to %x", g_tms_background_color);
                 }
             }
 #endif
@@ -450,8 +444,7 @@ void tms9128nl_write_port1(unsigned char value)
 
             default:
 #ifdef TMS_DEBUG
-                sprintf(s, "TMS: Register %d was written to (unsupported)", which_reg);
-                printline(s);
+                LOGD << fmt("Register %d was written to (unsupported)", which_reg);
 #endif
                 break;
             } // end switch
@@ -471,7 +464,7 @@ void tms9128nl_write_port1(unsigned char value)
             }
             // otherwise we're in memory read mode
             else {
-                printline("Memory read mode requested");
+                LOGD << "Memory read mode requested";
             }
 #endif
 
@@ -498,8 +491,6 @@ void tms9128nl_write_port0(unsigned char Value)
 
 void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
 {
-
-    char s[81] = {0};
 
     switch (color_src) {
     case 0: // transparent
@@ -594,8 +585,7 @@ void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
         color->b = 255;
         break;
     default:
-        sprintf(s, "UNSUPPORTED COLOR passed into convert color : %d", color_src);
-        printline(s);
+        LOGW << fmt("UNSUPPORTED COLOR passed into convert color : %d", color_src);
         break;
     }
 }

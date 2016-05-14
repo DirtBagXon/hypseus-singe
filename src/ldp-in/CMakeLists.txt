@@ -21,4 +21,4 @@ set( LIB_HEADERS
 )
 
 add_library( ldp-in ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( ldp-in g3logger )
+target_link_libraries( ldp-in plog )

@@ -25,7 +25,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "../io/serial.h"
 #include "../timer/timer.h"
 #include "../io/conout.h"
@@ -108,7 +108,7 @@ bool v6000::nonblocking_search(char *frame)
             serial_tx(ldv6000_digits[index][0]);
             serial_tx(ldv6000_digits[index][1]);
         } else {
-            LOG(WARNING) << "Bug in v6000_search function";
+            LOGW << "Bug in v6000_search function";
         }
     } // end for loop
     serial_tx('F');
@@ -166,7 +166,7 @@ bool v6000::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
         serial_tx('8');
         serial_tx('0'); // skip forward command
     } else {
-        LOG(WARNING) << "Cannot skip more than 100 frames!";
+        LOGW << "Cannot skip more than 100 frames!";
     }
 
     return result;
@@ -180,14 +180,14 @@ unsigned int v6000::play()
     int attempts           = 0;
     bool success           = false;
 
-    LOG(DBUG) << "Sending play command to the LD-V6000";
+    LOGD << "Sending play command to the LD-V6000";
     while (!success && attempts < max_attempts) {
         serial_tx('F');
         serial_tx('D');
         success = wait_for_finished();
 
         if (!success) {
-            LOG(WARNING) << "play: Failed";
+            LOGW << "play: Failed";
             make_delay(10); // wait 10 ms before trying again
             attempts++;
         }
@@ -225,7 +225,7 @@ void v6000::stop()
         serial_tx('9');
         make_delay(10);
     } else {
-        LOGF(DBUG, "Ignoring stop command because disc is not playing -> %s", status);
+        LOGD << fmt("Ignoring stop command because disc is not playing -> %s", status);
     }
 }
 
@@ -317,7 +317,7 @@ bool v6000::wait_for_finished()
                 // we only want to print the "spin up" message once
                 if (!spun_up_before) {
                     spun_up_before = true;
-                    LOG(DBUG) << "Waiting for disc to spin up...";
+                    LOGD << "Waiting for disc to spin up...";
                 }
                 finish_timer = 0;
             }
@@ -331,7 +331,7 @@ bool v6000::wait_for_finished()
             }
 
             else {
-                LOGF(WARNING, "Unknown result code: %s", s);
+                LOGW << fmt("Unknown result code: %s", s);
                 serial_tx('F'); // send an extra byte to try to get us back in
                                 // sync
                 // NOTE: This could be a really stupid thing to do
@@ -340,7 +340,7 @@ bool v6000::wait_for_finished()
 
         } // end if bytes_read was correct
         else {
-            LOGF(DBUG, "Got garbage result from player: %s", s);
+            LOGD << fmt("Got garbage result from player: %s", s);
         }
 
         finish_timer = finish_timer + 1;
@@ -348,7 +348,7 @@ bool v6000::wait_for_finished()
     } // end while loop
 
     if (!finished) {
-        LOG(WARNING) << "Operation TIMED OUT";
+        LOGW << "Operation TIMED OUT";
     }
 
     return (finished);
@@ -376,7 +376,7 @@ bool v6000::getstring(char *s, Uint32 timeout, bool watchquit)
         } // end if we received a character
 
         if (elapsed_ms_time(cur_time) >= timeout) {
-            LOG(WARNING) << "timed out waiting for a response";
+            LOGW << "timed out waiting for a response";
             break;
         }
         SDL_check_input();

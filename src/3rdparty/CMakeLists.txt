@@ -1,1 +1,1 @@
-add_subdirectory(g3log)
+add_subdirectory(plog)

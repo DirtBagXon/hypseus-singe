@@ -22,6 +22,7 @@
 
 #include "config.h"
 
+#include <plog/Log.h>
 #include "../game/game.h"
 #include "../io/conout.h" // for printline
 #include "palette.h"
@@ -50,7 +51,7 @@ bool palette_initialize(unsigned int num_colors)
     g_palette_size = num_colors;
     // we can only have 256 max since all our surfaces are 8-bit
     if (num_colors > 256) {
-        printline("palette_initialize error: Too many colors > 256!");
+        LOGE << fmt("Too many colors %d > 256!", num_colors);
         result = false;
     }
 
@@ -60,8 +61,7 @@ bool palette_initialize(unsigned int num_colors)
     }
 
     if (!((g_rgb_palette) && (g_yuv_palette))) {
-        printline(
-            "palette_initialize error: Could not allocate palette arrays!");
+        LOGE << "Could not allocate palette arrays!";
         palette_shutdown();
         result = false;
     } else {

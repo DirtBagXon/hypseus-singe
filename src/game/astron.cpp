@@ -40,7 +40,7 @@
 #include "config.h"
 
 #include <string.h>
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "astron.h"
 #include "../io/conout.h"
 #include "../ldp-in/ldv1000.h"
@@ -430,7 +430,7 @@ Uint8 astron::cpu_mem_read(Uint16 addr)
     }
 
     else {
-        LOGF(DBUG, "Unmapped read from %x", addr);
+        LOGD << "Unmapped read from " << addr;
     }
 
     return result;
@@ -443,12 +443,12 @@ void astron::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // main rom
     if (addr <= 0x7fff) {
-        LOGF(WARNING, "Attempted write to main ROM! at %x with value %x", addr, value);
+        LOGW << fmt("Attempted write to main ROM! at %x with value %x", addr, value);
     }
 
     // bank rom
     else if (addr >= 0x8000 && addr <= 0xbfff) {
-        LOGF(WARNING, "Attempted write to bank ROM! at %x with value %x", addr, value);
+        LOGW << fmt("Attempted write to bank ROM! at %x with value %x", addr, value);
     }
 
     // disc
@@ -542,14 +542,14 @@ void astron::cpu_mem_write(Uint16 addr, Uint8 value)
 
     else {
         m_cpumem[addr] = value;
-        LOGF(DBUG, "Unmapped write to %x with value %x", addr, value);
+        LOGD << fmt("Unmapped write to %x with value %x", addr, value);
     }
 }
 
 Uint8 astron::read_ldp(Uint16 addr)
 {
     Uint8 result = ldp_input_latch;
-    LOGF(DBUG, "Read from player %x at pc: %x", result, Z80_GET_PC);
+    LOGD << fmt("Read from player %x at pc: %x", result, Z80_GET_PC);
 
     return result;
 }
@@ -566,7 +566,7 @@ Uint8 astronh::read_ldp(Uint16 addr)
         result = read_8251_status();
         break;
     default:
-        LOG(WARNING) << "check disc address";
+        LOGW << "check disc address";
         break;
     }
 
@@ -575,7 +575,7 @@ Uint8 astronh::read_ldp(Uint16 addr)
 
 void astron::write_ldp(Uint8 value, Uint16 addr)
 {
-    LOGF(DBUG, "Write to player %x at pc %x", value, Z80_GET_PC);
+    LOGD << fmt("Write to player %x at pc %x", value, Z80_GET_PC);
     ldp_output_latch = value;
 }
 
@@ -589,7 +589,7 @@ void astronh::write_ldp(Uint8 value, Uint16 addr)
         write_8251_control(value);
         break;
     default:
-        LOG(WARNING) << "check disc address";
+        LOGW << "check disc address";
         break;
     }
 }
@@ -598,7 +598,7 @@ void astronh::write_ldp(Uint8 value, Uint16 addr)
 Uint8 astron::port_read(Uint16 port)
 {
     port &= 0xFF;
-    LOGF(WARNING, "ERROR: CPU port %x read requested, but this function is "
+    LOGW << fmt("ERROR: CPU port %x read requested, but this function is "
                 "unimplemented!", port);
     return (0);
 }
@@ -614,7 +614,7 @@ void astron::port_write(Uint16 port, Uint8 value)
         current_bank = value & 0x01;
         break;
     default:
-        LOGF(WARNING, "ERROR: CPU port %x write requested (value %x) but this "
+        LOGW << fmt("ERROR: CPU port %x write requested (value %x) but this "
                    "function is unimplemented!",
                 port, value);
         break;
@@ -685,7 +685,7 @@ void astron::palette_calculate()
     // if the total number of colors is under 0xff we can cheat and have them
     // all in one palette
     if ((total_tile_colors + total_sprite_colors) < 0xff) {
-        LOGF(DBUG, "total used colors 0x%x - compressing palette",
+        LOGD << fmt("total used colors 0x%x - compressing palette",
                    total_tile_colors + total_sprite_colors);
         compress_palette = true;
 
@@ -712,7 +712,7 @@ void astron::palette_calculate()
             }
         }
     } else {
-        LOGF(DBUG, "total used colors 0x%x - cannot compress palette!",
+        LOGD << fmt("total used colors 0x%x - cannot compress palette!",
                    total_tile_colors + total_sprite_colors);
         compress_palette = false;
     }
@@ -1016,7 +1016,7 @@ void cobraab::patch_roms()
         m_cpumem[0x865] = 0; // NOP out code that decrements # of remaning lives
         m_cpumem[0x866] = 0;
         m_cpumem[0x867] = 0;
-        LOG(INFO) << "Cobraab infinite lives cheat enabled!";
+        LOGI << "Cobraab infinite lives cheat enabled!";
     }
 }
 
@@ -1033,7 +1033,7 @@ bool astron::set_bank(Uint8 which_bank, Uint8 value)
         banks[3] = (Uint8)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOG(WARNING) << "Bank specified is out of range!";
+        LOGW << "Bank specified is out of range!";
         result = false;
         break;
     }
@@ -1115,7 +1115,7 @@ void astron::draw_sprite(int spr_number)
 // very minimal 8251 implementation, just to get Astron working
 void astronh::write_8251_data(Uint8 data)
 {
-    LOGF(DBUG,"%x", data);
+    LOGD << fmt("%x", data);
     // writing to the 8251 resets txrdy
     txrdy = false;
     write_vip9500sg(data);
@@ -1124,7 +1124,7 @@ void astronh::write_8251_data(Uint8 data)
 Uint8 astronh::read_8251_data(void)
 {
     Uint8 result = read_vip9500sg();
-    LOGF(DBUG, "%x", result);
+    LOGD << fmt("%x", result);
     // reading from the 8251 resets rxrdy
     rxrdy = false;
     return result;
@@ -1136,15 +1136,15 @@ void astronh::write_8251_control(Uint8 control)
 
     // initialize chip with first control instruction after reset
     if (!init) {
-        LOG(DBUG) << "8251 Reset!";
+        LOGD << "8251 Reset!";
         if (control == 0x8f) {
-            LOG(DBUG) << "8251 mode selected as 1.5 stop bits/parity disabled/8 "
+            LOGD << "8251 mode selected as 1.5 stop bits/parity disabled/8 "
                       "bit characters/64x baud factor";
         } else if (control == 0x4e) {
-            LOG(DBUG) << "8251 mode selected as 1 stop bit/parity disabled/8 bit "
+            LOGD << "8251 mode selected as 1 stop bit/parity disabled/8 bit "
                       "characters/16x baud factor";
         } else {
-            LOGF(WARNING, "8251 attempted to initialize with mode %x - unsupported", control);
+            LOGW << fmt("8251 attempted to initialize with mode %x - unsupported", control);
         }
         init = true;
     }
@@ -1184,14 +1184,14 @@ void astronh::write_8251_control(Uint8 control)
 
         // I don't think ASTRON uses the Break Character... we'll see
         if (control & 0x08) {
-            LOG(DBUG) << "Sent Break Character!";
+            LOGD << "Sent Break Character!";
         } else {
             // printline("8251: Break Character Normal Operation");
         }
 
         // I haven't seen astron reset the error flag yet
         if (control & 0x10) {
-            LOG(DBUG) << "Reset Error Flag!";
+            LOGD << "Reset Error Flag!";
         } else {
             //			printline("8251: Error Flag Normal Operation");
         }
@@ -1200,11 +1200,11 @@ void astronh::write_8251_control(Uint8 control)
         if (control & 0x20) {
             //			printline("8251: RTS = 0");
         } else {
-            LOG(DBUG) << "RTS = 1";
+            LOGD << "RTS = 1";
         }
 
         if (control & 0x40) {
-            LOG(DBUG) << "Internal Reset";
+            LOGD << "Internal Reset";
             init = false;
         } else {
             //	printline("8251: Reset Normal Operation");
@@ -1212,7 +1212,7 @@ void astronh::write_8251_control(Uint8 control)
 
         // Hunt mode should only be enabled in Sync mode
         if (control & 0x80) {
-            LOG(WARNING) << "Hunt Mode!";
+            LOGW << "Hunt Mode!";
         } else {
         }
     }

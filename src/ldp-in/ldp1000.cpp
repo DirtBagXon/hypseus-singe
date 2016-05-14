@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h> // for atoi
 #include <string.h> // memset, strcpy
-#include <g3log/g3log.hpp>
+#include <plog/Log.h>
 #include "../game/game.h"
 #include "ldp1000.h"
 #include "../io/conout.h"
@@ -134,7 +134,7 @@ unsigned char read_ldp1000()
     }
     // error, queue was empty, this should never happen
     else {
-        LOG(WARNING) << "read when empty, this should never happen";
+        LOGW << "read when empty, this should never happen";
         set_quitflag(); // game drivers should always check to see if a response
                         // is pending before calling this, force dev to deal
                         // with this
@@ -296,20 +296,20 @@ void write_ldp1000(unsigned char value)
                 g_LDP1450_TextControl.TextGotYpos = 0; // reset vars for use
             g_LDP1450_TextControl.TextCommand     = false;
         } else
-            LOG(WARNING) << "received unexpected 0x00";
+            LOGW << "received unexpected 0x00";
         break;
     case 0x01: // LDP1450 - Text handling
         if (g_LDP1450_TextControl.TextCommand == true) {
             g_LDP1450_TextControl.TextGotString = 1;
             g_LDP1450_TextControl.TextCommand   = false;
         } else
-            LOG(WARNING) << "received unexpected 0x01";
+            LOGW << "received unexpected 0x01";
         break;
     case 0x02: // LDP1450 - text 'set window' command
         if (g_LDP1450_TextControl.TextCommand) {
             g_LDP1450_TextControl.bGotSetWindow = true;
         } else
-            LOG(WARNING) << "received unexpected 0x02";
+            LOGW << "received unexpected 0x02";
         break;
     case 0x0a: // ldp1450 - 2nd line
     case 0x14: // ldp1450 - 3rd line
@@ -390,7 +390,7 @@ void write_ldp1000(unsigned char value)
         // if this command has been used to interrupt a search, then wait until
         // the search finishes
         if (g_uLDP1000State == LDP1000_STATE_SEARCHING) {
-            LOG(DBUG) << "C.L. (0x56) sent during search";
+            LOGD << "C.L. (0x56) sent during search";
 
             // switch us into the 'aborting' state
             g_uLDP1000State = LDP1000_STATE_SEARCH_ABORTING;
@@ -429,7 +429,7 @@ void write_ldp1000(unsigned char value)
         // 8a 00 00 00 00 = no disc in the player
         else {
             // if this happens, you need to account for the other status codes
-            LOG(WARNING) << "ERROR : ldp1000 status was queried but we aren't "
+            LOGW << "ERROR : ldp1000 status was queried but we aren't "
                       "prepared to handle it";
 
             // return "paused" status just so we don't get caught in an endless
@@ -451,7 +451,7 @@ void write_ldp1000(unsigned char value)
     default:
         string msg = "Unimplemented Sony LDP command received: 0x" +
                      numstr::ToStr(value, 16);
-        LOG(WARNING) << msg; // force developer to address this situation to
+        LOGW << msg; // force developer to address this situation to
                              // get rid of err msg
         ldp1000_queue_push(0x0a); // ack
         break;
@@ -511,7 +511,7 @@ void ldp1000_think()
             // if we're waiting for a search to complete
             if (g_uLDP1000State == LDP1000_STATE_SEARCHING) {
 #ifdef DEBUG
-                LOG(DBUG) << "LDP1000: Search Complete";
+                LOGD << "LDP1000: Search Complete";
 #endif
                 ldp1000_queue_push(1); // search complete
             }
@@ -526,11 +526,11 @@ void ldp1000_think()
             }
             // else we need to do our queued frame now
             else {
-                LOG(DBUG) << "Queued search is now being executed";
+                LOGD << "Queued search is now being executed";
                 if (g_ldp->pre_search(g_ldp1000_queued_frame, false)) {
                     g_uLDP1000State = LDP1000_STATE_SEARCHING;
                 } else {
-                    LOG(DBUG) << "Queued search failed";
+                    LOGD << "Queued search failed";
                     ldp1000_queue_push(2); // search error
                     g_uLDP1000State = LDP1000_STATE_NORMAL;
                 }
@@ -592,7 +592,7 @@ void ldp1000_enter(void)
                     // copy frame into queued frame ...
                     memcpy(g_ldp1000_queued_frame, ldp1000_frame,
                            sizeof(g_ldp1000_queued_frame));
-                    LOG(DBUG) << "next search request is queued until "
+                    LOGD << "next search request is queued until "
                               "first search finishes aborting";
                 }
                 // else there is already a frame queued up, and we can't have
@@ -600,7 +600,7 @@ void ldp1000_enter(void)
                 //  because the original player did not support this! (didn't
                 //  even support queueing hehe)
                 else {
-                    LOG(WARNING) << "tried to queue up two frames, "
+                    LOGW << "tried to queue up two frames, "
                               "this should never happen!";
                     set_quitflag(); // abort Hypseus so the user realizes there
                                     // is a big problem here
@@ -612,7 +612,7 @@ void ldp1000_enter(void)
         // (Bega's Battle will attempt to do this if there is enough artificial
         // seek delay added)
         else {
-            LOG(WARNING) << "caller didn't wait for search to "
+            LOGW << "caller didn't wait for search to "
                       "complete, so we'll ignore the search request";
         }
         ldp1000_frame_index = 0; // reset frame index
@@ -666,7 +666,7 @@ void ldp1000_enter(void)
 
     // else we got an 'enter' for something unknown
     else {
-        LOG(WARNING) << "called for an unknown command";
+        LOGW << "called for an unknown command";
         set_quitflag(); // force dev to deal with this problem :)
     }
 }
@@ -680,7 +680,7 @@ void ldp1000_add_digit(char digit)
         ldp1000_frame_index++;
     } else {
         // if this happens on a regular basis, we can comment out this msg
-        LOG(WARNING) <<
+        LOGW <<
             "received too many digits, ignoring";
     }
 }

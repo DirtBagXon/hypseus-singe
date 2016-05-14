@@ -61,9 +61,9 @@ using namespace std;
 #include <unistd.h> // for chdir
 #endif
 
-#include <g3log/g3log.hpp>
-#include <g3log/logmessage.hpp>
-#include <g3log/logworker.hpp>
+#include <plog/Log.h>
+#include <plog/Appenders/ColorConsoleAppender.h>
+#include <plog/Appenders/RollingFileAppender.h>
 #include <iostream>
 #include "io/homedir.h"
 #include "io/input.h"
@@ -84,6 +84,12 @@ using namespace std;
 
 #include "globals.h"
 // some global data is stored in this file
+
+#ifdef DEBUG
+#define LOGLEVEL plog::verbose
+#else
+#define LOGLEVEL plog::info
+#endif
 
 // -------------------------------------------------------------------------------------------------
 
@@ -151,31 +157,6 @@ int main(int argc, char **argv)
 
     set_cur_dir(argv[0]); // set active directory
 
-    struct ColorCoutSink {
-        enum FG_Color { YELLOW = 33, RED = 31, GREEN = 32, WHITE = 97 };
-        FG_Color GetColor(const LEVELS level) const {
-            if (level.value == WARNING.value) { return YELLOW; }
-            if (level.value == DBUG.value) { return GREEN; }
-            if (g3::internal::wasFatal(level)) { return RED; }
-            return WHITE;
-        }
-    
-        void ReceiveLogMessage(g3::LogMessageMover logEntry) {
-            auto level = logEntry.get()._level;
-            auto color = GetColor(level);
-	    string ls = logEntry.get().toString();
-	    ls.erase(std::remove(ls.begin(), ls.end(), '\n'), ls.end());
-            std::cout << "\033[" << color << "m"
-                << ls << "\033[m" << std::endl;
-        }
-    };
-
-    auto logworker = g3::LogWorker::createLogWorker();
-    auto sinkHandle = logworker->addSink(std2::make_unique<ColorCoutSink>(),
-		    &ColorCoutSink::ReceiveLogMessage);
-
-    g3::initializeLogging(logworker.get());
-
     reset_logfile(argc, argv);
 
     // initialize SDL without any subsystems but with the no parachute option so
@@ -220,7 +201,7 @@ int main(int argc, char **argv)
                             if (g_ldp->pre_init()) {
                                 if (g_game->pre_init()) // initialize all cpu's
                                 {
-                                    LOG(DBUG) << "Booting ROM ...";
+                                    LOGD << "Booting ROM ...";
                                     g_game->start(); // HERE IS THE MAIN LOOP
                                                      // RIGHT HERE
                                     g_game->pre_shutdown();
@@ -330,27 +311,31 @@ void reset_logfile(int argc, char **argv)
     int i = 0;
     string str;
 
-    LOG(INFO) << "Version " << get_hypseus_version();
+    static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
+    static plog::RollingFileAppender<plog::CsvFormatter> fileAppender("hypseus_log.csv", 8000, 3);
+    plog::init(LOGLEVEL, &consoleAppender).addAppender(&fileAppender);
+
+    LOGI << "Version " << get_hypseus_version();
     for (i = 0; i < argc; i++) {
         str = str + argv[i] + " ";
     }
-    LOG(INFO) << "Command line: " << str;
-    LOG(INFO) << "CPU : " << get_cpu_name() << " || Mem : " << get_sys_mem() << " megs";
-    LOG(INFO) << "OS : " << get_os_description() << " || Video : " << get_video_description();
-    LOG(INFO) << "RGB2YUV Function: "
+    LOGI << "Command line: " << str;
+    LOGI << "CPU : " << get_cpu_name() << " || Mem : " << get_sys_mem() << " megs";
+    LOGI << "OS : " << get_os_description() << " || Video : " << get_video_description();
+    LOGI << "RGB2YUV Function: "
 #ifdef USE_MMX
     << "MMX";
 #else
     << "C";
 #endif
-    LOG(INFO) << "Line Blending Function: "
+    LOGI << "Line Blending Function: "
 #ifdef USE_MMX
     << "MMX";
 #else
     << "C";
 #endif // blend MMX
 
-    LOG(INFO) << "Audio Mixing Function: "
+    LOGI << "Audio Mixing Function: "
 #ifdef USE_MMX
     << "MMX";
 #else
