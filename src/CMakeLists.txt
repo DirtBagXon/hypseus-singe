@@ -42,18 +42,16 @@ include(FindPkgConfig)
 include(ExternalProject)
 include(BuildLibMPEG2)
 
-use_cxx11()
-
-find_package(SDL2 REQUIRED)
+PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
+PKG_SEARCH_MODULE(SDL2_IMAGE REQUIRED SDL2_image)
 build_libmpeg2( )
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
 
 include_directories(
     ${PROJECT_BINARY_DIR} # config.h
-    ${SDL2_INCLUDE_DIR}
-    ${MPEG2_INCLUDE_DIRS}
+    ${SDL2_INCLUDE_DIRS}
 )
 
 if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
@@ -81,8 +79,8 @@ add_dependencies( sound vldp )
 
 set(EXECUTABLE_NAME "hypseus")
 add_executable( ${EXECUTABLE_NAME} hypseus.cpp globals.h )
-target_link_libraries( ${EXECUTABLE_NAME} plog io timer sound video cpu game ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES} )
+target_link_libraries( ${EXECUTABLE_NAME} plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
 
-set_source_files_properties( testvldp.c PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
-add_executable( testvldp testvldp.c )
-target_link_libraries( testvldp video vldp ${SDL2_LIBRARY} ${SDL2_TTF_LIBRARIES})
+set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
+add_executable( testvldp testvldp.cpp )
+target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})

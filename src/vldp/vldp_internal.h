@@ -27,6 +27,8 @@
 
 #include "vldp.h" // for the VLDP_BOOL definition and SDL.h
 
+#include <mpeg2.h>
+
 // this is which version of the .dat file format we are using
 #define DAT_VERSION 2
 
