@@ -108,7 +108,7 @@ void timetrav::cpu_mem_write(Uint32 addr, Uint8 value)
 void timetrav::port_write(Uint16 port, Uint8 value)
 {
     char s[80];
-    static char display_string[9] = {0};
+    //static char display_string[9] = {0};
 
     switch (port) {
     case 0x1180:
@@ -120,7 +120,7 @@ void timetrav::port_write(Uint16 port, Uint8 value)
     case 0x1186:
     case 0x1187:
         m_video_overlay_needs_update = true;
-        display_string[port & 0x07] = value;
+        //display_string[port & 0x07] = value;
         //draw_string(display_string, 0, 0, get_active_video_overlay());
         video_blit();
         break;

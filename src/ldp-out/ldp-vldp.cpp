@@ -1857,7 +1857,7 @@ void report_mpeg_dimensions_callback(int width, int height)
                                                            // calculate it once
 
     // if draw width is less than the screen width
-    if (g_draw_width < g_screen_clip_rect->w) {
+    if (g_draw_width < (unsigned int)g_screen_clip_rect->w) {
         // center horizontally
         unsigned int uDiff = g_screen_clip_rect->w - g_draw_width;
         g_screen_clip_rect->x += (uDiff / 2);
@@ -1865,7 +1865,7 @@ void report_mpeg_dimensions_callback(int width, int height)
     }
 
     // if draw height is less than the screen height
-    if (g_draw_height < g_screen_clip_rect->h) {
+    if (g_draw_height < (unsigned int)g_screen_clip_rect->h) {
         // center vertically
         unsigned int uDiff = g_screen_clip_rect->h - g_draw_height;
         g_screen_clip_rect->y += (uDiff / 2);
