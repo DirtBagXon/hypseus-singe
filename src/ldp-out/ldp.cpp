@@ -523,7 +523,7 @@ void ldp::pre_play()
         m_status = LDP_PLAYING;
     } else {
         if (m_bVerbose)
-            LOGW << "disc is already playing, play command ignored";
+            LOGD << "disc is already playing, play command ignored";
     }
 
     if (m_bVerbose)
@@ -555,7 +555,7 @@ void ldp::pre_pause()
         if (m_bVerbose) LOGD << "Pause";
     } else {
         if (m_bVerbose)
-            LOGW <<
+            LOGD <<
                 "Received pause while disc was not playing, ignoring";
     }
 }
@@ -595,8 +595,8 @@ bool ldp::pre_change_speed(unsigned int uNumerator, unsigned int uDenominator)
         else {
             m_uFramesToSkipPerFrame = 0;
             if (m_bVerbose)
-                LOGW << "ERROR : uNumerator of 0 sent to pre_change_speed, "
-                          "this isn't supported, going to 1X";
+                LOGE << "uNumerator of 0 sent to pre_change_speed, "
+                        "this isn't supported, going to 1X";
         }
     }
     // else if this is < 1X
@@ -612,14 +612,14 @@ bool ldp::pre_change_speed(unsigned int uNumerator, unsigned int uDenominator)
         else {
             m_uFramesToStallPerFrame = 0;
             if (m_bVerbose)
-                LOGW << "ERROR : uDenominator of 0 sent to pre_change_speed, "
-                          "this is undefined, going to 1X";
+                LOGE << "uDenominator of 0 sent to pre_change_speed, "
+                        "this is undefined, going to 1X";
         }
     }
     // else it's a non-standard speed, so do some kind of error
     else {
-        LOGW << "ERROR : unsupported speed specified (" + numstr::ToStr(uNumerator) +
-                 "/" + numstr::ToStr(uDenominator) + "), setting to 1X";
+        LOGE << "unsupported speed specified (" + numstr::ToStr(uNumerator) +
+                "/" + numstr::ToStr(uDenominator) + "), setting to 1X";
         uNumerator = uDenominator = 1;
     }
 
@@ -631,10 +631,10 @@ bool ldp::pre_change_speed(unsigned int uNumerator, unsigned int uDenominator)
         strMsg = "Unable to change ";
     strMsg += "speed to " + numstr::ToStr(uNumerator) + "/" +
               numstr::ToStr(uDenominator) + "X";
-    if (m_bVerbose) {
+    if (m_bVerbose && bResult) {
         LOGD << strMsg.c_str();
     } else if (!bResult) {
-        LOGW << strMsg.c_str();
+        LOGE << strMsg.c_str();
     }
     return bResult;
 }
@@ -653,7 +653,7 @@ void ldp::think_delay(unsigned int uMsDelay)
     if (bEmulatedCpu) {
         if (m_bVerbose)
             LOGW << "should not be used with an emulated CPU. "
-                      "Don't use blocking seeking maybe?";
+                    "Don't use blocking seeking maybe?";
         set_quitflag();
     }
     // safety check: make sure pre_init has already been called so that
@@ -661,7 +661,7 @@ void ldp::think_delay(unsigned int uMsDelay)
     else if (!m_bPreInitCalled) {
         if (m_bVerbose)
             LOGW << "should not be called until pre_init() has "
-                      "been called.";
+                    "been called.";
         set_quitflag();
     }
 
@@ -812,7 +812,7 @@ void ldp::pre_think()
                 static unsigned int last_warning = 0;
 
                 if (elapsed_ms_time(last_warning) > 1000) {
-                    string s = "WARNING : cycle frame is ";
+                    string s = "cycle frame is ";
                     s += numstr::ToStr(uCurrentFrame) + " but time frame is ";
                     s += numstr::ToStr(time_result) + " which has a diff of ";
                     s += numstr::ToStr(diff);
