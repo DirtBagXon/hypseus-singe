@@ -115,7 +115,7 @@ bool par::init(unsigned int port)
 
     bool result = false;
 
-    LOGF(INFO, "Opening parallel port %d", port);
+    LOGI << fmt("Opening parallel port %d", port);
 
     if (port > 1) // if port is not LPT1 or LPT2, a custom address for the port
                   // was specified

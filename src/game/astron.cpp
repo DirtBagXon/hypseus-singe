@@ -372,7 +372,7 @@ void astronh::astronh_nmi()
 {
     // only do an nmi if nmie is enabled
     if (m_cpumem[0xd801] & 0x40) {
-        //		printline("doin' the NMI");
+       	LOGD << "doin' the NMI";
 
         //		z80_set_nmi_line(ASSERT_LINE);
         //		z80_execute(1);	// execute a quick instruction
@@ -1151,7 +1151,7 @@ void astronh::write_8251_control(Uint8 control)
     // otherwise its a command
     else {
         if (control & 0x01) {
-            //	printline("8251: Transmit Enable");
+            LOGD << "Transmit Enable";
             if (!transmit_enable) {
                 // when transmit is enabled it makes txrdy true
                 transmit_enable = true;
@@ -1159,7 +1159,7 @@ void astronh::write_8251_control(Uint8 control)
                 astronh_nmi();
             }
         } else {
-            // printline("8251: Transmit Disable");
+            LOGD << "Transmit Disable";
             transmit_enable = false;
             txrdy           = false;
         }
@@ -1175,10 +1175,10 @@ void astronh::write_8251_control(Uint8 control)
         //}
 
         if (control & 0x04) {
-            //	printline("8251: Recieve Enable");
+            LOGD << "Recieve Enable";
             recieve_enable = true;
         } else {
-            //	printline("8251: Recieve Disable");
+            LOGD << "Recieve Disable";
             recieve_enable = false;
         }
 
@@ -1186,19 +1186,19 @@ void astronh::write_8251_control(Uint8 control)
         if (control & 0x08) {
             LOGD << "Sent Break Character!";
         } else {
-            // printline("8251: Break Character Normal Operation");
+            LOGD << "Break Character Normal Operation";
         }
 
         // I haven't seen astron reset the error flag yet
         if (control & 0x10) {
             LOGD << "Reset Error Flag!";
         } else {
-            //			printline("8251: Error Flag Normal Operation");
+            LOGD << "Error Flag Normal Operation";
         }
 
         // not sure what this does
         if (control & 0x20) {
-            //			printline("8251: RTS = 0");
+            LOGD << "RTS = 0";
         } else {
             LOGD << "RTS = 1";
         }
@@ -1207,7 +1207,7 @@ void astronh::write_8251_control(Uint8 control)
             LOGD << "Internal Reset";
             init = false;
         } else {
-            //	printline("8251: Reset Normal Operation");
+            LOGD << "Reset Normal Operation";
         }
 
         // Hunt mode should only be enabled in Sync mode

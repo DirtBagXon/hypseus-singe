@@ -28,6 +28,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <plog/Log.h>
 #include "game.h"
 #include "boardinfo.h"
 #include "../io/conout.h"
@@ -164,7 +165,6 @@ void print_board_info(unsigned char index,    // which board
 {
 
     char sequence_type[160] = {0};
-    char s1[160]            = {0};
     char board_name[160]    = {0};
 
     // if we know that we are playing Dragon's Lair
@@ -211,8 +211,7 @@ void print_board_info(unsigned char index,    // which board
             }
         }
 
-        sprintf(s1, "[%2x] %s, Sequence %d %s", index, board_name, sequence, sequence_type);
-        printline(s1);
+        LOGD << fmt("[%2x] %s, Sequence %d %s", index, board_name, sequence, sequence_type);
     }
 
     // if we're playing Space Ace ...
@@ -237,14 +236,12 @@ void print_board_info(unsigned char index,    // which board
         } else {
             strcpy(board_name, "OUT OF BOUNDS");
         }
-        sprintf(s1, "[%2x] %s, Sequence %d %s", index, board_name, sequence, sequence_type);
-        printline(s1);
+        LOGD << fmt("[%2x] %s, Sequence %d %s", index, board_name, sequence, sequence_type);
 
     }
 
     // else if we don't know which game we're playing...
     else {
-        sprintf(s1, "[%2x] Unknown Name, Sequence %d Type %x", index, sequence, type);
-        printline(s1);
+        LOGD << fmt("[%2x] Unknown Name, Sequence %d Type %x", index, sequence, type);
     }
 }
