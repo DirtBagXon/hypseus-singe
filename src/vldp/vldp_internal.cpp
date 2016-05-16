@@ -1362,16 +1362,16 @@ void draw_frame(const mpeg2_info_t *info)
 
             s_extra_delay_ms = 0;
 
-            if (actual_elapsed_ms < (correct_elapsed_ms + g_out_info.u2milDivFpks)) {
-                SDL_LockMutex(g_out_info.YUVlock);
-                if (g_in_info->prepare_frame(
+            if (actual_elapsed_ms < (correct_elapsed_ms + (Sint32)g_out_info.u2milDivFpks)) {
+                int bPrepared = g_in_info->prepare_frame(
                         info->display_fbuf->buf[0],
                         info->display_fbuf->buf[1],
                         info->display_fbuf->buf[2],
                         info->sequence->width,
                         info->sequence->chroma_width,
                         info->sequence->chroma_width
-                    )) {
+                    );
+                if (bPrepared) {
 #ifndef VLDP_BENCHMARK
                     while (((Sint32)(g_in_info->uMsTimer - s_timer) < correct_elapsed_ms) &&
                            (!bFrameNotShownDueToCmd)) {
@@ -1398,7 +1398,6 @@ void draw_frame(const mpeg2_info_t *info)
                         g_in_info->display_frame();
                     }
                 }
-                SDL_UnlockMutex(g_out_info.YUVlock);
             }
 
             if (!bFrameNotShownDueToCmd) {
