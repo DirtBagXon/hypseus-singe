@@ -26,10 +26,11 @@
 
 #include "config.h"
 
-#include "../io/conout.h"
 #include "sound.h"
 #include "tonegen.h"
 #include <memory.h>
+#include <plog/Log.h>
+
 tonegen g_tonegen;
 bool g_tonegen_init = false;
 
@@ -39,7 +40,7 @@ int tonegen_initialize(Uint32 unused)
     if (!g_tonegen_init) {
         result = 0;
     } else {
-        printline("TONEGEN: Error! You can only initialize one 'chip'!");
+        LOGE << "You can only initialize one 'chip'!";
     }
     int channel;
     for (channel = 0; channel < VOICES; channel++) {

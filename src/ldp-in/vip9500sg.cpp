@@ -37,6 +37,7 @@
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
 #include "../hypseus.h" // for set_quitflag
+#include <plog/Log.h>
 
 using namespace std;
 
@@ -64,7 +65,7 @@ unsigned char read_vip9500sg()
         result = g_qu8VIP9500Output.front();
         g_qu8VIP9500Output.pop();
     } else {
-        printline("ERROR: VIP9500SG queue read when empty");
+        LOGE << "queue read when empty";
     }
 
     return (result);
@@ -82,7 +83,6 @@ bool vip9500sg_queue_push(unsigned char value)
 // sends a byte to our virtual VIP9500SG
 void write_vip9500sg(unsigned char value)
 {
-    char s[81] = {0};
     switch (value) {
     case 0x25: // Play
         g_ldp->pre_play();
@@ -91,14 +91,14 @@ void write_vip9500sg(unsigned char value)
     case 0x29: // Step Reverse
         // Astron, GR, and Cobra Command only seem to use this for pause
         g_ldp->pre_pause();
-        printline("VIP9500SG: Step Reverse (pause)");
+        LOGD << "Step Reverse (pause)";
         vip9500sg_queue_push(0xa9); // step backwards success
         break;
     case 0x2b: // Search
         enter_status = VIP9500SG_SEARCH;
         break;
     case 0x2f: // Stop
-        printline("VIP9500SG: Reject received (ignored)");
+        LOGD << "Reject received (ignored)";
         vip9500sg_queue_push(0xaf); // stop success
         break;
     case 0x30: // '0'
@@ -121,12 +121,12 @@ void write_vip9500sg(unsigned char value)
         break;
     case 0x4C: // frame counter on, NOTE : if disc is stopped this will return
                // an error 0x1D
-        printline("VIP9500SG: Frame counter on (ignored)");
+        LOGD << "Frame counter on (ignored)";
         vip9500sg_queue_push(0xcc); // frame counter on success
         break;
     case 0x4d: // Frame counter off, NOTE : if disc is stopped this will return
                // an error 0x1D
-        printline("VIP9500SG: Frame counter off (ignored)");
+        LOGD << "Frame counter off (ignored)";
         vip9500sg_queue_push(0xcd); // frame counter off?
         break;
     case 0x50: // Pause with sound enabled (!!)
@@ -138,7 +138,7 @@ void write_vip9500sg(unsigned char value)
     case 0x57: // " " "
     case 0x58: // " " "
     case 0x59: // " " "
-        printline("VIP9500SG : Unsupported variable speed command requested!");
+        LOGE << "Unsupported variable speed command requested!";
         break;
     case 0x53: // Play forward at 1X with sound enabled, note that if disc is
                // stopped this will return an error 0x1D
@@ -147,7 +147,7 @@ void write_vip9500sg(unsigned char value)
         break;
     case 0x68: // Reset
         // Do some reset stuff - turn off frame counter etc
-        printline("VIP9500SG: RESET! (ignored)");
+        LOGD << "RESET! (ignored)";
         vip9500sg_queue_push(0xe8); // reset success
         break;
     case 0x6b: // Report Current Frame
@@ -162,8 +162,7 @@ void write_vip9500sg(unsigned char value)
         vip9500sg_queue_push(0xee); // unknown
         break;
     default:
-        sprintf(s, "Unsupported VIP9500SG Command Received: %x", value);
-        printline(s);
+        LOGE << fmt("Unsupported VIP9500SG Command Received: %x", value);
         break;
     }
 }
@@ -176,9 +175,7 @@ void vip9500sg_think()
 
         // if we're paused, it means we're done seeking
         if (iStat == LDP_PAUSED) {
-#ifdef DEBUG
-            printline("VIP9500SG: Search Complete");
-#endif
+            LOGD << "Search Complete";
             vip9500sg_queue_push(0x41); // search success
             vip9500sg_queue_push(0xb0);
             g_bVIP9500SG_Searching = false;
@@ -187,8 +184,7 @@ void vip9500sg_think()
         else if (iStat != LDP_SEARCHING) {
             // if this ever happens, we'll need to find out what the search
             // error result code is :)
-            printline("VIP9500SG: search failed and we don't handle this "
-                      "condition so we're aborting");
+            LOGE << "search failed and we don't handle this condition so we're aborting";
             set_quitflag();
         }
         // else we're still searching
@@ -219,9 +215,7 @@ void vip9500sg_enter(void)
             g_ldp->pre_search(vip9500sg_frame, false);
             g_bVIP9500SG_Searching = true;
         } else {
-            printline("VIP9500SG WARNING: ROM did not check search result "
-                      "before sending another search command");
-            printline("(therefore we are ignoring the second search command)");
+            LOGW << "ROM did not check search result before sending another search command (therefore we are ignoring the second search command)";
         }
 
         vip9500sg_frame_index = 0; // reset frame index
@@ -252,9 +246,6 @@ void vip9500sg_add_digit(char digit)
         vip9500sg_frame[vip9500sg_frame_index] = digit;
         vip9500sg_frame_index++;
     } else {
-        char s[81] = {0};
-
-        sprintf(s, "Too many digits received for frame! (over %d)", FRAME_SIZE);
-        printline(s);
+        LOGW << fmt("Too many digits received for frame! (over %d)", FRAME_SIZE);
     }
 }

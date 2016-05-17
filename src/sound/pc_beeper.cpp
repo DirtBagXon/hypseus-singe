@@ -26,9 +26,11 @@
 #include <string.h> // for memset
 
 #ifdef DEBUG
-#include "../io/conout.h"
 #include <assert.h>
 #endif
+
+#include "../io/conout.h"
+#include <plog/Log.h>
 
 // how many beepers have been created
 unsigned int g_uBeeperCount = 0;
@@ -102,9 +104,7 @@ void beeper_ctrl_data(unsigned int uPort, unsigned int uByte, int internal_id)
             // >> 1 because it's half a cycle (divide by 2)
             g_uSamplesPerHalfCycle = (sound::FREQ / g_uBeeperFreq) >> 1;
 #ifdef DEBUG
-            char s[320];
-            sprintf(s, "PC BEEPER : freq %u requested", g_uBeeperFreq);
-            printline(s);
+            LOGD << fmt("PC BEEPER : freq %u requested", g_uBeeperFreq);
 #endif
         }
         break;

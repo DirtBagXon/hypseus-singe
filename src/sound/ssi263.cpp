@@ -47,6 +47,7 @@
 #include "ssi263.h"
 #include "tqsynth.h"
 #include <string.h>
+#include <plog/Log.h>
 
 #ifdef SSI_REG_DEBUG
 #include <stdio.h>
@@ -115,7 +116,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
         // 0xC0 starts the speech chip requesting phonemes in control mode
         if (value == 0xC0) {
 #ifdef SSI_REG_DEBUG
-            printline("ssi263_reg0: SSI263 enabled");
+            LOGD << "SSI263 enabled";
 #endif
             if (m_speech_enabled) {
                 // Speech synthesis option active, so reset everything so
@@ -131,7 +132,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
         // Zero stops the speech chip requesting phonemes (stops raising IRQs).
         else if (value == 0) {
 #ifdef SSI_REG_DEBUG
-            printline("ssi263_reg0: SSI263 disabled");
+            LOGD << "SSI263 disabled";
 #endif
             // Call into the thayer class to display the speech text buffer,
             // as it has the game's RAM memory. Besides, it's controlling the
@@ -143,11 +144,9 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
                 // say.
                 if (phones_len) {
 #ifdef SSI_DEBUG
-                    sprintf(s, "SSI-263 phonemes: %s", ssi263_phoneme_text);
-                    printline(s);
+                    LOGD << fmt("SSI-263 phonemes: %s", ssi263_phoneme_text);
 
-                    sprintf(s, "Rsynth phonemes: %s", phones_text);
-                    printline(s);
+                    LOGD << fmt("Rsynth phonemes: %s", phones_text);
 
                     ssi263_phoneme_text[0] = '\0';
 #endif
@@ -178,8 +177,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
         case 0:
 // Some form of pause.
 #ifdef SSI_REG_DEBUG
-            sprintf(s, "ssi263_reg0: Pause duration 0x%x", duration);
-            printline(s);
+            LOGD << fmt("Pause duration 0x%x", duration);
 #endif
             if (m_speech_enabled) {
 // The rsynth pause "phoneme" is the space character. Check to make
@@ -197,7 +195,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
 
         default:
             if (phoneme > NUM_PHONEMES) {
-                printline("ssi263_reg0: Phoneme code > 0x3F!");
+                LOGW << "Phoneme code > 0x3F!";
             } else if (phoneme_xlate[phoneme].rsynth_phoneme) {
                 const char *p_start;
                 const char *p_end;
@@ -242,8 +240,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
             }
 
 #ifdef SSI_REG_DEBUG
-            sprintf(s, "ssi263_reg0: Phoneme 0x%x, duration 0x%x", phoneme, duration);
-            printline(s);
+            LOGD << fmt("Phoneme 0x%x, duration 0x%x", phoneme, duration);
 #endif
             break;
         }
@@ -267,15 +264,13 @@ void ssi263_reg1(unsigned char value)
     case 0x76:
     case 0x8E:
 #ifdef SSI_REG_DEBUG
-        sprintf(s, "ssi263_reg1: Inflection byte, 0x%x", value);
-        printline(s);
+        LOGD << fmt("Inflection byte, 0x%x", value);
 #endif
         break;
 
     default:
 #ifdef SSI_REG_DEBUG
-        sprintf(s, "ssi263_reg1: Unknown inflection byte, %x", value);
-        printline(s);
+        LOGD << fmt("Unknown inflection byte, %x", value);
 #endif
         break;
     }
@@ -287,19 +282,17 @@ void ssi263_reg2(unsigned char value)
     switch (value) {
     case 0x98:
 #ifdef SSI_REG_DEBUG
-        printline("ssi263_reg2: Speech rate set to low");
+        LOGD << "Speech rate set to low";
 #endif
         break;
     case 0xA8:
 #ifdef SSI_REG_DEBUG
-        printline("ssi263_reg2: Speech rate set to high");
+        LOGD << "Speech rate set to high";
 #endif
         break;
     default:
 #ifdef SSI_REG_DEBUG
-        char s[81] = {0};
-        sprintf(s, "ssi263_reg2: Unknown speech rate byte, 0x%x", value);
-        printline(s);
+        LOGD << fmt("Unknown speech rate byte, 0x%x", value);
 #endif
         break;
     }
@@ -312,12 +305,12 @@ void ssi263_reg3(unsigned char value)
         // High bit set puts SSI-263 into control mode.
         m_ssi_control = true;
 #ifdef SSI_REG_DEBUG
-        printline("ssi263_reg3: Control mode enabled");
+        LOGD << "Control mode enabled";
 #endif
     } else if (value & 0x70) {
         m_ssi_control = false;
 #ifdef SSI_REG_DEBUG
-        printline("ssi263_reg3: Control mode disabled");
+        LOGD << "Control mode disabled");
 #endif
     } else {
         switch (value) {
@@ -329,10 +322,7 @@ void ssi263_reg3(unsigned char value)
 
         default:
 #ifdef SSI_REG_DEBUG
-            char s[81] = {0};
-
-            sprintf(s, "ssi263_reg3: Unknown amplitude code, 0x%x", value);
-            printline(s);
+            LOGD << fmt("Unknown amplitude code, 0x%x", value);
 #endif
             break;
         }
@@ -345,20 +335,17 @@ void ssi263_reg4(unsigned char value)
     switch (value) {
     case 0xE6:
 #ifdef SSI_REG_DEBUG
-        printline("ssi263_reg4: Filter frequency set to low");
+        LOGD << "Filter frequency set to low";
 #endif
         break;
     case 0xE7:
 #ifdef SSI_REG_DEBUG
-        printline("ssi263_reg4: Filter frequency set to high");
+        LOGD << "Filter frequency set to high";
 #endif
         break;
     default:
 #ifdef SSI_REG_DEBUG
-        char s[81] = {0};
-
-        sprintf(s, "ssi263_reg4: Unknown filter frequency value, 0x%x", value);
-        printline(s);
+        LOGD << fmt("Unknown filter frequency value, 0x%x", value);
 #endif
         break;
     }
@@ -421,7 +408,7 @@ void ssi263_say_phones(char *phonemes, int len)
         }
 
     } else {
-        printline("SSI263_SAY_PHONES error : phones_to_wave procedure failed");
+        LOGE << "phones_to_wave procedure failed";
     }
 }
 

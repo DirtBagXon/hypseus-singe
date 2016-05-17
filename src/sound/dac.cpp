@@ -27,8 +27,8 @@
 #include <string.h> // for memset
 
 #ifdef DEBUG
-#include "../cpu/cpu.h"
 #include "../io/conout.h"
+#include "../cpu/cpu.h"
 #include "../io/mpo_fileio.h"
 #include "../io/numstr.h"
 #include <assert.h>

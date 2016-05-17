@@ -30,6 +30,7 @@
 #include "gisound.h"
 #include "sound.h"
 #include <memory.h>
+#include <plog/Log.h>
 
 #define MAX_GISOUND_CHIPS 4
 int g_gisoundchip_count = -1;
@@ -39,9 +40,7 @@ Sint16 g_volumetable[16];
 
 int gisound_initialize(Uint32 core_frequency)
 {
-    char s[81] = {0};
-    sprintf(s, "GI Sound chip initialized at %d Hz", core_frequency);
-    printline(s);
+    LOGD << fmt("GI Sound chip initialized at %d Hz", core_frequency);
     g_gi_chips[++g_gisoundchip_count] = new gi_sound_chip;
     memset(g_gi_chips[g_gisoundchip_count], 0, sizeof(gi_sound_chip));
     g_gi_chips[g_gisoundchip_count]->core_clock              = core_frequency;

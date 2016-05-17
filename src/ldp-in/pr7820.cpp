@@ -43,6 +43,7 @@
 #include "../game/game.h"
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
+#include <plog/Log.h>
 
 bool g_pr7820_ready = 1; // The /READY line on player interface, not ready while
                          // stopped
@@ -76,7 +77,7 @@ bool read_pr7820_ready()
         if (stat == LDP_PAUSED) {
             g_pr7820_ready         = 0; // set to lo (0) which means ready
             g_bPR7820SearchPending = false;
-            printline("PR7820: search succeeded");
+            LOGD << "search succeeded";
         }
         // search failed for whatever reason ...
         else if (stat == LDP_ERROR) {
@@ -117,7 +118,7 @@ int pr7820_stack_push(unsigned char value)
         g_pr7820_output_stack[g_pr7820_output_stack_pointer++] = value;
         result                                                 = 1;
     } else {
-        printline("ERROR: PR-7820 stack overflow (increase its size)");
+        LOGE << "stack overflow (increase its size)";
     }
 
     return (result);
@@ -127,12 +128,10 @@ int pr7820_stack_push(unsigned char value)
 void write_pr7820(unsigned char value)
 {
 
-    char s[81] = {0};
     //	char f[81] = { 0 };
     //	Uint16 curframe = 0;	// current frame we're on
 
-    //	sprintf(s, "pr7820 : sent a %x", value);
-    //	printline(s);
+    LOGD << fmt("sent a %x", value);
 
     switch (value) {
     case 0x3F: // 0
@@ -177,7 +176,7 @@ void write_pr7820(unsigned char value)
         g_ldp->pre_change_speed(1, 1);
         break;
     case 0xF9: // Reject - Stop the laserdisc player from playing
-        printline("PR-7820: Reject received (ignored)");
+        LOGD << "Reject received (ignored)";
         // FIXME: laserdisc state should go into parked mode, but most people
         // probably don't want this to happen (I sure don't)
         break;
@@ -188,9 +187,7 @@ void write_pr7820(unsigned char value)
         pr7820_clear();
         g_ldp->pre_play();
         {
-            char s[81];
-            sprintf(s, "pr7820 : Auto-Stop requested at frame %u", g_pr7820_autostop_frame);
-            printline(s);
+            LOGD << fmt("Auto-Stop requested at frame %u", g_pr7820_autostop_frame);
         }
         break;
     case 0xFD: // Play
@@ -204,7 +201,7 @@ void write_pr7820(unsigned char value)
         if (g_ldp->pre_search(pr7820_frame, false)) {
             g_bPR7820SearchPending = true;
         } else {
-            printline("pr7820 Error: Bad search from player!");
+            LOGE << "Bad search from player!";
             // leave /READY high (indicates search never completed)
         }
 
@@ -220,8 +217,7 @@ void write_pr7820(unsigned char value)
         // the ldv1000 driver...?
         break;
     default: // Unsupported Command
-        sprintf(s, "Unsupported PR-7820 Command Received: %x", value);
-        printline(s);
+        LOGE << fmt("Unsupported PR-7820 Command Received: %x", value);
         break;
     }
 }
@@ -231,7 +227,7 @@ void write_pr7820(unsigned char value)
 void pre_display_disable()
 {
 
-printline("Display disable received");
+LOGD << "Display disable received";
 
 }
 
@@ -239,7 +235,7 @@ printline("Display disable received");
 void pre_display_enable()
 {
 
-printline("Display enable received");
+LOGD << "Display enable received";
 
 }
 */
@@ -292,7 +288,7 @@ void pr7820_pre_audio1()
             g_ldp->enable_audio1();
             break;
         default:
-            printline("pre_audio1: Ummm... you shouldn't get this");
+            LOGE << "Ummm... you shouldn't get this";
         }
 
         pr7820_frame_index = 0;
@@ -325,7 +321,7 @@ void pr7820_pre_audio2()
             g_ldp->enable_audio2();
             break;
         default:
-            printline("pre_audio2: Ummm... you shouldn't get this");
+            LOGE << "Ummm... you shouldn't get this";
         }
 
         pr7820_frame_index = 0;

@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <plog/Log.h>
 
 #define alv 0x00000001
 #define apr 0x00000002
@@ -2417,7 +2418,7 @@ bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample
                 ptrSample->uLength = cvt.len_cvt;
                 bResult            = true;
             } else {
-                printline("tqsynth.cpp ERROR : SDL_ConvertAudio failed");
+                LOGE << "SDL_ConvertAudio failed";
                 MPO_FREE(cvt.buf);
             }
         }
@@ -2430,7 +2431,7 @@ bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample
             ptrSample->uLength = num_bytes;
             bResult            = true;
         } else
-            printline("tqsynth.cpp ERROR : MPO_MALLOC failed");
+            LOGE << "MPO_MALLOC failed";
     }
 
     return bResult;
@@ -3475,10 +3476,7 @@ void enter(const char *p, ...)
         if (e)
             *x++ = (char)(e - Elements);
         else {
-            char msg[80];
-
-            sprintf(msg, "tqsynth: Cannot find element %s", s);
-            printline(msg);
+            LOGW << fmt("Cannot find element %s", s);
         }
     }
 
@@ -3582,7 +3580,6 @@ unsigned phone_to_elm(char *phone, int n, darray_ptr elm)
                 phone_append(elm, stress);
             }
         } else {
-            char msg[80];
             char ch = *s++;
 
             switch (ch) {
@@ -3598,8 +3595,7 @@ unsigned phone_to_elm(char *phone, int n, darray_ptr elm)
             case '-': /* hyphen in input */
                 break;
             default:
-                sprintf(msg, "tqsynth: Ignoring %c in '%.*s'", ch, n, phone);
-                printline(msg);
+                LOGD << fmt("Ignoring %c in '%.*s'", ch, n, phone);
                 break;
             }
         }

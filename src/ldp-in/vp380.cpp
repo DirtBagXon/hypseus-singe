@@ -35,6 +35,7 @@
 #include "ldp1000.h" // text stuff
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h"
+#include <plog/Log.h>
 
 #define VP380_STACKSIZE 10 // the largest response is 8 bytes
 
@@ -76,7 +77,7 @@ int vp380_stack_push(unsigned char value)
         vp380_output_stack[vp380_output_stack_pointer++] = value;
         result                                           = 1;
     } else {
-        printline("ERROR: vp380 stack overflow (increase its size)");
+        LOGE << "vp380 stack overflow (increase its size)";
     }
 
     return (result);

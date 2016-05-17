@@ -7,6 +7,7 @@
 #include "../io/mpo_mem.h" // for endian-independent macros
 #include "samples.h"
 #include <string.h> // for memset
+#include <plog/Log.h>
 
 #ifdef DEBUG
 #include <assert.h>
@@ -241,8 +242,8 @@ bool samples_is_sample_playing(unsigned int uSlot)
         bResult = g_SampleStates[uSlot].bActive;
         SDL_UnlockAudio();
     } else {
-        printline("ERROR: samples_is_sample_playing() was called with an "
-                  "out-of-range parameter");
+        LOGE << "samples_is_sample_playing() was called with an "
+                "out-of-range parameter";
     }
     return bResult;
 }

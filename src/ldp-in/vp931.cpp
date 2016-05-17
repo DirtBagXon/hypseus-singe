@@ -35,6 +35,7 @@
 #include "../io/numstr.h" // for DEBUG
 #include "../ldp-out/ldp.h"
 #include "../cpu/cpu-debug.h"
+#include <plog/Log.h>
 
 #ifdef DEBUG
 #include <assert.h>
@@ -135,19 +136,14 @@ unsigned int vp931_get_cmd_num(unsigned int uDigits)
 // don't call this function directly!!!
 void process_vp931_cmd(unsigned char value)
 {
-    char s[81] = {0};
-
     // catch the command
     command_byte[g_uVP931CurrentByte] = value;
     ++g_uVP931CurrentByte;
 
     // we've got a complete command so process it
     if (g_uVP931CurrentByte == 3) {
-#ifdef DEBUG
-//		sprintf(s, "VP931 CMD: %x %x %x", command_byte[0], command_byte[1],
-//command_byte[2]);
-//		printline(s);
-#endif // DEBUG
+
+        LOGD << fmt("CMD: %x %x %x", command_byte[0], command_byte[1], command_byte[2]);
 
         g_uVP931CurrentByte = 0;
 
@@ -159,7 +155,7 @@ void process_vp931_cmd(unsigned char value)
                     g_ldp->pre_play();
                 }
             } else if (command_byte[1] == 0x10) {
-                printline("VP931: play reverse received - ignored");
+                LOGD << "play reverse received - ignored";
             } else if (command_byte[1] == 0x20) {
                 g_ldp->pre_pause();
             } else if ((command_byte[1] & 0xF0) == 0xE0) {
@@ -171,17 +167,18 @@ void process_vp931_cmd(unsigned char value)
                 unsigned int uSkipFrames = vp931_get_cmd_num(3);
                 g_ldp->pre_skip_backward(uSkipFrames);
             } else {
-                sprintf(s, "Unsupported VP931 Command Received: %x %x %x",
-                        command_byte[0], command_byte[1], command_byte[2]);
-                printline(s);
+                LOGW << fmt("Unsupported Command Received: %x %x %x",
+                            command_byte[0],
+                            command_byte[1],
+                            command_byte[2]);
 #ifdef CPU_DEBUG
                 set_cpu_trace(1);
 #endif
             }
         } else if (command_byte[0] == 0x02) {
-            printline("VP931: Audio commands: Implement Me!");
+            LOGD << "Audio commands: Implement Me!";
         } else if ((command_byte[0] & 0xf0) == 0xd0) {
-            printline("VP931: Search and Halt command: Implement Me!");
+            LOGD << "Search and Halt command: Implement Me!";
 #ifdef CPU_DEBUG
             set_cpu_trace(1);
 #endif
@@ -199,8 +196,7 @@ void process_vp931_cmd(unsigned char value)
             // The firefox rom is trying to skip on the first and second fields
             // which we aren't prepared to handle.
             if ((g_ldp->get_vblank_mini_count() & 1) == 0) {
-                //				printline("VP931 : Search and Play ignored because
-                //it's on the first field (FIXME)");
+               	LOGD << "Search and Play ignored because it's on the first field (FIXME)";
                 g_ldp->framenum_to_frame(uFrame, pszFrame);
                 g_ldp->pre_search(pszFrame, true); // blocking seeking for now
                                                    // while this is developed
@@ -218,9 +214,7 @@ void process_vp931_cmd(unsigned char value)
 
                 // If we are searching forward, then do a forward skip
                 if (uCurFrame < uFrameMin1) {
-                    string s = "VP931: Search and Play (skip) to frame " +
-                               numstr::ToStr(uFrame);
-                    printline(s.c_str());
+                    LOGD << fmt("Search and Play (skip) to frame %d", uFrame);
                     g_ldp->pre_skip_forward(uFrameMin1 - uCurFrame);
                 }
                 // else take the easy way out until we find a ROM that actually
@@ -234,9 +228,10 @@ void process_vp931_cmd(unsigned char value)
                 }
             }
         } else {
-            sprintf(s, "Unsupported VP931 Command Received: %x %x %x",
-                    command_byte[0], command_byte[1], command_byte[2]);
-            printline(s);
+            LOGE << fmt("Unsupported Command Received: %x %x %x",
+                        command_byte[0],
+                        command_byte[1],
+                        command_byte[2]);
 #ifdef CPU_DEBUG
             set_cpu_trace(1);
 #endif
@@ -245,7 +240,7 @@ void process_vp931_cmd(unsigned char value)
 
     // this should never happen if we've implemented this correctly
     else if (g_uVP931CurrentByte > 3) {
-        printline("VP931 ERROR: g_uVP931CurrentByte > 2");
+        LOGE << "g_uVP931CurrentByte > 2";
     }
 }
 
@@ -266,8 +261,7 @@ void vp931_change_write_line(bool bEnabled)
             // safety check: we shouldn't be getting commands if the DAK isn't
             // enabled
             if (!g_bVP931_DAK) {
-                printline("VP931 WARNING: write line asserted when DAK wasn't "
-                          "active (ie buffer was full)");
+                LOGW << "write line asserted when DAK wasn't active (ie buffer was full)";
             }
 
             // UPDATE : CPU emulation is too slow using the event callback
@@ -320,7 +314,7 @@ void vp931_change_reset_line(bool bEnabled)
 {
     if (bEnabled != g_bVP931_ResetLine) {
         if (bEnabled) {
-            printline("VP931 RESET received! (ignored)");
+            LOGD << "RESET received! (ignored)";
         }
         g_bVP931_ResetLine = bEnabled;
     }
