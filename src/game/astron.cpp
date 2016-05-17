@@ -1118,12 +1118,12 @@ void astronh::write_8251_data(Uint8 data)
     LOGD << fmt("%x", data);
     // writing to the 8251 resets txrdy
     txrdy = false;
-    write_vip9500sg(data);
+    vip9500sg::write(data);
 }
 
 Uint8 astronh::read_8251_data(void)
 {
-    Uint8 result = read_vip9500sg();
+    Uint8 result = vip9500sg::read();
     LOGD << fmt("%x", result);
     // reading from the 8251 resets rxrdy
     rxrdy = false;
@@ -1232,7 +1232,7 @@ void astronh::clock_8251(void)
     // periodically check the status of the 8251
 
     // if we have data ready from the player inform the 8251
-    if ((vip9500sg_result_ready()) && (!rxrdy) && (recieve_enable)) {
+    if ((vip9500sg::result_ready()) && (!rxrdy) && (recieve_enable)) {
         rxrdy = true;
         astronh_nmi();
     }
