@@ -27,15 +27,15 @@
 
 // written by Matt Ownby, "Ace64", and Mark Broadhead
 
+#include "pioneer.h"
+#include "../hypseus.h"
+#include "../io/conout.h"
+#include "../io/input.h"
+#include "../io/serial.h"
+#include "../timer/timer.h"
 #include <stdio.h>
 #include <stdlib.h> // for atoi
 #include <string.h>
-#include "../io/serial.h"
-#include "../timer/timer.h"
-#include "../io/conout.h"
-#include "pioneer.h"
-#include "../hypseus.h"
-#include "../io/input.h"
 
 #include <string>
 using namespace std;

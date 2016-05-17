@@ -30,11 +30,11 @@
 //(such as NTFS mounted from linux)
 #endif
 
-#include "../timer/timer.h"
+#include "ldp-vldp.h"
 #include "../io/conout.h"
 #include "../io/mpo_fileio.h"
 #include "../sound/sound.h"
-#include "ldp-vldp.h"
+#include "../timer/timer.h"
 
 #ifdef DEBUG
 #include <assert.h> // this may include an extra .DLL in windows that I don't want to rely on
@@ -42,8 +42,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #include <vorbis/codec.h> // OGG VORBIS specific headers
 #include <vorbis/vorbisfile.h>
@@ -100,8 +100,8 @@ void mmreset()
 size_t mmread(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
     size_t bytes_to_read = size * nmemb; // how many bytes to be read
-    Uint8 *src           = ((Uint8 *)datasource) + g_audio_filepos; // where to get the
-                                                                    // data from
+    // where to get the data from
+    Uint8 *src = ((Uint8 *)datasource) + g_audio_filepos;
 
     //	printf("mmread being called.. size is %d, nmemb is %d, bytes_to_read is
     //%d\n", size, nmemb, bytes_to_read);
@@ -195,7 +195,7 @@ int mmclose(void *datasource)
 long mmtell(void *datasource)
 {
     //	printf("mmtell being called, filepos is %x\n", (Uint32)
-    //g_audio_filepos);
+    // g_audio_filepos);
 
     if (datasource) {
     }
@@ -522,7 +522,7 @@ void ldp_vldp_audio_callback(Uint8 *stream, int len, int unused)
     unsigned int uFloodTimer = (GET_TICKS() - g_uCallbackDbgTimer) / 1000;
     if (uFloodTimer != g_uCallbackFloodTimer) {
         g_uCallbackFloodTimer = uFloodTimer;
-        string s = "audio callback frequency is: " +
+        string s              = "audio callback frequency is: " +
                    numstr::ToStr((g_u64CallbackByteCount / uFloodTimer) >> 2);
         printline(s.c_str());
     }
@@ -618,22 +618,17 @@ void ldp_vldp_audio_callback(Uint8 *stream, int len, int unused)
             unsigned int cur_time = g_ldp->get_elapsed_ms_since_play();
             // if our timer is set to the current time or some previous time
             if (g_playing_timer < cur_time) {
-                static const Uint64 uBYTES_PER_S =
-                    sound::FREQ * sound::BYTES_PER_SAMPLE; // needs to be uint64
-                                                         // to prevent overflow
-                                                         // from subsequent math
+                // needs to be uint64 to prevent overflow from subsequent math
+                static const Uint64 uBYTES_PER_S = sound::FREQ * sound::BYTES_PER_SAMPLE;
+                // how many samples should have played 176.4 = 44.1 samples per
+                // millisecond * 2 for stereo * 2 for 16-bit
                 correct_samples =
                     (unsigned int)((uBYTES_PER_S * (cur_time - g_playing_timer)) / 1000);
-                // how many samples should have played
-                // 176.4 = 44.1 samples per millisecond * 2 for stereo * 2 for
-                // 16-bit
             }
             // our timer is set to some time in the future (used with skipping)
-            // so we actually
-            // should not have played any samples at this point
+            // so we actually should not have played any samples at this point
             else {
-                //				fprintf(stderr, "LDP-VLDP-AUDIO : Timer is in the
-                //future\n");
+                // fprintf(stderr, "LDP-VLDP-AUDIO : Timer is in the future\n");
                 correct_samples = 0;
             }
 

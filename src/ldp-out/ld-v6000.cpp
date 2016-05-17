@@ -23,15 +23,15 @@
 // File to control the Pioneer LD-V6000 series of players
 // written by Matt Ownby
 
-#include <string.h>
-#include <stdio.h>
-#include <plog/Log.h>
+#include "ld-v6000.h"
+#include "../hypseus.h"
+#include "../io/conout.h"
+#include "../io/input.h"
 #include "../io/serial.h"
 #include "../timer/timer.h"
-#include "../io/conout.h"
-#include "../hypseus.h"
-#include "../io/input.h"
-#include "ld-v6000.h"
+#include <plog/Log.h>
+#include <stdio.h>
+#include <string.h>
 
 // two-character codes that represent the digits 0 to 9
 const char *ldv6000_digits[10] = {"3F", "0F", "8F", "4F", "2F",

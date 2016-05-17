@@ -23,11 +23,11 @@
 #ifndef LDP_VLDP_H
 #define LDP_VLDP_H
 
+#include "../vldp/vldp.h"
 #include <SDL.h>
-#include <string>
 #include <list>
 #include <map>
-#include "../vldp/vldp.h"
+#include <string>
 
 using namespace std;
 
@@ -42,14 +42,14 @@ struct fileframes {
 };
 
 // these values can be OR'd together to create multiple filter effects
-const int FILTER_NONE      = 0;        // no filtering
-const int FILTER_BLEND     = (1 << 0); // blend fields together (cheap de-interlace)
+const int FILTER_NONE  = 0;        // no filtering
+const int FILTER_BLEND = (1 << 0); // blend fields together (cheap de-interlace)
 const int FILTER_SCANLINES = (1 << 1); // make every other field black (to give
                                        // it a more authentic look, this also
                                        // de-interlaces for free)
 
-#include "ldp.h"
 #include "../io/dll.h"
+#include "ldp.h"
 
 class ldp_vldp : public ldp
 {
@@ -192,7 +192,8 @@ class ldp_vldp : public ldp
 
 // functions that cannot be part of the class because we may need to use them as
 // function pointers
-int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
+int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+                           int Ypitch, int Upitch, int Vpitch);
 void display_frame_callback();
 void set_blend_fields(bool val);
 void update_parse_meter();

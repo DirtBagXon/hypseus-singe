@@ -23,9 +23,9 @@
 // ldp-combo.h
 // by Matt Ownby
 
+#include "ldp-vldp.h"
 #include "ldp.h"
 #include "sony.h"
-#include "ldp-vldp.h"
 
 class combo : public ldp
 {

@@ -22,14 +22,14 @@
 
 #include "config.h"
 
+#include "../io/mpo_mem.h"
 #include "sound.h"  // for get frequency stuff
 #include <string.h> // for memset
-#include "../io/mpo_mem.h"
 
 #ifdef DEBUG
+#include "../cpu/cpu.h"
 #include "../io/conout.h"
 #include "../io/mpo_fileio.h"
-#include "../cpu/cpu.h"
 #include "../io/numstr.h"
 #include <assert.h>
 #endif

@@ -90,9 +90,9 @@ struct chip {
     //  the structure mix_s defined in mix.h; this is so we can use our MMX
     //  optimized
     //  audio mixing function.
-    Uint8 *buffer; // pointer to buffer used by this sound chip
+    Uint8 *buffer;     // pointer to buffer used by this sound chip
     struct chip *next; // pointer to the next sound chip in this
-                                     // linked list
+                       // linked list
 
     Uint8 *buffer_pointer; // pointer to where we are in the buffer
     Uint32 bytes_left;     // number of bytes left in buffer
@@ -101,8 +101,8 @@ struct chip {
     int internal_id; // internal ID that the sound chips returns when
                      // init_callback is called
     unsigned int uVolume[CHANNELS]; // don't modify this value directly,
-                                          // use set_soundchip_volume() to do it
-                                          // ...
+                                    // use set_soundchip_volume() to do it
+                                    // ...
 
     // This is the volume that the game driver has requested (if no request,
     // this is MAX_VOLUME).
@@ -234,7 +234,6 @@ bool is_enabled();
 // (re)calculates the right-shift value to be used to mix sounds (for fast
 // division)
 void sound_recalc_rshift();
-
 }
 
 #endif

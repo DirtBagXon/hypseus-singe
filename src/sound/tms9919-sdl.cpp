@@ -32,8 +32,8 @@
 //#include "common.hpp"
 #include "SDL.h"
 #include "sound.h" // to get max volume
-#include "tms9919.hpp"
 #include "tms9919-sdl.hpp"
+#include "tms9919.hpp"
 //#include "tms5220.hpp"
 
 // DBG_REGISTER ( __FILE__ );
@@ -67,7 +67,7 @@ cSdlTMS9919::cSdlTMS9919()
     float volume = 128.0 / 4.0;
     for (unsigned int i = 0; i < 16 - 1; i++) {
         m_VolumeTable[i] = (int)volume;
-        volume           = (float)(volume / 1.258925412); // Reduce volume by 2dB
+        volume = (float)(volume / 1.258925412); // Reduce volume by 2dB
     }
     m_VolumeTable[15] = 0;
 
@@ -93,7 +93,7 @@ cSdlTMS9919::cSdlTMS9919()
     //        TRACE ( "Using " << m_AudioSpec.format << "-bit " <<
     m_AudioSpec.freq << "Hz Audio" );*/
     m_Initialized = true;
-    m_MixBuffer = new Uint8[m_AudioSpec.samples];
+    m_MixBuffer   = new Uint8[m_AudioSpec.samples];
     memset(m_MixBuffer, 0, sizeof(Uint8) * m_AudioSpec.samples);
     //        SDL_PauseAudio ( false );
     // }
@@ -102,7 +102,7 @@ cSdlTMS9919::cSdlTMS9919()
     NOISE_COLOR_E color = m_NoiseColor;
     int type            = m_NoiseType;
     m_NoiseColor        = (NOISE_COLOR_E)-1;
-    m_NoiseType = -1;
+    m_NoiseType         = -1;
     SetNoise(color, type);
 }
 

@@ -26,22 +26,22 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
-#include <SDL.h>
 #include "SDL_FontCache.h"
+#include <SDL.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace video
 {
 // 16 is normal, the 17th is for the 'A' in SAE
-static const uint8_t LED_RANGE = 17;
-static const uint8_t OVERLAY_LED_WIDTH = 8;
+static const uint8_t LED_RANGE          = 17;
+static const uint8_t OVERLAY_LED_WIDTH  = 8;
 static const uint8_t OVERLAY_LED_HEIGHT = 13;
 // width of each LDP1450 overlay character
 static const uint8_t OVERLAY_LDP1450_WIDTH = 16;
- // height of each LDP1450 overlay character
+// height of each LDP1450 overlay character
 static const uint8_t OVERLAY_LDP1450_HEIGHT = 16;
- // spacing between LDP1450 overlay characters
+// spacing between LDP1450 overlay characters
 static const uint8_t OVERLAY_LDP1450_CHARACTER_SPACING = 15;
 // spacing between LDP1450 overlay lines
 static const uint8_t OVERLAY_LDP1450_LINE_SPACING = 16;
@@ -101,8 +101,8 @@ SDL_Surface *get_screen_blitter();
 FC_Font *get_font();
 bool get_fullscreen();
 void set_fullscreen(bool value);
-int get_scalefactor();               // by RDG2010
-void set_scalefactor(int value);     // by RDG2010
+int get_scalefactor();           // by RDG2010
+void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);
 void set_sboverlay_characterset(int value);
 Uint16 get_video_width();
@@ -118,6 +118,5 @@ bool get_force_aspect_ratio();
 
 unsigned int get_draw_width();
 unsigned int get_draw_height();
-
 }
 #endif

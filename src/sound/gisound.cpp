@@ -26,9 +26,9 @@
 
 #include "config.h"
 
-#include "sound.h"
-#include "gisound.h"
 #include "../io/conout.h"
+#include "gisound.h"
+#include "sound.h"
 #include <memory.h>
 
 #define MAX_GISOUND_CHIPS 4
@@ -101,7 +101,8 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             (g_gi_chips[index]->register_set[CHANNEL_A_TONE_PERIOD_COARSE] << 8);
         old_bytes_per_switch = g_gi_chips[index]->chan_a_bytes_per_switch;
         g_gi_chips[index]->chan_a_bytes_per_switch =
-            (int)((sound::FREQ * (chan_a_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
+            (int)((sound::FREQ * (chan_a_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) +
+                  .5);
         if (g_gi_chips[index]->chan_a_bytes_per_switch < 4) {
             g_gi_chips[index]->chan_a_bytes_per_switch = 4;
         }
@@ -118,7 +119,8 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             (g_gi_chips[index]->register_set[CHANNEL_B_TONE_PERIOD_COARSE] << 8);
         old_bytes_per_switch = g_gi_chips[index]->chan_b_bytes_per_switch;
         g_gi_chips[index]->chan_b_bytes_per_switch =
-            (int)((sound::FREQ * (chan_b_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
+            (int)((sound::FREQ * (chan_b_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) +
+                  .5);
         if (g_gi_chips[index]->chan_b_bytes_per_switch < 4) {
             g_gi_chips[index]->chan_b_bytes_per_switch = 4;
         }
@@ -135,7 +137,8 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             (g_gi_chips[index]->register_set[CHANNEL_C_TONE_PERIOD_COARSE] << 8);
         old_bytes_per_switch = g_gi_chips[index]->chan_c_bytes_per_switch;
         g_gi_chips[index]->chan_c_bytes_per_switch =
-            (int)((sound::FREQ * (chan_c_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
+            (int)((sound::FREQ * (chan_c_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) +
+                  .5);
         if (g_gi_chips[index]->chan_c_bytes_per_switch < 4) {
             g_gi_chips[index]->chan_c_bytes_per_switch = 4;
         }
@@ -178,15 +181,15 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
         // if these were just enabled reset the counters
         if (g_gi_chips[index]->tone_a && !old_tone_a) {
             g_gi_chips[g_gisoundchip_count]->chan_a_flip = 1;
-            g_gi_chips[index]->chan_a_bytes_to_go        = g_gi_chips[index]->chan_a_bytes_per_switch;
+            g_gi_chips[index]->chan_a_bytes_to_go = g_gi_chips[index]->chan_a_bytes_per_switch;
         }
         if (g_gi_chips[index]->tone_b && !old_tone_b) {
             g_gi_chips[g_gisoundchip_count]->chan_b_flip = 1;
-            g_gi_chips[index]->chan_b_bytes_to_go        = g_gi_chips[index]->chan_b_bytes_per_switch;
+            g_gi_chips[index]->chan_b_bytes_to_go = g_gi_chips[index]->chan_b_bytes_per_switch;
         }
         if (g_gi_chips[index]->tone_c && !old_tone_c) {
             g_gi_chips[g_gisoundchip_count]->chan_c_flip = 1;
-            g_gi_chips[index]->chan_c_bytes_to_go        = g_gi_chips[index]->chan_c_bytes_per_switch;
+            g_gi_chips[index]->chan_c_bytes_to_go = g_gi_chips[index]->chan_c_bytes_per_switch;
         }
         break;
 
@@ -232,8 +235,8 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             g_gi_chips[index]->envelope_period = 4;
         }
         g_gi_chips[index]->envelope_cycle_complete = false;
-        g_gi_chips[index]->envelope_bytes_to_go    = g_gi_chips[index]->envelope_period;
-        g_gi_chips[index]->envelope_step           = 0;
+        g_gi_chips[index]->envelope_bytes_to_go = g_gi_chips[index]->envelope_period;
+        g_gi_chips[index]->envelope_step        = 0;
         break;
 
     case ENVELOPE_SHAPE_CYCLE:
@@ -312,7 +315,7 @@ void gisound_stream(Uint8 *stream, int length, int index)
                 ((~(g_gi_chips[index]->random_seed ^ (g_gi_chips[index]->random_seed >> 3)) & 0x01)
                  << 16);
             //			sprintf(s,"Random number %d",
-            //g_gi_chips[index]->random_number);
+            // g_gi_chips[index]->random_number);
             //			printline(s);
 
             if (g_gi_chips[index]->random_seed & 0x01) {

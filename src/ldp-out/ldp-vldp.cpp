@@ -30,54 +30,55 @@
 #include <assert.h>
 #endif
 //
-#include <stdlib.h>
-#include <time.h>
-#include <set>
-#include <plog/Log.h>
+#include "../game/game.h"
+#include "../hypseus.h" // for get_quitflag, set_quitflag
 #include "../io/conout.h"
 #include "../io/error.h"
-#include "../video/video.h"
-#include "../timer/timer.h"
-#include "../hypseus.h" // for get_quitflag, set_quitflag
+#include "../io/fileparse.h"
 #include "../io/homedir.h"
 #include "../io/input.h"
-#include "../io/fileparse.h"
 #include "../io/mpo_mem.h"
-#include "../io/numstr.h"  // for debug
 #include "../io/network.h" // to query amount of RAM the system has (get_sys_mem)
-#include "../game/game.h"
-#include "../video/rgb2yuv.h"
-#include "ldp-vldp.h"
-#include "framemod.h"
-#include "../vldp/vldp.h" // to get the vldp structs
-#include "../video/palette.h"
+#include "../io/numstr.h"  // for debug
+#include "../timer/timer.h"
 #include "../video/blend.h"
+#include "../video/palette.h"
+#include "../video/rgb2yuv.h"
+#include "../video/video.h"
+#include "../vldp/vldp.h" // to get the vldp structs
+#include "framemod.h"
+#include "ldp-vldp.h"
+#include <plog/Log.h>
+#include <set>
+#include <stdlib.h>
+#include <time.h>
 
 #define API_VERSION 11
 
-static const unsigned int FREQ1000 = sound::FREQ * 1000; // let compiler compute
-                                                        // this ...
+// let compiler compute this ...
+static const unsigned int FREQ1000 = sound::FREQ * 1000;
 
 // video overlay stuff
 Sint32 g_vertical_offset = 0; // (used a lot, we only want to calc it once)
 
-double g_dPercentComplete01 = 0.0; // send by child thread to indicate how far
-                                   // our parse is complete
-bool g_bGotParseUpdate = false;    // if true, it means we've received a parse
-                                   // update from VLDP
-bool g_take_screenshot = false;    // if true, a screenshot will be taken at the
-                                   // next available opportunity
+// send by child thread to indicate how far our parse is complete
+double g_dPercentComplete01 = 0.0;
+// if true, it means we've received a parse update from VLDP
+bool g_bGotParseUpdate = false;
+// if true, a screenshot will be taken at the next available opportunity
+bool g_take_screenshot = false;
+
 unsigned int g_vertical_stretch = 0;
-unsigned int g_filter_type      = FILTER_NONE; // what type of filter to use on our
-                                               // data (if any)
+// what type of filter to use on our data (if any)
+unsigned int g_filter_type = FILTER_NONE;
 
 // these are globals because they are used by our callback functions
-SDL_Rect *g_screen_clip_rect = NULL; // used a lot, we only want to calculate
-                                     // once
+// used a lot, we only want to calculate once
+SDL_Rect *g_screen_clip_rect = NULL;
 
 SDL_Texture *g_yuv_texture = NULL;
-struct yuv_buf g_blank_yuv_buf; // this will contain a blank YUV overlay
-                                // suitable for search/seek blanking
+// this will contain a blank YUV overlay suitable for search/seek blanking
+struct yuv_buf g_blank_yuv_buf;
 Uint8 *g_line_buf = NULL;  // temp sys RAM for doing calculations so we can do
                            // fastest copies to slow video RAM
 Uint8 *g_line_buf2 = NULL; // 2nd buf
@@ -118,9 +119,8 @@ ldp_vldp::ldp_vldp()
     m_cur_mpeg_filename = "";
     m_file_index        = 0; // # of mpeg files in our list
     m_framefile         = ".txt";
-    m_framefile         = g_game->get_shortgamename() + m_framefile; // create a
-                                                             // sensible default
-                                                             // framefile name
+    // create a sensible default framefile name
+    m_framefile         = g_game->get_shortgamename() + m_framefile;
     m_bFramefileSet      = false;
     m_altaudio_suffix    = ""; // no alternate audio by default
     m_audio_file_opened  = false;
@@ -153,136 +153,132 @@ bool ldp_vldp::init_player()
     g_vertical_stretch = m_vertical_stretch; // callbacks don't have access to
                                              // m_vertical_stretch
 
-        // try to read in the framefile
-        if (read_frame_conversions()) {
-            // just a sanity check to make sure their frame file is correct
-            if (first_video_file_exists()) {
-                // if the last video file has not been parsed, assume none of
-                // them have been
-                // This is safe because if they have been parsed, it will just
-                // skip them
-                if (!last_video_file_parsed()) {
-                    printnotice("Press any key to parse your video file(s). "
-                                "This may take a while. Press ESC if you'd "
-                                "rather quit.");
-                    need_to_parse = true;
+    // try to read in the framefile
+    if (read_frame_conversions()) {
+        // just a sanity check to make sure their frame file is correct
+        if (first_video_file_exists()) {
+            // if the last video file has not been parsed, assume none have been
+            // This is safe because if parsed, it will just skip them
+            if (!last_video_file_parsed()) {
+                printnotice("Press any key to parse your video file(s). "
+                            "This may take a while. Press ESC if you'd "
+                            "rather quit.");
+                need_to_parse = true;
+            }
+
+            if (audio_init() && !get_quitflag()) {
+                g_local_info.prepare_frame         = prepare_frame_callback;
+                g_local_info.display_frame         = display_frame_callback;
+                g_local_info.report_parse_progress = report_parse_progress_callback;
+                g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
+                g_local_info.render_blank_frame    = blank_overlay;
+                g_local_info.blank_during_searches = m_blank_on_searches;
+                g_local_info.blank_during_skips    = m_blank_on_skips;
+                g_local_info.GetTicksFunc          = GetTicksFunc;
+
+                g_vldp_info = vldp_init(&g_local_info);
+
+                // if we successfully made contact with VLDP ...
+                if (g_vldp_info != NULL) {
+                    // this number is used repeatedly, so we calculate
+                    // it once
+                    g_vertical_offset = g_game->get_video_row_offset();
+
+                    // if testing has been requested then run them ...
+                    if (m_testing) {
+                        list<string> lstrPassed, lstrFailed;
+                        run_tests(lstrPassed, lstrFailed);
+                        // run releasetest to see actual results now ...
+                        LOGI << "Run releasetest to see printed results!";
+                        set_quitflag();
+                    }
+
+                    // bPreCacheOK will be true if precaching succeeds
+                    // or is never attempted
+                    bool bPreCacheOK = true;
+
+                    // If precaching has been requested, do it now.
+                    // The check for RAM requirements is done inside the
+                    // precache_all_video function, so we don't need to
+                    // worry about that here.
+                    if (m_bPreCache) {
+                        bPreCacheOK = precache_all_video();
+                    }
+
+                    // if we need to parse all the video
+                    if (need_to_parse) {
+                        parse_all_video();
+                    }
+
+                    // if precaching succeeded or we didn't request
+                    // precaching
+                    if (bPreCacheOK) {
+                        // this is the point where blitting isn't allowed anymore
+                        blitting_allowed = false;
+
+                        // open first file so that we can draw video overlay
+                        // even if the disc is not playing
+                        if (open_and_block(m_mpeginfo[0].name)) {
+                            // although we just opened a video file, we have
+                            // not opened an audio file, so we want to force a
+                            // re-open of the same video file when we do a real
+                            // search, in order to ensure that the audio file is
+                            // opened also.
+                            m_cur_mpeg_filename = "";
+
+                            // set MPEG size ASAP in case different from
+                            // NTSC default
+                            m_discvideo_width  = g_vldp_info->w;
+                            m_discvideo_height = g_vldp_info->h;
+
+                            if (sound::is_enabled()) {
+                                struct sound::chip soundchip;
+                                soundchip.type = sound::CHIP_VLDP;
+                                // no further parameters necessary
+                                m_uSoundChipID = sound::add_chip(&soundchip);
+                            }
+
+                            result = true;
+                        } else {
+                            LOGW << fmt("LDP-VLDP: first video "
+                                        "file could not be opened!");
+                        }
+                    } // end if it's ok to proceed
+                    // else precaching failed
+                    else {
+                        LOGW << "precaching failed";
+                    }
+
+                } // end if reading the frame conversion file worked
+                else {
+                    LOGW << "vldp_init returned NULL (which shouldn't ever "
+                            "happen)";
+                }
+            } // if audio init succeeded
+            else {
+                // only report an audio problem if there is one
+                if (!get_quitflag()) {
+                    LOGW << "Could not initialize VLDP audio!";
                 }
 
-                if (audio_init() && !get_quitflag()) {
-                    g_local_info.prepare_frame          = prepare_frame_callback;
-                    g_local_info.display_frame          = display_frame_callback;
-                    g_local_info.report_parse_progress  = report_parse_progress_callback;
-                    g_local_info.report_mpeg_dimensions = report_mpeg_dimensions_callback;
-                    g_local_info.render_blank_frame     = blank_overlay;
-                    g_local_info.blank_during_searches  = m_blank_on_searches;
-                    g_local_info.blank_during_skips     = m_blank_on_skips;
-                    g_local_info.GetTicksFunc           = GetTicksFunc;
-
-                    g_vldp_info = vldp_init(&g_local_info);
-
-                    // if we successfully made contact with VLDP ...
-                    if (g_vldp_info != NULL) {
-                            // this number is used repeatedly, so we calculate
-                            // it once
-                            g_vertical_offset = g_game->get_video_row_offset();
-
-                            // if testing has been requested then run them ...
-                            if (m_testing) {
-                                list<string> lstrPassed, lstrFailed;
-                                run_tests(lstrPassed, lstrFailed);
-                                // run releasetest to see actual results now ...
-                                LOGI << "Run releasetest to see printed results!";
-                                set_quitflag();
-                            }
-
-                            // bPreCacheOK will be true if precaching succeeds
-                            // or is never attempted
-                            bool bPreCacheOK = true;
-
-                            // If precaching has been requested, do it now.
-                            // The check for RAM requirements is done inside the
-                            //  precache_all_video function, so we don't need to
-                            //  worry about that here.
-                            if (m_bPreCache) {
-                                bPreCacheOK = precache_all_video();
-                            }
-
-                            // if we need to parse all the video
-                            if (need_to_parse) {
-                                parse_all_video();
-                            }
-
-                            // if precaching succeeded or we didn't request
-                            // precaching
-                            if (bPreCacheOK) {
-                                blitting_allowed =
-                                    false; // this is the point where blitting
-                                           // isn't allowed anymore
-
-                                // open first file so that
-                                // we can draw video overlay even if the disc is
-                                // not playing
-                                if (open_and_block(m_mpeginfo[0].name)) {
-                                    // although we just opened a video file, we
-                                    // have not opened an audio file,
-                                    // so we want to force a re-open of the same
-                                    // video file when we do a real search,
-                                    // in order to ensure that the audio file is
-                                    // opened also.
-                                    m_cur_mpeg_filename = "";
-
-                                    // set MPEG size ASAP in case different from
-                                    // NTSC default
-                                    m_discvideo_width  = g_vldp_info->w;
-                                    m_discvideo_height = g_vldp_info->h;
-
-                                    if (sound::is_enabled()) {
-                                        struct sound::chip soundchip;
-                                        soundchip.type = sound::CHIP_VLDP;
-                                        // no further parameters necessary
-                                        m_uSoundChipID = sound::add_chip(&soundchip);
-                                    }
-
-                                    result = true;
-                                } else {
-                                    LOGW << fmt("LDP-VLDP: first video "
-                                              "file could not be opened!");
-                                }
-                            } // end if it's ok to proceed
-                            // else precaching failed
-                            else {
-                                LOGW << "precaching failed";
-                            }
-
-                    } // end if reading the frame conversion file worked
-                    else {
-                        LOGW << "vldp_init returned NULL (which shouldn't ever happen)";
-                    }
-                } // if audio init succeeded
+                // otherwise report that they quit
                 else {
-                    // only report an audio problem if there is one
-                    if (!get_quitflag()) {
-                        LOGW << "Could not initialize VLDP audio!";
-                    }
-
-                    // otherwise report that they quit
-                    else {
-                        LOGI << "Quit requested, shutting down!";
-                    }
-                } // end if audio init failed or if user opted to quit instead
-                  // of parse
-            }     // end if first file was present (sanity check)
-            // else if first file was not found, we do just quit because an
-            // error is printed elsewhere
-        } // end if framefile was read in properly
-        else {
-            // if the user didn't specify a framefile from the command-line,
-            // then give them a little hint.
-            if (!m_bFramefileSet) {
-                LOGW << "You must specify a -framefile argument when using VLDP.";
-            }
-            // else the other error messages are more than sufficient
+                    LOGI << "Quit requested, shutting down!";
+                }
+            } // end if audio init failed or if user opted to quit instead
+              // of parse
+        }     // end if first file was present (sanity check)
+        // else if first file was not found, we do just quit because an
+        // error is printed elsewhere
+    } // end if framefile was read in properly
+    else {
+        // if the user didn't specify a framefile from the command-line,
+        // then give them a little hint.
+        if (!m_bFramefileSet) {
+            LOGW << "You must specify a -framefile argument when using VLDP.";
         }
+        // else the other error messages are more than sufficient
+    }
 
     // if init didn't completely finish, then we need to shutdown everything
     if (!result) {
@@ -307,7 +303,6 @@ void ldp_vldp::shutdown_player()
     }
     audio_shutdown();
     free_yuv_overlay(); // de-allocate overlay if we have one allocated ...
-
 }
 
 bool ldp_vldp::open_and_block(const string &strFilename)
@@ -316,8 +311,7 @@ bool ldp_vldp::open_and_block(const string &strFilename)
 
     // during parsing, blitting is allowed
     // NOTE: we want this here so that it is true before the initial open
-    // command is called.
-    //  Otherwise we'd put it inside wait_for_status ...
+    // command is called. Otherwise we'd put it inside wait_for_status ...
     blitting_allowed = true;
 
     // see if this filename has been precached
@@ -345,8 +339,7 @@ bool ldp_vldp::precache_and_block(const string &strFilename)
 
     // during precaching, blitting is allowed
     // NOTE: we want this here so that it is true before the initial open
-    // command is called.
-    //  Otherwise we'd put it inside wait_for_status ...
+    // command is called. Otherwise we'd put it inside wait_for_status ...
     blitting_allowed = true;
 
     if (g_vldp_info->precache((m_mpeg_path + strFilename).c_str())) {
@@ -367,9 +360,9 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
         if (g_bGotParseUpdate) {
             // redraw screen blitter before we display it
             update_parse_meter();
-	    video::vid_blank();
-            //vid_blit(get_screen_blitter(), 0, 0);
-	    video::vid_flip();
+            video::vid_blank();
+            // vid_blit(get_screen_blitter(), 0, 0);
+            video::vid_flip();
             g_bGotParseUpdate = false;
         }
 
@@ -418,7 +411,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
 
 #ifdef DEBUG
         LOGD << fmt("LDP-VLDP: frame delta is %d and seek_delay_ms is %d",
-                     frame_delta, seek_delay_ms);
+                    frame_delta, seek_delay_ms);
 #endif
     }
 
@@ -452,8 +445,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
                     m_audio_file_opened = open_audio_stream(oggname.c_str());
                 }
             } else {
-                LOGW << fmt("LDP-VLDP: Could not open video file %s",
-                                filename.c_str());
+                LOGW << fmt("LDP-VLDP: Could not open video file %s", filename.c_str());
                 result = false;
             }
         }
@@ -461,10 +453,8 @@ bool ldp_vldp::nonblocking_search(char *frame)
         // if we're ok so far, try the search
         if (result) {
             // IMPORTANT : 'uFPKS' _must_ be queried AFTER a new mpeg has been
-            // opened,
-            //  because sometimes a framefile can include mpegs that have
-            //  different framerates
-            //  from each other.
+            // opened, because sometimes a framefile can include mpegs that have
+            // different framerates from each other.
             unsigned int uFPKS = g_vldp_info->uFpks;
 
             m_discvideo_width  = g_vldp_info->w;
@@ -480,8 +470,8 @@ bool ldp_vldp::nonblocking_search(char *frame)
                 // NOTE: AVOID this if you can because it makes seeking less
                 // accurate
                 if (g_game->get_disc_fpks() != uFPKS) {
-                    LOGI << fmt(
-                                "NOTE: converting FPKS from %d to %d. This may be less accurate.",
+                    LOGI << fmt("NOTE: converting FPKS from %d to %d. This may "
+                                "be less accurate.",
                                 g_game->get_disc_fpks(), uFPKS);
                     m_target_mpegframe =
                         (m_target_mpegframe * uFPKS) / g_game->get_disc_fpks();
@@ -503,9 +493,9 @@ bool ldp_vldp::nonblocking_search(char *frame)
     // else mpeg_info() wasn't able to provide a filename ...
     else {
         LOGW << "LDP-VLDP.CPP ERROR: frame could not be converted to file, "
-                      "probably due to a framefile error."
-                      "Your framefile must begin no later than frame "
-                      "This most likely is your problem!";
+                "probably due to a framefile error."
+                "Your framefile must begin no later than frame "
+                "This most likely is your problem!";
     }
 
     return (result);
@@ -555,9 +545,8 @@ unsigned int ldp_vldp::play()
             }
 
         } else {
-            LOGW << fmt(
-                "in play() function, could not open mpeg file %s",
-		m_mpeginfo[0].name.c_str());
+            LOGW << fmt("in play() function, could not open mpeg file %s",
+                        m_mpeginfo[0].name.c_str());
         }
     } // end if we haven't opened a file yet
 
@@ -582,8 +571,7 @@ unsigned int ldp_vldp::play()
 
 // skips forward a certain # of frames during playback without pausing
 // Caveats: Does not work with an mpeg of the wrong framerate, does not work
-// with an mpeg
-//  that uses fields, and does not skip across file boundaries.
+// with an mpeg that uses fields, and does not skip across file boundaries.
 // Returns true if skip was successful
 bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
 {
@@ -601,10 +589,9 @@ bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
     if (uDiscFPKS == uFPKS) {
         // make sure they're not using fields
         // UPDATE : I don't see any reason why using fields would be a problem
-        // anymore,
-        //  but since I am not aware of any mpegs that use fields that require
-        //  skipping,
-        //  I am leaving this restriction in here just to be safe.
+        // anymore, but since I am not aware of any mpegs that use fields that
+        // require skipping, I am leaving this restriction in here just to be
+        // safe.
         if (!g_vldp_info->uses_fields) {
             // advantage to this method is no matter how many times we skip, we
             // won't drift because we are using m_play_time as our base
@@ -628,12 +615,13 @@ bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
                 LOGW << "video skip failed";
             }
         } else {
-            LOGW << "Skipping not supported with mpegs that use fields (such as this one)";
+            LOGW << "Skipping not supported with mpegs that use fields (such "
+                    "as this one)";
         }
     } else {
-	LOGW << fmt("Skipping not supported when the mpeg's "
-                   "framerate differs from the disc's (%f vs %f)",
-                   (uFPKS / 1000.0), (uDiscFPKS / 1000.0));
+        LOGW << fmt("Skipping not supported when the mpeg's "
+                    "framerate differs from the disc's (%f vs %f)",
+                    (uFPKS / 1000.0), (uDiscFPKS / 1000.0));
     }
 
     return result;
@@ -642,8 +630,8 @@ bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
 void ldp_vldp::pause()
 {
 #ifdef DEBUG
-    LOGD << fmt("g_vldp_info's current frame is %d (%d adjusted)",
-               g_vldp_info->current_frame, (m_cur_ldframe_offset + g_vldp_info->current_frame));
+    LOGD << fmt("g_vldp_info's current frame is %d (%d adjusted)", g_vldp_info->current_frame,
+                (m_cur_ldframe_offset + g_vldp_info->current_frame));
 #endif
     g_vldp_info->pause();
     audio_pause();
@@ -663,7 +651,7 @@ bool ldp_vldp::change_speed(unsigned int uNumerator, unsigned int uDenominator)
 
         // calculate where our audio position should be
         unsigned int target_mpegframe = mpeg_info(filename, get_current_frame());
-        Uint64 u64AudioTargetPos      = get_audio_sample_position(target_mpegframe);
+        Uint64 u64AudioTargetPos = get_audio_sample_position(target_mpegframe);
 
         // try to get the audio playing again
         if (seek_audio(u64AudioTargetPos)) {
@@ -729,30 +717,29 @@ unsigned int ldp_vldp::get_current_frame()
     if ((unsigned int)result != m_uCurrentFrame) {
         // if VLDP is ahead, that is especially disturbing
         if ((unsigned int)result > m_uCurrentFrame) {
-            LOGD << fmt(
-                         "ldp-vldp::get_current_frame() [vldp ahead]: internal frame is %d, "
-                         "vldp's current frame is %d", m_uCurrentFrame, result);
+            LOGD << fmt("ldp-vldp::get_current_frame() [vldp ahead]: internal "
+                        "frame is %d, "
+                        "vldp's current frame is %d",
+                        m_uCurrentFrame, result);
 
             LOGD << fmt(
-                         "g_local_info.uMsTimer is %d, which means frame offset %f (%f)",
-                         g_local_info.uMsTimer, (g_local_info.uMsTimer * uFPKS) / 1000000,
-                         (g_local_info.uMsTimer * uFPKS * 0.000001));
+                "g_local_info.uMsTimer is %d, which means frame offset %f (%f)",
+                g_local_info.uMsTimer, (g_local_info.uMsTimer * uFPKS) / 1000000,
+                (g_local_info.uMsTimer * uFPKS * 0.000001));
+
+            LOGD
+                << fmt("m_uCurrentOffsetFrame is %d, m_last_seeked frame is %d",
+                       m_uCurrentOffsetFrame, m_last_seeked_frame);
 
             LOGD << fmt(
-                         "m_uCurrentOffsetFrame is %d, m_last_seeked frame is %d",
-                         m_uCurrentOffsetFrame, m_last_seeked_frame);
-
-            LOGD << fmt(
-                         "correct elapsed ms is %x (%f), which is frame offset %d (%f)",
-                         ((result - m_last_seeked_frame) * 1000000 / uFPKS),
-                         ((result - m_last_seeked_frame) * 1000000.0 / uFPKS),
-                         ((uMsCorrect * uFPKS) / 1000000),
-                         (uMsCorrect * uFPKS * 0.000001));
+                "correct elapsed ms is %x (%f), which is frame offset %d (%f)",
+                ((result - m_last_seeked_frame) * 1000000 / uFPKS),
+                ((result - m_last_seeked_frame) * 1000000.0 / uFPKS),
+                ((uMsCorrect * uFPKS) / 1000000), (uMsCorrect * uFPKS * 0.000001));
         }
 
         // This will be behind more than 1 frame (legitimately) playing at
-        // faster than 1X,
-        //  so uncomment this with that in mind ...
+        // faster than 1X, so uncomment this with that in mind ...
         /*
         // else if VLDP is behind more than 1 frame, that is also disturbing
         else if ((m_uCurrentFrame - result) > 1)
@@ -825,8 +812,7 @@ void ldp_vldp::test_helper(unsigned uIterations)
 void ldp_vldp::run_tests(list<string> &lstrPassed, list<string> &lstrFailed)
 {
     // these tests just basically stress the VLDP .DLL to make sure it will
-    // never crash
-    // under any circumstances
+    // never crash under any circumstances
     string s    = "";
     bool result = false;
 
@@ -949,7 +935,7 @@ void ldp_vldp::run_tests(list<string> &lstrPassed, list<string> &lstrFailed)
 
                     // make sure current frame has not changed
                     if (g_vldp_info->current_frame == 0) {
-                        g_local_info.uMsTimer = m_uElapsedMsSincePlay =
+                        g_local_info.uMsTimer     = m_uElapsedMsSincePlay =
                             m_uBlockedMsSincePlay = 0;
 
                         // so now we start playing ...
@@ -1051,7 +1037,7 @@ bool ldp_vldp::read_frame_conversions()
     // if the framefile was opened successfully
     if (p_ioFileConvert) {
         MPO_BYTES_READ bytes_read = 0;
-        char *ff_buf = (char *)MPO_MALLOC((unsigned int)(p_ioFileConvert->size + 1)); // add an extra byte to null terminate
+        char *ff_buf              = (char *)MPO_MALLOC((unsigned int)(p_ioFileConvert->size + 1)); // add an extra byte to null terminate
         if (ff_buf != NULL) {
             if (mpo_read(ff_buf, (unsigned int)p_ioFileConvert->size,
                          &bytes_read, p_ioFileConvert)) {
@@ -1067,21 +1053,19 @@ bool ldp_vldp::read_frame_conversions()
                                         m_mpeg_path, &m_mpeginfo[0], m_file_index,
                                         sizeof(m_mpeginfo) / sizeof(struct fileframes),
                                         err_msg)) {
-                        LOGI << fmt(
-                               "Framefile parse succeeded. Video/Audio directory is: %s",
-                               m_mpeg_path.c_str());
+                        LOGI << fmt("Framefile parse succeeded. Video/Audio "
+                                    "directory is: %s",
+                                    m_mpeg_path.c_str());
                         result = true;
                     } else {
-                        LOGW << fmt(
-                               "Framefile Parse Error: %s", err_msg.c_str());
-                        LOGW << fmt(
-                               "Mpeg Path: %s", m_mpeg_path.c_str());
+                        LOGW << fmt("Framefile Parse Error: %s", err_msg.c_str());
+                        LOGW << fmt("Mpeg Path: %s", m_mpeg_path.c_str());
                         // print the entire contents of the framefile to make it
                         // easier to us to debug newbie problems using their
                         // hypseus_log.txt
-                        LOGW << fmt(
-                               "---BEGIN FRAMEFILE CONTENTS---\n%s---END FRAMEFILE CONTENTS---",
-			       ff_buf);
+                        LOGW << fmt("---BEGIN FRAMEFILE CONTENTS---\n%s---END "
+                                    "FRAMEFILE CONTENTS---",
+                                    ff_buf);
                     }
                 } else
                     LOGW << "framefile read error";
@@ -1091,8 +1075,7 @@ bool ldp_vldp::read_frame_conversions()
             LOGW << "mem alloc error";
         mpo_close(p_ioFileConvert);
     } else {
-        LOGW << fmt("Could not open framefile: %s",
-                        m_framefile.c_str());
+        LOGW << fmt("Could not open framefile: %s", m_framefile.c_str());
     }
 
     return result;
@@ -1118,7 +1101,8 @@ bool ldp_vldp::first_video_file_exists()
             printerror(full_path.c_str());
         }
     } else {
-        LOGW << "Framefile seems empty, it's probably invalid. Read the documentation to learn how to create framefiles.";
+        LOGW << "Framefile seems empty, it's probably invalid. Read the "
+                "documentation to learn how to create framefiles.";
     }
 
     return result;
@@ -1162,8 +1146,9 @@ void ldp_vldp::parse_all_video()
                                                  // to watch while he/she waits
             think(); // let opengl have a chance to display the frame
         } else {
-            LOGW << fmt("Could not parse video because file %s could not be opened.",
-                       m_mpeginfo[i].name.c_str());
+            LOGW << fmt(
+                "Could not parse video because file %s could not be opened.",
+                m_mpeginfo[i].name.c_str());
             break;
         }
     }
@@ -1199,7 +1184,8 @@ bool ldp_vldp::precache_all_video()
             }
             // else file can't be opened ...
             else {
-                LOGW << fmt("when precaching, the file  %s could not be opened.",
+                LOGW
+                    << fmt("when precaching, the file  %s could not be opened.",
                            full_path.c_str());
                 bResult = false;
                 break;
@@ -1222,7 +1208,8 @@ bool ldp_vldp::precache_all_video()
         if ((uReqMegs < uMegs) || (m_bPreCacheForce)) {
             for (i = 0; i < m_file_index; i++) {
                 // if the file in question has not yet been precached
-                if (m_mPreCachedFiles.find(m_mpeginfo[i].name) == m_mPreCachedFiles.end()) {
+                if (m_mPreCachedFiles.find(m_mpeginfo[i].name) ==
+                    m_mPreCachedFiles.end()) {
                     // try to precache and if it fails, bail ...
                     if (precache_and_block(m_mpeginfo[i].name)) {
                         // store the index of the file that we last precached
@@ -1230,8 +1217,7 @@ bool ldp_vldp::precache_all_video()
                     } else {
                         full_path = m_mpeg_path + m_mpeginfo[i].name;
 
-                        LOGW << fmt("precaching of file %s failed.",
-                                   full_path.c_str());
+                        LOGW << fmt("precaching of file %s failed.", full_path.c_str());
                         bResult = false;
                     }
                 } // end if file has not been precached
@@ -1239,7 +1225,9 @@ bool ldp_vldp::precache_all_video()
                   // again
             }
         } else {
-            LOGW << fmt("Not enough memory to precache video stream. You have about %d but need %d", uMegs, uReqMegs);
+            LOGW << fmt("Not enough memory to precache video stream. You have "
+                        "about %d but need %d",
+                        uMegs, uReqMegs);
             bResult = false;
         }
     }
@@ -1386,9 +1374,8 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
     ++line_number; // if we get this far, it means we've read our first line
 
     // If sMpegPath is NOT an absolute path (doesn't begin with a unix '/' or
-    // have the second char as a win32 ':')
-    //  then we want to use the framefile's path for convenience purposes
-    // (this should be win32 and unix compatible)
+    // have the second char as a win32 ':') then we want to use the framefile's
+    // path for convenience purposes (this should be win32 and unix compatible)
     if ((sMpegPath[0] != '/') && (sMpegPath[0] != '\\') && (sMpegPath[1] != ':')) {
         string path = "";
 
@@ -1397,11 +1384,9 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
             // put the path of the framefile in front of the relative path of
             // the mpeg files
             // This will allow people to move the location of their mpegs around
-            // to
-            // different directories without changing the framefile at all.
+            // to different directories without changing the framefile at all.
             // For example, if the framefile and the mpegs are in the same
-            // directory,
-            // then the framefile's first line could be "./"
+            // directory, then the framefile's first line could be "./"
             sMpegPath = path + sMpegPath;
         }
     }
@@ -1410,7 +1395,7 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
     string s = "";
     // convert all \'s to /'s to be more unix friendly (doesn't hurt win32)
     for (unsigned int i = 0; i < sMpegPath.length(); i++) {
-        ch = sMpegPath[i];
+        ch                 = sMpegPath[i];
         if (ch == '\\') ch = '/';
         s += ch;
     }
@@ -1455,10 +1440,8 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
                 ++frame_idx;
             } else {
                 // This error has been stumping self-proclaimed "experienced
-                // emu'ers"
-                // so I am going to extra effort to make it clear to them what
-                // the
-                // problem is.
+                // emu'ers" so I am going to extra effort to make it clear to
+                // them what the problem is.
                 err_msg =
                     "Expected a number followed by a string, but on line " +
                     numstr::ToStr(line_number) + ", found this: " + s + "(";
@@ -1489,237 +1472,268 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
 //////////////////////////////////////////////////////////////////////
 
 // returns VLDP_TRUE on success, VLDP_FALSE on failure
-int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch)
+int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+                           int Ypitch, int Upitch, int Vpitch)
 {
     int result = VLDP_FALSE;
 
-    result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-			    Yplane, Ypitch,
-			    Uplane, Upitch,
-			    Vplane, Vpitch) == 0) ? VLDP_TRUE : VLDP_FALSE;
+    result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
+                                   Upitch, Vplane, Vpitch) == 0)
+                 ? VLDP_TRUE
+                 : VLDP_FALSE;
 
-/*
-        SDL_Surface *gamevid =
-            g_game->get_finished_video_overlay(); // This could change at any
-                                                  // time (double buffering, for
-                                                  // example)
-        // so we are forced to query it every time we run this function.  If
-        // someone has a better idea, let me know
+    /*
+            SDL_Surface *gamevid =
+                g_game->get_finished_video_overlay(); // This could change at
+    any
+                                                      // time (double buffering,
+    for
+                                                      // example)
+            // so we are forced to query it every time we run this function.  If
+            // someone has a better idea, let me know
 
-        // sanity check.  Make sure the game video is the proper width.
-        if ((gamevid->w << 1) == g_yuv_texture->w) {
-            // adjust for vertical offset
-            // We use _half_ of the requested vertical offset because the mpeg
-            // video is twice
-            // the size of the overlay
-            Uint8 *gamevid_pixels =
-                (Uint8 *)gamevid->pixels -
-                (gamevid->w * (g_vertical_offset - g_vertical_stretch));
+            // sanity check.  Make sure the game video is the proper width.
+            if ((gamevid->w << 1) == g_yuv_texture->w) {
+                // adjust for vertical offset
+                // We use _half_ of the requested vertical offset because the
+    mpeg
+                // video is twice
+                // the size of the overlay
+                Uint8 *gamevid_pixels =
+                    (Uint8 *)gamevid->pixels -
+                    (gamevid->w * (g_vertical_offset - g_vertical_stretch));
 
-#ifdef DEBUG
-            // make sure that the g_vertical_offset isn't out of bounds
-            Uint8 *last_valid_byte =
-                ((Uint8 *)gamevid->pixels) + (gamevid->w * gamevid->h) - 1;
-            assert(gamevid_pixels < last_valid_byte);
-#endif
+    #ifdef DEBUG
+                // make sure that the g_vertical_offset isn't out of bounds
+                Uint8 *last_valid_byte =
+                    ((Uint8 *)gamevid->pixels) + (gamevid->w * gamevid->h) - 1;
+                assert(gamevid_pixels < last_valid_byte);
+    #endif
 
-            unsigned int row = 0;
-            unsigned int col = 0;
-            Uint32 w_double  = g_yuv_texture->w << 1; // twice the overlay width,
-                                                    // to avoid calculating this
-                                                    // more than once
-            Uint32 h_half = g_yuv_texture->h >> 1; // half of the overlay height,
-                                                  // to avoid calculating this
-                                                  // more than once
-            Uint8 *dst_ptr;
+                unsigned int row = 0;
+                unsigned int col = 0;
+                Uint32 w_double  = g_yuv_texture->w << 1; // twice the overlay
+    width,
+                                                        // to avoid calculating
+    this
+                                                        // more than once
+                Uint32 h_half = g_yuv_texture->h >> 1; // half of the overlay
+    height,
+                                                      // to avoid calculating
+    this
+                                                      // more than once
+                Uint8 *dst_ptr;
 
-            // this could be global, any benefit?
-            t_yuv_color *yuv_palette = get_yuv_palette();
+                // this could be global, any benefit?
+                t_yuv_color *yuv_palette = get_yuv_palette();
 
-            unsigned int channel0_pitch =
-                g_yuv_texture->pitches[0]; // this val gets used a lot so we put
-                                          // it into a var
+                unsigned int channel0_pitch =
+                    g_yuv_texture->pitches[0]; // this val gets used a lot so we
+    put
+                                              // it into a var
 
-            dst_ptr   = (Uint8 *)g_yuv_texture->pixels[0];
-            Uint8 *Y  = (Uint8 *)src->Y;
-            Uint8 *Y2 = (Uint8 *)src->Y + g_yuv_texture->w;
-            Uint8 *U  = (Uint8 *)src->U;
-            Uint8 *V  = (Uint8 *)src->V;
+                dst_ptr   = (Uint8 *)g_yuv_texture->pixels[0];
+                Uint8 *Y  = (Uint8 *)src->Y;
+                Uint8 *Y2 = (Uint8 *)src->Y + g_yuv_texture->w;
+                Uint8 *U  = (Uint8 *)src->U;
+                Uint8 *V  = (Uint8 *)src->V;
 
-            // if letterbox removal is active, shift video down to compensate
-            for (unsigned int skip = 0; skip < g_vertical_stretch; skip += 2) {
-                Y += (g_yuv_texture->w * 4);
-                Y2 += (g_yuv_texture->w * 4);
-                U += g_yuv_texture->w;
-                V += g_yuv_texture->w;
-            }
+                // if letterbox removal is active, shift video down to
+    compensate
+                for (unsigned int skip = 0; skip < g_vertical_stretch; skip +=
+    2) {
+                    Y += (g_yuv_texture->w * 4);
+                    Y2 += (g_yuv_texture->w * 4);
+                    U += g_yuv_texture->w;
+                    V += g_yuv_texture->w;
+                }
 
-            // do 2 rows at a time
-            for (row = 0; row < h_half; row++) {
-                // calculate this here to avoid calculating too often
-                int adjusted_row = ((int)row) - g_vertical_offset;
-                bool row_in_range =
-                    ((adjusted_row >= 0) && (adjusted_row < gamevid->h));
-                t_yuv_color *palette = NULL;
+                // do 2 rows at a time
+                for (row = 0; row < h_half; row++) {
+                    // calculate this here to avoid calculating too often
+                    int adjusted_row = ((int)row) - g_vertical_offset;
+                    bool row_in_range =
+                        ((adjusted_row >= 0) && (adjusted_row < gamevid->h));
+                    t_yuv_color *palette = NULL;
 
-                // do 4 bytes at a time, for twice the width of the overlay
-                // since we're using YUY2
-                for (col = 0; col < w_double; col += 4) {
-                    // if we can safely draw from the video overlay
-                    if (row_in_range) palette = &yuv_palette[*gamevid_pixels];
+                    // do 4 bytes at a time, for twice the width of the overlay
+                    // since we're using YUY2
+                    for (col = 0; col < w_double; col += 4) {
+                        // if we can safely draw from the video overlay
+                        if (row_in_range) palette =
+    &yuv_palette[*gamevid_pixels];
 
-                    // If we are out of range, OR if the current color is
-                    // transparent,
-                    //  then draw the mpeg video pixel instead of the video
-                    //  overlay
-                    // (if palette is NULL, the compiler shouldn't try to
-                    // dereference palette->transparent)
-                    if ((palette == NULL) || palette->transparent) {
-                        unsigned int Y_chunk  = *((Uint16 *)Y);
-                        unsigned int Y2_chunk = *((Uint16 *)Y2);
-                        unsigned int V_chunk  = *V;
-                        unsigned int U_chunk  = *U;
+                        // If we are out of range, OR if the current color is
+                        // transparent,
+                        //  then draw the mpeg video pixel instead of the video
+                        //  overlay
+                        // (if palette is NULL, the compiler shouldn't try to
+                        // dereference palette->transparent)
+                        if ((palette == NULL) || palette->transparent) {
+                            unsigned int Y_chunk  = *((Uint16 *)Y);
+                            unsigned int Y2_chunk = *((Uint16 *)Y2);
+                            unsigned int V_chunk  = *V;
+                            unsigned int U_chunk  = *U;
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        // Little-Endian (Intel)
-                        *((Uint32 *)(g_line_buf + col)) =
-                            (Y_chunk & 0xFF) | (U_chunk << 8) |
-                            ((Y_chunk & 0xFF00) << 8) | (V_chunk << 24);
-                        *((Uint32 *)(g_line_buf2 + col)) =
-                            (Y2_chunk & 0xFF) | (U_chunk << 8) |
-                            ((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
-#else
-                        // Big-Endian (Mac)
-                        *((Uint32 *)(g_line_buf + col)) =
-                            ((Y_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-                            ((Y_chunk & 0xFF) << 8) | (V_chunk);
-                        *((Uint32 *)(g_line_buf2 + col)) =
-                            ((Y2_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-                            ((Y2_chunk & 0xFF) << 8) | (V_chunk);
-#endif
+    #if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                            // Little-Endian (Intel)
+                            *((Uint32 *)(g_line_buf + col)) =
+                                (Y_chunk & 0xFF) | (U_chunk << 8) |
+                                ((Y_chunk & 0xFF00) << 8) | (V_chunk << 24);
+                            *((Uint32 *)(g_line_buf2 + col)) =
+                                (Y2_chunk & 0xFF) | (U_chunk << 8) |
+                                ((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
+    #else
+                            // Big-Endian (Mac)
+                            *((Uint32 *)(g_line_buf + col)) =
+                                ((Y_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
+                                ((Y_chunk & 0xFF) << 8) | (V_chunk);
+                            *((Uint32 *)(g_line_buf2 + col)) =
+                                ((Y2_chunk & 0xFF00) << 16) | ((U_chunk) << 16)
+    |
+                                ((Y2_chunk & 0xFF) << 8) | (V_chunk);
+    #endif
+                        }
+
+                        // if we have an overlay pixel to be drawn
+                        else {
+    #if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                            // Little-Endian (Intel)
+                            *((Uint32 *)(g_line_buf + col)) =
+                                *((Uint32 *)(g_line_buf2 + col)) =
+                                    palette->y | (palette->u << 8) |
+                                    (palette->y << 16) | (palette->v << 24);
+    #else
+                            // Big-Endian (Mac)
+                            *((Uint32 *)(g_line_buf + col)) =
+                                *((Uint32 *)(g_line_buf2 + col)) =
+                                    (palette->y << 24) | (palette->u << 16) |
+                                    (palette->y << 8) | (palette->v);
+    #endif
+                        }
+                        Y += 2;
+                        Y2 += 2;
+                        U++;
+                        V++;
+                        gamevid_pixels++;
                     }
 
-                    // if we have an overlay pixel to be drawn
+                    // if we're not doing scanlines
+                    if (!(g_filter_type & FILTER_SCANLINES)) {
+                        // no filtering at all
+                        if (!(g_filter_type & FILTER_BLEND)) {
+                            memcpy(dst_ptr, g_line_buf, (g_yuv_texture->w <<
+    1));
+                            memcpy(dst_ptr + channel0_pitch, g_line_buf2,
+                                   (g_yuv_texture->w << 1));
+                        } else {
+                            g_blend_func(); // blend the two lines into
+    g_line_buf3
+                            // this won't affect video overlay because it is
+    already
+                            // doubled in size anyway
+                            memcpy(dst_ptr, g_line_buf3, (g_yuv_texture->w <<
+    1));
+                            memcpy(dst_ptr + channel0_pitch, g_line_buf3,
+                                   (g_yuv_texture->w << 1));
+                        }
+                    }
+
+                    // if we're doing scanlines
                     else {
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                        // Little-Endian (Intel)
-                        *((Uint32 *)(g_line_buf + col)) =
-                            *((Uint32 *)(g_line_buf2 + col)) =
-                                palette->y | (palette->u << 8) |
-                                (palette->y << 16) | (palette->v << 24);
-#else
-                        // Big-Endian (Mac)
-                        *((Uint32 *)(g_line_buf + col)) =
-                            *((Uint32 *)(g_line_buf2 + col)) =
-                                (palette->y << 24) | (palette->u << 16) |
-                                (palette->y << 8) | (palette->v);
-#endif
-                    }
-                    Y += 2;
-                    Y2 += 2;
-                    U++;
-                    V++;
-                    gamevid_pixels++;
-                }
+                        // do a black YUY2 line (the first line should be black
+    to
+                        // workaround nvidia bug)
+                        for (int i = 0; i < (g_yuv_texture->w << 1); i += 4) {
+                            *((Uint32 *)(dst_ptr + i)) =
+                                YUY2_BLACK; // this value is black in YUY2 mode
+                        }
 
-                // if we're not doing scanlines
-                if (!(g_filter_type & FILTER_SCANLINES)) {
-                    // no filtering at all
-                    if (!(g_filter_type & FILTER_BLEND)) {
-                        memcpy(dst_ptr, g_line_buf, (g_yuv_texture->w << 1));
-                        memcpy(dst_ptr + channel0_pitch, g_line_buf2,
-                               (g_yuv_texture->w << 1));
-                    } else {
-                        g_blend_func(); // blend the two lines into g_line_buf3
-                        // this won't affect video overlay because it is already
-                        // doubled in size anyway
-                        memcpy(dst_ptr, g_line_buf3, (g_yuv_texture->w << 1));
-                        memcpy(dst_ptr + channel0_pitch, g_line_buf3,
-                               (g_yuv_texture->w << 1));
-                    }
-                }
-
-                // if we're doing scanlines
-                else {
-                    // do a black YUY2 line (the first line should be black to
-                    // workaround nvidia bug)
-                    for (int i = 0; i < (g_yuv_texture->w << 1); i += 4) {
-                        *((Uint32 *)(dst_ptr + i)) =
-                            YUY2_BLACK; // this value is black in YUY2 mode
+                        if (g_filter_type & FILTER_BLEND) {
+                            g_blend_func(); // blend the two lines into
+    g_line_buf3
+                            // this won't affect video overlay because it is
+    already
+                            // doubled in size anyway
+                            memcpy(dst_ptr + channel0_pitch, g_line_buf3,
+                                   (g_yuv_texture->w << 1));
+                        } else {
+                            memcpy(dst_ptr + channel0_pitch, g_line_buf,
+                                   (g_yuv_texture->w << 1)); // this could be
+                                                            // g_line_buf2 also
+                        }
                     }
 
-                    if (g_filter_type & FILTER_BLEND) {
-                        g_blend_func(); // blend the two lines into g_line_buf3
-                        // this won't affect video overlay because it is already
-                        // doubled in size anyway
-                        memcpy(dst_ptr + channel0_pitch, g_line_buf3,
-                               (g_yuv_texture->w << 1));
-                    } else {
-                        memcpy(dst_ptr + channel0_pitch, g_line_buf,
-                               (g_yuv_texture->w << 1)); // this could be
-                                                        // g_line_buf2 also
+                    dst_ptr += (channel0_pitch << 1); // we've done 2 rows, so
+    skip
+                                                      // a row
+                    Y += g_yuv_texture->w; // we've done 2 vertical Y pixels, so
+    skip
+                                          // a row
+                    Y2 += g_yuv_texture->w;
+                }
+
+                // if we've been instructed to take a screenshot, do so now that
+    the
+                // overlay is in place
+                if (g_take_screenshot) {
+                    g_take_screenshot = false;
+                    take_screenshot(g_yuv_texture);
+                }
+            } // end if sanity check passed
+
+            // if sanity check failed
+            else {
+                static bool warned = false;
+
+                // newbies might appreciate knowing why their video overlay
+    isn't
+                // working, so
+                // let's give them some instruction in the logfile.  We only
+    want to
+                // print this once
+                // to avoid spamming, hence the 'warned' boolean
+                if (!warned) {
+                    // if the game does not dynamically reallocate its overlay
+    size
+                    // (most of them don't)
+                    if (!g_game->is_overlay_size_dynamic()) {
+                        char s[81];
+                        printline("WARNING : Your MPEG doesn't match your video
+    "
+                                  "overlay's resolution.");
+                        printline("Video overlay will not work!");
+                        sprintf(s, "Your MPEG's size is %d x %d, and needs to be
+    "
+                                   "%d x %d",
+                                g_yuv_texture->w, g_yuv_texture->h, (gamevid->w
+    << 1),
+                                (gamevid->h << 1));
+                        printline(s);
                     }
+                    // else, there is no problem at all, so don't alarm the user
+                    warned = true;
                 }
 
-                dst_ptr += (channel0_pitch << 1); // we've done 2 rows, so skip
-                                                  // a row
-                Y += g_yuv_texture->w; // we've done 2 vertical Y pixels, so skip
-                                      // a row
-                Y2 += g_yuv_texture->w;
-            }
-
-            // if we've been instructed to take a screenshot, do so now that the
-            // overlay is in place
-            if (g_take_screenshot) {
-                g_take_screenshot = false;
-                take_screenshot(g_yuv_texture);
-            }
-        } // end if sanity check passed
-
-        // if sanity check failed
-        else {
-            static bool warned = false;
-
-            // newbies might appreciate knowing why their video overlay isn't
-            // working, so
-            // let's give them some instruction in the logfile.  We only want to
-            // print this once
-            // to avoid spamming, hence the 'warned' boolean
-            if (!warned) {
-                // if the game does not dynamically reallocate its overlay size
-                // (most of them don't)
-                if (!g_game->is_overlay_size_dynamic()) {
-                    char s[81];
-                    printline("WARNING : Your MPEG doesn't match your video "
-                              "overlay's resolution.");
-                    printline("Video overlay will not work!");
-                    sprintf(s, "Your MPEG's size is %d x %d, and needs to be "
-                               "%d x %d",
-                            g_yuv_texture->w, g_yuv_texture->h, (gamevid->w << 1),
-                            (gamevid->h << 1));
-                    printline(s);
+                if (g_game->is_overlay_size_dynamic()) {
+                    // MPEG size has changed, so drop a hint to any game
+                    // that resizes dynamically.
+                    g_game->set_video_overlay_needs_update(true);
                 }
-                // else, there is no problem at all, so don't alarm the user
-                warned = true;
-            }
+            } // end sanity check
 
-            if (g_game->is_overlay_size_dynamic()) {
-                // MPEG size has changed, so drop a hint to any game
-                // that resizes dynamically.
-                g_game->set_video_overlay_needs_update(true);
-            }
-        } // end sanity check
+            result = VLDP_TRUE; // we were successful (we return successful even
+    if
+                                // overlay part failed because we want to render
+                                // _something_)
 
-        result = VLDP_TRUE; // we were successful (we return successful even if
-                            // overlay part failed because we want to render
-                            // _something_)
+            SDL_UnlockYUVOverlay(g_yuv_texture);
+        } // end if locking the overlay was successful
 
-        SDL_UnlockYUVOverlay(g_yuv_texture);
-    } // end if locking the overlay was successful
-
-    // else we are trying to feed info to the overlay too quickly, so we'll just
-    // have to wait
-    */
+        // else we are trying to feed info to the overlay too quickly, so we'll
+    just
+        // have to wait
+        */
 
     return result;
 }
@@ -1728,16 +1742,17 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, in
 void display_frame_callback()
 {
     SDL_RenderCopy(video::get_renderer(), g_yuv_texture, NULL, NULL);
-    //SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This could change at any
-    //vid_blit(gamevid, 0, 0);
-    //vid_flip();
+    // SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This
+    // could change at any
+    // vid_blit(gamevid, 0, 0);
+    // vid_flip();
     SDL_RenderPresent(video::get_renderer()); // display it!
-//    display_repaint();
+    //    display_repaint();
 }
 
 ///////////////////
 
-Uint32 g_parse_start_time       = 0; // when mpeg parsing began approximately ...
+Uint32 g_parse_start_time = 0; // when mpeg parsing began approximately ...
 double g_parse_start_percentage = 0.0; // the first percentage report we
                                        // received ...
 bool g_parsed = false; // whether we've received any data at all ...
@@ -1747,65 +1762,68 @@ void update_parse_meter()
 {
     // if we have some data collected
     if (g_dPercentComplete01 >= 0) {
-        double elapsed_s = 0; // how many seconds have elapsed since we began
-                              // this ...
-        double total_s = 0;   // how many seconds the entire operation is likely
-                              // to take
-        double remaining_s = 0; // how many seconds are remaining
+        // how many seconds have elapsed since we began this ...
+        double elapsed_s = 0;
+        // how many seconds the entire operation is likely to take
+        double total_s = 0;
+        // how many seconds are remaining
+        double remaining_s = 0;
+        // switch it from [0-1] to [0-100]
+        double percent_complete = g_dPercentComplete01 * 100.0;
 
-        double percent_complete =
-            g_dPercentComplete01 * 100.0; // switch it from [0-1] to [0-100]
+        // compute elapsed seconds
+        elapsed_s = (elapsed_ms_time(g_parse_start_time)) * 0.001;
+        // how much 'percentage' points we've accomplished
+        double percentage_accomplished = percent_complete - g_parse_start_percentage;
 
-        elapsed_s = (elapsed_ms_time(g_parse_start_time)) * 0.001; // compute
-                                                                   // elapsed
-                                                                   // seconds
-        double percentage_accomplished = percent_complete - g_parse_start_percentage; // how much 'percentage' points we've accomplished
-
-        total_s = (elapsed_s * 100.0) /
-                  percentage_accomplished; // 100 signifies 100 percent (I got
-                                           // this equation by doing some
-                                           // algebra on paper)
+        // 100 signifies 100 percent
+        // (I got this equation by doing some algebra on paper)
+        total_s = (elapsed_s * 100.0) / percentage_accomplished;
 
         // as long as percent_complete is always 100 or lower, total_s will
         // always be >= elapsed_s, so no checking necessary here
         remaining_s = total_s - elapsed_s;
 
-        SDL_Surface *screen = video::get_screen_blitter(); // the main screen that we
-                                                    // can draw on ...
-        SDL_FillRect(screen, NULL, 0); // erase previous stuff on the screen
-                                       // blitter
+        // the main screen that we can draw on ...
+        SDL_Surface *screen = video::get_screen_blitter();
+        // erase previous stuff on the screen blitter
+        SDL_FillRect(screen, NULL, 0);
 
         // if we have some progress to report ...
         if (remaining_s > 0) {
             char s[160];
-            int half_h = screen->h >> 1; // calculations to center message on
-                                         // screen ...
+            // calculations to center message on screen ...
+            int half_h = screen->h >> 1;
             int half_w = screen->w >> 1;
             sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds "
                        "remaining.\n",
                     percent_complete, remaining_s);
-            FC_Draw(video::get_font(), video::get_renderer(), (half_w - ((strlen(s) / 2) * video::FONT_SMALL_W)), half_h - video::FONT_SMALL_H, s);
+            FC_Draw(video::get_font(), video::get_renderer(),
+                    (half_w - ((strlen(s) / 2) * video::FONT_SMALL_W)),
+                    half_h - video::FONT_SMALL_H, s);
 
             // now draw a little graph thing ...
             SDL_Rect clip       = screen->clip_rect;
             const int THICKNESS = 10; // how thick our little status bar will be
-            clip.y              = (clip.h - THICKNESS) / 2; // where to start our little
-                                                            // status bar
+            // where to start our little status bar
+            clip.y = (clip.h - THICKNESS) / 2;
             clip.h = THICKNESS;
-            clip.y += video::FONT_SMALL_H + 5; // give us some padding
+            // give us some padding
+            clip.y += video::FONT_SMALL_H + 5;
 
-            SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 255, 255, 255)); // draw a white bar across the screen ...
+            // draw a white bar across the screen ...
+            SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 255, 255, 255));
 
             clip.x++;    // move left boundary in 1 pixel
             clip.y++;    // move upper boundary down 1 pixel
             clip.w -= 2; // move right boundary in 1 pixel
             clip.h -= 2; // move lower boundary in 1 pixel
 
-            SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 0, 0, 0)); // fill inside with black
+            // fill inside with black
+            SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 0, 0, 0));
 
-            clip.w = (Uint16)((screen->w * g_dPercentComplete01) + 0.5) -
-                     1; // compute how wide our progress bar should be (-1 to
-                        // take into account left pixel border)
+            // compute how wide our progress bar should be (-1 to take into account left pixel border)
+            clip.w = (Uint16)((screen->w * g_dPercentComplete01) + 0.5) - 1;
 
             // go from full red (hardly complete) to full green (fully complete)
             SDL_FillRect(screen, &clip,
@@ -1826,9 +1844,8 @@ void report_parse_progress_callback(double percent_complete_01)
     // if a new parse is starting
     if (percent_complete_01 < 0) {
         // NOTE : this would be a good place to automatically free the yuv
-        // overlay
-        // BUT it was causing crashes... free_yuv_overlay here if you find any
-        // compatibility problems on other platforms
+        // overlay BUT it was causing crashes... free_yuv_overlay here if
+        // you find any compatibility problems on other platforms
         g_parse_start_time       = refresh_ms_time();
         g_parse_start_percentage = 0;
     }
@@ -1848,9 +1865,8 @@ void report_mpeg_dimensions_callback(int width, int height)
         make_delay(1);
     }
 
-    g_screen_clip_rect = &video::get_screen_blitter()->clip_rect; // used a lot, we
-                                                           // only want to
-                                                           // calculate it once
+    // used a lot, we only want to calculate it once
+    g_screen_clip_rect = &video::get_screen_blitter()->clip_rect;
 
     // if draw width is less than the screen width
     if (video::get_draw_width() < (unsigned int)g_screen_clip_rect->w) {
@@ -1880,8 +1896,7 @@ void report_mpeg_dimensions_callback(int width, int height)
     if (g_yuv_texture) {
         int tw, th;
         SDL_QueryTexture(g_yuv_texture, NULL, NULL, &tw, &th);
-        if (tw != width || th != height)
-            free_yuv_overlay();
+        if (tw != width || th != height) free_yuv_overlay();
     }
 
     // blitting is not allowed once we create the YUV overlay ...
@@ -1894,7 +1909,7 @@ void report_mpeg_dimensions_callback(int width, int height)
         // (*4 because our pixels are *2 the height of the graphics, AND we're
         // doing it at the top and bottom)
         g_yuv_texture = SDL_CreateTexture(video::get_renderer(), SDL_PIXELFORMAT_YV12,
-                                      SDL_TEXTUREACCESS_STATIC, width, height);
+                                          SDL_TEXTUREACCESS_STATIC, width, height);
 
         // safety check
         if (!g_yuv_texture) {
@@ -1905,11 +1920,12 @@ void report_mpeg_dimensions_callback(int width, int height)
         // if overlay was successfully created, then indicate in the log whether
         // it is HW accelerated or not
         else {
-            //string msg = "YUV overlay is done in software (ie unaccelerated).";
-            //if (g_yuv_texture->hw_overlay) {
+            // string msg = "YUV overlay is done in software (ie
+            // unaccelerated).";
+            // if (g_yuv_texture->hw_overlay) {
             //    msg = "YUV overlay is hardware accelerated.";
-           // }
-            //printline(msg.c_str()); // add it to the hypseus_log.txt
+            // }
+            // printline(msg.c_str()); // add it to the hypseus_log.txt
         }
     }
     // else g_yuv_texture exists, so we don't need to re-allocate it

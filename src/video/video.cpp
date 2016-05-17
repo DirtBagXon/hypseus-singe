@@ -26,24 +26,24 @@
 // Part of the DAPHNE emulator
 // This code started by Matt Ownby, May 2000
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <string>      // for some error messages
-#include <SDL_syswm.h> // rdg2010
-#include <plog/Log.h>
-#include "video.h"
-#include "palette.h"
+#include "../game/game.h"
 #include "../io/conout.h"
 #include "../io/error.h"
 #include "../io/mpo_fileio.h"
 #include "../io/mpo_mem.h"
-#include "../game/game.h"
 #include "../ldp-out/ldp.h"
+#include "palette.h"
+#include "video.h"
+#include <SDL_syswm.h> // rdg2010
+#include <plog/Log.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <string> // for some error messages
 
 using namespace std;
 
-namespace video 
+namespace video
 {
 unsigned int g_vid_width = 640, g_vid_height = 480; // default video width and
                                                     // video height
@@ -59,19 +59,19 @@ const Uint16 cg_normalheights[] = {480, 600, 768, 960, 1024, 1200};
 // ratio is enforced)
 unsigned int g_draw_width = 640, g_draw_height = 480;
 
-FC_Font *g_font = NULL;
+FC_Font *g_font                    = NULL;
 SDL_Texture *g_led_bmps[LED_RANGE] = {0};
 SDL_Texture *g_other_bmps[B_EMPTY] = {0};
-SDL_Window  *g_window              = NULL;
+SDL_Window *g_window               = NULL;
 SDL_Renderer *g_renderer           = NULL;
 SDL_Texture *g_screen              = NULL; // our primary display
-SDL_Surface *g_screen_blitter      = NULL; // the surface we blit to (we don't blit
+SDL_Surface *g_screen_blitter = NULL; // the surface we blit to (we don't blit
                                       // directly to g_screen because opengl
                                       // doesn't like that)
-bool g_fullscreen          = false; // whether we should initialize video in fullscreen
-                                    // mode or not
-int g_scalefactor = 100; // by RDG2010 -- scales the image to this percentage
-                         // value (for CRT TVs with overscan problems).
+bool g_fullscreen = false; // whether we should initialize video in fullscreen
+                           // mode or not
+int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
+                           // value (for CRT TVs with overscan problems).
 int sboverlay_characterset = 1;
 
 // whether we will try to force a 4:3 aspect ratio regardless of window size
@@ -88,8 +88,8 @@ float g_fRotateDegrees = 0.0;
 bool init_display()
 {
 
-    bool result                  = false; // whether video initialization is successful or not
-    Uint32 sdl_flags             = 0;
+    bool result = false; // whether video initialization is successful or not
+    Uint32 sdl_flags = 0;
 
     sdl_flags = SDL_WINDOW_SHOWN;
 
@@ -103,7 +103,7 @@ bool init_display()
 
         // if we're supposed to enforce the aspect ratio ...
         if (g_bForceAspectRatio) {
-            double dCurAspectRatio            = (double)g_vid_width / g_vid_height;
+            double dCurAspectRatio = (double)g_vid_width / g_vid_height;
             const double dTARGET_ASPECT_RATIO = 4.0 / 3.0;
 
             // if current aspect ratio is less than 1.3333
@@ -124,46 +124,50 @@ bool init_display()
             g_draw_height = g_draw_height * g_scalefactor / 100;
         }
 
-            // by RDG2010
-            // Step 2. Create a borderless SDL window.
-            // If doing fullscreen window, make the window bordeless (no title
-            // bar).
-            // This is achieved by adding the SDL_NOFRAME flag.
+        // by RDG2010
+        // Step 2. Create a borderless SDL window.
+        // If doing fullscreen window, make the window bordeless (no title
+        // bar).
+        // This is achieved by adding the SDL_NOFRAME flag.
 
-        g_window = SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
-                                    SDL_WINDOWPOS_UNDEFINED,
-                                    SDL_WINDOWPOS_UNDEFINED,
-                                    g_vid_width,
-                                    g_vid_height,
-                                    sdl_flags);
+        g_window =
+            SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
+                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                             g_vid_width, g_vid_height, sdl_flags);
         if (!g_window) {
             LOGW << fmt("Could not initialize window: %s", SDL_GetError());
         } else {
-            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE );
+            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED |
+                                                              SDL_RENDERER_TARGETTEXTURE);
 
-	    if (!g_renderer) {
+            if (!g_renderer) {
                 LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
-	    } else {
+            } else {
                 g_font = FC_CreateFont();
-                FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18, FC_MakeColor(0,0,0,255), TTF_STYLE_NORMAL);
+                FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18,
+                            FC_MakeColor(0, 0, 0, 255), TTF_STYLE_NORMAL);
 
-		g_screen = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, g_vid_width, g_vid_height);
+                g_screen = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
+                                             SDL_TEXTUREACCESS_TARGET,
+                                             g_vid_width, g_vid_height);
 
                 // create a 24-bit surface
                 g_screen_blitter =
-                    SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height, 24,
-                                         0xff, 0xFF00, 0xFF0000, 0xFF000000);
-        
+                    SDL_CreateRGBSurface(SDL_SWSURFACE, g_vid_width, g_vid_height,
+                                         24, 0xff, 0xFF00, 0xFF0000, 0xFF000000);
+
                 if (g_screen && g_screen_blitter) {
 
-                    LOGI << fmt("Set %dx%d at %d bpp, flags: %x", g_screen_blitter->w,
-                            g_screen_blitter->h, g_screen_blitter->format->BitsPerPixel, g_screen_blitter->flags);
+                    LOGI << fmt("Set %dx%d at %d bpp, flags: %x",
+                                g_screen_blitter->w, g_screen_blitter->h,
+                                g_screen_blitter->format->BitsPerPixel,
+                                g_screen_blitter->flags);
 
                     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
                     SDL_RenderClear(g_renderer);
                     SDL_RenderPresent(g_renderer);
                     // NOTE: SDL Console was initialized here.
-                    result                = true;
+                    result = true;
                 }
             }
         }
@@ -184,7 +188,7 @@ void shutdown_display()
 
 void vid_flip()
 {
-    //SDL_RenderCopy(g_renderer, g_screen, NULL, NULL);
+    // SDL_RenderCopy(g_renderer, g_screen, NULL, NULL);
     SDL_RenderPresent(g_renderer);
 }
 
@@ -235,12 +239,12 @@ bool load_bmps()
         }
     }
 
-    g_other_bmps[B_DL_PLAYER1]    = load_one_bmp("pics/player1.bmp");
-    g_other_bmps[B_DL_PLAYER2]    = load_one_bmp("pics/player2.bmp");
-    g_other_bmps[B_DL_LIVES]      = load_one_bmp("pics/lives.bmp");
-    g_other_bmps[B_DL_CREDITS]    = load_one_bmp("pics/credits.bmp");
+    g_other_bmps[B_DL_PLAYER1]     = load_one_bmp("pics/player1.bmp");
+    g_other_bmps[B_DL_PLAYER2]     = load_one_bmp("pics/player2.bmp");
+    g_other_bmps[B_DL_LIVES]       = load_one_bmp("pics/lives.bmp");
+    g_other_bmps[B_DL_CREDITS]     = load_one_bmp("pics/credits.bmp");
     g_other_bmps[B_HYPSEUS_SAVEME] = load_one_bmp("pics/saveme.bmp");
-    g_other_bmps[B_GAMENOWOOK]    = load_one_bmp("pics/gamenowook.bmp");
+    g_other_bmps[B_GAMENOWOOK]     = load_one_bmp("pics/gamenowook.bmp");
 
     if (sboverlay_characterset != 2)
         g_other_bmps[B_OVERLAY_LEDS] = load_one_bmp("pics/overlayleds1.bmp");
@@ -262,10 +266,9 @@ bool load_bmps()
 SDL_Texture *load_one_bmp(const char *filename)
 {
     SDL_Texture *texture = NULL;
-    SDL_Surface *result = SDL_LoadBMP(filename);
+    SDL_Surface *result  = SDL_LoadBMP(filename);
 
-    if (result)
-        texture = SDL_CreateTextureFromSurface(g_renderer, result);
+    if (result) texture = SDL_CreateTextureFromSurface(g_renderer, result);
 
     if (!texture) {
         LOGW << fmt("Could not load bitmap: %s", SDL_GetError());
@@ -311,7 +314,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 
     dest.x = start_x;
     dest.w = num_digits * OVERLAY_LED_WIDTH;
-    //SDL_UpdateRects(overlay, 1, &dest); FIXME
+    // SDL_UpdateRects(overlay, 1, &dest); FIXME
 }
 
 // Draw LDP1450 overlay characters to the screen (added by Brad O.)
@@ -475,10 +478,7 @@ void set_video_height(Uint16 height)
     g_vid_height = height;
 }
 
-FC_Font *get_font()
-{
-    return g_font;
-}
+FC_Font *get_font() { return g_font; }
 
 void draw_string(const char *t, int col, int row, SDL_Renderer *renderer)
 {
@@ -491,26 +491,25 @@ void draw_string(const char *t, int col, int row, SDL_Renderer *renderer)
                                               // string)
     dest.h = 13;                              // height of area (height of font)
 
-    //SDL_FillRect(overlay, &dest, 0); // erase anything at our destination before
+    // SDL_FillRect(overlay, &dest, 0); // erase anything at our destination
+    // before
     //                                 // we print new text
     FC_Draw(g_font, renderer, dest.x, dest.y, t);
-    //SDL_UpdateRects(overlay, 1, &dest); FIXME
+    // SDL_UpdateRects(overlay, 1, &dest); FIXME
 }
 
 // toggles fullscreen mode
 void vid_toggle_fullscreen()
 {
     Uint32 flags = (SDL_GetWindowFlags(g_window) ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
-    if (SDL_SetWindowFullscreen(g_window, flags) < 0)
-    {
-	    LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());
-	    return;
+    if (SDL_SetWindowFullscreen(g_window, flags) < 0) {
+        LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());
+        return;
     }
-    if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
-    {
-	    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	    SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
-	    return;
+    if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+        SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+        return;
     }
     SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
 }
@@ -522,5 +521,4 @@ bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
 unsigned int get_draw_width() { return g_draw_width; }
 
 unsigned int get_draw_height() { return g_draw_height; }
-
 }

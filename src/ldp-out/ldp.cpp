@@ -29,25 +29,25 @@
 // Part of the Hypseus emulator
 
 #ifdef DEBUG
-#include <assert.h>
-#include "../io/numstr.h"
 #include "../cpu/cpu-debug.h"
+#include "../io/numstr.h"
+#include <assert.h>
 #endif
 
+#include "../cpu/cpu.h"
+#include "../cpu/generic_z80.h"
+#include "../game/boardinfo.h"
+#include "../game/game.h"
+#include "../io/conout.h"
+#include "../io/my_stdio.h"
+#include "../io/serial.h"
+#include "../timer/timer.h"
+#include "framemod.h"
+#include "ldp.h"
+#include <plog/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <plog/Log.h>
-#include "../io/serial.h"
-#include "../io/my_stdio.h"
-#include "ldp.h"
-#include "../timer/timer.h"
-#include "../io/conout.h"
-#include "framemod.h"
-#include "../game/game.h"
-#include "../game/boardinfo.h"
-#include "../cpu/cpu.h"
-#include "../cpu/generic_z80.h"
 
 // generic ldp constructor
 ldp::ldp()
@@ -90,8 +90,8 @@ bool ldp::pre_init()
     // then initialize the serial port here
     if (need_serial) {
         LOGI << "You are attempting to use a real laserdisc player!"
-                     "If you don't have a real laserdisc player,"
-                     "you should be using VLDP instead.";
+                "If you don't have a real laserdisc player,"
+                "you should be using VLDP instead.";
         serial_initialized = serial_init(get_serial_port(), get_baud_rate());
         temp               = serial_initialized;
     }
@@ -161,7 +161,8 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     if (m_status == LDP_SEARCHING) {
         if (m_bVerbose)
             LOGW << fmt("tried to search without checking for search "
-                          "result first! that's bad! %s", pszFrame);
+                        "result first! that's bad! %s",
+                        pszFrame);
 
         // this is definitely a Hypseus bug if this happens, so log it!
         m_bug_log.push_back("LDP.CPP, pre_search() : tried to search without "
@@ -187,8 +188,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     //  for Dragon's Lair 2.
     if ((m_status == LDP_PAUSED) && (frame_number == m_uCurrentFrame)) {
         if (m_bVerbose)
-            LOGI <<
-                "ignoring seek because we're already on that frame";
+            LOGI << "ignoring seek because we're already on that frame";
         m_status = LDP_PAUSED; // just to be safe
         return true;
     }
@@ -198,9 +198,10 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     // If we need to alter the frame # before searching
     if (need_frame_conversion()) {
         Uint16 unadjusted_frame = frame_number;
-        frame_number = (Uint16)do_frame_conversion(frame_number);
+        frame_number            = (Uint16)do_frame_conversion(frame_number);
         framenum_to_frame(frame_number, frame);
-        s1 = "Search to " + numstr::ToStr(frame_number) + " (formerly " + numstr::ToStr(unadjusted_frame) + ") received";
+        s1 = "Search to " + numstr::ToStr(frame_number) + " (formerly " +
+             numstr::ToStr(unadjusted_frame) + ") received";
     } else {
         s1 = "Search to " + numstr::ToStr(frame_number) + " received";
     }
@@ -228,7 +229,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
         //		make_delay(get_search_latency());
         if (m_bVerbose)
             LOGW << "search latency needs to be redesigned, it is "
-                            "currently disabled";
+                    "currently disabled";
     }
 
     m_last_try_frame = (Uint16)atoi(frame); // the last frame we tried to seek
@@ -349,7 +350,7 @@ bool ldp::pre_skip_forward(Uint16 frames_to_skip)
 
     // only skip if the LDP is playing
     if (m_status == LDP_PLAYING) {
-        Uint16 target_frame           = (Uint16)(m_uCurrentFrame + frames_to_skip);
+        Uint16 target_frame = (Uint16)(m_uCurrentFrame + frames_to_skip);
         unsigned int uOldCurrentFrame = m_uCurrentFrame;
 
         m_iSkipOffsetSincePlay += frames_to_skip;
@@ -358,12 +359,12 @@ bool ldp::pre_skip_forward(Uint16 frames_to_skip)
 
         if (m_bVerbose) {
             LOGD << fmt("Skipped forward %d frames (from %u to %u)",
-                     frames_to_skip, uOldCurrentFrame, target_frame);
+                        frames_to_skip, uOldCurrentFrame, target_frame);
         }
     } else {
         if (m_bVerbose)
             LOGW << "Skip forward command was called when the "
-                            "disc wasn't playing";
+                    "disc wasn't playing";
     }
 
     return (result);
@@ -378,7 +379,7 @@ bool ldp::pre_skip_backward(Uint16 frames_to_skip)
 
     // only skip if the LDP is playing
     if (m_status == LDP_PLAYING) {
-        Uint16 target_frame           = (Uint16)(m_uCurrentFrame - frames_to_skip);
+        Uint16 target_frame = (Uint16)(m_uCurrentFrame - frames_to_skip);
         unsigned int uOldCurrentFrame = m_uCurrentFrame;
 
         m_iSkipOffsetSincePlay -= frames_to_skip;
@@ -387,12 +388,12 @@ bool ldp::pre_skip_backward(Uint16 frames_to_skip)
 
         if (m_bVerbose) {
             LOGD << fmt("Skipped backward %d frames (from %u to %u)",
-                     frames_to_skip, uOldCurrentFrame, target_frame);
+                        frames_to_skip, uOldCurrentFrame, target_frame);
         }
     } else {
         if (m_bVerbose)
             LOGW << "Skip backward command was called when the "
-                            "disc wasn't playing";
+                    "disc wasn't playing";
     }
 
     return (result);
@@ -479,7 +480,7 @@ void ldp::pre_play()
     if (m_status == LDP_SEARCHING) {
         if (m_bVerbose)
             LOGW << "tried to play without checking to see if we were "
-                            "still seeking! that's bad!";
+                    "still seeking! that's bad!";
 
         // if this ever happens, it is a bug in Hypseus, so log it
         m_bug_log.push_back("LDP.CPP, pre_play() : tried to play without "
@@ -522,13 +523,12 @@ void ldp::pre_play()
                                           // the next vsync
         m_status = LDP_PLAYING;
     } else {
-        if (m_bVerbose)
-            LOGD << "disc is already playing, play command ignored";
+        if (m_bVerbose) LOGD << "disc is already playing, play command ignored";
     }
 
     if (m_bVerbose)
         LOGD << "Play"; // moved to the end of the function so as to not
-                             // cause lag before play command could be issued
+                        // cause lag before play command could be issued
 }
 
 // starts playing the laserdisc
@@ -555,8 +555,7 @@ void ldp::pre_pause()
         if (m_bVerbose) LOGD << "Pause";
     } else {
         if (m_bVerbose)
-            LOGD <<
-                "Received pause while disc was not playing, ignoring";
+            LOGD << "Received pause while disc was not playing, ignoring";
     }
 }
 
@@ -619,7 +618,7 @@ bool ldp::pre_change_speed(unsigned int uNumerator, unsigned int uDenominator)
     // else it's a non-standard speed, so do some kind of error
     else {
         LOGE << "unsupported speed specified (" + numstr::ToStr(uNumerator) +
-                "/" + numstr::ToStr(uDenominator) + "), setting to 1X";
+                    "/" + numstr::ToStr(uDenominator) + "), setting to 1X";
         uNumerator = uDenominator = 1;
     }
 
@@ -788,8 +787,8 @@ void ldp::pre_think()
         //  be calling this function slower than every 1 ms, such as ffr() or
         //  vldp's internal tests )
         if (get_cpu_hz(0)) {
-            unsigned int uElapsedMS = elapsed_ms_time(m_play_time); // compute
-                                                                    // milliseconds
+            // compute milliseconds
+            unsigned int uElapsedMS = elapsed_ms_time(m_play_time);
             unsigned int time_result =
                 m_last_seeked_frame + m_iSkipOffsetSincePlay +
                 (unsigned int)((((Uint64)uElapsedMS) * g_game->get_disc_fpks()) / 1000000);
@@ -938,7 +937,7 @@ int ldp::get_status()
         if (stat == SEARCH_SUCCESS) {
             m_dont_get_search_result = true;
             m_last_seeked_frame = m_uCurrentFrame = m_last_try_frame;
-            m_status = LDP_PAUSED;
+            m_status                              = LDP_PAUSED;
 
             // Update sram after every search if user desires it
             //  (allow for improper termination, if it's inside
@@ -977,7 +976,7 @@ void ldp::set_search_blanking(bool enabled)
 {
     if (m_bVerbose)
         LOGI << "Search blanking cannot be modified with this "
-                  "laserdisc player!";
+                "laserdisc player!";
 }
 
 // causes LDP to blank video while skipping
@@ -985,21 +984,19 @@ void ldp::set_skip_blanking(bool enabled)
 {
     if (m_bVerbose)
         LOGI << "Skip blanking cannot be modified with this laserdisc "
-                  "player!";
+                "player!";
 }
 
 void ldp::set_seek_frames_per_ms(double value)
 {
     if (m_bVerbose)
-        LOGI <<
-            "Seek delay is not supported with this laserdisc player!";
+        LOGI << "Seek delay is not supported with this laserdisc player!";
 }
 
 void ldp::set_min_seek_delay(unsigned int value)
 {
     if (m_bVerbose)
-        LOGI <<
-            "Seek delay is not supported with this laserdisc player!";
+        LOGI << "Seek delay is not supported with this laserdisc player!";
 }
 
 // causes sram to be saved after every seek
@@ -1034,7 +1031,7 @@ void ldp::request_screenshot()
 {
     if (m_bVerbose)
         LOGI << "current laserdisc player does not support taking "
-                  "screenshots, sorry";
+                "screenshots, sorry";
 }
 
 // returns the width of the laserdisc video (only meaningful with mpeg)
@@ -1080,8 +1077,9 @@ void ldp::print_frame_info()
 {
     if (m_bVerbose) {
         unsigned int u = m_uMsVblankBoundary - m_uElapsedMsSinceStart;
-        LOGD << fmt("Current frame is %d, ms to next vblank: %d, vlbank since frame change: %d",
-			m_uCurrentFrame, u, m_uVblankMiniCount);
+        LOGD << fmt("Current frame is %d, ms to next vblank: %d, vlbank since "
+                    "frame change: %d",
+                    m_uCurrentFrame, u, m_uVblankMiniCount);
     }
 }
 

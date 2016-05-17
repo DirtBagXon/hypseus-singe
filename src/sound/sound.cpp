@@ -29,27 +29,27 @@
 #include <assert.h>
 #endif
 
+#include <plog/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <plog/Log.h>
 
 #include "SDL.h"
 #include "SDL_audio.h"
 
-#include "sound.h"
-#include "sn_intf.h"
-#include "pc_beeper.h"
-#include "gisound.h"
-#include "dac.h"
-#include "tonegen.h"
-#include "samples.h"
-#include "mix.h"
+#include "../game/game.h"
+#include "../hypseus.h"
 #include "../io/conout.h"
 #include "../io/mpo_mem.h"
 #include "../io/numstr.h"
-#include "../game/game.h"
-#include "../hypseus.h"
 #include "../ldp-out/ldp-vldp.h" // added by JFA for -startsilent
+#include "dac.h"
+#include "gisound.h"
+#include "mix.h"
+#include "pc_beeper.h"
+#include "samples.h"
+#include "sn_intf.h"
+#include "sound.h"
+#include "tonegen.h"
 
 namespace sound
 {
@@ -62,8 +62,8 @@ bool g_sound_enabled = true; // whether sound is enabled
 
 bool g_bSoundMuted = false; // whether sound is muted
 
-struct chip *g_chip_head = NULL; // pointer to the first sound chip in
-                                          // our linked list of chips's
+struct chip *g_chip_head = NULL;     // pointer to the first sound chip in
+                                     // our linked list of chips's
 unsigned int g_uSoundChipNextID = 0; // the idea that the next chip to get
                                      // added will get (also usually indicates
                                      // how many sound chips have been added,
@@ -86,7 +86,7 @@ unsigned int g_uVolumeVLDP = MAX_VOLUME;
 // the volume (user adjustable) of all over sound streams besides VLDP
 unsigned int g_uVolumeNonVLDP = MAX_VOLUME;
 
-int cur_wave             = 0; // the current wave being played (0 to NUM_DL_BEEPS-1)
+int cur_wave = 0; // the current wave being played (0 to NUM_DL_BEEPS-1)
 bool g_sound_initialized = false; // whether the sound will work if we try to
                                   // play it
 
@@ -147,8 +147,8 @@ bool init()
 
     bool result    = false;
     int audio_rate = FREQ; // rate to mix audio at.  This cannot be
-                                 // changed without resampling all .wav's and
-                                 // all .ogg's
+                           // changed without resampling all .wav's and
+                           // all .ogg's
 
     Uint16 audio_format = FORMAT;
     int audio_channels  = CHANNELS;
@@ -221,12 +221,12 @@ bool init()
                     // else if loading waves failed
                     else {
                         LOGW << "ERROR: one or more required sound sample "
-                                  "files could not be loaded!";
+                                "files could not be loaded!";
                     }
                 } // end if audio specs are correct
                 else {
-                    LOGW << 
-                        "ERROR: unable to obtain desired audio configuration";
+                    LOGW << "ERROR: unable to obtain desired audio "
+                            "configuration";
                 }
             } // end if audio device could be opened ...
 
@@ -310,7 +310,8 @@ int load_waves()
         g_samples[i].uLength = 0;
 
         // if loading the .wav file succeeds
-        if (SDL_LoadWAV(filename.c_str(), &spec, &g_samples[i].pu8Buf, &g_samples[i].uLength)) {
+        if (SDL_LoadWAV(filename.c_str(), &spec, &g_samples[i].pu8Buf,
+                        &g_samples[i].uLength)) {
             // make sure audio specs are correct
             if (((spec.channels == CHANNELS) || (spec.channels == 1)) &&
                 (spec.freq == FREQ) && (spec.format == AUDIO_S16)) {
@@ -318,7 +319,8 @@ int load_waves()
             }
             // else specs are not correct
             else {
-                LOGW << fmt("ERROR: Audio specs are not correct for %s", filename.c_str());
+                LOGW << fmt("ERROR: Audio specs are not correct for %s",
+                            filename.c_str());
                 result = 0;
             }
         } // end if loading worked ...
@@ -383,10 +385,10 @@ unsigned int add_chip(struct chip *candidate)
     // if this is the first sound chip to be added to the list
     if (!g_chip_head) {
         g_chip_head = new struct chip; // allocate a new sound chip,
-                                                // assume allocation is
-                                                // successful
-        cur = g_chip_head; // point to the new sound chip so we can
-                                // populate it with info
+                                       // assume allocation is
+                                       // successful
+        cur = g_chip_head;             // point to the new sound chip so we can
+                                       // populate it with info
     }
     // else we have to move to the end of the list
     else {
@@ -398,9 +400,9 @@ unsigned int add_chip(struct chip *candidate)
         }
 
         cur->next = new struct chip; // allocate a new sound chip
-                                                   // at the end of our list
-        cur = cur->next; // point to the new sound chip so we can
-                                   // populate it with info
+                                     // at the end of our list
+        cur = cur->next;             // point to the new sound chip so we can
+                                     // populate it with info
     }
 
     // now we must copy over the relevant info
@@ -456,7 +458,7 @@ unsigned int add_chip(struct chip *candidate)
         cur->write_ctrl_data_callback = gisound_writedata;
         cur->stream_callback          = gisound_stream;
         break;
-    case CHIP_PC_BEEPER:                 // used by DL2/SA91
+    case CHIP_PC_BEEPER:                      // used by DL2/SA91
         cur->bNeedsConstantUpdates    = true; // for now we'll have it this way
         cur->init_callback            = beeper_init;
         cur->write_ctrl_data_callback = beeper_ctrl_data;
@@ -491,7 +493,7 @@ unsigned int add_chip(struct chip *candidate)
 
 bool delete_chip(unsigned int id)
 {
-    bool bSuccess         = false;
+    bool bSuccess     = false;
     struct chip *cur  = g_chip_head;
     struct chip *prev = NULL;
 
@@ -548,8 +550,7 @@ void init_chip()
             if (cur->init_callback) {
                 cur->internal_id = cur->init_callback(cur->hz);
                 if (cur->internal_id == -1) {
-                    LOGW <<
-                        "Error : sound chip failed to initialize";
+                    LOGW << "Error : sound chip failed to initialize";
                     set_quitflag(); // force dev to deal with this problem
                 }
                 // else everything initialized correctly
@@ -849,7 +850,7 @@ void shutdown_chip()
             cur->shutdown_callback(cur->internal_id);
         }
         struct chip *temp = cur;
-        cur                   = cur->next;
+        cur               = cur->next;
         delete[] temp->buffer;
         delete temp;
     }
@@ -881,5 +882,4 @@ void update_buffer()
         UNLOCK_AUDIO();
     }
 }
-
 }

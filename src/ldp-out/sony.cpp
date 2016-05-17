@@ -24,15 +24,15 @@
 // Begun by Robert DiNapoli
 // Maintained by Matt Ownby
 
-#include <stdio.h>
-#include <stdlib.h> // for atoi
 #include "sony.h"
-#include "../timer/timer.h"
-#include "../io/serial.h"
-#include "../io/conout.h"
 #include "../hypseus.h"
+#include "../io/conout.h"
 #include "../io/input.h"
 #include "../io/numstr.h"
+#include "../io/serial.h"
+#include "../timer/timer.h"
+#include <stdio.h>
+#include <stdlib.h> // for atoi
 #include <string>
 
 using namespace std;

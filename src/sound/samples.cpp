@@ -5,8 +5,8 @@
 #include "../game/game.h" // to get sound names
 #include "../io/conout.h"
 #include "../io/mpo_mem.h" // for endian-independent macros
-#include <string.h>        // for memset
 #include "samples.h"
+#include <string.h> // for memset
 
 #ifdef DEBUG
 #include <assert.h>

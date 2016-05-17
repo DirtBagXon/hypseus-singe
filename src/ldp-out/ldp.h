@@ -36,8 +36,8 @@ enum {
 #include <SDL.h> // needed for datatypes
 
 // for bug logging
-#include <string>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -270,7 +270,7 @@ class ldp
                                  // frame)
     // UPDATE : we aren't using cycles anymore (see pre_think())
     //	Uint64 m_play_cycles;	// # of elapsed cpu cycles from when we last
-    //issued a play command
+    // issued a play command
     Uint32 m_play_time; // current time when we last issued a play command
     unsigned int m_start_time; // time when ldp() class was instantiated (only
                                // used when not using a cpu)

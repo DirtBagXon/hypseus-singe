@@ -22,12 +22,12 @@
 
 #include "config.h"
 
-#include <plog/Log.h>
 #include "../game/game.h"
 #include "../io/conout.h" // for printline
+#include "../video/video.h"
 #include "palette.h"
 #include "rgb2yuv.h"
-#include "../video/video.h"
+#include <plog/Log.h>
 
 #ifdef DEBUG
 #include <assert.h>
@@ -75,7 +75,7 @@ bool palette_initialize(unsigned int num_colors)
             // set YUV values to black
             g_yuv_palette[x].y = 0;
             g_yuv_palette[x].u = g_yuv_palette[x].v = 0x7F;
-            g_yuv_palette[x].transparent = false;
+            g_yuv_palette[x].transparent            = false;
         }
 
         // Default color #0 to be transparent
@@ -145,14 +145,16 @@ void palette_finalize()
 
             // if we have a video overlay to set the colors no ...
             if (video_overlay) {
-                SDL_SetPaletteColors(video_overlay->format->palette, g_rgb_palette, 0, g_palette_size);
+                SDL_SetPaletteColors(video_overlay->format->palette,
+                                     g_rgb_palette, 0, g_palette_size);
             } else {
                 break;
             }
         }
 
         if (g_game->IsFullScaleEnabled()) {
-            SDL_SetPaletteColors(g_game->get_scaled_video_overlay()->format->palette, g_rgb_palette, 0, g_palette_size);
+            SDL_SetPaletteColors(g_game->get_scaled_video_overlay()->format->palette,
+                                 g_rgb_palette, 0, g_palette_size);
         }
     }
 

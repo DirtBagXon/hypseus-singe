@@ -30,8 +30,8 @@
  *
  */
 
-#include <SDL.h>
 #include "sound.h" // for sample_s definition
+#include <SDL.h>
 
 void tqsynth_init(int freq, Uint16 format, int channels, long base_F0);
 bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample);

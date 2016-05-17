@@ -37,13 +37,13 @@ bool g_leds_enabled = false; // LEDs are disabled by default since they don't
                              // work on all platforms
 
 #ifdef LINUX
-#include <stdio.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
 #include <linux/kd.h>
+#include <stdio.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #endif
 
 #ifdef WIN32
@@ -182,7 +182,7 @@ void remember_leds()
 #ifdef WIN32
         if (GetKeyState(VK_NUMLOCK) != 0x00) g_save_numlock = true;
         if (GetKeyState(VK_CAPITAL) != 0x00) g_save_capital = true;
-        if (GetKeyState(VK_SCROLL) != 0x00) g_save_scroll = true;
+        if (GetKeyState(VK_SCROLL) != 0x00) g_save_scroll   = true;
 #endif
 #ifdef LINUX
         long int keyval = 0; // holds LED bit values
@@ -192,7 +192,7 @@ void remember_leds()
         if (fd != -1) {
             // get the LED's here
             if (ioctl(fd, KDGETLED, &keyval) != -1) {
-                if (keyval & LED_SCR) g_save_scroll = true;
+                if (keyval & LED_SCR) g_save_scroll  = true;
                 if (keyval & LED_CAP) g_save_capital = true;
                 if (keyval & LED_NUM) g_save_numlock = true;
             } else {

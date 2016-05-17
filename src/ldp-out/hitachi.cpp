@@ -38,12 +38,12 @@
 // The 9550 uses a regular modem cable, NOT a null modem cable
 // Original command set by Robert DiNapoli
 
-#include "../timer/timer.h"
-#include "../io/serial.h"
-#include "../io/conout.h"
-#include "../hypseus.h"    // for get_quitflag
-#include "../game/game.h" // to get game FPS
 #include "hitachi.h"
+#include "../game/game.h" // to get game FPS
+#include "../hypseus.h"   // for get_quitflag
+#include "../io/conout.h"
+#include "../io/serial.h"
+#include "../timer/timer.h"
 
 // constructor
 hitachi::hitachi()
@@ -179,10 +179,9 @@ bool hitachi::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
     if (g_game->get_disc_fpks() != 29970) {
         printline("Hitachi: Disc is not standard 29.97 and therefore we must "
                   "convert the skip parameter");
-        frames_to_skip =
-            (Uint16)((1.25 * frames_to_skip) + 0.5); // to float multiplication
-                                                     // and add 0.5 to round to
-                                                     // the nearest whole number
+        // to float multiplication and add 0.5 to round to the nearest whole
+        // number
+        frames_to_skip = (Uint16)((1.25 * frames_to_skip) + 0.5);
     }
 
     framenum_to_frame(frames_to_skip, frame);

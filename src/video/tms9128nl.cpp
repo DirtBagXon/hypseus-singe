@@ -25,42 +25,31 @@
 // undefine this to get rid of debug messages, or 1 to view them
 //#define TMS_DEBUG 1
 
-#include <SDL.h>
-#include <plog/Log.h>
-#include "SDL_FontCache.h"
-#include "tms9128nl.h"
-#include "palette.h"
-#include "video.h"
 #include "../game/game.h"
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h" // to check to see if blitting is allowed
+#include "SDL_FontCache.h"
+#include "palette.h"
+#include "tms9128nl.h"
+#include "video.h"
+#include <SDL.h>
+#include <plog/Log.h>
 #include <stdio.h>
 #include <string.h>
 
-static unsigned char g_vidbuf[TMS9128NL_OVERLAY_W * TMS9128NL_OVERLAY_H]; // video
-                                                                          // buffer
-                                                                          // needed
-                                                                          // because
-                                                                          // we
-                                                                          // clobber
-                                                                          // the
-                                                                          // SDL_Surface
-                                                                          // buffer
-                                                                          // when
-                                                                          // we
-                                                                          // do
-                                                                          // real-time
-                                                                          // scaling
+// video buffer needed because we clobber the SDL_Surface buffer when we do
+// real-time scaling
+static unsigned char g_vidbuf[TMS9128NL_OVERLAY_W * TMS9128NL_OVERLAY_H];
 static unsigned char vidmem[32767] = {0}; // video memory
 static unsigned char lowbyte       = 0;
 static unsigned char highbyte      = 0;
 static unsigned int rvidindex;
 static unsigned int wvidindex;
-static int toggleflag = 0; // keep track of low / high byte
-static int g_vidmode  = 0; // keep track of video mode
-static int viddisp    = 1; // enable video display 0=off 1=on
+static int toggleflag = 0;   // keep track of low / high byte
+static int g_vidmode  = 0;   // keep track of video mode
+static int viddisp    = 1;   // enable video display 0=off 1=on
 static int vidreg[8]  = {0}; // registers 0-7
-static int rowdiv     = 40; // text mode
+static int rowdiv     = 40;  // text mode
 
 unsigned char g_tms_pnt_addr         = 0;   // pattern name table address
 unsigned char g_tms_ct_addr          = 0;   // color table address
@@ -92,7 +81,7 @@ void tms9128nl_reset()
     wvidindex  = 0;
     toggleflag = 0;
     g_vidmode  = 0;
-    viddisp = 1;
+    viddisp    = 1;
     memset(vidreg, 0, sizeof(vidreg));
     rowdiv                  = 40;
     g_tms_pnt_addr          = 0;
@@ -396,9 +385,7 @@ void tms9128nl_write_port1(unsigned char value)
             {
                 unsigned char temp = (unsigned char)(lowbyte & 0x7F);
                 if (temp != g_tms_sat_addr) {
-                    LOGD << fmt(
-                            "Sprite Attribute Table address changed to %x",
-                            g_tms_sat_addr);
+                    LOGD << fmt("Sprite Attribute Table address changed to %x", g_tms_sat_addr);
                 }
             }
 #endif
@@ -412,9 +399,7 @@ void tms9128nl_write_port1(unsigned char value)
             {
                 unsigned char temp = (unsigned char)(lowbyte & 0x7);
                 if (temp != g_tms_sgt_addr) {
-                    LOGD << fmt(
-                            "Sprite Generator Table address changed to %x",
-                            g_tms_sgt_addr);
+                    LOGD << fmt("Sprite Generator Table address changed to %x", g_tms_sgt_addr);
                 }
             }
 #endif
@@ -448,7 +433,7 @@ void tms9128nl_write_port1(unsigned char value)
 #endif
                 break;
             } // end switch
-        } // end if bit 7 is set (and we're writing to a register)
+        }     // end if bit 7 is set (and we're writing to a register)
 
         // bit 7 is clear so we're not writing to a register
         // instead, we are modifying the video memory address
@@ -472,8 +457,8 @@ void tms9128nl_write_port1(unsigned char value)
             tempindex = (highbyte << 8) | lowbyte;
             wvidindex = tempindex;
             rvidindex = tempindex;
-        } // end if high bit not set
-    } // end if toggleflag is not zero
+        }                        // end if high bit not set
+    }                            // end if toggleflag is not zero
     toggleflag = toggleflag ^ 1; // flip bit 1
 }
 
@@ -719,7 +704,7 @@ void tms9128nl_outcommand(char *s, int col, int row)
 
     // VLDP freaks out if it's not the only thing drawing to the screen
     if (!g_ldp->is_vldp()) {
-        //vid_blank();
+        // vid_blank();
         FC_Draw(video::get_font(), video::get_renderer(), dest.x, dest.y, s);
         // TODO : get this working again under the new video scheme
     }
@@ -892,7 +877,7 @@ void tms9128nl_clear_overlay()
     Uint8 *ptr = g_vidbuf;
 
     //	printf("Overlay is being cleared, transparency is %d, latch is %d\n",
-    //g_transparency_enabled, g_transparency_latch);
+    // g_transparency_enabled, g_transparency_latch);
 
     // if transparency mode is on ...
     if (g_transparency_latch) {

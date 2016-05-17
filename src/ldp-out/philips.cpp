@@ -25,15 +25,15 @@
 // written by Matt Ownby
 // thanks to Matteo Marioni for the command protocol information
 
+#include "philips.h"
+#include "../hypseus.h" // for get_quitflag
+#include "../io/conout.h"
+#include "../io/input.h" // to check input
+#include "../io/serial.h"
+#include "../timer/timer.h"
 #include <stdio.h>
 #include <stdlib.h> // for atoi
 #include <string.h>
-#include "../io/serial.h"
-#include "../timer/timer.h"
-#include "../io/conout.h"
-#include "philips.h"
-#include "../hypseus.h"   // for get_quitflag
-#include "../io/input.h" // to check input
 
 // define strcasecmp in case we're lame and compiling under windows =]
 #ifdef WIN32
@@ -206,7 +206,9 @@ bool philips::check_result(const char *result_string, Uint32 timeout_val, bool w
         if (strcasecmp(result_string, s) == 0) {
             result = true;
         } else {
-            printline("PHILIPS player returned unexpected response.  We wanted %s but we got %s", result_string, s);
+            printline("PHILIPS player returned unexpected response.  We wanted "
+                      "%s but we got %s",
+                      result_string, s);
         }
     }
 

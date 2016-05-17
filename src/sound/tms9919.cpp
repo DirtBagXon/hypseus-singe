@@ -121,7 +121,7 @@ void cTMS9919::WriteData(Uint8 data)
     if (m_LastData & 0xFF00) {
         // Handle Generator & Frequency
         int tone = (m_LastData & 0x60) >> 5;
-        int div = ((data & 0x3F) << 4) | (m_LastData & 0x0F);
+        int div  = ((data & 0x3F) << 4) | (m_LastData & 0x0F);
         if (div != 0) {
             SetFrequency(tone, (int)(m_clock_frequency / (div * 32)));
         }

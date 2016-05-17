@@ -26,9 +26,9 @@
 
 #include "config.h"
 
+#include "../io/conout.h"
 #include "sound.h"
 #include "tonegen.h"
-#include "../io/conout.h"
 #include <memory.h>
 tonegen g_tonegen;
 bool g_tonegen_init = false;
@@ -65,7 +65,7 @@ void tonegen_stream(Uint8* stream, int length, int index)
         // NOTE : assumes stream is in little endian format
         Sint16 sample_left  = 0;
         Sint16 sample_right = 0;
-        int channel = 0;
+        int channel         = 0;
         for (channel = 0; channel < VOICES; channel++) {
             if ((channel & 1) == 0) {
                 sample_left +=

@@ -38,15 +38,15 @@
 
 #include "config.h"
 
-#include <string.h>
-#include "tqsynth.h"
-#include "samples.h"
-#include "../hypseus.h"
-#include "../game/thayers.h"
-#include "../io/input.h"
 #include "../cpu/cpu.h"
+#include "../game/thayers.h"
+#include "../hypseus.h"
 #include "../io/conout.h"
+#include "../io/input.h"
+#include "samples.h"
 #include "ssi263.h"
+#include "tqsynth.h"
+#include <string.h>
 
 #ifdef SSI_REG_DEBUG
 #include <stdio.h>

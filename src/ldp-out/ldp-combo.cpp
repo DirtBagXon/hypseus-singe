@@ -26,8 +26,8 @@
 // a combo laserdisc player class that controls both smpeg and a real laserdisc
 // player
 
-#include "../timer/timer.h"
 #include "ldp-combo.h"
+#include "../timer/timer.h"
 
 combo::combo()
 {

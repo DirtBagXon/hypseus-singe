@@ -133,7 +133,7 @@ void beeper_get_stream(Uint8 *stream, int length, int internal_id)
             // endian-independent! :)
             // NOTE : assumes stream is in little endian format
             stream[byte_pos] = stream[byte_pos + 2] = ((Uint16)g_s16SampleVal) & 0xFF;
-            stream[byte_pos + 1] = stream[byte_pos + 3] =
+            stream[byte_pos + 1]                    = stream[byte_pos + 3] =
                 (((Uint16)g_s16SampleVal) >> 8) & 0xFF;
 
             ++g_uSampleCount; // we've just done 1 sample (4 bytes/sample)
