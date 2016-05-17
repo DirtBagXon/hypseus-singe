@@ -47,19 +47,21 @@
 
 using namespace std; // for make <queue> work
 
+namespace ldp1000
+{
 queue<unsigned char> g_qu8LdpOutput; // what LDP returns to user
-unsigned int ldp1000_repeat_frame;
-unsigned int ldp1000_repeat_start_frame;
-ldp1000_state g_uLDP1000State = LDP1000_STATE_NORMAL;
+unsigned int repeat_frame;
+unsigned int repeat_start_frame;
+state g_uLDP1000State = LDP1000_STATE_NORMAL;
 int g_iLDP1000TimesToRepeat   = 0;
 
-char ldp1000_frame[FRAME_ARRAY_SIZE] = {0}; // holds the digits sent to the
+char frame[FRAME_ARRAY_SIZE] = {0}; // holds the digits sent to the
                                             // LDP1000
-int ldp1000_frame_index = 0;
+int frame_index = 0;
 
 // if we get a new search while a current search is aborting, then we stash it
 // in here
-char g_ldp1000_queued_frame[FRAME_ARRAY_SIZE] = {0};
+char g_queued_frame[FRAME_ARRAY_SIZE] = {0};
 
 // LDP1450 - Text Display (up to 3 lines)
 // NOTE, you will need to handle the rendering of these strings
@@ -70,10 +72,10 @@ ldp_text_control g_LDP1450_TextControl;
 // default status
 static unsigned char enter_status = 0x00;
 
-unsigned int g_ldp1000_clear_cycles  = 0;
-unsigned int g_ldp1000_number_cycles = 0;
-unsigned int g_ldp1000_enter_cycles  = 0;
-unsigned int g_ldp1000_play_cycles   = 0;
+unsigned int g_clear_cycles  = 0;
+unsigned int g_number_cycles = 0;
+unsigned int g_enter_cycles  = 0;
+unsigned int g_play_cycles   = 0;
 
 bool g_bLDP1000_Waiting4Event = false;
 
@@ -91,7 +93,7 @@ void reset_ldp1450_globals()
 
 // should get called by the cpu emulation before emulation begins to get our
 // cycle delays set up
-void reset_ldp1000()
+void reset()
 {
     Uint32 cpu_hz       = get_cpu_hz(0);
     double dCyclesPerMs = cpu_hz / 1000.0; // cycles per milisecond
@@ -101,29 +103,29 @@ void reset_ldp1000()
     // example)
     // NOTE : this values come from the LDP1000A programming manual, they may be
     // different for the LDP-1450
-    g_ldp1000_clear_cycles  = (unsigned int)((dCyclesPerMs * 4.3) + 0.5);
-    g_ldp1000_number_cycles = (unsigned int)((dCyclesPerMs * 1.2) + 0.5);
-    g_ldp1000_enter_cycles  = (unsigned int)((dCyclesPerMs * 2.6) + 0.5);
-    g_ldp1000_play_cycles   = (unsigned int)((dCyclesPerMs * 2.0) + 0.5);
+    g_clear_cycles  = (unsigned int)((dCyclesPerMs * 4.3) + 0.5);
+    g_number_cycles = (unsigned int)((dCyclesPerMs * 1.2) + 0.5);
+    g_enter_cycles  = (unsigned int)((dCyclesPerMs * 2.6) + 0.5);
+    g_play_cycles   = (unsigned int)((dCyclesPerMs * 2.0) + 0.5);
 }
 
-void ldp1000_event_callback(void *unused)
+void event_callback(void *unused)
 {
     // we got our event, we're done ...
     g_bLDP1000_Waiting4Event = false;
 }
 
 // create some latency so that commands don't ACK immediately
-void ldp1000_make_ack_latency(unsigned int uCycles)
+void make_ack_latency(unsigned int uCycles)
 {
     g_bLDP1000_Waiting4Event = true;
-    cpu_set_event(0, uCycles, ldp1000_event_callback, NULL);
+    cpu_set_event(0, uCycles, event_callback, NULL);
 }
 
 ////////////////////////////////////////////////////////
 
 // retrieves the status from our virtual LDP1000
-unsigned char read_ldp1000()
+unsigned char read()
 {
     unsigned char result = 0x00;
 
@@ -149,15 +151,15 @@ unsigned char read_ldp1000()
     return (result);
 }
 
-// pushes a value on the ldp1000 queue
-bool ldp1000_queue_push(unsigned char value)
+// pushes a value on the queue
+bool queue_push(unsigned char value)
 {
     g_qu8LdpOutput.push(value);
     return true; // the queue can't easily overflow, so we won't check for it
 }
 
 // sends a byte to our virtual LDP1000
-void write_ldp1000(unsigned char value)
+void write(unsigned char value)
 {
 
     /*
@@ -340,48 +342,48 @@ void write_ldp1000(unsigned char value)
     case 0x37: // '7'
     case 0x38: // '8'
     case 0x39: // '9'
-        ldp1000_add_digit(value);
-        ldp1000_make_ack_latency(g_ldp1000_number_cycles);
-        ldp1000_queue_push(0x0a); // ack
+        add_digit(value);
+        make_ack_latency(g_number_cycles);
+        queue_push(0x0a); // ack
         break;
     case 0x3a: // Play
         g_ldp->pre_play();
-        ldp1000_make_ack_latency(g_ldp1000_enter_cycles);
-        ldp1000_queue_push(0x0a); // ack
+        make_ack_latency(g_enter_cycles);
+        queue_push(0x0a); // ack
         break;
     case 0x40: // Enter
-        ldp1000_make_ack_latency(g_ldp1000_enter_cycles);
-        ldp1000_queue_push(0xa); // ack
-        ldp1000_enter();
+        make_ack_latency(g_enter_cycles);
+        queue_push(0xa); // ack
+        enter();
         break;
     case 0x43: // Search
         enter_status = LDP1000_SEARCH;
-        ldp1000_make_ack_latency(g_ldp1000_enter_cycles);
-        ldp1000_queue_push(0x0a); // ack
+        make_ack_latency(g_enter_cycles);
+        queue_push(0x0a); // ack
         break;
     case 0x44: // Repeat
         enter_status |= LDP1000_REPEAT;
-        ldp1000_queue_push(0x0a); // ack
+        queue_push(0x0a); // ack
         break;
     case 0x46: // Channel 1 on
         g_ldp->enable_audio1();
-        ldp1000_queue_push(0x0a); // ack
+        queue_push(0x0a); // ack
         break;
     case 0x47: // Channel 1 off
         g_ldp->disable_audio1();
-        ldp1000_queue_push(0x0a);
+        queue_push(0x0a);
         break;
     case 0x48: // Channel 2 on
         g_ldp->enable_audio2();
-        ldp1000_queue_push(0x0a); // ack
+        queue_push(0x0a); // ack
         break;
     case 0x49: // Channel 2 off
         g_ldp->disable_audio2();
-        ldp1000_queue_push(0x0a);
+        queue_push(0x0a);
         break;
     case 0x4F:                    // LDP1450 - Still()
         g_ldp->pre_pause();       // return 0xB if the disc isn't playing
-        ldp1000_queue_push(0x0a); // ack
+        queue_push(0x0a); // ack
         break;
     case 0x55: // 'frame mode' (unknown function)
         // ignored
@@ -395,46 +397,45 @@ void write_ldp1000(unsigned char value)
             // switch us into the 'aborting' state
             g_uLDP1000State = LDP1000_STATE_SEARCH_ABORTING;
         }
-        ldp1000_make_ack_latency(g_ldp1000_clear_cycles); // bega's battle
+        make_ack_latency(g_clear_cycles); // bega's battle
                                                           // relies on some
                                                           // latency after the
                                                           // clear command
-        ldp1000_queue_push(0x0a);                         // ack
+        queue_push(0x0a);                         // ack
         break;
     case 0x60: // Addr Inq (get current frame number)
     {
         unsigned int uCurFrame = g_ldp->get_current_frame();
         string f               = numstr::ToStr(uCurFrame, 10, FRAME_SIZE); // with leading
                                                              // zeroes
-        ldp1000_queue_push(f[0]); // M1
-        ldp1000_queue_push(f[1]); // M2
-        ldp1000_queue_push(f[2]); // M3
-        ldp1000_queue_push(f[3]); // M4
-        ldp1000_queue_push(f[4]); // M5
+        queue_push(f[0]); // M1
+        queue_push(f[1]); // M2
+        queue_push(f[2]); // M3
+        queue_push(f[3]); // M4
+        queue_push(f[4]); // M5
     } break;
     case 0x62: // motor on
         // ignored
         break;
     case 0x67: // LDP1450 - Status Inquiry
-        ldp1000_queue_push(0x80);
-        ldp1000_queue_push(0);
-        ldp1000_queue_push(0x10);
-        ldp1000_queue_push(0); // disc is in, door closed
+        queue_push(0x80);
+        queue_push(0);
+        queue_push(0x10);
+        queue_push(0); // disc is in, door closed
         // if the disc is paused
         if (g_ldp->get_status() == LDP_PAUSED) {
-            ldp1000_queue_push(0x20); // paused
+            queue_push(0x20); // paused
         } else if (g_ldp->get_status() == LDP_PLAYING) {
-            ldp1000_queue_push(1); // playing
+            queue_push(1); // playing
         }
         // 8a 00 00 00 00 = no disc in the player
         else {
             // if this happens, you need to account for the other status codes
-            LOGW << "ERROR : ldp1000 status was queried but we aren't "
-                      "prepared to handle it";
+            LOGE << "status was queried but we aren't prepared to handle it";
 
             // return "paused" status just so we don't get caught in an endless
             // loop
-            ldp1000_queue_push(0x20); // paused
+            queue_push(0x20); // paused
         }
         break;
     case 0x6e: // CX_ON	??
@@ -453,16 +454,16 @@ void write_ldp1000(unsigned char value)
                      numstr::ToStr(value, 16);
         LOGW << msg; // force developer to address this situation to
                              // get rid of err msg
-        ldp1000_queue_push(0x0a); // ack
+        queue_push(0x0a); // ack
         break;
     }
 }
 
-void ldp1000_think()
+void think()
 {
     // if we're repeating ...
     if (g_uLDP1000State == LDP1000_STATE_REPEATING) {
-        if (g_ldp->get_current_frame() >= ldp1000_repeat_frame) {
+        if (g_ldp->get_current_frame() >= repeat_frame) {
             // we finished one repeat
             if (g_iLDP1000TimesToRepeat > 0) {
                 g_iLDP1000TimesToRepeat--;
@@ -473,7 +474,7 @@ void ldp1000_think()
             // start over if we still need to repeat
             if (g_iLDP1000TimesToRepeat != 0) {
                 char f[FRAME_ARRAY_SIZE] = {0};
-                sprintf(f, "%i", ldp1000_repeat_start_frame);
+                sprintf(f, "%i", repeat_start_frame);
 
                 // if _blocking_ search succeeds, then play ...
                 if (g_ldp->pre_search(f, true)) {
@@ -486,7 +487,7 @@ void ldp1000_think()
                     //  but looping errors aren't expected anyway, so it's
                     //  probably ok
                     //  to have unpredictable results at this point.
-                    ldp1000_queue_push(2); // error
+                    queue_push(2); // error
                     g_uLDP1000State = LDP1000_STATE_NORMAL;
                 }
             }
@@ -497,7 +498,7 @@ void ldp1000_think()
             }
 
             // we got to the desired frame
-            ldp1000_queue_push(0x01); // completion
+            queue_push(0x01); // completion
         }
     }
 
@@ -513,7 +514,7 @@ void ldp1000_think()
 #ifdef DEBUG
                 LOGD << "LDP1000: Search Complete";
 #endif
-                ldp1000_queue_push(1); // search complete
+                queue_push(1); // search complete
             }
             // else the search has aborted, so we don't want to return a '1'
 
@@ -521,17 +522,17 @@ void ldp1000_think()
             // being aborted
             //  or if we have no queued frame, then reset the state to normal
             if ((g_uLDP1000State != LDP1000_STATE_SEARCH_ABORTING) ||
-                (g_ldp1000_queued_frame[0] == 0)) {
+                (g_queued_frame[0] == 0)) {
                 g_uLDP1000State = LDP1000_STATE_NORMAL;
             }
             // else we need to do our queued frame now
             else {
                 LOGD << "Queued search is now being executed";
-                if (g_ldp->pre_search(g_ldp1000_queued_frame, false)) {
+                if (g_ldp->pre_search(g_queued_frame, false)) {
                     g_uLDP1000State = LDP1000_STATE_SEARCHING;
                 } else {
                     LOGD << "Queued search failed";
-                    ldp1000_queue_push(2); // search error
+                    queue_push(2); // search error
                     g_uLDP1000State = LDP1000_STATE_NORMAL;
                 }
             }
@@ -540,7 +541,7 @@ void ldp1000_think()
         else if (iStat != LDP_SEARCHING) {
             // if we're waiting for a search to complete
             if (g_uLDP1000State == LDP1000_STATE_SEARCHING) {
-                ldp1000_queue_push(2); // error
+                queue_push(2); // error
             }
             // else we were aborting, so the error doesn't matter
             g_uLDP1000State = LDP1000_STATE_NORMAL;
@@ -549,11 +550,11 @@ void ldp1000_think()
     }
 }
 
-bool ldp1000_result_ready(void)
+bool result_ready(void)
 {
     bool result = false;
 
-    ldp1000_think(); // this is a good place to call this function since it gets
+    think(); // this is a good place to call this function since it gets
                      // called a lot
 
     // if the queue is not empty and we're not waiting for an event,
@@ -564,34 +565,34 @@ bool ldp1000_result_ready(void)
     return result;
 }
 
-void ldp1000_enter(void)
+void enter(void)
 {
     //	char s[81] = {0};
 
     if (enter_status == LDP1000_SEARCH) {
-        ldp1000_frame[ldp1000_frame_index] = 0;
+        frame[frame_index] = 0;
 
         // safety check: make sure we're not trying to search without checking
         // the previous result
         if (g_uLDP1000State != LDP1000_STATE_SEARCHING) {
             if (g_uLDP1000State != LDP1000_STATE_SEARCH_ABORTING) {
                 // begin search
-                if (g_ldp->pre_search(ldp1000_frame, false)) {
+                if (g_ldp->pre_search(frame, false)) {
                     g_uLDP1000State = LDP1000_STATE_SEARCHING;
                 }
                 // else if search fails
                 else {
-                    ldp1000_queue_push(2); // error
+                    queue_push(2); // error
                     g_uLDP1000State = LDP1000_STATE_NORMAL;
                 }
             }
             // else the search is aborting so we need to queue up the new search
             else {
                 // if there is no queued frame, then we can use it ...
-                if (g_ldp1000_queued_frame[0] == 0) {
+                if (g_queued_frame[0] == 0) {
                     // copy frame into queued frame ...
-                    memcpy(g_ldp1000_queued_frame, ldp1000_frame,
-                           sizeof(g_ldp1000_queued_frame));
+                    memcpy(g_queued_frame, frame,
+                           sizeof(g_queued_frame));
                     LOGD << "next search request is queued until "
                               "first search finishes aborting";
                 }
@@ -615,20 +616,20 @@ void ldp1000_enter(void)
             LOGW << "caller didn't wait for search to "
                       "complete, so we'll ignore the search request";
         }
-        ldp1000_frame_index = 0; // reset frame index
+        frame_index = 0; // reset frame index
         enter_status        = 0;
 
     }
 
     else if (enter_status == LDP1000_REPEAT_NUMBER) {
-        ldp1000_frame[ldp1000_frame_index] = 0; // null terminate to be safe
+        frame[frame_index] = 0; // null terminate to be safe
 
         // if no argument is specified (Bega's does this), then we default to
         // '1'
-        if (ldp1000_frame_index == 0) {
+        if (frame_index == 0) {
             g_iLDP1000TimesToRepeat = 1;
         } else {
-            g_iLDP1000TimesToRepeat = (int)numstr::ToUint32(ldp1000_frame); // this # cannot be negative, but the var we store it in is negative for convenience
+            g_iLDP1000TimesToRepeat = (int)numstr::ToUint32(frame); // this # cannot be negative, but the var we store it in is negative for convenience
 
             // if 0 is the argument supplied, it means to repeat endlessly
             if (g_iLDP1000TimesToRepeat == 0) {
@@ -644,22 +645,22 @@ void ldp1000_enter(void)
 
         g_ldp->pre_play();
 
-        ldp1000_frame_index = 0; // reset frame index
+        frame_index = 0; // reset frame index
         g_uLDP1000State     = LDP1000_STATE_REPEATING;
         enter_status        = 0;
     }
 
     else if (enter_status == LDP1000_REPEAT) {
-        ldp1000_frame[ldp1000_frame_index] = 0;
+        frame[frame_index] = 0;
 
         //		sprintf(s, "LDP1000: Repeat at frame %i\n",
-        //atoi(ldp1000_frame));
+        //atoi(frame));
         //		printline(s);
 
-        ldp1000_repeat_frame       = atoi(ldp1000_frame);
-        ldp1000_repeat_start_frame = g_ldp->get_current_frame();
+        repeat_frame       = atoi(frame);
+        repeat_start_frame = g_ldp->get_current_frame();
 
-        ldp1000_frame_index = 0; // reset frame index
+        frame_index = 0; // reset frame index
 
         enter_status = LDP1000_REPEAT_NUMBER;
     }
@@ -673,14 +674,15 @@ void ldp1000_enter(void)
 
 // adds a digit to  the frame array that we will be seeking to
 // digit should be in ASCII format
-void ldp1000_add_digit(char digit)
+void add_digit(char digit)
 {
-    if (ldp1000_frame_index < FRAME_SIZE) {
-        ldp1000_frame[ldp1000_frame_index] = digit;
-        ldp1000_frame_index++;
+    if (frame_index < FRAME_SIZE) {
+        frame[frame_index] = digit;
+        frame_index++;
     } else {
         // if this happens on a regular basis, we can comment out this msg
         LOGW <<
             "received too many digits, ignoring";
     }
+}
 }

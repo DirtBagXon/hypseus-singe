@@ -163,7 +163,7 @@ void write_vp380(unsigned char value)
         }
         // Clear Screen
         if (vp380_GotCommand("D/HCL")) {
-            for (int i = 0; i < 3; i++) g_LDP1450_Strings[i].String[0] = 0;
+            for (int i = 0; i < 3; i++) ldp1000::g_LDP1450_Strings[i].String[0] = 0;
             return;
         }
         // Forward Play
@@ -198,30 +198,30 @@ void write_vp380(unsigned char value)
             // vp380 expects a char style overwrite.. since we dont have that
             // luxury we have to emulate it.. if its the same line, overwrite it
             for (int j = 0; j < 3; j++) {
-                if (g_LDP1450_Strings[j].y == (36 * y) - 20) {
-                    g_LDP1450_TextControl.TextLine = j;
+                if (ldp1000::g_LDP1450_Strings[j].y == (36 * y) - 20) {
+                    ldp1000::g_LDP1450_TextControl.TextLine = j;
                     break;
                 }
             }
 
-            g_LDP1450_TextControl.Scale                         = 2.0f;
-            g_LDP1450_Strings[g_LDP1450_TextControl.TextLine].x = 34 * x;
-            g_LDP1450_Strings[g_LDP1450_TextControl.TextLine].y = (36 * y) - 20;
+            ldp1000::g_LDP1450_TextControl.Scale                         = 2.0f;
+            ldp1000::g_LDP1450_Strings[ldp1000::g_LDP1450_TextControl.TextLine].x = 34 * x;
+            ldp1000::g_LDP1450_Strings[ldp1000::g_LDP1450_TextControl.TextLine].y = (36 * y) - 20;
 
             int i = 0;
 
             // ignore the @, but copy text over til the @
             while (1) {
                 if (CommandBuffer[8 + i] != '@')
-                    g_LDP1450_Strings[g_LDP1450_TextControl.TextLine].String[i] =
+                    ldp1000::g_LDP1450_Strings[ldp1000::g_LDP1450_TextControl.TextLine].String[i] =
                         CommandBuffer[8 + i];
                 else {
-                    g_LDP1450_TextControl.LDP1450_DisplayOn                     = 1;
-                    g_LDP1450_Strings[g_LDP1450_TextControl.TextLine].String[i] = 0;
+                    ldp1000::g_LDP1450_TextControl.LDP1450_DisplayOn                     = 1;
+                    ldp1000::g_LDP1450_Strings[ldp1000::g_LDP1450_TextControl.TextLine].String[i] = 0;
                     {
-                        g_LDP1450_TextControl.TextLine++;
-                        if (g_LDP1450_TextControl.TextLine > 2)
-                            g_LDP1450_TextControl.TextLine = 0;
+                        ldp1000::g_LDP1450_TextControl.TextLine++;
+                        if (ldp1000::g_LDP1450_TextControl.TextLine > 2)
+                            ldp1000::g_LDP1450_TextControl.TextLine = 0;
                     }
                     break;
                 }
@@ -232,9 +232,9 @@ void write_vp380(unsigned char value)
         // clear
         if (vp380_GotCommand("X")) {
             // clear our strings
-            for (int i = 0; i < 3; i++) g_LDP1450_Strings[i].String[0] = 0;
+            for (int i = 0; i < 3; i++) ldp1000::g_LDP1450_Strings[i].String[0] = 0;
 
-            g_LDP1450_TextControl.TextLine = 0;
+            ldp1000::g_LDP1450_TextControl.TextLine = 0;
             return;
         }
         // load disc
@@ -268,12 +268,12 @@ void write_vp380(unsigned char value)
         //			return;
         // Char Gen Off
         if (vp380_GotCommand("D/E0")) {
-            g_LDP1450_TextControl.LDP1450_DisplayOn = 0;
+            ldp1000::g_LDP1450_TextControl.LDP1450_DisplayOn = 0;
             return;
         }
         // Char Gen On
         if (vp380_GotCommand("D/E1")) {
-            g_LDP1450_TextControl.LDP1450_DisplayOn = 1;
+            ldp1000::g_LDP1450_TextControl.LDP1450_DisplayOn = 1;
             return;
         }
         // Pic time code display on

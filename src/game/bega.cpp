@@ -319,7 +319,7 @@ void bega::do_irq(unsigned int which_irq)
             vblank = true;
         } else {
             // periodicly check if there is any laserdisc data to read
-            if (ldp1000_result_ready()) {
+            if (ldp1000::result_ready()) {
                 // logerror("found ldp data! issuing interrupt\n");
                 // if we get new data set the interrupt bit (7), the recieve
                 // data full bit (0),
@@ -909,7 +909,7 @@ Uint8 bega::read_m6850_data()
 {
     // if there is new data get it from the ldp, otherwise return the old data
     if (mc6850_status & 0x01) {
-        ldp_status = read_ldp1000();
+        ldp_status = ldp1000::read();
     }
 
     // reading from the data register clears the interrupt bit (7) and the
@@ -927,5 +927,5 @@ void bega::write_m6850_data(Uint8 data)
     // writing to the data register clears the interrupt bit (7) and the
     // transmit data register empty bit (1)
     mc6850_status &= 0x7d;
-    write_ldp1000(data);
+    ldp1000::write(data);
 }

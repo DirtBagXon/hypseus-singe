@@ -35,8 +35,10 @@
 // repeat
 #define LDP1000_REPEAT (1 << 2)
 
+namespace ldp1000
+{
 // mutually exclusive states that LDP1000 can be in
-enum ldp1000_state {
+enum state {
     // neither searching nor repeating
     LDP1000_STATE_NORMAL,
 
@@ -51,21 +53,21 @@ enum ldp1000_state {
 };
 
 // setup variables for use
-void reset_ldp1000();
+void reset();
 
-// call ldp1000_result_ready before calling this function!
-unsigned char read_ldp1000();
+// call result_ready before calling this function!
+unsigned char read();
 
-void write_ldp1000(unsigned char value);
-void ldp1000_enter(void);
+void write(unsigned char value);
+void enter(void);
 
 // function should be called regularly to check on search completion and repeat
 // status
-void ldp1000_think();
+void think();
 
-bool ldp1000_result_ready(void);
-int ldp1000_stack_push(unsigned char value);
-void ldp1000_add_digit(char);
+bool result_ready(void);
+int stack_push(unsigned char value);
+void add_digit(char);
 
 // LDP1450 - Text Display (up to 3 lines)
 typedef struct {
@@ -99,4 +101,5 @@ typedef struct {
 
 extern ldp_text g_LDP1450_Strings[3];
 extern ldp_text_control g_LDP1450_TextControl;
+}
 #endif

@@ -291,11 +291,11 @@ lair2::lair2()
                         g_ace91_roms[0].buf = g_ace91e_roms[0].buf = &m_cpumem[0xF0000];
 
     // ldp1450 text stuff
-    memset(&g_LDP1450_TextControl, 0, sizeof(ldp_text_control));
+    memset(&ldp1000::g_LDP1450_TextControl, 0, sizeof(ldp1000::ldp_text_control));
 
     // clear the ldp strings
     for (int i = 0; i < 3; i++) {
-        g_LDP1450_Strings[i].String[0] = 0;
+        ldp1000::g_LDP1450_Strings[i].String[0] = 0;
     }
 
     i86_set_irq_callback(lair2_irq_callback);
@@ -623,9 +623,9 @@ void lair2::do_irq(unsigned int which_irq)
 {
     if (m_bSerialHack) {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-        while (ldp1000_result_ready()) {
+        while (ldp1000::result_ready()) {
             // NOTE : only works on little endian!
-            unsigned char u8Val   = read_ldp1000();
+            unsigned char u8Val   = ldp1000::read();
             unsigned char *ccbuf2 = &m_cpumem[0x1A050];
             Sint16 *p_endbuf2     = (Sint16 *)&m_cpumem[0x1596E];
             Sint16 *p_RxCnt2      = (Sint16 *)&m_cpumem[0x1596A];
@@ -669,8 +669,8 @@ void lair2::do_irq(unsigned int which_irq)
                     }
 
                     // otherwise just read from our emulated 1450
-                    else if (ldp1000_result_ready()) {
-                        serial_val = read_ldp1000();
+                    else if (ldp1000::result_ready()) {
+                        serial_val = ldp1000::read();
                     }
                     // else no char is available
                 }
@@ -816,7 +816,7 @@ numstr::ToStr(uElapsed);
 
             // otherwise send to our emulated LDP
             else {
-                write_ldp1000(value);
+                ldp1000::write(value);
             }
         }
         break;

@@ -319,7 +319,7 @@ void cpu_init()
 	cpu_reset();
 
     ldv1000::reset();	// calculate strobe stuff, most games won't need this but it doesn't hurt
-	reset_ldp1000();	// calculate ACK latency stuff, most games won't need this but it doesn't hurt
+    ldp1000::reset();	// calculate ACK latency stuff, most games won't need this but it doesn't hurt
 	reset_vp931();
 }
 
