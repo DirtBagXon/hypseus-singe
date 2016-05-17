@@ -41,7 +41,6 @@
 #include "../io/network.h" // to query amount of RAM the system has (get_sys_mem)
 #include "../io/numstr.h"  // for debug
 #include "../timer/timer.h"
-#include "../video/blend.h"
 #include "../video/palette.h"
 #include "../video/rgb2yuv.h"
 #include "../video/video.h"
@@ -737,22 +736,6 @@ unsigned int ldp_vldp::get_current_frame()
                 ((result - m_last_seeked_frame) * 1000000.0 / uFPKS),
                 ((uMsCorrect * uFPKS) / 1000000), (uMsCorrect * uFPKS * 0.000001));
         }
-
-        // This will be behind more than 1 frame (legitimately) playing at
-        // faster than 1X, so uncomment this with that in mind ...
-        /*
-        // else if VLDP is behind more than 1 frame, that is also disturbing
-        else if ((m_uCurrentFrame - result) > 1)
-        {
-            string s = "ldp-vldp::get_current_frame() [vldp behind]: internal
-        frame is " + numstr::ToStr(m_uCurrentFrame) +
-                ", vldp's current frame is " + numstr::ToStr(result);
-            printline(s.c_str());
-        }
-
-        // else vldp is only behind 1 frame, that is to be expected at times due
-        to threading issues ...
-        */
     }
 
     return m_uCurrentFrame;
@@ -1330,8 +1313,6 @@ bool ldp_vldp::unlock_overlay(Uint32 timeout)
             // if we've timed out
             if (elapsed_ms_time(time) > timeout)
             {
-                printline("LDP_VLDP : unlock_overlay timed out while trying to
-       unlock");
                 break;
             }
         }
@@ -1481,259 +1462,6 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                                    Upitch, Vplane, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
-
-    /*
-            SDL_Surface *gamevid =
-                g_game->get_finished_video_overlay(); // This could change at
-    any
-                                                      // time (double buffering,
-    for
-                                                      // example)
-            // so we are forced to query it every time we run this function.  If
-            // someone has a better idea, let me know
-
-            // sanity check.  Make sure the game video is the proper width.
-            if ((gamevid->w << 1) == g_yuv_texture->w) {
-                // adjust for vertical offset
-                // We use _half_ of the requested vertical offset because the
-    mpeg
-                // video is twice
-                // the size of the overlay
-                Uint8 *gamevid_pixels =
-                    (Uint8 *)gamevid->pixels -
-                    (gamevid->w * (g_vertical_offset - g_vertical_stretch));
-
-    #ifdef DEBUG
-                // make sure that the g_vertical_offset isn't out of bounds
-                Uint8 *last_valid_byte =
-                    ((Uint8 *)gamevid->pixels) + (gamevid->w * gamevid->h) - 1;
-                assert(gamevid_pixels < last_valid_byte);
-    #endif
-
-                unsigned int row = 0;
-                unsigned int col = 0;
-                Uint32 w_double  = g_yuv_texture->w << 1; // twice the overlay
-    width,
-                                                        // to avoid calculating
-    this
-                                                        // more than once
-                Uint32 h_half = g_yuv_texture->h >> 1; // half of the overlay
-    height,
-                                                      // to avoid calculating
-    this
-                                                      // more than once
-                Uint8 *dst_ptr;
-
-                // this could be global, any benefit?
-                t_yuv_color *yuv_palette = get_yuv_palette();
-
-                unsigned int channel0_pitch =
-                    g_yuv_texture->pitches[0]; // this val gets used a lot so we
-    put
-                                              // it into a var
-
-                dst_ptr   = (Uint8 *)g_yuv_texture->pixels[0];
-                Uint8 *Y  = (Uint8 *)src->Y;
-                Uint8 *Y2 = (Uint8 *)src->Y + g_yuv_texture->w;
-                Uint8 *U  = (Uint8 *)src->U;
-                Uint8 *V  = (Uint8 *)src->V;
-
-                // if letterbox removal is active, shift video down to
-    compensate
-                for (unsigned int skip = 0; skip < g_vertical_stretch; skip +=
-    2) {
-                    Y += (g_yuv_texture->w * 4);
-                    Y2 += (g_yuv_texture->w * 4);
-                    U += g_yuv_texture->w;
-                    V += g_yuv_texture->w;
-                }
-
-                // do 2 rows at a time
-                for (row = 0; row < h_half; row++) {
-                    // calculate this here to avoid calculating too often
-                    int adjusted_row = ((int)row) - g_vertical_offset;
-                    bool row_in_range =
-                        ((adjusted_row >= 0) && (adjusted_row < gamevid->h));
-                    t_yuv_color *palette = NULL;
-
-                    // do 4 bytes at a time, for twice the width of the overlay
-                    // since we're using YUY2
-                    for (col = 0; col < w_double; col += 4) {
-                        // if we can safely draw from the video overlay
-                        if (row_in_range) palette =
-    &yuv_palette[*gamevid_pixels];
-
-                        // If we are out of range, OR if the current color is
-                        // transparent,
-                        //  then draw the mpeg video pixel instead of the video
-                        //  overlay
-                        // (if palette is NULL, the compiler shouldn't try to
-                        // dereference palette->transparent)
-                        if ((palette == NULL) || palette->transparent) {
-                            unsigned int Y_chunk  = *((Uint16 *)Y);
-                            unsigned int Y2_chunk = *((Uint16 *)Y2);
-                            unsigned int V_chunk  = *V;
-                            unsigned int U_chunk  = *U;
-
-    #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                            // Little-Endian (Intel)
-                            *((Uint32 *)(g_line_buf + col)) =
-                                (Y_chunk & 0xFF) | (U_chunk << 8) |
-                                ((Y_chunk & 0xFF00) << 8) | (V_chunk << 24);
-                            *((Uint32 *)(g_line_buf2 + col)) =
-                                (Y2_chunk & 0xFF) | (U_chunk << 8) |
-                                ((Y2_chunk & 0xFF00) << 8) | (V_chunk << 24);
-    #else
-                            // Big-Endian (Mac)
-                            *((Uint32 *)(g_line_buf + col)) =
-                                ((Y_chunk & 0xFF00) << 16) | ((U_chunk) << 16) |
-                                ((Y_chunk & 0xFF) << 8) | (V_chunk);
-                            *((Uint32 *)(g_line_buf2 + col)) =
-                                ((Y2_chunk & 0xFF00) << 16) | ((U_chunk) << 16)
-    |
-                                ((Y2_chunk & 0xFF) << 8) | (V_chunk);
-    #endif
-                        }
-
-                        // if we have an overlay pixel to be drawn
-                        else {
-    #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                            // Little-Endian (Intel)
-                            *((Uint32 *)(g_line_buf + col)) =
-                                *((Uint32 *)(g_line_buf2 + col)) =
-                                    palette->y | (palette->u << 8) |
-                                    (palette->y << 16) | (palette->v << 24);
-    #else
-                            // Big-Endian (Mac)
-                            *((Uint32 *)(g_line_buf + col)) =
-                                *((Uint32 *)(g_line_buf2 + col)) =
-                                    (palette->y << 24) | (palette->u << 16) |
-                                    (palette->y << 8) | (palette->v);
-    #endif
-                        }
-                        Y += 2;
-                        Y2 += 2;
-                        U++;
-                        V++;
-                        gamevid_pixels++;
-                    }
-
-                    // if we're not doing scanlines
-                    if (!(g_filter_type & FILTER_SCANLINES)) {
-                        // no filtering at all
-                        if (!(g_filter_type & FILTER_BLEND)) {
-                            memcpy(dst_ptr, g_line_buf, (g_yuv_texture->w <<
-    1));
-                            memcpy(dst_ptr + channel0_pitch, g_line_buf2,
-                                   (g_yuv_texture->w << 1));
-                        } else {
-                            g_blend_func(); // blend the two lines into
-    g_line_buf3
-                            // this won't affect video overlay because it is
-    already
-                            // doubled in size anyway
-                            memcpy(dst_ptr, g_line_buf3, (g_yuv_texture->w <<
-    1));
-                            memcpy(dst_ptr + channel0_pitch, g_line_buf3,
-                                   (g_yuv_texture->w << 1));
-                        }
-                    }
-
-                    // if we're doing scanlines
-                    else {
-                        // do a black YUY2 line (the first line should be black
-    to
-                        // workaround nvidia bug)
-                        for (int i = 0; i < (g_yuv_texture->w << 1); i += 4) {
-                            *((Uint32 *)(dst_ptr + i)) =
-                                YUY2_BLACK; // this value is black in YUY2 mode
-                        }
-
-                        if (g_filter_type & FILTER_BLEND) {
-                            g_blend_func(); // blend the two lines into
-    g_line_buf3
-                            // this won't affect video overlay because it is
-    already
-                            // doubled in size anyway
-                            memcpy(dst_ptr + channel0_pitch, g_line_buf3,
-                                   (g_yuv_texture->w << 1));
-                        } else {
-                            memcpy(dst_ptr + channel0_pitch, g_line_buf,
-                                   (g_yuv_texture->w << 1)); // this could be
-                                                            // g_line_buf2 also
-                        }
-                    }
-
-                    dst_ptr += (channel0_pitch << 1); // we've done 2 rows, so
-    skip
-                                                      // a row
-                    Y += g_yuv_texture->w; // we've done 2 vertical Y pixels, so
-    skip
-                                          // a row
-                    Y2 += g_yuv_texture->w;
-                }
-
-                // if we've been instructed to take a screenshot, do so now that
-    the
-                // overlay is in place
-                if (g_take_screenshot) {
-                    g_take_screenshot = false;
-                    take_screenshot(g_yuv_texture);
-                }
-            } // end if sanity check passed
-
-            // if sanity check failed
-            else {
-                static bool warned = false;
-
-                // newbies might appreciate knowing why their video overlay
-    isn't
-                // working, so
-                // let's give them some instruction in the logfile.  We only
-    want to
-                // print this once
-                // to avoid spamming, hence the 'warned' boolean
-                if (!warned) {
-                    // if the game does not dynamically reallocate its overlay
-    size
-                    // (most of them don't)
-                    if (!g_game->is_overlay_size_dynamic()) {
-                        char s[81];
-                        printline("WARNING : Your MPEG doesn't match your video
-    "
-                                  "overlay's resolution.");
-                        printline("Video overlay will not work!");
-                        sprintf(s, "Your MPEG's size is %d x %d, and needs to be
-    "
-                                   "%d x %d",
-                                g_yuv_texture->w, g_yuv_texture->h, (gamevid->w
-    << 1),
-                                (gamevid->h << 1));
-                        printline(s);
-                    }
-                    // else, there is no problem at all, so don't alarm the user
-                    warned = true;
-                }
-
-                if (g_game->is_overlay_size_dynamic()) {
-                    // MPEG size has changed, so drop a hint to any game
-                    // that resizes dynamically.
-                    g_game->set_video_overlay_needs_update(true);
-                }
-            } // end sanity check
-
-            result = VLDP_TRUE; // we were successful (we return successful even
-    if
-                                // overlay part failed because we want to render
-                                // _something_)
-
-            SDL_UnlockYUVOverlay(g_yuv_texture);
-        } // end if locking the overlay was successful
-
-        // else we are trying to feed info to the overlay too quickly, so we'll
-    just
-        // have to wait
-        */
 
     return result;
 }
@@ -1920,12 +1648,9 @@ void report_mpeg_dimensions_callback(int width, int height)
         // if overlay was successfully created, then indicate in the log whether
         // it is HW accelerated or not
         else {
-            // string msg = "YUV overlay is done in software (ie
-            // unaccelerated).";
-            // if (g_yuv_texture->hw_overlay) {
-            //    msg = "YUV overlay is hardware accelerated.";
-            // }
-            // printline(msg.c_str()); // add it to the hypseus_log.txt
+            SDL_RendererInfo rendererinfo;
+            SDL_GetRendererInfo(video::get_renderer(), &rendererinfo);
+            LOGI << fmt("Using %s rendering", rendererinfo.name);
         }
     }
     // else g_yuv_texture exists, so we don't need to re-allocate it

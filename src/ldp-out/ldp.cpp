@@ -673,13 +673,6 @@ void ldp::think_delay(unsigned int uMsDelay)
 
         // if we're ahead of where we need to be, then it's ok to stall ...
         if (uElapsedMs < m_uElapsedMsSinceStart) {
-            /*
-            string msg = "uElapsedMs is " + numstr::ToStr(uElapsedMs) + " and
-            m_uElapsedMssinceStart is " +
-                numstr::ToStr(m_uElapsedMsSinceStart);
-            printline(msg.c_str());	// REMOVE ME
-            */
-
             MAKE_DELAY(1);
         }
         // otherwise we're caught up or behind, so just loop so we can make sure
@@ -867,23 +860,6 @@ void ldp::increment_current_frame()
     //  to the new frame.  We do NOT want to change frames immediately when
     //  skipping.
     m_uCurrentFrame = m_last_seeked_frame + m_iSkipOffsetSincePlay + m_uCurrentOffsetFrame;
-
-#if 0
-	{
-		static unsigned int uOldFrame = 0;
-		static unsigned int uOldTime = 0;
-
-		if (m_uCurrentFrame != uOldFrame)
-		{
-			unsigned int uTimer = refresh_ms_time();
-			unsigned int uDiff = uTimer - uOldTime;
-			string strMsg = "[" + numstr::ToStr(m_uCurrentFrame) + "] Time since last frame change: " + numstr::ToStr(uDiff) + " ms";
-			printline(strMsg.c_str());
-			uOldTime = uTimer;
-			uOldFrame = m_uCurrentFrame;
-		}
-	}
-#endif
 }
 
 void ldp::think() {}

@@ -52,49 +52,6 @@ bool v6000::init_player()
     return (true);
 }
 
-/*
-// does a seek on the v6000
-bool v6000::search(char *frame)
-{
-
-    int i = 0;
-    const int max_attempts = 3;
-    int attempts = 0;
-    bool success = false;
-    unsigned int index = 0;
-
-    while (!success && attempts < max_attempts)
-    {
-        for (i = 0; i < 5; i++)
-        {
-            index = frame[i] - '0';	// convert ASCII to a numerical index
-
-            // if we haven't overflowed, send the digits
-            if (index <= 9)
-            {
-                serial_tx(ldv6000_digits[index][0]);
-                serial_tx(ldv6000_digits[index][1]);
-            }
-            else
-            {
-                printline("Bug in v6000_search function");
-            }
-        }	// end for loop
-        serial_tx('F');
-        serial_tx('7');	// search command
-        success = wait_for_finished();	// check result & return
-        if (!success)
-        {
-            printline("LD-V6000 search: Failed");
-            make_delay(10);	// wait this long (ms) before trying again
-            attempts++;
-        }
-    }
-
-    return(success);
-}
-*/
-
 bool v6000::nonblocking_search(char *frame)
 {
     int i              = 0;

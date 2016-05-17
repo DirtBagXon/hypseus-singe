@@ -5,13 +5,10 @@ set( LIB_SOURCES
     led.cpp
     palette.cpp
     rgb2yuv.cpp
-    blend.cpp
     rgb2yuv-gas.s
-    blend_mmx-gas.s
 )
 
 set( LIB_HEADERS
-    blend.h
     led.h
     palette.h
     rgb2yuv.h
