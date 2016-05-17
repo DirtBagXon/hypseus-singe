@@ -286,9 +286,7 @@ bool mpo_seek(int64_t offset, seek_type type, mpo_io *io)
     pre_result = SetFilePointer(io->handle, loffset, &hoffset, type);
 
     // if we potentially got an error ...
-    //	if (pre_result == INVALID_SET_FILE_POINTER)
-    if (pre_result == -1) // INVALID_SET_FILE_POINTER is -1 but some old visual
-                          // studio 6's don't have this defined
+    if (pre_result == INVALID_SET_FILE_POINTER)
     {
         result     = false;
         pre_result = GetLastError(); // check to see if we really got an error

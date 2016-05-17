@@ -3,8 +3,9 @@
 #include "video/SDL_FontCache.h"
 #include "vldp/vldp.h"     // VLDP stuff
 
+#include <unistd.h> // for chdir / sleep
+
 #ifndef WIN32
-#include <unistd.h> // for chdir
 #include <string.h>
 #include <stdio.h>  // for stderr
 #include <stdlib.h> // for srand
