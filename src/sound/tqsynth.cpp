@@ -2390,7 +2390,7 @@ void tqsynth_init(int freq, Uint16 format, int channels, long base_F0)
 void tqsynth_free_chunk(Uint8 *pu8Buf) { MPO_FREE(pu8Buf); }
 
 // Take a synthesized sample and convert to an SDL-ready wave chunk.
-bool audio_get_chunk(int num_samples, short *samples, sample_s *ptrSample)
+bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample)
 {
     bool bResult = false;
 
@@ -2437,7 +2437,7 @@ bool audio_get_chunk(int num_samples, short *samples, sample_s *ptrSample)
 }
 
 // Take a string of phonemes and synthesize to wave data.
-bool tqsynth_phones_to_wave(char *phonemes, int len, sample_s *ptrSample)
+bool tqsynth_phones_to_wave(char *phonemes, int len, sound::sample_s *ptrSample)
 {
     darray_t elm;
     unsigned frames;

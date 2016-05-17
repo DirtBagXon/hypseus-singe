@@ -80,13 +80,13 @@ void OverlayScoreboard::update_player_score (SDL_Surface *pSurface, int player, 
 	// by different MPEG widths (640x480, 720x480 known so far).
 	x += (player == 0 ? 65 : pSurface->w - 7 * OVERLAY_LED_WIDTH);
 
-	draw_overlay_leds(values, num_digits, x, 0, pSurface);
+	video::draw_overlay_leds(values, num_digits, x, 0, pSurface);
 }
 
 void OverlayScoreboard::update_player_lives (SDL_Surface *pSurface, int player, unsigned int lives)
 {
 	// Value of lives was validated in caller, so charge right ahead.
-	draw_overlay_leds(&lives, 1,
+	video::draw_overlay_leds(&lives, 1,
 		player == 0 ? 48 : pSurface->w - 2 * OVERLAY_LED_WIDTH,
 		OVERLAY_LED_HEIGHT, pSurface);
 }
@@ -105,7 +105,7 @@ void OverlayScoreboard::update_credits(SDL_Surface *pSurface)
 		fudge = (pSurface->w == 360 ? 2 : 0);
 	}
 
-	draw_overlay_leds(m_DigitValues + this->CREDITS1_0, 2,
+	video::draw_overlay_leds(m_DigitValues + this->CREDITS1_0, 2,
 		pSurface->w / 2 - (OVERLAY_LED_WIDTH + fudge),
 		OVERLAY_LED_HEIGHT, pSurface);
 }

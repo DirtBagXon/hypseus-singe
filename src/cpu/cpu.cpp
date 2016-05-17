@@ -620,7 +620,7 @@ void cpu_execute()
 		g_ldp->pre_think();
  
 		// Update the sound buffers for the sound chips
-		update_soundbuffer();
+        sound::update_buffer();
 
 		// BEGIN FORCING EMULATOR TO RUN AT PROPER SPEED
 

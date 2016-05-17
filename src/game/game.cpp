@@ -323,8 +323,8 @@ bool game::video_init()
 
     // set instance variables and local variables to the actual screen (or
     // window) dimension
-    m_video_screen_width = w = get_screen_blitter()->w;
-    m_video_screen_height = h = get_screen_blitter()->h;
+    m_video_screen_width = w = video::get_screen_blitter()->w;
+    m_video_screen_height = h = video::get_screen_blitter()->h;
 
     // if this particular game uses video overlay (most do)
     if (m_game_uses_video_overlay) {

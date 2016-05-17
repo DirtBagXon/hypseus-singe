@@ -27,45 +27,41 @@
 
 // header file for sound.c
 
+namespace sound
+{
 // max # of samples any game can handle (make this number as small as possible)
-#define MAX_NUM_SOUNDS 50
-
+static const uint16_t MAX_NUM = 50;
 // frequency all our audio runs at.
 // In order to change this value, all .wav's and .ogg's will need to be
 // resampled, which
 //  is quite involved. Other parts of the code may assume the frequency is 44100
 //  too (such as ldp-vldp-audio.cpp)
-#define AUDIO_FREQ 44100
-
+static const uint16_t FREQ = 44100;
 // stereo sound
-#define AUDIO_CHANNELS 2
-
+static const uint16_t CHANNELS = 2;
 // stereo, 16-bit sound has 4 bytes per sample
-#define AUDIO_BYTES_PER_SAMPLE 4
-
+static const uint16_t BYTES_PER_SAMPLE = 4;
 // volume for each stream can be between 0-64
-// (keep this as a power of 2, see AUDIO_MAX_VOL_POWER)
-#define AUDIO_MAX_VOLUME 64
-
-// if 2^AUDIO_MAX_VOL_POWER = AUDIO_MAX_VOLUME
-#define AUDIO_MAX_VOL_POWER 6
-
+// (keep this as a power of 2, see MAX_VOL_POWER)
+static const uint16_t MAX_VOLUME = 64;
+// if 2^MAX_VOL_POWER = MAX_VOLUME
+static const uint16_t MAX_VOL_POWER = 6;
 // SDL audio format (16-bit signed, little endian)
 // This is true even for big-endian platforms
-#define AUDIO_FORMAT AUDIO_S16LSB
+static const uint16_t FORMAT = AUDIO_S16LSB;
 
 // how many audio bytes needed to fill 1 millisecond of space
-static const unsigned int G_1MS_BUF_SIZE = (AUDIO_FREQ * AUDIO_BYTES_PER_SAMPLE) / 1000;
+static const unsigned int G_1MS_BUF_SIZE = (FREQ * BYTES_PER_SAMPLE) / 1000;
 
 enum {
-    SOUNDCHIP_UNDEFINED,
-    SOUNDCHIP_SAMPLES,
-    SOUNDCHIP_VLDP,
-    SOUNDCHIP_SN76496,
-    SOUNDCHIP_AY_3_8910,
-    SOUNDCHIP_PC_BEEPER,
-    SOUNDCHIP_DAC,
-    SOUNDCHIP_TONEGEN
+    CHIP_UNDEFINED,
+    CHIP_SAMPLES,
+    CHIP_VLDP,
+    CHIP_SN76496,
+    CHIP_AY_3_8910,
+    CHIP_PC_BEEPER,
+    CHIP_DAC,
+    CHIP_TONEGEN
 };
 
 struct sample_s {
@@ -87,7 +83,7 @@ struct sample_s {
         i = -32768;                                                            \
     }
 
-struct sounddef {
+struct chip {
     // *** THIS SECTION IS DEFINED INTERNALLY
     // IMPORTANT: buffer and next_soundchip MUST come first, because they must
     // match
@@ -95,7 +91,7 @@ struct sounddef {
     //  optimized
     //  audio mixing function.
     Uint8 *buffer; // pointer to buffer used by this sound chip
-    struct sounddef *next_soundchip; // pointer to the next sound chip in this
+    struct chip *next; // pointer to the next sound chip in this
                                      // linked list
 
     Uint8 *buffer_pointer; // pointer to where we are in the buffer
@@ -104,21 +100,21 @@ struct sounddef {
                      // are multiple sound chips being used)
     int internal_id; // internal ID that the sound chips returns when
                      // init_callback is called
-    unsigned int uVolume[AUDIO_CHANNELS]; // don't modify this value directly,
+    unsigned int uVolume[CHANNELS]; // don't modify this value directly,
                                           // use set_soundchip_volume() to do it
                                           // ...
 
     // This is the volume that the game driver has requested (if no request,
-    // this is AUDIO_MAX_VOLUME).
+    // this is MAX_VOLUME).
     // It is not affected by set_soundchip_volume.  uVolume is calculated based
     // on this value.
-    unsigned int uDriverVolume[AUDIO_CHANNELS];
+    unsigned int uDriverVolume[CHANNELS];
 
     // This is the volume that the user has requested (if no request, this is
-    // AUDIO_MAX_VOLUME).
+    // MAX_VOLUME).
     // It is not affected by set_soundchip_volume.  uVolume is calculated based
     // on this value.
-    unsigned int uBaseVolume[AUDIO_CHANNELS];
+    unsigned int uBaseVolume[CHANNELS];
 
     // callback to initialize the sound chip.
     // The callback returns an internal ID which is used in all the other
@@ -162,12 +158,12 @@ struct sounddef {
 };
 
 // adds a new soundchip and returns the ID
-unsigned int add_soundchip(struct sounddef *); // add a new cpu
+unsigned int add_chip(struct chip *); // add a new cpu
 
 // deletes a soundchip that has previously been added
-bool delete_soundchip(unsigned int id);
+bool delete_chip(unsigned int id);
 
-void init_soundchip(); // inits all the sound chips
+void init_chip(); // inits all the sound chips
 
 // Mixing callback
 // USED WHEN : all audio is muted
@@ -188,55 +184,57 @@ void mixWithMaxVolume(Uint8 *stream, int length);
 // (this is the slowest callback, only use it if you must)
 void mixWithMults(Uint8 *stream, int length);
 
-void audio_callback(void *, Uint8 *, int); // audio callback for SDLMixer
-void audio_writedata(Uint8, Uint8);
+void callback(void *, Uint8 *, int); // audio callback for SDLMixer
+void writedata(Uint8, Uint8);
 
 // for game driver to send commands to sound chip
-void audio_write_ctrl_data(unsigned int uCtrl, unsigned int uData, Uint8 id);
+void write_ctrl_data(unsigned int uCtrl, unsigned int uData, Uint8 id);
 
 // Used to set the volume of an audio stream. Valid volume values are 0 to
-// AUDIO_MAX_VOLUME.
+// MAX_VOLUME.
 // 'id' is the id returned by add_soundchip()
 // 'channel' is which audio channel to the set the volume for (0 = left, 1 =
 // right I think)
-// WARNING : setting the volume to anything lower than AUDIO_MAX_VOLUME may
+// WARNING : setting the volume to anything lower than MAX_VOLUME may
 // incur a (small?)
 //  performance penalty and should be avoided if there is little benefit to
 //  adjusting
 //  the volume.
 // If there is an error, the logfile will be notified and the quitflag may be
 // set :)
-void set_soundchip_volume(Uint8 id, unsigned int uChannel, unsigned int uVolume);
+void set_chip_volume(Uint8 id, unsigned int uChannel, unsigned int uVolume);
 
 // helper function for the other set_soundchip_volume
-void set_soundchip_volume(struct sounddef *cur, unsigned int uChannel, unsigned int uVolume);
+void set_chip_volume(struct chip *cur, unsigned int uChannel, unsigned int uVolume);
 
 // so the user can override the default VLDP volume
-void set_soundchip_vldp_volume(unsigned int uVolume);
+void set_chip_vldp_volume(unsigned int uVolume);
 
 // so the user can override the default volume of all soundchips besides VLDP
-void set_soundchip_nonvldp_volume(unsigned int uVolume);
+void set_chip_nonvldp_volume(unsigned int uVolume);
 
 // Recalculates uVolume based on values of drivervolume and basevolume
 // Also calculates which rshift and callback to use
-void update_soundchip_volumes();
+void update_chip_volumes();
 
-void shutdown_soundchip();
-void update_soundbuffer(); // update the sound buffers with 1 ms worth of data
-void set_soundbuf_size(Uint16 newbufsize);
-bool sound_init();
-void sound_shutdown();
-bool sound_play(Uint32 whichone);
-bool sound_play_saveme();
+void shutdown_chip();
+void update_buffer(); // update the sound buffers with 1 ms worth of data
+void set_buf_size(Uint16 newbufsize);
+bool init();
+void shutdown();
+bool play(Uint32 whichone);
+bool play_saveme();
 int load_waves();
 void free_waves();
-int get_sound_initialized();
-void set_sound_mute(bool bMuted); // added by JFA for -startsilent
-void set_sound_enabled_status(bool value);
-bool is_sound_enabled();
+int get_initialized();
+void set_mute(bool bMuted); // added by JFA for -startsilent
+void set_enabled_status(bool value);
+bool is_enabled();
 
 // (re)calculates the right-shift value to be used to mix sounds (for fast
 // division)
 void sound_recalc_rshift();
+
+}
 
 #endif

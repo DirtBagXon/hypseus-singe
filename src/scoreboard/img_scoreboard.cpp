@@ -46,11 +46,11 @@ bool ImgScoreboard::RepaintIfNeeded()
 	if (m_bNeedsRepaint)
 	{
 		// draw all scoreboard decorations
-		draw_othergfx(B_DL_PLAYER1, player_title_x, player1_title_y, false);
-		draw_othergfx(B_DL_PLAYER2, player_title_x, player2_title_y, false);
-		draw_othergfx(B_DL_LIVES, player_lives_title_x, player1_lives_title_y, false);
-		draw_othergfx(B_DL_LIVES, player_lives_title_x, player2_lives_title_y, false);
-		draw_othergfx(B_DL_CREDITS, player_lives_title_x, credits_title_y, false);
+		video::draw_othergfx(video::B_DL_PLAYER1, player_title_x, player1_title_y, false);
+		video::draw_othergfx(video::B_DL_PLAYER2, player_title_x, player2_title_y, false);
+		video::draw_othergfx(video::B_DL_LIVES, player_lives_title_x, player1_lives_title_y, false);
+		video::draw_othergfx(video::B_DL_LIVES, player_lives_title_x, player2_lives_title_y, false);
+		video::draw_othergfx(video::B_DL_CREDITS, player_lives_title_x, credits_title_y, false);
 
 		// draw all digits
 		for (unsigned int which = 0; which < DIGIT_COUNT; which++)
@@ -96,7 +96,7 @@ bool ImgScoreboard::RepaintIfNeeded()
 			}
 
 			uValue = m_DigitValues[which];
-			draw_led(uValue, coord_x, coord_y);
+			video::draw_led(uValue, coord_x, coord_y);
 		}
 
 		bRepainted = true;

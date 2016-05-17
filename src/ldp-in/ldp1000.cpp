@@ -267,9 +267,9 @@ void write_ldp1000(unsigned char value)
 
                     // Display LDP1450 overlay
                     for (i = 0; i < 3; i++) {
-                        draw_singleline_LDP1450(g_LDP1450_Strings[i].String, overlay_ldp1450_x,
+                        video::draw_singleline_LDP1450(g_LDP1450_Strings[i].String, overlay_ldp1450_x,
                                                 overlay_ldp1450_y, overlay);
-                        overlay_ldp1450_y += OVERLAY_LDP1450_LINE_SPACING; // line
+                        overlay_ldp1450_y += video::OVERLAY_LDP1450_LINE_SPACING; // line
                                                                            // spacing
                     }
 

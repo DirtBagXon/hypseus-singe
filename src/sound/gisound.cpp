@@ -101,7 +101,7 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             (g_gi_chips[index]->register_set[CHANNEL_A_TONE_PERIOD_COARSE] << 8);
         old_bytes_per_switch = g_gi_chips[index]->chan_a_bytes_per_switch;
         g_gi_chips[index]->chan_a_bytes_per_switch =
-            (int)((AUDIO_FREQ * (chan_a_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
+            (int)((sound::FREQ * (chan_a_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
         if (g_gi_chips[index]->chan_a_bytes_per_switch < 4) {
             g_gi_chips[index]->chan_a_bytes_per_switch = 4;
         }
@@ -118,7 +118,7 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             (g_gi_chips[index]->register_set[CHANNEL_B_TONE_PERIOD_COARSE] << 8);
         old_bytes_per_switch = g_gi_chips[index]->chan_b_bytes_per_switch;
         g_gi_chips[index]->chan_b_bytes_per_switch =
-            (int)((AUDIO_FREQ * (chan_b_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
+            (int)((sound::FREQ * (chan_b_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
         if (g_gi_chips[index]->chan_b_bytes_per_switch < 4) {
             g_gi_chips[index]->chan_b_bytes_per_switch = 4;
         }
@@ -135,7 +135,7 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
             (g_gi_chips[index]->register_set[CHANNEL_C_TONE_PERIOD_COARSE] << 8);
         old_bytes_per_switch = g_gi_chips[index]->chan_c_bytes_per_switch;
         g_gi_chips[index]->chan_c_bytes_per_switch =
-            (int)((AUDIO_FREQ * (chan_c_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
+            (int)((sound::FREQ * (chan_c_tone_period * 16.0) / g_gi_chips[index]->core_clock * 2) + .5);
         if (g_gi_chips[index]->chan_c_bytes_per_switch < 4) {
             g_gi_chips[index]->chan_c_bytes_per_switch = 4;
         }
@@ -148,7 +148,7 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
         g_gi_chips[index]->noise_period = data & 0x1f;
         old_bytes_per_switch = g_gi_chips[index]->noise_bytes_per_switch;
         g_gi_chips[index]->noise_bytes_per_switch =
-            (int)((AUDIO_FREQ * (g_gi_chips[index]->noise_period * 16.0) /
+            (int)((sound::FREQ * (g_gi_chips[index]->noise_period * 16.0) /
                    g_gi_chips[index]->core_clock * 2) +
                   .5);
         if (g_gi_chips[index]->noise_bytes_per_switch < 4) {
@@ -221,7 +221,7 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
     case ENVELOPE_PERIOD_COARSE:
         // Envelope Period is a 16 bit number made up of COURSE<<8|FINE
         g_gi_chips[index]->envelope_period =
-            (int)((AUDIO_FREQ * 256.0 *
+            (int)((sound::FREQ * 256.0 *
                    (g_gi_chips[index]->register_set[ENVELOPE_PERIOD_FINE] |
                     (g_gi_chips[index]->register_set[ENVELOPE_PERIOD_COARSE] << 8)) /
                    g_gi_chips[index]->core_clock / 4) +

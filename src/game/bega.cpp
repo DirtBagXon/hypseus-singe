@@ -102,19 +102,19 @@ bega::bega()
     cpu.mem = m_cpumem2;
     add_cpu(&cpu); // add sound 6502 cpu
 
-    struct sounddef soundchip;
-    soundchip.type  = SOUNDCHIP_AY_3_8910;
+    struct sound::chip soundchip;
+    soundchip.type  = sound::CHIP_AY_3_8910;
     soundchip.hz    = BEGA_CPU_HZ / 10; // Bega runs the sound chips at 1.5 MHz
-    m_soundchip1_id = add_soundchip(&soundchip);
-    m_soundchip2_id = add_soundchip(&soundchip);
+    m_soundchip1_id = sound::add_chip(&soundchip);
+    m_soundchip2_id = sound::add_chip(&soundchip);
 
     // make chip 1 only play in right speaker
-    set_soundchip_volume(m_soundchip1_id, 1, AUDIO_MAX_VOLUME);
-    set_soundchip_volume(m_soundchip1_id, 0, 0);
+    sound::set_chip_volume(m_soundchip1_id, 1, sound::MAX_VOLUME);
+    sound::set_chip_volume(m_soundchip1_id, 0, 0);
 
     // make chip 2 only play in left speaker
-    set_soundchip_volume(m_soundchip2_id, 0, AUDIO_MAX_VOLUME);
-    set_soundchip_volume(m_soundchip2_id, 1, 0);
+    sound::set_chip_volume(m_soundchip2_id, 0, sound::MAX_VOLUME);
+    sound::set_chip_volume(m_soundchip2_id, 1, 0);
 
     ldp_status = 0x00;
 
@@ -533,11 +533,11 @@ void bega::cpu_mem_write(Uint16 addr, Uint8 value)
         // 2048 bytes of scratch ram
         if (addr <= 0x07ff) {
         } else if (addr == 0x2000) {
-            audio_write_ctrl_data(m_soundchip1_address_latch, value, m_soundchip1_id);
+            sound::write_ctrl_data(m_soundchip1_address_latch, value, m_soundchip1_id);
         } else if (addr == 0x4000) {
             m_soundchip1_address_latch = value;
         } else if (addr == 0x6000) {
-            audio_write_ctrl_data(m_soundchip2_address_latch, value, m_soundchip2_id);
+            sound::write_ctrl_data(m_soundchip2_address_latch, value, m_soundchip2_id);
         } else if (addr == 0x8000) {
             m_soundchip2_address_latch = value;
         }

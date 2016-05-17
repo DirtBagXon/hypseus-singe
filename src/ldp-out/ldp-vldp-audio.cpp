@@ -619,7 +619,7 @@ void ldp_vldp_audio_callback(Uint8 *stream, int len, int unused)
             // if our timer is set to the current time or some previous time
             if (g_playing_timer < cur_time) {
                 static const Uint64 uBYTES_PER_S =
-                    AUDIO_FREQ * AUDIO_BYTES_PER_SAMPLE; // needs to be uint64
+                    sound::FREQ * sound::BYTES_PER_SAMPLE; // needs to be uint64
                                                          // to prevent overflow
                                                          // from subsequent math
                 correct_samples =

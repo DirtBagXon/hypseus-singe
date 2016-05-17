@@ -535,7 +535,7 @@ void process_keydown(SDL_Keycode key)
     if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
         g_alt_pressed = true;
     } else if ((key == SDLK_RETURN) && (g_alt_pressed)) {
-        vid_toggle_fullscreen();
+        video::vid_toggle_fullscreen();
     }
     // end ALT-ENTER check
 }
@@ -738,7 +738,7 @@ void reset_idle(void)
     // So the first key press should always unmute the sound.
     if (!bSoundOn) {
         bSoundOn = true;
-        set_sound_mute(false);
+        sound::set_mute(false);
     }
 
     idle_timer = refresh_ms_time();

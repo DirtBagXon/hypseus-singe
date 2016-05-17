@@ -66,11 +66,11 @@ badlands::badlands()
     cpu.mem = m_cpumem;
     add_cpu(&cpu); // add 6809 cpu
 
-    struct sounddef soundchip;
+    struct sound::chip soundchip;
 
-    soundchip.type = SOUNDCHIP_SN76496; // Badlands uses the SN76496 sound chip
+    soundchip.type = sound::CHIP_SN76496; // Badlands uses the SN76496 sound chip
     soundchip.hz   = BADLANDS_CPU_HZ / 8;
-    m_soundchip_id = add_soundchip(&soundchip);
+    m_soundchip_id = sound::add_chip(&soundchip);
 
     firq_on = false;
     irq_on  = false;
@@ -194,7 +194,7 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
         value = ((value & 0x1) << 7) | ((value & 0x2) << 5) | ((value & 0x4) << 3) |
                 ((value & 0x8) << 1) | ((value & 0x10) >> 1) | ((value & 0x20) >> 3) |
                 ((value & 0x40) >> 5) | ((value & 0x80) >> 7);
-        audio_writedata(m_soundchip_id, value);
+        sound::writedata(m_soundchip_id, value);
     }
 
     // Laserdisc (out)
@@ -266,13 +266,13 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
         // value = ((value & 0x1) << 7) | ((value & 0x2) << 5) | ((value & 0x4)
         // << 3) | ((value & 0x8) << 1) | ((value & 0x10) >> 1) | ((value &
         // 0x20) >> 3) | ((value & 0x40) >> 5) | ((value & 0x80) >> 7);
-        // audio_writedata(m_soundchip_id, value);
+        // sound::writedata(m_soundchip_id, value);
 
         // 0xE7 seems to trigger the shot sound (once registers have been
         // loaded)
         // sprintf(s, "Write to %x with %x", addr, value);
         // printline(s);
-        if (value == 0xE7 && m_prefer_samples) sound_play(S_BL_SHOT);
+        if (value == 0xE7 && m_prefer_samples) sound::play(S_BL_SHOT);
     }
 
     // video memory is being written to, so the screen needs to be updated
@@ -364,7 +364,7 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
     }
     // sound data
     else if (addr == 0x1400) {
-        audio_writedata(m_soundchip_id, value);
+        sound::writedata(m_soundchip_id, value);
     }
     // sound data
     else if (addr == 0x1800) {

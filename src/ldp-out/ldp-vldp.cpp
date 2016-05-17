@@ -55,7 +55,7 @@
 
 #define API_VERSION 11
 
-static const unsigned int FREQ1000 = AUDIO_FREQ * 1000; // let compiler compute
+static const unsigned int FREQ1000 = sound::FREQ * 1000; // let compiler compute
                                                         // this ...
 
 // video overlay stuff
@@ -75,8 +75,6 @@ unsigned int g_filter_type      = FILTER_NONE; // what type of filter to use on 
 SDL_Rect *g_screen_clip_rect = NULL; // used a lot, we only want to calculate
                                      // once
 
-extern SDL_Renderer *g_renderer;
-extern FC_Font *g_font;
 SDL_Texture *g_yuv_texture = NULL;
 struct yuv_buf g_blank_yuv_buf; // this will contain a blank YUV overlay
                                 // suitable for search/seek blanking
@@ -238,11 +236,11 @@ bool ldp_vldp::init_player()
                                     m_discvideo_width  = g_vldp_info->w;
                                     m_discvideo_height = g_vldp_info->h;
 
-                                    if (is_sound_enabled()) {
-                                        struct sounddef soundchip;
-                                        soundchip.type = SOUNDCHIP_VLDP;
+                                    if (sound::is_enabled()) {
+                                        struct sound::chip soundchip;
+                                        soundchip.type = sound::CHIP_VLDP;
                                         // no further parameters necessary
-                                        m_uSoundChipID = add_soundchip(&soundchip);
+                                        m_uSoundChipID = sound::add_chip(&soundchip);
                                     }
 
                                     result = true;
@@ -302,8 +300,8 @@ void ldp_vldp::shutdown_player()
         g_vldp_info = NULL;
     }
 
-    if (is_sound_enabled()) {
-        if (!delete_soundchip(m_uSoundChipID)) {
+    if (sound::is_enabled()) {
+        if (!sound::delete_chip(m_uSoundChipID)) {
             LOGW << "sound chip could not be deleted";
         }
     }
@@ -369,9 +367,9 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
         if (g_bGotParseUpdate) {
             // redraw screen blitter before we display it
             update_parse_meter();
-            vid_blank();
+	    video::vid_blank();
             //vid_blit(get_screen_blitter(), 0, 0);
-            vid_flip();
+	    video::vid_flip();
             g_bGotParseUpdate = false;
         }
 
@@ -448,7 +446,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
 
                 // if sound is enabled, try to open an audio stream to match the
                 // video stream
-                if (is_sound_enabled()) {
+                if (sound::is_enabled()) {
                     // try to open an optional audio file to go along with video
                     oggize_path(oggname, filename);
                     m_audio_file_opened = open_audio_stream(oggname.c_str());
@@ -550,7 +548,7 @@ unsigned int ldp_vldp::play()
 
             // if sound is enabled, try to load an audio stream to go with video
             // stream ...
-            if (is_sound_enabled()) {
+            if (sound::is_enabled()) {
                 // try to open an optional audio file to go along with video
                 oggize_path(ogg_path, m_mpeginfo[0].name);
                 m_audio_file_opened = open_audio_stream(ogg_path.c_str());
@@ -1729,11 +1727,11 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, in
 // displays the frame as fast as possible
 void display_frame_callback()
 {
-    SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL);
+    SDL_RenderCopy(video::get_renderer(), g_yuv_texture, NULL, NULL);
     //SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This could change at any
     //vid_blit(gamevid, 0, 0);
     //vid_flip();
-    SDL_RenderPresent(g_renderer); // display it!
+    SDL_RenderPresent(video::get_renderer()); // display it!
 //    display_repaint();
 }
 
@@ -1772,7 +1770,7 @@ void update_parse_meter()
         // always be >= elapsed_s, so no checking necessary here
         remaining_s = total_s - elapsed_s;
 
-        SDL_Surface *screen = get_screen_blitter(); // the main screen that we
+        SDL_Surface *screen = video::get_screen_blitter(); // the main screen that we
                                                     // can draw on ...
         SDL_FillRect(screen, NULL, 0); // erase previous stuff on the screen
                                        // blitter
@@ -1786,7 +1784,7 @@ void update_parse_meter()
             sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds "
                        "remaining.\n",
                     percent_complete, remaining_s);
-            FC_Draw(g_font, g_renderer, (half_w - ((strlen(s) / 2) * FONT_SMALL_W)), half_h - FONT_SMALL_H, s);
+            FC_Draw(video::get_font(), video::get_renderer(), (half_w - ((strlen(s) / 2) * video::FONT_SMALL_W)), half_h - video::FONT_SMALL_H, s);
 
             // now draw a little graph thing ...
             SDL_Rect clip       = screen->clip_rect;
@@ -1794,7 +1792,7 @@ void update_parse_meter()
             clip.y              = (clip.h - THICKNESS) / 2; // where to start our little
                                                             // status bar
             clip.h = THICKNESS;
-            clip.y += FONT_SMALL_H + 5; // give us some padding
+            clip.y += video::FONT_SMALL_H + 5; // give us some padding
 
             SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 255, 255, 255)); // draw a white bar across the screen ...
 
@@ -1838,8 +1836,6 @@ void report_parse_progress_callback(double percent_complete_01)
 
 ///////////////////
 
-extern unsigned int g_draw_width, g_draw_height;
-
 // this always gets called before the draw_callback and always after
 // report_parse_progress callback
 void report_mpeg_dimensions_callback(int width, int height)
@@ -1852,24 +1848,24 @@ void report_mpeg_dimensions_callback(int width, int height)
         make_delay(1);
     }
 
-    g_screen_clip_rect = &get_screen_blitter()->clip_rect; // used a lot, we
+    g_screen_clip_rect = &video::get_screen_blitter()->clip_rect; // used a lot, we
                                                            // only want to
                                                            // calculate it once
 
     // if draw width is less than the screen width
-    if (g_draw_width < (unsigned int)g_screen_clip_rect->w) {
+    if (video::get_draw_width() < (unsigned int)g_screen_clip_rect->w) {
         // center horizontally
-        unsigned int uDiff = g_screen_clip_rect->w - g_draw_width;
+        unsigned int uDiff = g_screen_clip_rect->w - video::get_draw_width();
         g_screen_clip_rect->x += (uDiff / 2);
-        g_screen_clip_rect->w = g_draw_width;
+        g_screen_clip_rect->w = video::get_draw_width();
     }
 
     // if draw height is less than the screen height
-    if (g_draw_height < (unsigned int)g_screen_clip_rect->h) {
+    if (video::get_draw_height() < (unsigned int)g_screen_clip_rect->h) {
         // center vertically
-        unsigned int uDiff = g_screen_clip_rect->h - g_draw_height;
+        unsigned int uDiff = g_screen_clip_rect->h - video::get_draw_height();
         g_screen_clip_rect->y += (uDiff / 2);
-        g_screen_clip_rect->h = g_draw_height;
+        g_screen_clip_rect->h = video::get_draw_height();
     }
 
     // if we drew some stuff on the screen, then we need to free the overlay and
@@ -1897,7 +1893,7 @@ void report_mpeg_dimensions_callback(int width, int height)
         // create overlay, taking into account any letterbox removal we're doing
         // (*4 because our pixels are *2 the height of the graphics, AND we're
         // doing it at the top and bottom)
-        g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
+        g_yuv_texture = SDL_CreateTexture(video::get_renderer(), SDL_PIXELFORMAT_YV12,
                                       SDL_TEXTUREACCESS_STATIC, width, height);
 
         // safety check

@@ -606,22 +606,22 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-serversend") == 0) {
                 net_server_send();
             } else if (strcasecmp(s, "-nosound") == 0) {
-                set_sound_enabled_status(false);
+                sound::set_enabled_status(false);
                 printline("Disabling sound...");
             } else if (strcasecmp(s, "-sound_buffer") == 0) {
                 get_next_word(s, sizeof(s));
                 Uint16 sbsize = (Uint16)atoi(s);
-                set_soundbuf_size(sbsize);
+                sound::set_buf_size(sbsize);
                 sprintf(s, "Setting sound buffer size to %d", sbsize);
                 printline(s);
             } else if (strcasecmp(s, "-volume_vldp") == 0) {
                 get_next_word(s, sizeof(s));
                 unsigned int uVolume = atoi(s);
-                set_soundchip_vldp_volume(uVolume);
+                sound::set_chip_vldp_volume(uVolume);
             } else if (strcasecmp(s, "-volume_nonvldp") == 0) {
                 get_next_word(s, sizeof(s));
                 unsigned int uVolume = atoi(s);
-                set_soundchip_nonvldp_volume(uVolume);
+                sound::set_chip_nonvldp_volume(uVolume);
             } else if (strcasecmp(s, "-nocrc") == 0) {
                 g_game->disable_crc();
                 printline("Disabling ROM CRC check...");
@@ -708,12 +708,12 @@ bool parse_cmd_line(int argc, char **argv)
 
             // don't force 4:3 aspect ratio regardless of window size
             else if (strcasecmp(s, "-ignore_aspect_ratio") == 0) {
-                set_force_aspect_ratio(false);
+                video::set_force_aspect_ratio(false);
             }
 
             // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
-                set_fullscreen(true);
+                video::set_fullscreen(true);
             }
 
             // disable log file
@@ -732,7 +732,7 @@ bool parse_cmd_line(int argc, char **argv)
                 i = atoi(s);
                 sprintf(s, "Scaling image by %d%%", i);
                 printline(s);
-                set_scalefactor((Uint16)i);
+		video::set_scalefactor((Uint16)i);
             }
 
             else if (strcasecmp(s, "-pal_dl") == 0) {
@@ -767,7 +767,7 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-rotate") == 0) {
                 get_next_word(s, sizeof(s));
                 float f = (float)numstr::ToDouble(s);
-                set_rotate_degrees(f);
+                video::set_rotate_degrees(f);
             }
 
             // continuously updates SRAM (after every seek)
@@ -783,13 +783,13 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-x") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                set_video_width((Uint16)i);
+                video::set_video_width((Uint16)i);
                 sprintf(s, "Setting screen width to %d", i);
                 printline(s);
             } else if (strcasecmp(s, "-y") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                set_video_height((Uint16)i);
+                video::set_video_height((Uint16)i);
                 sprintf(s, "Setting screen height to %d", i);
                 printline(s);
             } else if (strcasecmp(s, "-trace") == 0) {
@@ -832,7 +832,7 @@ bool parse_cmd_line(int argc, char **argv)
                 // make sure that if we read 0 as the argument, that it is
                 // really zero.. :)
                 if (((i == 0) && (s[0] == '0')) || (i != 0)) {
-                    set_sboverlay_characterset(i);
+                    video::set_sboverlay_characterset(i);
 
                     lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                     thayers *game_thayers = dynamic_cast<thayers *>(g_game);

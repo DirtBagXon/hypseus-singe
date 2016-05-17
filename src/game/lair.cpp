@@ -78,12 +78,12 @@ lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
     cpu.mem = m_cpumem;
     add_cpu(&cpu); // add this cpu to the list (it will be our only one)
 
-    struct sounddef soundchip;
-    soundchip.type = SOUNDCHIP_AY_3_8910; // Dragon's Lair hardware uses the
+    struct sound::chip soundchip;
+    soundchip.type = sound::CHIP_AY_3_8910; // Dragon's Lair hardware uses the
                                           // ay-3-8910
     soundchip.hz = LAIR_CPU_HZ / 2; // DL halves the CPU clock for the sound
                                     // chip
-    m_soundchip_id = add_soundchip(&soundchip);
+    m_soundchip_id = sound::add_chip(&soundchip);
 
     m_disc_fps  = 23.976;
     m_game_type = GAME_LAIR;
@@ -520,17 +520,17 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                         // only the 'accept' sound data has a D5 as the second
                         // byte
                         if (m_cpumem[index + 1] == 0xD5) {
-                            sound_play(S_DL_ACCEPT);
+                            sound::play(S_DL_ACCEPT);
                         }
                         // only the 'credit' sound data has a 0x66 as the second
                         // byte
                         else if (m_cpumem[index + 1] == 0x66) {
-                            sound_play(S_DL_CREDIT);
+                            sound::play(S_DL_CREDIT);
                         }
                         // only the 'buzz' sound data has a 0x99 as its third
                         // byte
                         else if (m_cpumem[index + 1] == 0x99) {
-                            sound_play(S_DL_BUZZ);
+                            sound::play(S_DL_BUZZ);
                         }
                         // else unknown sound, play an error
                         else {
@@ -550,7 +550,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
             // real sound chip data is sent here
             case 0xE000:
                 if (!m_prefer_samples)
-                    audio_write_ctrl_data(m_soundchip_address_latch, Value, m_soundchip_id);
+                    sound::write_ctrl_data(m_soundchip_address_latch, Value, m_soundchip_id);
                 break;
 
             // I believe this controlled whether the bus was in input or output

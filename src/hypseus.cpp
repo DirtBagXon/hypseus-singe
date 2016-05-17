@@ -179,8 +179,8 @@ int main(int argc, char **argv)
         change_led(false, false, false); // turns all keyboard leds off
 
         // if the display initialized properly
-        if (init_display() && load_bmps()) {
-            if (sound_init()) {
+        if (video::init_display() && video::load_bmps()) {
+            if (sound::init()) {
                 if (SDL_input_init()) {
                     // if the roms were loaded successfully
                     if (g_game->load_roms()) {
@@ -241,11 +241,11 @@ int main(int argc, char **argv)
                 } else {
                     printerror("Could not initialize input!");
                 }
-                sound_shutdown();
+                sound::shutdown();
             } else {
                 printerror("Sound initialization failed!");
             }
-            shutdown_display(); // shut down the display
+            video::shutdown_display(); // shut down the display
         }                       // end init display
         else {
             printerror("Video initialization failed!");
@@ -272,7 +272,7 @@ int main(int argc, char **argv)
         delete (g_ldp);
     }
 
-    free_bmps(); // always do this no matter what
+    video::free_bmps(); // always do this no matter what
 
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)

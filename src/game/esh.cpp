@@ -323,7 +323,7 @@ void esh::port_write(Uint16 port, Uint8 value)
             // again
             if (++lastbeep > 61) {
                 lastbeep = 0;
-                sound_play(S_ESH_BEEP); // 1 sec. simulated beep, until the real
+                sound::play(S_ESH_BEEP); // 1 sec. simulated beep, until the real
                                         // beep is sampled
             }
         }

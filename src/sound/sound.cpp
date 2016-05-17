@@ -51,7 +51,10 @@
 #include "../hypseus.h"
 #include "../ldp-out/ldp-vldp.h" // added by JFA for -startsilent
 
-sample_s g_samples[MAX_NUM_SOUNDS] = {{0}};
+namespace sound
+{
+
+sample_s g_samples[MAX_NUM] = {{0}};
 sample_s g_sample_saveme; // the special saveme wav which is loaded
                           // independently of any game
 
@@ -59,12 +62,12 @@ bool g_sound_enabled = true; // whether sound is enabled
 
 bool g_bSoundMuted = false; // whether sound is muted
 
-struct sounddef *g_soundchip_head = NULL; // pointer to the first sound chip in
+struct chip *g_chip_head = NULL; // pointer to the first sound chip in
                                           // our linked list of chips's
-unsigned int g_uSoundChipNextID = 0; // the idea that the next soundchip to get
+unsigned int g_uSoundChipNextID = 0; // the idea that the next chip to get
                                      // added will get (also usually indicates
                                      // how many sound chips have been added,
-                                     // but not if a soundchip gets deleted)
+                                     // but not if a chip gets deleted)
 
 // callback to actually do the mixing
 void (*g_soundmix_callback)(Uint8 *stream, int length) = mixNone;
@@ -75,13 +78,13 @@ void (*g_soundmix_callback)(Uint8 *stream, int length) = mixNone;
 Uint16 g_u16SoundBufSamples = 2048;
 
 // # of bytes each individual sound chip should be allocated for its buffer
-unsigned int g_uSoundChipBufSize = g_u16SoundBufSamples * AUDIO_BYTES_PER_SAMPLE;
+unsigned int g_uSoundChipBufSize = g_u16SoundBufSamples * BYTES_PER_SAMPLE;
 
 // the volume (user adjustable) of the VLDP audio stream
-unsigned int g_uVolumeVLDP = AUDIO_MAX_VOLUME;
+unsigned int g_uVolumeVLDP = MAX_VOLUME;
 
 // the volume (user adjustable) of all over sound streams besides VLDP
-unsigned int g_uVolumeNonVLDP = AUDIO_MAX_VOLUME;
+unsigned int g_uVolumeNonVLDP = MAX_VOLUME;
 
 int cur_wave             = 0; // the current wave being played (0 to NUM_DL_BEEPS-1)
 bool g_sound_initialized = false; // whether the sound will work if we try to
@@ -104,7 +107,7 @@ bool g_bAudioLocked = false;
 #endif // lock audio macros
 
 // added by JFA for -startsilent
-void set_sound_mute(bool bMuted)
+void set_mute(bool bMuted)
 {
     g_bSoundMuted = bMuted;
 
@@ -113,50 +116,50 @@ void set_sound_mute(bool bMuted)
         LOCK_AUDIO();
         // this should set the mixing callback back to something that isn't
         // muted
-        update_soundchip_volumes();
+        update_chip_volumes();
         UNLOCK_AUDIO();
     }
 }
 // end edit
 
-void set_soundbuf_size(Uint16 newbufsize)
+void set_buf_size(Uint16 newbufsize)
 {
     g_u16SoundBufSamples = newbufsize;
-    g_uSoundChipBufSize  = newbufsize * AUDIO_BYTES_PER_SAMPLE;
+    g_uSoundChipBufSize  = newbufsize * BYTES_PER_SAMPLE;
 
     // re-allocate all sound buffers since the size has changed
-    struct sounddef *cur = g_soundchip_head;
+    struct chip *cur = g_chip_head;
     while (cur) {
         delete cur->buffer;
         cur->buffer = new Uint8[g_uSoundChipBufSize];
         memset(cur->buffer, 0, g_uSoundChipBufSize);
         cur->buffer_pointer = cur->buffer;
         cur->bytes_left     = g_uSoundChipBufSize;
-        cur                 = cur->next_soundchip;
+        cur                 = cur->next;
     }
 }
 
 static SDL_AudioSpec specDesired, specObtained;
 
-bool sound_init()
+bool init()
 // returns a true on success, false on failure
 {
 
     bool result    = false;
-    int audio_rate = AUDIO_FREQ; // rate to mix audio at.  This cannot be
+    int audio_rate = FREQ; // rate to mix audio at.  This cannot be
                                  // changed without resampling all .wav's and
                                  // all .ogg's
 
-    Uint16 audio_format = AUDIO_FORMAT;
-    int audio_channels  = AUDIO_CHANNELS;
+    Uint16 audio_format = FORMAT;
+    int audio_channels  = CHANNELS;
 
     LOGD << "Initializing sound system ... ";
 
     // if the user has not disabled sound from the command line
-    if (is_sound_enabled()) {
+    if (is_enabled()) {
         // if SDL audio initialization was successful
         if (SDL_InitSubSystem(SDL_INIT_AUDIO) >= 0) {
-            specDesired.callback = audio_callback;
+            specDesired.callback = callback;
             specDesired.channels = audio_channels;
             specDesired.format   = audio_format;
             specDesired.freq     = audio_rate;
@@ -173,12 +176,12 @@ bool sound_init()
                 if ((specObtained.channels == audio_channels) &&
                     (specObtained.format == audio_format) &&
                     (specObtained.freq == audio_rate) &&
-                    (specObtained.callback == audio_callback)) {
+                    (specObtained.callback == callback)) {
                     // if we can load all our waves, we're set
                     if (load_waves()) {
                         // If we are supposed to start without playing any
                         // sound, then set muted bool here.
-                        // It must come here because add_soundchip (which comes
+                        // It must come here because add_chip (which comes
                         // right afterwards) will set the sound mixing callback.
                         if (get_startsilent()) {
                             g_bSoundMuted = true;
@@ -188,12 +191,12 @@ bool sound_init()
                         // chip', which can (and should be)
                         //  only added once, so we need not track its ID (we
                         //  call its functions directly)
-                        struct sounddef soundchip;
-                        soundchip.type = SOUNDCHIP_SAMPLES;
-                        add_soundchip(&soundchip);
+                        struct chip soundchip;
+                        soundchip.type = CHIP_SAMPLES;
+                        add_chip(&soundchip);
 
                         // initialize sound chips
-                        init_soundchip();
+                        init_chip();
 
                         if (specObtained.samples != g_u16SoundBufSamples) {
                             string strWarning =
@@ -205,7 +208,7 @@ bool sound_init()
                             LOGW << strWarning;
 
                             // reset memory allocations
-                            set_soundbuf_size(specObtained.samples);
+                            set_buf_size(specObtained.samples);
                         }
 
                         result              = true;
@@ -237,7 +240,7 @@ bool sound_init()
 
     // if sound isn't enabled, then we act is if sound initialization worked so
     // hypseus doesn't quit
-    if (!is_sound_enabled()) {
+    if (!is_enabled()) {
         result = true;
     }
 
@@ -245,7 +248,7 @@ bool sound_init()
 }
 
 // shuts down the sound subsystem
-void sound_shutdown()
+void shutdown()
 {
     // shutdown sound only if we previously initialized it
     if (g_sound_initialized) {
@@ -253,20 +256,20 @@ void sound_shutdown()
         SDL_PauseAudio(1);
         SDL_CloseAudio();
         free_waves();
-        shutdown_soundchip();
+        shutdown_chip();
         g_sound_initialized = 0;
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
     }
 }
 
 // plays a sample, returns true on success
-bool sound_play(Uint32 whichone)
+bool play(Uint32 whichone)
 {
     bool result = false;
 
     // only play a sound if sound has been initialized (and if whichone points
     // to a valid wav)
-    if (is_sound_enabled() && (whichone < MAX_NUM_SOUNDS)) {
+    if (is_enabled() && (whichone < MAX_NUM)) {
         samples_play_sample(g_samples[whichone].pu8Buf, g_samples[whichone].uLength,
                             g_samples[whichone].uChannels);
         result = true;
@@ -276,11 +279,11 @@ bool sound_play(Uint32 whichone)
 }
 
 // plays the 'saveme' sound
-bool sound_play_saveme()
+bool play_saveme()
 {
     bool result = false;
 
-    if (is_sound_enabled()) {
+    if (is_enabled()) {
         samples_play_sample(g_sample_saveme.pu8Buf, g_sample_saveme.uLength);
         result = true;
     }
@@ -309,8 +312,8 @@ int load_waves()
         // if loading the .wav file succeeds
         if (SDL_LoadWAV(filename.c_str(), &spec, &g_samples[i].pu8Buf, &g_samples[i].uLength)) {
             // make sure audio specs are correct
-            if (((spec.channels == AUDIO_CHANNELS) || (spec.channels == 1)) &&
-                (spec.freq == AUDIO_FREQ) && (spec.format == AUDIO_S16)) {
+            if (((spec.channels == CHANNELS) || (spec.channels == 1)) &&
+                (spec.freq == FREQ) && (spec.format == AUDIO_S16)) {
                 g_samples[i].uChannels = spec.channels;
             }
             // else specs are not correct
@@ -362,46 +365,46 @@ void free_waves()
     }
 }
 
-int get_sound_initialized() { return (g_sound_initialized); }
+int get_initialized() { return (g_sound_initialized); }
 
-void set_sound_enabled_status(bool value) { g_sound_enabled = value; }
+void set_enabled_status(bool value) { g_sound_enabled = value; }
 
-bool is_sound_enabled() { return g_sound_enabled; }
+bool is_enabled() { return g_sound_enabled; }
 
 // NOTE : this is called by the game driver, so it can be called even if sound
 // is disabled
-unsigned int add_soundchip(struct sounddef *candidate)
+unsigned int add_chip(struct chip *candidate)
 {
     LOCK_AUDIO(); // safety precaution, we don't want callback running during
                   // this function
 
-    struct sounddef *cur = NULL;
+    struct chip *cur = NULL;
 
     // if this is the first sound chip to be added to the list
-    if (!g_soundchip_head) {
-        g_soundchip_head = new struct sounddef; // allocate a new sound chip,
+    if (!g_chip_head) {
+        g_chip_head = new struct chip; // allocate a new sound chip,
                                                 // assume allocation is
                                                 // successful
-        cur = g_soundchip_head; // point to the new sound chip so we can
+        cur = g_chip_head; // point to the new sound chip so we can
                                 // populate it with info
     }
     // else we have to move to the end of the list
     else {
-        cur = g_soundchip_head;
+        cur = g_chip_head;
 
         // go to the last sound chip in the list
-        while (cur->next_soundchip) {
-            cur = cur->next_soundchip;
+        while (cur->next) {
+            cur = cur->next;
         }
 
-        cur->next_soundchip = new struct sounddef; // allocate a new sound chip
+        cur->next = new struct chip; // allocate a new sound chip
                                                    // at the end of our list
-        cur = cur->next_soundchip; // point to the new sound chip so we can
+        cur = cur->next; // point to the new sound chip so we can
                                    // populate it with info
     }
 
     // now we must copy over the relevant info
-    memcpy(cur, candidate, sizeof(struct sounddef)); // copy entire thing over
+    memcpy(cur, candidate, sizeof(struct chip)); // copy entire thing over
     cur->id          = g_uSoundChipNextID;
     cur->internal_id = 0; // sensible initial value
 
@@ -409,11 +412,11 @@ unsigned int add_soundchip(struct sounddef *candidate)
     // volumes,
     //  so we will initialize them all to sensible defaults.
     cur->uDriverVolume[0] = cur->uDriverVolume[1] = cur->uBaseVolume[0] =
-        cur->uBaseVolume[1] = cur->uVolume[0] = cur->uVolume[1] = AUDIO_MAX_VOLUME;
+        cur->uBaseVolume[1] = cur->uVolume[0] = cur->uVolume[1] = MAX_VOLUME;
 
     ++g_uSoundChipNextID;
 
-    cur->next_soundchip        = NULL;
+    cur->next                  = NULL;
     cur->bNeedsConstantUpdates = false; // sensible default
     // create a buffer for each chip
     cur->buffer                   = new Uint8[g_uSoundChipBufSize];
@@ -429,43 +432,43 @@ unsigned int add_soundchip(struct sounddef *candidate)
 
     // now we must assign the appropriate callbacks
     switch (cur->type) {
-    case SOUNDCHIP_SAMPLES:
+    case CHIP_SAMPLES:
         cur->init_callback     = samples_init;
         cur->shutdown_callback = samples_shutdown;
         cur->stream_callback   = samples_get_stream;
         break;
-    case SOUNDCHIP_VLDP:
+    case CHIP_VLDP:
         // we only need to define stream_callback, everything else is handled by
         // ldp-vldp
         cur->stream_callback = ldp_vldp_audio_callback;
         break;
-    case SOUNDCHIP_SN76496:
+    case CHIP_SN76496:
         cur->bNeedsConstantUpdates = true; // doesn't sound good without it
         cur->init_callback         = tms9919_initialize;
         cur->shutdown_callback     = tms9919_shutdown;
         cur->writedata_callback    = tms9919_writedata;
         cur->stream_callback       = tms9919_stream;
         break;
-    case SOUNDCHIP_AY_3_8910:
+    case CHIP_AY_3_8910:
         cur->bNeedsConstantUpdates    = true; // doesn't sound good without it
         cur->init_callback            = gisound_initialize;
         cur->shutdown_callback        = gisound_shutdown;
         cur->write_ctrl_data_callback = gisound_writedata;
         cur->stream_callback          = gisound_stream;
         break;
-    case SOUNDCHIP_PC_BEEPER:                 // used by DL2/SA91
+    case CHIP_PC_BEEPER:                 // used by DL2/SA91
         cur->bNeedsConstantUpdates    = true; // for now we'll have it this way
         cur->init_callback            = beeper_init;
         cur->write_ctrl_data_callback = beeper_ctrl_data;
         cur->stream_callback          = beeper_get_stream;
         break;
-    case SOUNDCHIP_DAC: // used by MACK 3
+    case CHIP_DAC: // used by MACK 3
         cur->bNeedsConstantUpdates    = true;
         cur->init_callback            = dac_init;
         cur->write_ctrl_data_callback = dac_ctrl_data;
         cur->stream_callback          = dac_get_stream;
         break;
-    case SOUNDCHIP_TONEGEN: // generic 4 voice tone generator
+    case CHIP_TONEGEN: // generic 4 voice tone generator
         cur->bNeedsConstantUpdates    = true;
         cur->init_callback            = tonegen_initialize;
         cur->write_ctrl_data_callback = tonegen_writedata;
@@ -479,23 +482,23 @@ unsigned int add_soundchip(struct sounddef *candidate)
 
     // calculate mixing callback, adjust volume, recalculate rshift
     // NOTE : this should come last in this function
-    update_soundchip_volumes();
+    update_chip_volumes();
 
     UNLOCK_AUDIO();
 
     return cur->id;
 }
 
-bool delete_soundchip(unsigned int id)
+bool delete_chip(unsigned int id)
 {
     bool bSuccess         = false;
-    struct sounddef *cur  = g_soundchip_head;
-    struct sounddef *prev = NULL;
+    struct chip *cur  = g_chip_head;
+    struct chip *prev = NULL;
 
     LOCK_AUDIO();
     // if 1 or more sound chips exists ...
     while (cur) {
-        struct sounddef *pNext = cur->next_soundchip;
+        struct chip *pNext = cur->next;
 
         // if we found a match, then delete it...
         if (cur->id == id) {
@@ -504,41 +507,41 @@ bool delete_soundchip(unsigned int id)
                 cur->shutdown_callback(cur->internal_id);
             }
 
-            // if cur != g_soundchip_head in other words ...
+            // if cur != g_chip_head in other words ...
             if (prev != NULL) {
                 // restore the chain that we're about to break
-                prev->next_soundchip = cur->next_soundchip;
+                prev->next = cur->next;
             }
 
             delete[] cur->buffer;
             delete cur;
 
-            // if we just deleted the head, then make the next soundchip be the
+            // if we just deleted the head, then make the next chip be the
             // head
-            if (cur == g_soundchip_head) {
-                g_soundchip_head = pNext;
+            if (cur == g_chip_head) {
+                g_chip_head = pNext;
             }
 
             bSuccess = true;
             break;
         }
         prev = cur;
-        cur  = cur->next_soundchip;
+        cur  = cur->next;
     }
     UNLOCK_AUDIO();
 
     return bSuccess;
 }
 
-void init_soundchip()
+void init_chip()
 {
 #ifdef DEBUG
-    assert(is_sound_enabled());
+    assert(is_enabled());
 #endif
     LOCK_AUDIO(); // safety precaution, we don't want callback running during
                   // this function
-    if (g_soundchip_head) {
-        struct sounddef *cur = g_soundchip_head;
+    if (g_chip_head) {
+        struct chip *cur = g_chip_head;
 
         while (cur) {
             // only initialize if the callback exists
@@ -551,7 +554,7 @@ void init_soundchip()
                 }
                 // else everything initialized correctly
             }
-            cur = cur->next_soundchip;
+            cur = cur->next;
         }
     }
     UNLOCK_AUDIO();
@@ -565,8 +568,8 @@ void mixMute(Uint8 *stream, int length) { memset(stream, 0, length); }
 // USED WHEN: there is only 1 sound chip, then there is no need to do any mixing
 void mixNone(Uint8 *stream, int length)
 {
-    if (g_soundchip_head != NULL) {
-        memcpy(stream, g_soundchip_head->buffer, length);
+    if (g_chip_head != NULL) {
+        memcpy(stream, g_chip_head->buffer, length);
     }
 }
 
@@ -575,18 +578,18 @@ void mixNone(Uint8 *stream, int length)
 void mixWithMaxVolume(Uint8 *stream, int length)
 {
 #ifdef DEBUG
-    assert(g_soundchip_head);
+    assert(g_chip_head);
 #endif // DEBUG
 
     // this is a dangerous trick (casting one struct to another) in order to get
     // us extra speed
-    g_pMixBufs    = (struct mix_s *)g_soundchip_head;
+    g_pMixBufs    = (struct mix_s *)g_chip_head;
     g_pSampleDst  = stream;
     g_uBytesToMix = length;
     g_mix_func();
 
     /*
-    struct sounddef *cur;
+    struct chip *cur;
 
     // mix all sound chip buffers together
     // NOTE : this algorithm is accurate but NOT OPTIMIZED and probably should
@@ -595,14 +598,14 @@ void mixWithMaxVolume(Uint8 *stream, int length)
     for (int sample = 0; sample < (length >> 1); sample += 2)
     {
         Sint32 mixed_sample_1 = 0, mixed_sample_2 = 0;	// left/right channels
-        cur = g_soundchip_head;
+        cur = g_chip_head;
         while (cur)
         {
             mixed_sample_1 += LOAD_LIL_SINT16(((Sint16 *) cur->buffer) +
     sample);
             mixed_sample_2 += LOAD_LIL_SINT16(((Sint16 *) cur->buffer) + sample
     + 1);
-            cur = cur->next_soundchip;
+            cur = cur->next;
         }
 
         DO_CLIP(mixed_sample_1);
@@ -624,7 +627,7 @@ void mixWithMaxVolume(Uint8 *stream, int length)
 //  (this is the slowest callback)
 void mixWithMults(Uint8 *stream, int length)
 {
-    struct sounddef *cur;
+    struct chip *cur;
 
     // mix all sound chip buffers together
     // NOTE : this algorithm is accurate but NOT OPTIMIZED and probably should
@@ -634,18 +637,18 @@ void mixWithMults(Uint8 *stream, int length)
         Sint32 mixed_sample_1 = 0,
                mixed_sample_2 = 0; // left/right channels, 32-bit to support
                                    // adding many 16-bit samples
-        cur = g_soundchip_head;
+        cur = g_chip_head;
         while (cur) {
             // multiply by the volume and then dividing by the max volume (by
             // shifting right, which is much faster)
             mixed_sample_1 += (Sint16)(
                 (LOAD_LIL_SINT16(((Sint16 *)cur->buffer) + sample) * cur->uVolume[0]) >>
-                AUDIO_MAX_VOL_POWER);
+                MAX_VOL_POWER);
             mixed_sample_2 +=
                 (Sint16)((LOAD_LIL_SINT16(((Sint16 *)cur->buffer) + sample + 1) *
                           cur->uVolume[1]) >>
-                         AUDIO_MAX_VOL_POWER);
-            cur = cur->next_soundchip;
+                         MAX_VOL_POWER);
+            cur = cur->next;
         }
 
         DO_CLIP(mixed_sample_1);
@@ -657,10 +660,10 @@ void mixWithMults(Uint8 *stream, int length)
     }
 }
 
-void audio_callback(void *data, Uint8 *stream, int length)
+void callback(void *data, Uint8 *stream, int length)
 {
     // now go through the sound chips and mix them in
-    struct sounddef *cur = g_soundchip_head;
+    struct chip *cur = g_chip_head;
 
     // fill remaining buffer space for each sound chip
     while (cur) {
@@ -671,68 +674,68 @@ void audio_callback(void *data, Uint8 *stream, int length)
         cur->stream_callback(cur->buffer_pointer, cur->bytes_left, cur->internal_id);
         cur->buffer_pointer = cur->buffer;
         cur->bytes_left     = g_uSoundChipBufSize;
-        cur                 = cur->next_soundchip;
+        cur                 = cur->next;
     }
 
     // do the actual mixing now
     g_soundmix_callback(stream, length);
 }
 
-void audio_writedata(Uint8 id, Uint8 data)
+void writedata(Uint8 id, Uint8 data)
 {
-    // if sound isn't initialized, then the soundchips aren't initialized either
+    // if sound isn't initialized, then the chips aren't initialized either
     if (g_sound_initialized) {
         LOCK_AUDIO(); // safety precaution, we don't want callback running
                       // during this function
-        struct sounddef *cur = g_soundchip_head;
+        struct chip *cur = g_chip_head;
         while (cur) {
             if (cur->id == id) {
                 cur->writedata_callback(data, cur->internal_id);
             }
-            cur = cur->next_soundchip;
+            cur = cur->next;
         }
         UNLOCK_AUDIO();
     }
 }
 
 // in case audio_writedata doesn't cut it ...
-void audio_write_ctrl_data(unsigned int uCtrl, unsigned int uData, Uint8 id)
+void write_ctrl_data(unsigned int uCtrl, unsigned int uData, Uint8 id)
 {
-    // if sound isn't initialized, then the soundchips aren't initialized either
+    // if sound isn't initialized, then the chips aren't initialized either
     if (g_sound_initialized) {
         LOCK_AUDIO();
-        struct sounddef *cur = g_soundchip_head;
+        struct chip *cur = g_chip_head;
         while (cur) {
             if (cur->id == id) {
                 cur->write_ctrl_data_callback(uCtrl, uData, cur->internal_id);
             }
-            cur = cur->next_soundchip;
+            cur = cur->next;
         }
         UNLOCK_AUDIO();
     }
 }
 
-void set_soundchip_volume(Uint8 id, unsigned int uChannel, unsigned int uVolume)
+void set_chip_volume(Uint8 id, unsigned int uChannel, unsigned int uVolume)
 {
-    struct sounddef *cur = g_soundchip_head;
+    struct chip *cur = g_chip_head;
     while (cur) {
         if (cur->id == id) {
-            set_soundchip_volume(cur, uChannel, uVolume);
+            set_chip_volume(cur, uChannel, uVolume);
             break;
         }
-        cur = cur->next_soundchip;
+        cur = cur->next;
     }
 }
 
-void set_soundchip_volume(struct sounddef *cur, unsigned int uChannel, unsigned int uVolume)
+void set_chip_volume(struct chip *cur, unsigned int uChannel, unsigned int uVolume)
 {
     // safety check
-    if (uChannel < AUDIO_CHANNELS) {
+    if (uChannel < CHANNELS) {
         // safety check
-        if (uVolume <= AUDIO_MAX_VOLUME) {
+        if (uVolume <= MAX_VOLUME) {
             cur->uDriverVolume[uChannel] = uVolume;
             LOCK_AUDIO();
-            update_soundchip_volumes();
+            update_chip_volumes();
             UNLOCK_AUDIO();
         } else {
             LOGW << "ERROR: volume is out of range";
@@ -746,24 +749,24 @@ void set_soundchip_volume(struct sounddef *cur, unsigned int uChannel, unsigned 
     }
 }
 
-void set_soundchip_vldp_volume(unsigned int uVolume)
+void set_chip_vldp_volume(unsigned int uVolume)
 {
-    if (uVolume <= AUDIO_MAX_VOLUME) {
+    if (uVolume <= MAX_VOLUME) {
         g_uVolumeVLDP = uVolume;
         LOCK_AUDIO();
-        update_soundchip_volumes();
+        update_chip_volumes();
         UNLOCK_AUDIO();
     } else {
         LOGW << "request VLDP volume is out of range";
     }
 }
 
-void set_soundchip_nonvldp_volume(unsigned int uVolume)
+void set_chip_nonvldp_volume(unsigned int uVolume)
 {
-    if (uVolume <= AUDIO_MAX_VOLUME) {
+    if (uVolume <= MAX_VOLUME) {
         g_uVolumeNonVLDP = uVolume;
         LOCK_AUDIO();
-        update_soundchip_volumes();
+        update_chip_volumes();
         UNLOCK_AUDIO();
     } else {
         LOGW << "request non-VLDP volume is out of range";
@@ -771,7 +774,7 @@ void set_soundchip_nonvldp_volume(unsigned int uVolume)
 }
 
 // IMPORTANT : assumes LOCK_AUDIO has already been called!!!!
-void update_soundchip_volumes()
+void update_chip_volumes()
 {
     bool bNonMaxVolume           = false;
     unsigned int uSoundchipCount = 0;
@@ -783,10 +786,10 @@ void update_soundchip_volumes()
     // If sound is not muted then do some calculations
     if (!g_bSoundMuted) {
 
-        struct sounddef *cur = g_soundchip_head;
+        struct chip *cur = g_chip_head;
         while (cur) {
             // if this isn't a VLDP chip ...
-            if (cur->type != SOUNDCHIP_VLDP) {
+            if (cur->type != CHIP_VLDP) {
                 cur->uBaseVolume[0] = cur->uBaseVolume[1] = g_uVolumeNonVLDP;
             }
             // else this is the VLDP chip
@@ -799,18 +802,18 @@ void update_soundchip_volumes()
                 // BaseVolume,
                 //  in case the user requested that the volume be 50% of
                 //  whatever it would normally be.
-                // If the base volume is AUDIO_MAX_VOLUME, then the new volume
+                // If the base volume is MAX_VOLUME, then the new volume
                 // becomes uVolume
                 cur->uVolume[uChannel] =
-                    (cur->uDriverVolume[uChannel] * cur->uBaseVolume[uChannel]) / AUDIO_MAX_VOLUME;
+                    (cur->uDriverVolume[uChannel] * cur->uBaseVolume[uChannel]) / MAX_VOLUME;
 
                 // if we've wound up with a volume that is less than the max
-                if (cur->uVolume[uChannel] < AUDIO_MAX_VOLUME) {
+                if (cur->uVolume[uChannel] < MAX_VOLUME) {
                     bNonMaxVolume = true;
                 }
             }
 
-            cur = cur->next_soundchip;
+            cur = cur->next;
             ++uSoundchipCount;
         }
 
@@ -820,7 +823,7 @@ void update_soundchip_volumes()
         } else if (uSoundchipCount > 1) {
             g_soundmix_callback = mixWithMaxVolume;
         }
-        // just 1 soundchip? we can mix super fast in that case
+        // just 1 chip? we can mix super fast in that case
         else {
             g_soundmix_callback = mixNone;
         }
@@ -832,35 +835,35 @@ void update_soundchip_volumes()
     }
 }
 
-void shutdown_soundchip()
+void shutdown_chip()
 {
 #ifdef DEBUG
     assert(g_sound_initialized);
 #endif
     LOCK_AUDIO(); // safety precaution, we don't want callback running during
                   // this function
-    struct sounddef *cur = g_soundchip_head;
+    struct chip *cur = g_chip_head;
     while (cur) {
         // if there is a shutdown callback defined, call it
         if (cur->shutdown_callback) {
             cur->shutdown_callback(cur->internal_id);
         }
-        struct sounddef *temp = cur;
-        cur                   = cur->next_soundchip;
+        struct chip *temp = cur;
+        cur                   = cur->next;
         delete[] temp->buffer;
         delete temp;
     }
     UNLOCK_AUDIO();
 }
 
-void update_soundbuffer()
+void update_buffer()
 {
     // we don't want to update the sound buffer, if sound isn't initialized
     if (g_sound_initialized) {
         // to ensure that the audio callback doesn't get called while we're in
         // this function
         LOCK_AUDIO();
-        struct sounddef *cur = g_soundchip_head;
+        struct chip *cur = g_chip_head;
         while (cur) {
             // only update if needed, to save CPU cycles
             if (cur->bNeedsConstantUpdates) {
@@ -873,8 +876,10 @@ void update_soundbuffer()
                 // should we handle this some other way?
             }
             // else doesn't need to be updated so often, so don't do it ...
-            cur = cur->next_soundchip;
+            cur = cur->next;
         }
         UNLOCK_AUDIO();
     }
+}
+
 }

@@ -43,6 +43,8 @@
 
 using namespace std;
 
+namespace video 
+{
 unsigned int g_vid_width = 640, g_vid_height = 480; // default video width and
                                                     // video height
 #ifdef DEBUG
@@ -516,3 +518,9 @@ void vid_toggle_fullscreen()
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
 
 bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
+
+unsigned int get_draw_width() { return g_draw_width; }
+
+unsigned int get_draw_height() { return g_draw_height; }
+
+}

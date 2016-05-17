@@ -85,10 +85,10 @@ cobraconv::cobraconv()
     cpu.mem = m_cpumem2;
     add_cpu(&cpu); // add 6502 cpu
 
-    struct sounddef soundchip;
-    soundchip.type = SOUNDCHIP_AY_3_8910;
+    struct sound::chip soundchip;
+    soundchip.type = sound::CHIP_AY_3_8910;
     soundchip.hz   = 1500000; // Bega runs the sound chips at 1.5 MHz
-    m_soundchip_id = add_soundchip(&soundchip);
+    m_soundchip_id = sound::add_chip(&soundchip);
 
     // the ROM expects searching to be extra slow or it will lock up after death
     // scenes
@@ -339,7 +339,7 @@ void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
         break;
     case 1:
         if (addr == 0x2000) {
-            audio_write_ctrl_data(m_soundchip_address_latch, value, m_soundchip_id);
+            sound::write_ctrl_data(m_soundchip_address_latch, value, m_soundchip_id);
         } else if (addr == 0x4000) {
             m_soundchip_address_latch = value;
         } else {

@@ -471,37 +471,37 @@ void astron::cpu_mem_write(Uint16 addr, Uint8 value)
 
         if (m_game_type == GAME_ASTRON) {
             if (((value & 0x0f) == 0x00) && !(value & 0x20)) {
-                sound_play(S_AB_PLAYER_SHIP);
+                sound::play(S_AB_PLAYER_SHIP);
             } else if ((value & 0x0f) == 0xb) {
-                sound_play(S_AB_PLAYER_FIRE);
+                sound::play(S_AB_PLAYER_FIRE);
             } else if ((value & 0x0f) == 0xa) {
-                sound_play(S_AB_ENEMY_FIRE);
+                sound::play(S_AB_ENEMY_FIRE);
             } else if ((value & 0x0f) == 0xf) {
-                sound_play(S_AB_ALARM1);
+                sound::play(S_AB_ALARM1);
             } else if ((value & 0x0f) == 0xe) {
-                sound_play(S_AB_ALARM2);
+                sound::play(S_AB_ALARM2);
             } else if ((value & 0x0f) == 0xd) {
-                sound_play(S_AB_ALARM3);
+                sound::play(S_AB_ALARM3);
             } else if ((value & 0x0f) == 0xc) {
-                sound_play(S_AB_ALARM4);
+                sound::play(S_AB_ALARM4);
             }
         } else if (m_game_type == GAME_GALAXY) {
             if ((value & 0x0f) == 0xb) {
-                sound_play(S_GR_FIRE);
+                sound::play(S_GR_FIRE);
             } else if ((value & 0x0f) == 0x9) {
-                sound_play(S_GR_ENEMY_CANNON);
+                sound::play(S_GR_ENEMY_CANNON);
             } else if ((value & 0x0f) == 0x8) {
-                sound_play(S_GR_ENEMY_MINION);
+                sound::play(S_GR_ENEMY_MINION);
             } else if ((value & 0x0f) == 0xa) {
-                sound_play(S_GR_ENEMY_ATTACK);
+                sound::play(S_GR_ENEMY_ATTACK);
             } else if ((value & 0x0f) == 0xf) {
-                sound_play(S_GR_ALARM1);
+                sound::play(S_GR_ALARM1);
             } else if ((value & 0x0f) == 0xe) {
-                sound_play(S_GR_ALARM2);
+                sound::play(S_GR_ALARM2);
             } else if ((value & 0x0f) == 0xd) {
-                sound_play(S_GR_ALARM3);
+                sound::play(S_GR_ALARM3);
             } else if ((value & 0x0f) == 0xc) {
-                sound_play(S_GR_ALARM4);
+                sound::play(S_GR_ALARM4);
             }
         }
 

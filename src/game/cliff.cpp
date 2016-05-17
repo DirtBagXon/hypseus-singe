@@ -218,13 +218,13 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
             // the lower bits control which sound to play
             switch (m_uLastSoundIdx) {
             case 1:
-                sound_play(S_C_CORRECT);
+                sound::play(S_C_CORRECT);
                 break;
             case 2:
-                sound_play(S_C_WRONG);
+                sound::play(S_C_WRONG);
                 break;
             case 3:
-                sound_play(S_C_STARTUP);
+                sound::play(S_C_STARTUP);
                 break;
             default:
                 // no sound

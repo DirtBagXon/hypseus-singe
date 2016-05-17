@@ -107,7 +107,7 @@ bool thayers::init()
     // The "-nosound" arg could have been specified, so don't crank up
     // the synthesizer unless audio is enabled. If -notqspeech was present
     // on the command line, m_use_speech will be false.
-    if (is_sound_enabled()) {
+    if (sound::is_enabled()) {
         result = ssi263_init(m_use_speech);
     } else {
         // The -nosound option must have been present.
@@ -639,19 +639,19 @@ void thayers::process_keydown(SDL_Keycode key)
             break;
 
         case SDLK_PAGEUP:
-            if (is_sound_enabled()) {
+            if (sound::is_enabled()) {
                 // speech volume up
-                volume += volume >= AUDIO_MAX_VOLUME ? 0 : 8;
-                set_soundchip_nonvldp_volume(volume);
+                volume += volume >= sound::MAX_VOLUME ? 0 : 8;
+                sound::set_chip_nonvldp_volume(volume);
             }
 
             break;
 
         case SDLK_PAGEDOWN:
-            if (is_sound_enabled()) {
+            if (sound::is_enabled()) {
                 // speech volume down
                 volume -= volume == 0 ? 0 : 8;
-                set_soundchip_nonvldp_volume(volume);
+                sound::set_chip_nonvldp_volume(volume);
             }
 
             break;

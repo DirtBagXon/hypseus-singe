@@ -87,8 +87,8 @@ int dac_init(unsigned int uCpuFreq)
 
 #ifdef DEBUG
     // a couple of assumptions...
-    assert(AUDIO_CHANNELS == 2);
-    assert(AUDIO_BYTES_PER_SAMPLE == 4);
+    assert(sound::CHANNELS == 2);
+    assert(sound::BYTES_PER_SAMPLE == 4);
     assert(g_uDACCount == 0); // not designed to handle more than 1 DAC
 #endif
 
@@ -104,7 +104,7 @@ int dac_init(unsigned int uCpuFreq)
     }
 
     g_uCyclesPerInterval = uCpuFreq / 1000; // each interval is 1 ms
-    g_dSamplesPerCycle   = ((double)AUDIO_FREQ) / uCpuFreq;
+    g_dSamplesPerCycle   = ((double)sound::FREQ) / uCpuFreq;
 
     ++g_uDACCount;
     return 0;
@@ -162,7 +162,7 @@ void dac_get_stream(Uint8 *stream, int length, int internal_id)
 {
 #ifdef DEBUG
     // make sure this is in the proper format (stereo 16-bit)
-    assert((length % AUDIO_BYTES_PER_SAMPLE) == 0);
+    assert((length % sound::BYTES_PER_SAMPLE) == 0);
 #endif
 
     /*
@@ -205,7 +205,7 @@ void dac_get_stream(Uint8 *stream, int length, int internal_id)
     }
 
     // length is in bytes, we want to know how many samples we've just sent
-    unsigned int total_samples = (unsigned int)length / AUDIO_BYTES_PER_SAMPLE;
+    unsigned int total_samples = (unsigned int)length / sound::BYTES_PER_SAMPLE;
 
     // if we have leftover samples
     if (g_uDACSampleCount > total_samples) {

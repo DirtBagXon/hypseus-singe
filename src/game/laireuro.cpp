@@ -43,7 +43,7 @@ Uint8 g_soundchip_id;
 laireuro::laireuro()
 {
     struct cpudef cpu;
-    struct sounddef sound;
+    struct sound::chip sound;
 
     memset(&g_ctc, 0, sizeof(ctc_chip));
 
@@ -65,9 +65,9 @@ laireuro::laireuro()
 
     m80_set_irq_callback(laireuro_irq_callback);
 
-    memset(&sound, 0, sizeof(sound));
-    sound.type     = SOUNDCHIP_TONEGEN;
-    g_soundchip_id = add_soundchip(&sound);
+    memset(&sound, 0, sizeof(sound::chip));
+    sound.type     = sound::CHIP_TONEGEN;
+    g_soundchip_id = sound::add_chip(&sound);
 
     m_video_overlay_width       = LAIREURO_OVERLAY_W;
     m_video_overlay_height      = LAIREURO_OVERLAY_H;
@@ -684,7 +684,7 @@ void ctc_update_period(Uint8 channel)
         }
         if (channel == 0) // sound
         {
-            audio_write_ctrl_data(1, (Uint32)(1000 / new_period / 2), g_soundchip_id);
+            sound::write_ctrl_data(1, (Uint32)(1000 / new_period / 2), g_soundchip_id);
         }
 #ifdef DEBUG
         char s[81] = {0};

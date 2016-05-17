@@ -258,7 +258,7 @@ class game
     //laserdisc (same value as fps, just re-arranged)
     Uint8 m_game_type;   // which game it is
     Uint32 m_num_sounds; // how many samples the game has to load
-    const char *m_sound_name[MAX_NUM_SOUNDS]; // names for each sound file
+    const char *m_sound_name[sound::MAX_NUM]; // names for each sound file
     const char *m_game_issues; // description of any issues the game has (NULL
                                // if no issues)
     bool m_cheat_requested;    // whether user has requested any cheats to be

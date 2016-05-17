@@ -29,16 +29,26 @@
 #include <SDL.h>
 #include "SDL_FontCache.h"
 
-#define LED_RANGE 17 // 16 is normal, the 17th is for the 'A' in SAE
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define OVERLAY_LED_WIDTH 8
-#define OVERLAY_LED_HEIGHT 13
+namespace video
+{
+// 16 is normal, the 17th is for the 'A' in SAE
+static const uint8_t LED_RANGE = 17;
+static const uint8_t OVERLAY_LED_WIDTH = 8;
+static const uint8_t OVERLAY_LED_HEIGHT = 13;
+// width of each LDP1450 overlay character
+static const uint8_t OVERLAY_LDP1450_WIDTH = 16;
+ // height of each LDP1450 overlay character
+static const uint8_t OVERLAY_LDP1450_HEIGHT = 16;
+ // spacing between LDP1450 overlay characters
+static const uint8_t OVERLAY_LDP1450_CHARACTER_SPACING = 15;
+// spacing between LDP1450 overlay lines
+static const uint8_t OVERLAY_LDP1450_LINE_SPACING = 16;
 
-#define OVERLAY_LDP1450_WIDTH 16 // width of each LDP1450 overlay character
-#define OVERLAY_LDP1450_HEIGHT 16 // height of each LDP1450 overlay character
-#define OVERLAY_LDP1450_CHARACTER_SPACING                                      \
-    15 // spacing between LDP1450 overlay characters
-#define OVERLAY_LDP1450_LINE_SPACING 16 // spacing between LDP1450 overlay lines
+// dimensions of small font
+static const uint8_t FONT_SMALL_W = 6;
+static const uint8_t FONT_SMALL_H = 13;
 
 enum {
     B_DL_PLAYER1,
@@ -55,12 +65,6 @@ enum {
     FONT_SMALL,
     FONT_BIG
 }; // font enumeration, dependent on which order font .bmp's are loaded in
-
-// dimensions of small font
-#define FONT_SMALL_W 6
-#define FONT_SMALL_H 13
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool init_display();
 
@@ -112,4 +116,8 @@ void set_force_aspect_ratio(bool bEnabled);
 
 bool get_force_aspect_ratio();
 
+unsigned int get_draw_width();
+unsigned int get_draw_height();
+
+}
 #endif

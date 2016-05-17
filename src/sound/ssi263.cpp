@@ -378,7 +378,7 @@ bool ssi263_init(bool init_speech)
     if (m_thayers) {
         if (init_speech) {
             // Request voice to have an F0 base frequency of 110Hz.
-            tqsynth_init(AUDIO_FREQ, AUDIO_FORMAT, AUDIO_CHANNELS, 1100);
+            tqsynth_init(sound::FREQ, sound::FORMAT, sound::CHANNELS, 1100);
             m_speech_enabled = true;
         }
 
@@ -396,7 +396,7 @@ bool g_bSamplePlaying = false;
 // but wanted tqsynth to be somewhat independent of the Hypseus code).
 void ssi263_say_phones(char *phonemes, int len)
 {
-    sample_s the_sample;
+    sound::sample_s the_sample;
 
     the_sample.pu8Buf  = NULL;
     the_sample.uLength = 0;
@@ -405,7 +405,7 @@ void ssi263_say_phones(char *phonemes, int len)
         g_bSamplePlaying = true; // so that we don't overlap samples (only
                                  // happens at the very beginning of boot-up)
         samples_play_sample(the_sample.pu8Buf, the_sample.uLength,
-                            AUDIO_CHANNELS, -1, ssi263_finished_callback);
+                            sound::CHANNELS, -1, ssi263_finished_callback);
 
         // Wait for sample to stop playing
         // NOTE : This is a hack and isn't proper emulation.

@@ -250,10 +250,10 @@ lair2::lair2()
     add_cpu(&cpu); // add this cpu to the list (it will be our only one)
 
     // add our awesome sound chip!
-    struct sounddef def;
-    def.type       = SOUNDCHIP_PC_BEEPER;
+    struct sound::chip def;
+    def.type       = sound::CHIP_PC_BEEPER;
     def.hz         = 0; // not used
-    m_soundchip_id = add_soundchip(&def);
+    m_soundchip_id = sound::add_chip(&def);
     m_port61_val   = 0;
 
     m_disc_fps  = 29.97;
@@ -738,7 +738,7 @@ void lair2::port_write(Uint16 port, Uint8 value)
         if (value == 0xb6 && m_prefer_samples) m_sample_trigger = false;
     case 0x61:
         if (!m_prefer_samples)
-            audio_write_ctrl_data(port, value, m_soundchip_id);
+            sound::write_ctrl_data(port, value, m_soundchip_id);
         else {
             if (port == 0x42) {
                 if (m_sample_trigger) {
@@ -749,7 +749,7 @@ void lair2::port_write(Uint16 port, Uint8 value)
                         }
                     }
 
-                    sound_play(g_sound_map[value]);
+                    sound::play(g_sound_map[value]);
                 } else
                     m_sample_trigger = true;
             }

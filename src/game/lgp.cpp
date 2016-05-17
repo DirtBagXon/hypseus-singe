@@ -79,13 +79,13 @@ lgp::lgp()
     cpu.mem = m_cpumem2;
     add_cpu(&cpu); // add a z80
 
-    struct sounddef soundchip;
-    soundchip.type  = SOUNDCHIP_AY_3_8910;
+    struct sound::chip soundchip;
+    soundchip.type  = sound::CHIP_AY_3_8910;
     soundchip.hz    = 2500000; // complete guess
-    m_soundchip1_id = add_soundchip(&soundchip);
-    m_soundchip2_id = add_soundchip(&soundchip);
-    m_soundchip3_id = add_soundchip(&soundchip);
-    m_soundchip4_id = add_soundchip(&soundchip);
+    m_soundchip1_id = sound::add_chip(&soundchip);
+    m_soundchip2_id = sound::add_chip(&soundchip);
+    m_soundchip3_id = sound::add_chip(&soundchip);
+    m_soundchip4_id = sound::add_chip(&soundchip);
 
     m_transparent_color = 0;
     m_ldp_write_latch   = 0xff;
@@ -259,25 +259,25 @@ void lgp::cpu_mem_write(Uint16 addr, Uint8 value)
         else if (addr == 0x8400) {
             m_soundchip1_address_latch = value;
         } else if (addr == 0x8401) {
-            audio_write_ctrl_data(m_soundchip1_address_latch, value, m_soundchip1_id);
+            sound::write_ctrl_data(m_soundchip1_address_latch, value, m_soundchip1_id);
         }
         // AY-3-8910 #2
         else if (addr == 0x8402) {
             m_soundchip2_address_latch = value;
         } else if (addr == 0x8403) {
-            audio_write_ctrl_data(m_soundchip2_address_latch, value, m_soundchip2_id);
+            sound::write_ctrl_data(m_soundchip2_address_latch, value, m_soundchip2_id);
         }
         // AY-3-8910 #3
         else if (addr == 0x8404) {
             m_soundchip3_address_latch = value;
         } else if (addr == 0x8405) {
-            audio_write_ctrl_data(m_soundchip3_address_latch, value, m_soundchip3_id);
+            sound::write_ctrl_data(m_soundchip3_address_latch, value, m_soundchip3_id);
         }
         // AY-3-8910 #1
         else if (addr == 0x8406) {
             m_soundchip4_address_latch = value;
         } else if (addr == 0x8407) {
-            audio_write_ctrl_data(m_soundchip4_address_latch, value, m_soundchip4_id);
+            sound::write_ctrl_data(m_soundchip4_address_latch, value, m_soundchip4_id);
         }
         // unknown
         else if (addr >= 0x8800 && addr <= 0x8803) {

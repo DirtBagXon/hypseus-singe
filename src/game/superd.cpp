@@ -161,12 +161,12 @@ superd::superd()
     cpu.mem = m_cpumem;
     add_cpu(&cpu); // add this cpu to the list
 
-    struct sounddef soundchip;
+    struct sound::chip soundchip;
 
-    soundchip.type = SOUNDCHIP_SN76496; // Super Don uses the SN76496 sound chip
+    soundchip.type = sound::CHIP_SN76496; // Super Don uses the SN76496 sound chip
     soundchip.hz   = SUPERD_CPU_HZ / 2; // the SN76496 uses half the rate that the
                                         // cpu uses on Super Don
-    m_soundchip_id = add_soundchip(&soundchip);
+    m_soundchip_id = sound::add_chip(&soundchip);
 
 #ifdef CPU_DEBUG
     addr_names = superd_addr_names;
@@ -311,7 +311,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
     case 0x04:
         if (!m_prefer_samples) {
             // Send data to sound chip
-            audio_writedata(m_soundchip_id, Value);
+            sound::writedata(m_soundchip_id, Value);
         }
 
         else {
@@ -330,7 +330,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
             // sound.
             if (Value == 0x08) {
                 if (snd_coin_count == 0) {
-                    sound_play(S_SD_COIN);
+                    sound::play(S_SD_COIN);
                 }
 
                 snd_coin_count++;
@@ -340,7 +340,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
             }
             if (Value == 0x11) {
                 if (snd_succeed_count == 0) {
-                    sound_play(S_SD_SUCCEED);
+                    sound::play(S_SD_SUCCEED);
                 }
 
                 snd_succeed_count++;
@@ -350,7 +350,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
             }
             if (Value == 0xc1) {
                 printline("Playing fail sound");
-                sound_play(S_SD_FAIL);
+                sound::play(S_SD_FAIL);
             }
 
             // alternate sounds for alternate ROM set (same counter should be
@@ -359,7 +359,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
             // is quick
             if (Value == 0x12) {
                 if (snd_succeed_count == 0) {
-                    sound_play(S_SDA_SUCCESS_LO);
+                    sound::play(S_SDA_SUCCESS_LO);
                 }
 
                 snd_succeed_count++;
@@ -370,7 +370,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
 
             if (Value == 0x0F) {
                 if (snd_succeed_count == 0) {
-                    sound_play(S_SDA_SUCCESS_HI);
+                    sound::play(S_SDA_SUCCESS_HI);
                 }
 
                 snd_succeed_count++;

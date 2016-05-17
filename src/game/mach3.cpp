@@ -118,15 +118,15 @@ mach3::mach3()
     cpu.mem = m_cpumem3;
     add_cpu(&cpu); // add second sound 6502 cpu
 
-    struct sounddef soundchip;
-    soundchip.type  = SOUNDCHIP_AY_3_8910;
+    struct sound::chip soundchip;
+    soundchip.type  = sound::CHIP_AY_3_8910;
     soundchip.hz    = MACH3_CPU_HZ / 10;         // 2 MHz clock
-    m_soundchip1_id = add_soundchip(&soundchip); // first ay-3-8910
-    m_soundchip2_id = add_soundchip(&soundchip); // second ay-3-8910
+    m_soundchip1_id = sound::add_chip(&soundchip); // first ay-3-8910
+    m_soundchip2_id = sound::add_chip(&soundchip); // second ay-3-8910
 
-    soundchip.type = SOUNDCHIP_DAC;
+    soundchip.type = sound::CHIP_DAC;
     soundchip.hz   = MACH3_CPU_HZ / 20; // Hz of the 6502 that controls it
-    m_dac_id       = add_soundchip(&soundchip); // the DAC
+    m_dac_id       = sound::add_chip(&soundchip); // the DAC
 
     m_disc_fps  = 29.97;
     m_game_type = GAME_MACH3;
@@ -366,7 +366,7 @@ void mach3::do_nmi()
                     m_current_targetdata = (cur_targetdata_packet - 44) * 1024 + 1; // skip first byte
                     m_targetdata_offset  = 0x0000;
                     m_audio_ready_bit    = 1;
-                    //					sound_play(0);
+                    //					sound::play(0);
                 }
             }
 
@@ -583,7 +583,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
             printline(s);
         }
         */
-        //		sound_play(Value);
+        //		sound::play(Value);
 
         m_sounddata_latch1.push(Value & 0x3F);
         cpu_generate_irq(1, 0); // generate IRQ for cpu #1
@@ -775,7 +775,7 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 unsigned int uDiff = (unsigned int)(u64CurCycs - m_dac_last_cycs);
                 m_dac_last_cycs    = u64CurCycs;
 
-                audio_write_ctrl_data(uDiff, Value, m_dac_id);
+                sound::write_ctrl_data(uDiff, Value, m_dac_id);
                 m_dac_last_val = Value;
             }
         } else {
@@ -807,7 +807,7 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
                         m_psg_latch);
                         printline(s);
                         */
-                        audio_write_ctrl_data(m_soundctrl1, m_psg_latch, m_soundchip1_id);
+                        sound::write_ctrl_data(m_soundctrl1, m_psg_latch, m_soundchip1_id);
                     }
                 } else {
                     /* bit 4 goes to the 8913 BC1 pin */
@@ -819,7 +819,7 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
                         m_psg_latch);
                         printline(s);
                         */
-                        audio_write_ctrl_data(m_soundctrl2, m_psg_latch, m_soundchip2_id);
+                        sound::write_ctrl_data(m_soundctrl2, m_psg_latch, m_soundchip2_id);
                     }
                 }
             }

@@ -99,7 +99,7 @@
 interstellar::interstellar()
 {
     struct cpudef cpu;
-    struct sounddef soundchip;
+    struct sound::chip soundchip;
 
     m_shortgamename = "interstellar";
     m_disc_fps      = 29.97;
@@ -138,12 +138,12 @@ interstellar::interstellar()
 
     cpu_change_interleave(5);
 
-    memset(&soundchip, 0, sizeof(struct sounddef));
-    soundchip.type = SOUNDCHIP_SN76496; // Interstellar uses 2 SN76496 sound
+    memset(&soundchip, 0, sizeof(struct sound::chip));
+    soundchip.type = sound::CHIP_SN76496; // Interstellar uses 2 SN76496 sound
                                         // chips
     soundchip.hz    = INTERSTELLAR_CPU_SPEED;    // unverified
-    m_soundchip1_id = add_soundchip(&soundchip); // add both chips
-    m_soundchip2_id = add_soundchip(&soundchip);
+    m_soundchip1_id = sound::add_chip(&soundchip); // add both chips
+    m_soundchip2_id = sound::add_chip(&soundchip);
 
     banks[0] = 0x00; // DON'T CHANGE, MUST BE 0x00!
     banks[1] = 0x00; // DON'T CHANGE, MUST BE 0x00!
@@ -529,14 +529,14 @@ void interstellar::port_write(Uint16 port, Uint8 value)
                     ((value & 0x4) << 3) | ((value & 0x8) << 1) |
                     ((value & 0x10) >> 1) | ((value & 0x20) >> 3) |
                     ((value & 0x40) >> 5) | ((value & 0x80) >> 7);
-            audio_writedata(m_soundchip1_id, value);
+            sound::writedata(m_soundchip1_id, value);
             break;
         case 0x02: // write data to sn79489 #2 (rear?)
             value = ((value & 0x1) << 7) | ((value & 0x2) << 5) |
                     ((value & 0x4) << 3) | ((value & 0x8) << 1) |
                     ((value & 0x10) >> 1) | ((value & 0x20) >> 3) |
                     ((value & 0x40) >> 5) | ((value & 0x80) >> 7);
-            audio_writedata(m_soundchip2_id, value);
+            sound::writedata(m_soundchip2_id, value);
             break;
         default:
             sprintf(s, "INTERSTELLAR: CPU 1: Unsupported Port Output-> %x:%x "

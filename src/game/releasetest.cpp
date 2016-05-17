@@ -614,52 +614,52 @@ void releasetest::test_samples()
     //	unsigned int uTimer = GET_TICKS();
 
     printline("Playing samples in quick succession..");
-    sound_play(1);
+    sound::play(1);
     make_delay(100);
-    sound_play(2);
+    sound::play(2);
     make_delay(100);
-    sound_play(0);
+    sound::play(0);
     make_delay(WAIT_MS);
 
     printline("Playing 1 sample alone..");
-    sound_play(0);
+    sound::play(0);
     make_delay(WAIT_MS);
 
     printline("Playing 2 samples together...");
-    sound_play(0);
-    sound_play(1);
+    sound::play(0);
+    sound::play(1);
     make_delay(WAIT_MS);
 
     printline("Playing 1 sample twice...");
-    sound_play(0);
-    sound_play(0);
+    sound::play(0);
+    sound::play(0);
     make_delay(WAIT_MS);
 
     printline("Playing 1 sample thrice...");
-    sound_play(0);
-    sound_play(0);
-    sound_play(0);
+    sound::play(0);
+    sound::play(0);
+    sound::play(0);
     make_delay(WAIT_MS);
 
     printline("Playing 3 samples simultaneously...");
-    sound_play(0);
-    sound_play(1);
-    sound_play(2);
+    sound::play(0);
+    sound::play(1);
+    sound::play(2);
     make_delay(WAIT_MS);
 
     printline("Playing 1 sample");
-    sound_play(1);
+    sound::play(1);
     make_delay(WAIT_MS);
 
     printline("Playing 2 samples");
-    sound_play(1);
-    sound_play(1);
+    sound::play(1);
+    sound::play(1);
     make_delay(WAIT_MS);
 
     printline("Playing 3 samples");
-    sound_play(1);
-    sound_play(1);
-    sound_play(1);
+    sound::play(1);
+    sound::play(1);
+    sound::play(1);
     make_delay(WAIT_MS);
 }
 
@@ -691,7 +691,7 @@ void releasetest::test_sound_mixing()
     iSlot = samples_play_sample(u8Buf, sizeof(u8Buf), 2, -1, NULL);
     if (iSlot >= 0) {
         // test the sample mixer passed through the main audio mixer
-        audio_callback(NULL, u8Stream, sizeof(u8Stream));
+        sound::callback(NULL, u8Stream, sizeof(u8Stream));
 
         // these should be the same ...
         if (memcmp(u8Stream, u8Buf, sizeof(u8Buf)) == 0) {
@@ -707,7 +707,7 @@ void releasetest::test_sound_mixing()
     int iSlot2 = samples_play_sample(u8Buf, sizeof(u8Buf), 2, -1, NULL);
     if ((iSlot >= 0) && (iSlot2 >= 0)) {
         // test the sample mixer passed through the main audio mixer
-        audio_callback(NULL, u8Stream, sizeof(u8Stream));
+        sound::callback(NULL, u8Stream, sizeof(u8Stream));
 
         // these should be the same ...
         if (memcmp(u8Stream, u8BufClipped, sizeof(u8Buf)) == 0) {
