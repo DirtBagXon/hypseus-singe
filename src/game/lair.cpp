@@ -92,7 +92,7 @@ lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
                                        // video overlay
     m_video_overlay_needs_update = false;
 
-    ldv1000_enable_instant_seeking(); // make the LD-V1000 perform instantaneous
+    ldv1000::enable_instant_seeking(); // make the LD-V1000 perform instantaneous
                                       // seeks because we can
     m_status_strobe_timer = 0;
     m_uses_pr7820         = false; // only used by lairalt()
@@ -582,7 +582,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 if (m_uses_pr7820) {
                     write_pr7820(Value);
                 } else {
-                    write_ldv1000(Value);
+                    ldv1000::write(Value);
                 }
                 break;
 
@@ -696,7 +696,7 @@ Uint8 lair::cpu_mem_read(Uint16 Addr)
             result = read_C010();
             break;
         case 0xC020:
-            result = read_ldv1000();
+            result = ldv1000::read();
             break;
         default:
             result = m_cpumem[Addr];
@@ -1041,7 +1041,7 @@ void lair::input_disable(Uint8 move)
 void lair::OnVblank()
 {
     // in order to make OnLDV1000LineChange work
-    ldv1000_report_vsync();
+    ldv1000::report_vsync();
 }
 
 void lair::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)

@@ -47,7 +47,7 @@
 #include "generic_z80.h"
 #include "cop.h"
 #include "x86/i86intf.h"
-#include "../ldp-in/ldv1000.h"	// for ldv1000_reset for strobe stuff
+#include "../ldp-in/ldv1000.h"	// for ldv1000::in::reset for strobe stuff
 #include "../ldp-in/ldp1000.h"	// for ldp1000_reset
 #include "../ldp-in/vp931.h"
 
@@ -318,7 +318,7 @@ void cpu_init()
 	//  CPUs if they are implemented correctly.
 	cpu_reset();
 
-	reset_ldv1000();	// calculate strobe stuff, most games won't need this but it doesn't hurt
+    ldv1000::reset();	// calculate strobe stuff, most games won't need this but it doesn't hurt
 	reset_ldp1000();	// calculate ACK latency stuff, most games won't need this but it doesn't hurt
 	reset_vp931();
 }

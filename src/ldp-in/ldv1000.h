@@ -25,29 +25,31 @@
 #ifndef LDV1000_H
 #define LDV1000_H
 
-unsigned char read_ldv1000();
-void write_ldv1000(unsigned char value);
+namespace ldv1000
+{
+unsigned char read();
+void write(unsigned char value);
 void pre_display_disable();
 void pre_display_enable();
-void ldv1000_enable_instant_seeking();
+void enable_instant_seeking();
 void clear(void);
 Uint16 get_buffered_frame(void);
-void ldv1000_add_digit(char);
+void add_digit(char);
 void pre_audio1();
 void pre_audio2();
 
-void ldv1000_report_vsync();
-bool ldv1000_is_vsync_active();
-bool ldv1000_is_status_strobe_active();
-bool ldv1000_is_command_strobe_active();
+void report_vsync();
+bool is_vsync_active();
+bool is_status_strobe_active();
+bool is_command_strobe_active();
 
-void reset_ldv1000();
+void reset();
 
 // so cobraconv can change this vlaue :)
-// (this must be called _before_ reset_ldv1000!)
-void ldv1000_set_seconds_per_search(double d);
+// (this must be called _before_ reset!)
+void set_seconds_per_search(double d);
 
 // for the cpu debugger's benefit
-void print_ldv1000_info();
-
+void print_info();
+}
 #endif

@@ -72,7 +72,7 @@ thayers::thayers() : m_pScoreboard(NULL)
     add_cpu(&cpu);
 
     m_irq_status = 0x3f;
-    ldv1000_enable_instant_seeking();
+    ldv1000::enable_instant_seeking();
     m_use_speech = true; // Even though not truly emulated, speech synthesis is
                          // the default.
     m_show_speech_subtitle = false; // Flag to toggle on/off subtitled speech
@@ -237,7 +237,7 @@ void thayers::do_irq(unsigned int which)
 {
     // if this function is called, it means it's time for another simulated
     // vsync
-    ldv1000_report_vsync();
+    ldv1000::report_vsync();
 }
 
 // does anything special needed to send an IRQ
@@ -309,7 +309,7 @@ Uint8 thayers::port_read(Uint16 port)
     //	case 0xe0:	// Doesn't really exist... not in schematics
     //		break;
     case 0xf0: // Read Data from LD-V1000
-        result = read_ldv1000();
+        result = ldv1000::read();
         break;
     case 0xf1: // DIP Switch B, Coin Slots, READY Status
                // Bits 0-3 Switch B.
@@ -322,12 +322,12 @@ Uint8 thayers::port_read(Uint16 port)
                                   // indicate that they are not active
 
         // if status strobe is active ..
-        if (ldv1000_is_status_strobe_active()) {
+        if (ldv1000::is_status_strobe_active()) {
             result &= 0xBF; // enable status strobe (clear bit 6)
         }
 
         // if command strobe is active ..
-        else if (ldv1000_is_command_strobe_active()) {
+        else if (ldv1000::is_command_strobe_active()) {
             result &= 0x7F; // enable command strobe (clear bit 7)
         }
         break;
@@ -396,7 +396,7 @@ void thayers::port_write(Uint16 port, Uint8 value)
         //		printline("Got self INT");
         break;
     case 0xf4: // Write data to LD-V1000
-        write_ldv1000(value);
+        ldv1000::write(value);
         //		sprintf(s, "THAYERS: Write to LD-V1000: %x", value);
         //		printline(s);
         break;

@@ -92,7 +92,7 @@ cobraconv::cobraconv()
 
     // the ROM expects searching to be extra slow or it will lock up after death
     // scenes
-    ldv1000_set_seconds_per_search(1.0);
+    ldv1000::set_seconds_per_search(1.0);
 
     // ldp_status = 0x00;
 
@@ -183,7 +183,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
         // bit 0 - tilt input
         else if (addr == 0x1001) {
             // vblank is bit 7
-            if (ldv1000_is_vsync_active()) {
+            if (ldv1000::is_vsync_active()) {
                 banks[3] |= 0x80; // set bit 7
             } else {
                 banks[3] &= 0x7F; // clear bit 7
@@ -191,7 +191,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
 
             // NOTE: status strobe is active when bit 6 is set (see E500 in ROM
             // code for example)
-            //		    if (ldv1000_is_status_strobe_active())
+            //		    if (ldv1000::is_status_strobe_active())
             // UPDATE:
             // We have a problem where The IRQ (e53a) and the function that
             // sends commands to the LD-V1000 (E4C1) are
@@ -210,7 +210,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
 
             // Command strobe is active when bit 5 is set (see E50E in ROM code
             // for example)
-            if (ldv1000_is_command_strobe_active()) {
+            if (ldv1000::is_command_strobe_active()) {
                 banks[3] |= 0x20;
             } else {
                 banks[3] &= ~0x20;
@@ -236,7 +236,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
 
         // laserdisc player interface
         else if (addr == 0x1004) {
-            result = read_ldv1000();
+            result = ldv1000::read();
         }
 
         else {
@@ -323,7 +323,7 @@ void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
 
         // LD player data bus
         else if (addr == 0x1004) {
-            write_ldv1000(value);
+            ldv1000::write(value);
         }
 
         // main rom
@@ -555,7 +555,7 @@ void cobraconv::input_disable(Uint8 move)
 void cobraconv::OnVblank()
 {
     video_blit();
-    ldv1000_report_vsync();
+    ldv1000::report_vsync();
 }
 
 void cobraconv::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)

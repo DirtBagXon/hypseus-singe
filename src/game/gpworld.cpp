@@ -130,8 +130,8 @@ void gpworld::do_nmi()
 {
     // only do an nmi if nmie is enabled
     if (nmie) {
-        write_ldv1000(ldp_output_latch);
-        ldp_input_latch = read_ldv1000();
+        ldv1000::write(ldp_output_latch);
+        ldp_input_latch = ldv1000::read();
         Z80_ASSERT_NMI;
     }
 }

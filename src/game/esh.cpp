@@ -282,7 +282,7 @@ Uint8 esh::port_read(Uint16 port)
         result = 0xff;
         break;
     case 0xF4:
-        result = read_ldv1000();
+        result = ldv1000::read();
         //		sprintf(s, "%x read from LDV1000", result);
         //		printline(s);
         break;
@@ -305,7 +305,7 @@ void esh::port_write(Uint16 port, Uint8 value)
     case 0xF4:
         //		sprintf(s, "%x written to LDV1000", value);
         //		printline(s);
-        write_ldv1000(value);
+        ldv1000::write(value);
         break;
     case 0xF5:
         // bit 0 - Unknown

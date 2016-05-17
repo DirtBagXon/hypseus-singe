@@ -395,7 +395,7 @@ Uint8 interstellar::port_read(Uint16 port)
     case 2:
         switch (port) {
         case 0x00:
-            result = read_ldv1000();
+            result = ldv1000::read();
             if (result != oldldp) {
 #ifdef DEBUG
                 sprintf(s, "LDP Z80 Read %x from LD-V1000 (PC is %x)", result, Z80_GET_PC);
@@ -549,7 +549,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
     case 2:
         switch (port) {
         case 0x00:
-            write_ldv1000(value);
+            ldv1000::write(value);
             if (oldldp != value) {
 #ifdef DEBUG
                 sprintf(s, "LDP Z80 Write %x to LD-V1000 (PC is %x)", value, Z80_GET_PC);

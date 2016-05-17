@@ -179,7 +179,7 @@ superd::superd()
     z80_set_irq_callback(superd_irq_callback);
 #endif
 
-    ldv1000_enable_instant_seeking(); // enable instantaneous seeks because we
+    ldv1000::enable_instant_seeking(); // enable instantaneous seeks because we
                                       // can
 
     // no more issues! :)
@@ -268,8 +268,8 @@ void superd::do_irq(unsigned int which_irq)
         /*
         // Redraws the screen (if needed) on interrupt
         video_blit();
-        ldp_input_latch = read_ldv1000();
-        write_ldv1000(ldp_output_latch);
+        ldp_input_latch = ldv1000::read();
+        ldv1000::write(ldp_output_latch);
         Z80_ASSERT_IRQ;
         */
     } else {
@@ -617,7 +617,7 @@ void superd::input_disable(Uint8 move)
 
 void superd::OnVblank()
 {
-    ldv1000_report_vsync();
+    ldv1000::report_vsync();
 
     // Redraws the screen (if needed)
     video_blit();
@@ -629,12 +629,12 @@ void superd::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
         // if the status strobe has become enabled, then read command from
         // ldv1000 into latch
         if (bIsStatus) {
-            ldp_input_latch = read_ldv1000();
+            ldp_input_latch = ldv1000::read();
         }
         // else the command strobe has become enabled, so send command to
         // ldv1000 and do an IRQ
         else {
-            write_ldv1000(ldp_output_latch);
+            ldv1000::write(ldp_output_latch);
             Z80_ASSERT_IRQ;
         }
     }

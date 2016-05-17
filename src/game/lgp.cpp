@@ -119,8 +119,8 @@ void lgp::do_irq(unsigned int which_irq)
     if (which_irq == 0) {
         // Redraws the screen (if needed) on interrupt
         recalc_palette();
-        m_ldp_read_latch = read_ldv1000();
-        write_ldv1000(m_ldp_write_latch);
+        m_ldp_read_latch = ldv1000::read();
+        ldv1000::write(m_ldp_write_latch);
         video_blit();
         Z80_ASSERT_IRQ;
     }

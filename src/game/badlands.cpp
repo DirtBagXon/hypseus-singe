@@ -174,7 +174,7 @@ Uint8 badlands::cpu_mem_read(Uint16 addr)
 
     // Laserdisc (in)
     else if (addr == 0x1000) {
-        result = read_ldv1000();
+        result = ldv1000::read();
     }
 
     // controls
@@ -199,7 +199,7 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // Laserdisc (out)
     else if (addr == 0x0800) {
-        write_ldv1000(value);
+        ldv1000::write(value);
     }
 
     // shoot led
@@ -301,7 +301,7 @@ Uint8 badlandp::cpu_mem_read(Uint16 addr)
 
     // Laserdisc
     if (addr == 0x0000) {
-        result = read_ldv1000();
+        result = ldv1000::read();
     }
     // controls
     else if (addr == 0x0c00) {
@@ -330,7 +330,7 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
 {
     // Laserdisc
     if (addr == 0x0400) {
-        write_ldv1000(value);
+        ldv1000::write(value);
     }
     // coin counter
     else if (addr == 0x0800) {
@@ -544,7 +544,7 @@ bool badlands::set_bank(unsigned char which_bank, unsigned char value)
 void badlands::reset()
 {
     cpu_reset();
-    reset_ldv1000();
+    ldv1000::reset();
 }
 
 void badlands::set_preset(int preset)
