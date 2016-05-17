@@ -23,6 +23,8 @@
 #ifndef GISOUND_H
 #define GISOUND_H
 
+#include <SDL.h>
+
 int gisound_initialize(Uint32 core_frequency);
 void gisound_writedata(Uint32, Uint32, int index);
 void gisound_stream(Uint8* stream, int length, int index);

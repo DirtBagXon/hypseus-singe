@@ -29,9 +29,7 @@
 #ifndef _TMS9919_SDL_HPP_
 #define _TMS9919_SDL_HPP_
 
-#if ! defined ( _TMS9919_HPP_ )
-    #error You must include tms9919.hpp before tms9919-sdl.hpp
-#endif
+#include "tms9919.hpp"
 
 #define SIZE sizeof
 

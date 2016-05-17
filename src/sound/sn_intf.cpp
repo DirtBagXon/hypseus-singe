@@ -30,7 +30,6 @@
 
 #include "../io/conout.h"
 #include "sound.h"
-#include "tms9919.hpp"
 #include "tms9919-sdl.hpp"
 
 // this can be set arbitrarily large (as large as it needs to be to support all
