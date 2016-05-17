@@ -580,7 +580,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
             // laserdisc control
             case 0xE020:
                 if (m_uses_pr7820) {
-                    write_pr7820(Value);
+                    pr7820::write(Value);
                 } else {
                     ldv1000::write(Value);
                 }
@@ -918,7 +918,7 @@ Uint8 lair::read_C010()
         // (if the game CPU is halted during searches, then this will never be
         //  set high anyway.  Maybe in the future...)
 
-        if (read_pr7820_ready()) {
+        if (pr7820::read_ready()) {
             m_misc_val |= 0x80;
         } else {
             m_misc_val &= ~0x80;
