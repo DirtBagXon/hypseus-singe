@@ -41,6 +41,8 @@
 #include <assert.h>
 #endif // DEBUG
 
+namespace vp931
+{
 // True means it's active, which means data is available to be read
 // False means it's inactive, which means data has been read
 bool g_bVP931_DAV = true;
@@ -68,12 +70,12 @@ unsigned char g_VP931OutBuf[OUTBUF_SIZE];
 unsigned int g_uVP931OutBufIdx = 0;
 
 // how many CPU cycles the DAK is inactive for before it becomes active again
-unsigned int g_vp931_cycles_per_dak = 0;
+unsigned int g_cycles_per_dak = 0;
 
 ///////////////////////////////////////////
 
 // retrieves the status from our virtual VP931
-unsigned char read_vp931()
+unsigned char read()
 {
     unsigned char u8Result = 0;
 
@@ -83,26 +85,26 @@ unsigned char read_vp931()
 
 #ifdef DEBUG
 // DEBUG
-// string strMsg = "read_vp931 returned " + numstr::ToStr(u8Result, 16);
+// string strMsg = "read returned " + numstr::ToStr(u8Result, 16);
 // printline(strMsg.c_str());
 #endif
     } else {
-        //		printline("VP931 ERROR: read_vp931 called when there is nothing to
+        //		printline("VP931 ERROR: read called when there is nothing to
         //be read");
     }
 
     if (!g_bVP931_DAV) {
-        //		printline("VP931 WARNING: read_vp931 called when DAV wasn't
+        //		printline("VP931 WARNING: read called when DAV wasn't
         //asserted");
     }
 
     return (u8Result);
 }
 
-void write_vp931(unsigned char u8Val) { g_u8VP931InputBuf = u8Val; }
+void write(unsigned char u8Val) { g_u8VP931InputBuf = u8Val; }
 
 // returns the number embedded inside the command (5 or 3 digits supported)
-unsigned int vp931_get_cmd_num(unsigned int uDigits)
+unsigned int get_cmd_num(unsigned int uDigits)
 {
     unsigned int uResult = 0;
     unsigned int u       = 0;
@@ -134,7 +136,7 @@ unsigned int vp931_get_cmd_num(unsigned int uDigits)
 }
 
 // don't call this function directly!!!
-void process_vp931_cmd(unsigned char value)
+void process_cmd(unsigned char value)
 {
     // catch the command
     command_byte[g_uVP931CurrentByte] = value;
@@ -159,12 +161,12 @@ void process_vp931_cmd(unsigned char value)
             } else if (command_byte[1] == 0x20) {
                 g_ldp->pre_pause();
             } else if ((command_byte[1] & 0xF0) == 0xE0) {
-                unsigned int uSkipFrames = vp931_get_cmd_num(3);
+                unsigned int uSkipFrames = get_cmd_num(3);
                 g_ldp->pre_skip_forward(uSkipFrames);
             }
             // else if it's a skip backward command ...
             else if ((command_byte[1] & 0xF0) == 0xF0) {
-                unsigned int uSkipFrames = vp931_get_cmd_num(3);
+                unsigned int uSkipFrames = get_cmd_num(3);
                 g_ldp->pre_skip_backward(uSkipFrames);
             } else {
                 LOGW << fmt("Unsupported Command Received: %x %x %x",
@@ -188,7 +190,7 @@ void process_vp931_cmd(unsigned char value)
         else if ((command_byte[0] & 0xf0) == 0xf0) {
             char pszFrame[FRAME_ARRAY_SIZE];
 
-            unsigned int uFrame = vp931_get_cmd_num(5);
+            unsigned int uFrame = get_cmd_num(5);
 
             // If the command is received on the first field of the frame, don't
             // try to skip because that throws our current
@@ -244,15 +246,15 @@ void process_vp931_cmd(unsigned char value)
     }
 }
 
-bool vp931_is_dav_active() { return (g_bVP931_DAV); }
+bool is_dav_active() { return (g_bVP931_DAV); }
 
-bool vp931_is_dak_active() { return (g_bVP931_DAK); }
+bool is_dak_active() { return (g_bVP931_DAK); }
 
 // this is apparently always true if the LDP is running
 // (oprt stands for operational?)
-bool vp931_is_oprt_active() { return true; }
+bool is_oprt_active() { return true; }
 
-void vp931_change_write_line(bool bEnabled)
+void change_write_line(bool bEnabled)
 {
     // if the line has actually changed
     if (bEnabled != g_bVP931_WriteLine) {
@@ -274,17 +276,17 @@ void vp931_change_write_line(bool bEnabled)
             // DAK goes inactive for 15 uS while it is processed, it will become
             // active again when the CPU event fires
             //			g_bVP931_DAK = false;
-            //			cpu_set_event(0, g_vp931_cycles_per_dak,
-            //vp931_event_callback, (void *) NULL);
+            //			cpu_set_event(0, g_cycles_per_dak,
+            //event_callback, (void *) NULL);
 
-            process_vp931_cmd(g_u8VP931InputBuf);
+            process_cmd(g_u8VP931InputBuf);
         }
         g_bVP931_WriteLine = bEnabled;
     }
     // else there is no change, so ignore
 }
 
-void vp931_change_read_line(bool bEnabled)
+void change_read_line(bool bEnabled)
 {
     if (bEnabled != g_bVP931_ReadLine) {
         // if enabled, it means that the ROM is ready to read the next byte from
@@ -310,7 +312,7 @@ void vp931_change_read_line(bool bEnabled)
     }
 }
 
-void vp931_change_reset_line(bool bEnabled)
+void change_reset_line(bool bEnabled)
 {
     if (bEnabled != g_bVP931_ResetLine) {
         if (bEnabled) {
@@ -320,7 +322,7 @@ void vp931_change_reset_line(bool bEnabled)
     }
 }
 
-void vp931_report_vsync()
+void report_vsync()
 {
     g_bVP931_DAV        = true; // new status waiting
     g_bVP931_DAK        = true; // not currently processing a command
@@ -366,7 +368,7 @@ void vp931_report_vsync()
     // bytes 3, 4, and 5 are already 0
 }
 
-void reset_vp931()
+void reset()
 {
     unsigned int cpu_hz = get_cpu_hz(0);
     double dCyclesPerUs = cpu_hz / 1000000.0; // cycles per microsecond
@@ -376,13 +378,14 @@ void reset_vp931()
 
     // How many cycles we pause when we receive a command (DAK goes low then
     // high)
-    g_vp931_cycles_per_dak = (unsigned int)((dCyclesPerUs * 15.0) + 0.5);
+    g_cycles_per_dak = (unsigned int)((dCyclesPerUs * 15.0) + 0.5);
 }
 
-void vp931_event_callback(void *dontCare)
+void event_callback(void *dontCare)
 {
     //	printline("vp931 DAK event fired!");
 
     // right now, the only event is the DAK
     g_bVP931_DAK = true;
+}
 }

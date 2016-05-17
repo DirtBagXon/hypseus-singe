@@ -25,35 +25,37 @@
 #ifndef VP931_H
 #define VP931_H
 
-unsigned char read_vp931();
-void write_vp931(unsigned char u8Value);
+namespace vp931
+{
+unsigned char read();
+void write(unsigned char u8Value);
 
 // DAV is active low
-bool vp931_is_dav_active();
+bool is_dav_active();
 
 // DAK is active high
-bool vp931_is_dak_active();
+bool is_dak_active();
 
 // OPRT is apparently always high, but I don't know if it is considered active
 // high or not
 // For now I will assume it is active high
-bool vp931_is_oprt_active();
+bool is_oprt_active();
 
 // active low
-void vp931_change_write_line(bool bActive);
+void change_write_line(bool bActive);
 
 // active low
-void vp931_change_read_line(bool bActive);
+void change_read_line(bool bActive);
 
 // active low
-void vp931_change_reset_line(bool bActive);
+void change_reset_line(bool bActive);
 
 // should be called by game driver for every vsync
-void vp931_report_vsync();
+void report_vsync();
 
-void reset_vp931();
+void reset();
 
 // CPU event callback, used internally
-void vp931_event_callback(void *dontCare);
-
+void event_callback(void *dontCare);
+}
 #endif

@@ -289,15 +289,15 @@ Uint8 firefox::cpu_mem_read(Uint16 addr)
         result = 0x00;
 
         // DAV = active low (see E4B9 for support to this theory)
-        if (!vp931_is_dav_active()) result |= (1 << 7);
+        if (!vp931::is_dav_active()) result |= (1 << 7);
 
         // DAK is active high, DAK low means the buffer is full
         // (the firefox schematics reverse this and view things from a FULL,
         // active-low viewpoint)
-        if (vp931_is_dak_active()) result |= (1 << 6);
+        if (vp931::is_dak_active()) result |= (1 << 6);
 
         // I _think_ this should always be high
-        if (vp931_is_oprt_active()) result |= (1 << 5);
+        if (vp931::is_oprt_active()) result |= (1 << 5);
     }
 
     // Option Sw 1
@@ -313,8 +313,8 @@ Uint8 firefox::cpu_mem_read(Uint16 addr)
     // Read VP931 data (DREAD)
     //  and disabled RDDSK (sets it high)
     else if (addr == 0x4105) {
-        result = read_vp931();
-        vp931_change_read_line(false);
+        result = vp931::read();
+        vp931::change_read_line(false);
     }
 
     // RDSOUND
@@ -409,7 +409,7 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
     // DSKREAD
     // (makes RDDSK lo, ie enables it)
     else if (addr == 0x4218) {
-        vp931_change_read_line(true);
+        vp931::change_read_line(true);
     }
 
     // Start A/D Converter Channel 0/1 (ADCSTART)
@@ -448,18 +448,18 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
             break;
         case 6: // rstdsk
             // rstdsk is active low
-            vp931_change_reset_line(D == 0);
+            vp931::change_reset_line(D == 0);
             break;
         case 7: // wrdsk
             // wrdsk is active low
             if (!D) {
-                write_vp931(m_u8DskLatch); // this must come before the write
+                vp931::write(m_u8DskLatch); // this must come before the write
                                            // line is enabled
-                vp931_change_write_line(true);
+                vp931::change_write_line(true);
             }
             // else the write line is being disabled
             else {
-                vp931_change_write_line(false);
+                vp931::change_write_line(false);
             }
             break;
         default:
@@ -686,7 +686,7 @@ void firefox::OnVblank()
     // not really used for emulated vblank because the timing is still somewhat
     // unknown
 
-    vp931_report_vsync();
+    vp931::report_vsync();
 }
 
 // used to set dip switch values
