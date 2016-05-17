@@ -20,7 +20,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-enum { P_ERROR, P_IN_PROGRESS, P_FINISHED_FRAMES, P_FINISHED_FIELDS };
+namespace mpegscan
+{
+enum { ERROR, IN_PROGRESS, FINISHED_FRAMES, FINISHED_FIELDS };
 
-void init_mpegscan();
-int parse_video_stream(FILE *datafile, unsigned int length);
+void init();
+int parse(FILE *datafile, unsigned int length);
+}

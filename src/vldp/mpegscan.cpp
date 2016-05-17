@@ -63,6 +63,8 @@ Sample mpeg2 byte sequence: 00 00 01 B5 25 06 06 06 0B 42 0F 00
 #include "mpegscan.h"
 #include "vldp_internal.h"
 
+namespace mpegscan
+{
 unsigned char g_last_three[3]    = {0}; // the last 3 bytes read
 unsigned int g_last_three_loc[3] = {0}; // the position of the last 3 bytes read
 
@@ -93,7 +95,7 @@ unsigned char g_ext_type = 0;
 
 // resets all state variables to their initial values.  This needs to be called
 // every time an mpeg is parsed
-void init_mpegscan()
+void init()
 {
     int i = 0;
 
@@ -180,9 +182,9 @@ void add_to_last_three(unsigned char val, unsigned int pos)
 // parses from file stream, length # of bytes
 // writes results to the open datafile
 // returns stat codes
-int parse_video_stream(FILE *datafile, unsigned int length)
+int parse(FILE *datafile, unsigned int length)
 {
-    int result             = P_IN_PROGRESS;
+    int result             = IN_PROGRESS;
     int ch                 = 0;
     unsigned int start_pos = g_filepos;
     const int minus_one    = -1;
@@ -193,7 +195,7 @@ int parse_video_stream(FILE *datafile, unsigned int length)
                                                           // file
 
     if (!buf) {
-        return P_ERROR;
+        return ERROR;
     }
 
     bytes_read = io_read(buf, length); // read in a chunk
@@ -210,18 +212,18 @@ int parse_video_stream(FILE *datafile, unsigned int length)
         else {
             // if we're certain we're using fields
             if ((g_fields_detected) && (!g_frames_detected)) {
-                result = P_FINISHED_FIELDS;
+                result = FINISHED_FIELDS;
             }
             // else if we're certain we're not using fields
             // (for mpeg1 g_fields_detected and g_frames_detected will both be
             // 0)
             else if (!g_fields_detected) {
-                result = P_FINISHED_FRAMES;
+                result = FINISHED_FRAMES;
             }
             // else we can't determine what's going on, so do an error to be
             // safe
             else {
-                result = P_ERROR;
+                result = ERROR;
             }
             break; // end loop
         }
@@ -363,4 +365,5 @@ int parse_video_stream(FILE *datafile, unsigned int length)
     free(buf); // de-allocate buffer
 
     return result;
+}
 }

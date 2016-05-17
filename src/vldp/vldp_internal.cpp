@@ -1164,7 +1164,7 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
         // That way we can re-use the file another time with confidence that
         // it's the right one
 
-        init_mpegscan();
+        mpegscan::init();
 
         g_in_info->report_parse_progress(-1); // notify other thread that we're
                                               // starting
@@ -1173,7 +1173,7 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
         do {
 #define PARSE_CHUNK 200000
 
-            parse_result = parse_video_stream(data_file, PARSE_CHUNK);
+            parse_result = mpegscan::parse(data_file, PARSE_CHUNK);
             pos += PARSE_CHUNK;
 
             // we want to give the user updates but don't want to flood them
@@ -1185,16 +1185,16 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
             }
             count++;
 
-        } while (parse_result == P_IN_PROGRESS);
+        } while (parse_result == mpegscan::IN_PROGRESS);
 
         g_in_info->report_parse_progress(1); // notify other thread that we're
                                              // done
 
         // if parse finished, then we have to update the header
-        if (parse_result != P_ERROR) {
+        if (parse_result != mpegscan::ERROR) {
             header.finished    = 1;
             header.uses_fields = 0;
-            if (parse_result == P_FINISHED_FIELDS) {
+            if (parse_result == mpegscan::FINISHED_FIELDS) {
                 header.uses_fields = 1;
             }
             fseek(data_file, 0L, SEEK_SET);
@@ -1210,7 +1210,7 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
         /* NOTE: I separated this from the other if above to guarantee that the
          * file gets closed
          */
-        if (parse_result == P_ERROR) {
+        if (parse_result == mpegscan::ERROR) {
             fprintf(stderr, "There was an error parsing the MPEG file.\n");
             fprintf(stderr, "Either there is a bug in the parser or the MPEG "
                             "file is corrupt.\n");
