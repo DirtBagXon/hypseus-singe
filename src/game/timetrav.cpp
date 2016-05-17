@@ -36,11 +36,11 @@
 timetrav::timetrav()
 {
     m_shortgamename = "timetrav";
-    memset(m_cpumem, 0, CPU_MEM_SIZE);
+    memset(m_cpumem, 0, cpu::MEM_SIZE);
 
-    struct cpudef cpu;
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type              = CPU_I88;
+    struct cpu::def cpu;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type              = cpu::type::I88;
     cpu.hz                = TIMETRAV_CPU_HZ;
     cpu.irq_period[0]     = 0;
     cpu.irq_period[1]     = 0;
@@ -48,7 +48,7 @@ timetrav::timetrav()
     cpu.initial_pc        = 0xFFFF0;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add this cpu to the list (it will be our only one)
+    cpu::add(&cpu); // add this cpu to the list (it will be our only one)
 
     m_disc_fps = 29.97;
     //	m_game_type = GAME_TIMETRAV;

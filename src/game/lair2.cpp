@@ -213,7 +213,7 @@ lair2::lair2()
       m_bSerialHack(false)
 {
     m_shortgamename = "lair2";
-    memset(m_cpumem, 0, CPU_MEM_SIZE);
+    memset(m_cpumem, 0, cpu::MEM_SIZE);
     memset(EEPROM_9536, 0, 0x80);
     m_uCoinCount[0] = m_uCoinCount[1] = 0;
     banks[0] = 0xff; // bank 0 is active low
@@ -227,9 +227,9 @@ lair2::lair2()
     m_palette_color_count                   = 256;
     m_video_overlay[m_active_video_overlay] = NULL;
 
-    struct cpudef cpu;
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type          = CPU_I88;
+    struct cpu::def cpu;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type          = cpu::type::I88;
     cpu.hz            = LAIR2_CPU_HZ;
     cpu.irq_period[0] = LAIR2_IRQ_PERIOD;
     cpu.irq_period[1] = ((1000.0) * (8 + 1)) / 9600.0; // serial port IRQ (8
@@ -247,7 +247,7 @@ lair2::lair2()
     m_nvram_filename    = "lair2";
     m_nvram_size        = 0x80;
 
-    add_cpu(&cpu); // add this cpu to the list (it will be our only one)
+    cpu::add(&cpu); // add this cpu to the list (it will be our only one)
 
     // add our awesome sound chip!
     struct sound::chip def;
@@ -334,7 +334,7 @@ void ace91::set_version(int version)
 
 bool lair2::init()
 {
-    cpu_init();
+    cpu::init();
     g_ldp->pre_play(); // the LDP-1450 automatically begins playback
     return true;
 }

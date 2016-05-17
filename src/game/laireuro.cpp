@@ -42,26 +42,26 @@ Uint8 g_soundchip_id;
 
 laireuro::laireuro()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
     struct sound::chip sound;
 
     memset(&g_ctc, 0, sizeof(ctc_chip));
 
     m_shortgamename = "laireuro";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(m_banks, 0xFF, 4); // m_banks are active low
 
     m_disc_fps  = 25.0;
     m_game_type = GAME_LAIREURO;
 
-    cpu.type              = CPU_Z80;
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = LAIREURO_CPU_HZ;
     cpu.nmi_period        = 1000 / 50;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu);
+    cpu::add(&cpu);
 
-    cpu_change_interleave(100); // make it update the irqs every 1/3 of a ms
+    cpu::change_interleave(100); // make it update the irqs every 1/3 of a ms
 
     m80_set_irq_callback(laireuro_irq_callback);
 
@@ -569,7 +569,7 @@ void ctc_write(Uint8 channel, Uint8 value)
         // Reset
         if (value & 0x02) {
             g_ctc.channels[channel].time_const = 0;
-            cpu_change_irq(0, channel, 0);
+            cpu::change_irq(0, channel, 0);
         }
         ctc_update_period(channel);
     }
@@ -665,7 +665,7 @@ void ctc_update_period(Uint8 channel)
     }
 
     if (g_ctc.channels[channel].interrupt) {
-        cpu_change_irq(0, channel, new_period);
+        cpu::change_irq(0, channel, new_period);
 #ifdef DEBUG
         char s[81] = {0};
         sprintf(s, "Set up Irq %x with period of %f", channel, new_period);
@@ -673,14 +673,14 @@ void ctc_update_period(Uint8 channel)
 #endif
     } else {
         // when interrupts are disabled...
-        cpu_change_irq(0, channel, 0);
+        cpu::change_irq(0, channel, 0);
         if (channel == 2) {
             // the baud rate gets divided by the UART by 16, but we need two
             // interrupts per
             // transaction, one for input and one for output. Also baud is bits
             // per second,
             // and we need bytes per second.
-            cpu_change_irq(0, 2, new_period * 16 * 8 / 2);
+            cpu::change_irq(0, 2, new_period * 16 * 8 / 2);
         }
         if (channel == 0) // sound
         {

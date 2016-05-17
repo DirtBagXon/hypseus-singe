@@ -63,7 +63,7 @@ unsigned int idle_timer;          // added by JFA for -idleexit
 const double STICKY_COIN_SECONDS =
     0.125; // how many seconds a coin acceptor is forced to be "depressed" and
            // how many seconds it is forced to be "released"
-Uint32 g_sticky_coin_cycles = 0; // STICKY_COIN_SECONDS * get_cpu_hz(0), cannot
+Uint32 g_sticky_coin_cycles = 0; // STICKY_COIN_SECONDS * cpu::get_hz(0), cannot
                                  // be calculated statically
 queue<struct coin_input> g_coin_queue; // keeps track of coin input to guarantee
                                        // that coins don't get missed if the cpu
@@ -257,7 +257,7 @@ int SDL_input_init()
         g_coin_queue.pop();
     }
     g_sticky_coin_cycles =
-        (Uint32)(STICKY_COIN_SECONDS * get_cpu_hz(0)); // only needs to be
+        (Uint32)(STICKY_COIN_SECONDS * cpu::get_hz(0)); // only needs to be
                                                        // calculated once
 
     if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) >= 0) {
@@ -347,7 +347,7 @@ void SDL_check_input()
         // here
 
         // if it's safe to activate the coin
-        if (get_total_cycles_executed(0) > coin.cycles_when_to_enable) {
+        if (cpu::get_total_cycles_executed(0) > coin.cycles_when_to_enable) {
             // if we're supposed to enable this coin
             if (coin.coin_enabled) {
                 g_game->input_enable(coin.coin_val);
@@ -677,7 +677,7 @@ void input_enable(Uint8 move)
         // the cpu is busy (such as during a seek)
         // therefore if the input is coin1 or coin2 AND we are using a real cpu
         // (and not a program such as seektest)
-        if (get_cpu_hz(0) > 0) {
+        if (cpu::get_hz(0) > 0) {
             add_coin_to_queue(true, move);
         }
         break;
@@ -699,7 +699,7 @@ void input_disable(Uint8 move)
         // the cpu is busy (such as during a seek)
         // therefore if the input is coin1 or coin2 AND we are using a real cpu
         // (and not a program such as seektest)
-        if (((move == SWITCH_COIN1) || (move == SWITCH_COIN2)) && (get_cpu_hz(0) > 0)) {
+        if (((move == SWITCH_COIN1) || (move == SWITCH_COIN2)) && (cpu::get_hz(0) > 0)) {
             add_coin_to_queue(false, move);
         } else {
             g_game->input_disable(move);
@@ -710,7 +710,7 @@ void input_disable(Uint8 move)
 
 inline void add_coin_to_queue(bool enabled, Uint8 val)
 {
-    Uint64 total_cycles = get_total_cycles_executed(0);
+    Uint64 total_cycles = cpu::get_total_cycles_executed(0);
     struct coin_input coin;
     coin.coin_enabled = enabled;
     coin.coin_val     = val;

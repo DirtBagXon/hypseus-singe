@@ -153,12 +153,12 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
                     // Since the speech output will likely a while,
                     // the cpu timer is 'paused' here
 
-                    cpu_pause(); // MPO : this replaces flush_cpu_timers
+                    cpu::pause(); // MPO : this replaces flush_cpu_timers
 
                     // Synthesize and speak the phonemes.
                     ssi263_say_phones(phones_text, phones_len);
 
-                    cpu_unpause();
+                    cpu::unpause();
                 }
             }
 

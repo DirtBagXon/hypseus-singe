@@ -55,7 +55,7 @@
 lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
 {
     m_shortgamename = "lair";
-    memset(m_cpumem, 0, CPU_MEM_SIZE);
+    memset(m_cpumem, 0, cpu::MEM_SIZE);
     m_switchA      = 0x22;
     m_switchB      = 0xD8;
     m_joyskill_val = 0xFF; // all input cleared
@@ -65,9 +65,9 @@ lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
     // Scoreboard starts off being visible
     m_bScoreboardVisibility = true;
 
-    struct cpudef cpu;
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type          = CPU_Z80;
+    struct cpu::def cpu;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type          = cpu::type::Z80;
     cpu.hz            = LAIR_CPU_HZ;
     cpu.irq_period[0] = LAIR_IRQ_PERIOD;
     cpu.nmi_period    = (1000.0 / 60.0); // dragon's lair has no NMI.  We use this
@@ -76,7 +76,7 @@ lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add this cpu to the list (it will be our only one)
+    cpu::add(&cpu); // add this cpu to the list (it will be our only one)
 
     struct sound::chip soundchip;
     soundchip.type = sound::CHIP_AY_3_8910; // Dragon's Lair hardware uses the
@@ -480,7 +480,7 @@ void lair::do_irq(unsigned int which_irq)
 void lair::do_nmi()
 {
     if (!m_uses_pr7820) {
-        m_status_strobe_timer = get_total_cycles_executed(0);
+        m_status_strobe_timer = cpu::get_total_cycles_executed(0);
     }
 
     // If the game does not use a video overlay
@@ -717,7 +717,7 @@ bool lair::init()
 {
     bool bResult = true;
 
-    cpu_init();
+    cpu::init();
 
     IScoreboard *pScoreboard =
         ScoreboardCollection::GetInstance(lair_get_active_overlay,
@@ -797,7 +797,7 @@ void lair::shutdown()
         m_pScoreboard->PreDeleteInstance();
     }
 
-    cpu_shutdown();
+    cpu::shutdown();
 }
 
 // redraws the scoreboard on the screen

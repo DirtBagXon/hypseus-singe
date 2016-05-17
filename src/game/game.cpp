@@ -67,10 +67,10 @@ void g_cpu_break(char *s)
     }
 
 #ifdef CPU_DEBUG
-    set_cpu_trace(1);
+    cpu::set_trace(1);
 #else
     LOGW << 
-        "You have to compile with CPU_DEBUG defined to use the debugger!";
+        "You have to compile withcpu::type::DEBUG defined to use the debugger!";
 #endif
 }
 
@@ -170,13 +170,13 @@ bool game::init()
 {
     bool result = true;
 
-    cpu_init();
+    cpu::init();
     return result;
 }
 
 // generic game start function.  Starts the game playing (usually just begins
 // executing the cpu(s) )
-void game::start() { cpu_execute(); }
+void game::start() { cpu::execute(); }
 
 // call this instead of shutdown directly
 void game::pre_shutdown()
@@ -203,10 +203,10 @@ void game::save_sram()
 }
 
 // generic game shutdown function
-void game::shutdown() { cpu_shutdown(); }
+void game::shutdown() { cpu::shutdown(); }
 
 // generic game reset function
-void game::reset() { cpu_reset(); }
+void game::reset() { cpu::reset(); }
 
 // does anything special needed to send an IRQ
 void game::do_irq(unsigned int which_irq)
@@ -969,7 +969,7 @@ void game::toggle_game_pause()
 {
     // if the game is already paused ...
     if (m_game_paused) {
-        cpu_unpause();
+        cpu::unpause();
         g_ldp->pre_play();
         m_game_paused = false;
     }
@@ -979,7 +979,7 @@ void game::toggle_game_pause()
         //		char frame[6];
         //		Uint16 cur_frame = g_ldp->get_current_frame();
 
-        cpu_pause();
+        cpu::pause();
         g_ldp->pre_pause();
 
         // If seek delay is enabled, we can't search here because the seek delay
@@ -991,7 +991,7 @@ void game::toggle_game_pause()
         think we're on (not the frame we're actually on)
 
         // wait for seek to complete
-        // (using non-blocking seeking to avoid an extra cpu_pause)
+        // (using non-blocking seeking to avoid an extra cpu::pause)
         while (g_ldp->get_status() == LDP_SEARCHING)
         {
             make_delay(1);
@@ -1030,6 +1030,6 @@ const char *game::get_address_name(unsigned int addr)
     return (name);
 }
 
-#endif // CPU_DEBUG
+#endif //cpu::type::DEBUG
 
 bool game::getMouseEnabled() { return m_bMouseEnabled; }

@@ -137,10 +137,10 @@ int superd_irq_callback(int irqline)
 // superdon constructor
 superd::superd()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "sdq";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xFF, 4); // fill banks with 0xFF's
     m_video_overlay[m_active_video_overlay] = NULL;
 
@@ -151,7 +151,7 @@ superd::superd()
     m_video_overlay_height = SUPERD_OVERLAY_H;
     m_palette_color_count  = SUPERD_COLOR_COUNT;
 
-    cpu.type          = CPU_Z80;
+    cpu.type          = cpu::type::Z80;
     cpu.hz            = SUPERD_CPU_HZ;
     cpu.irq_period[0] = SUPERD_IRQ_PERIOD; // the IRQ is connected to the
                                            // LD-V1000 command strobe
@@ -159,7 +159,7 @@ superd::superd()
     cpu.must_copy_context = false;
     cpu.nmi_period        = 0.0;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add this cpu to the list
+    cpu::add(&cpu); // add this cpu to the list
 
     struct sound::chip soundchip;
 
@@ -247,7 +247,7 @@ sdqshortalt::sdqshortalt()
 
 bool superd::init()
 {
-    cpu_init();
+    cpu::init();
     //	g_ldp->set_skip_blanking(true);	// set blanking for skips
     // this is a hack since the real arcade controls this blanking with the
     // video overlay

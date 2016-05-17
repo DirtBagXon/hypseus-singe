@@ -51,10 +51,10 @@
 
 bega::bega()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "bega";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xFF, 3); // fill banks with 0xFF's
     // turn on diagnostics
     //	banks[2] = 0x7f;
@@ -68,7 +68,7 @@ bega::bega()
     m_video_overlay_height = BEGA_OVERLAY_H;
     m_palette_color_count  = BEGA_COLOR_COUNT;
 
-    cpu.type          = CPU_M6502;
+    cpu.type          = cpu::type::M6502;
     cpu.hz            = BEGA_CPU_HZ / 6;  // Bega's CPUs run at 2.5 MHz?
     cpu.irq_period[0] = (1000.0 / 59.94); // no periodic interrupt, we are just
                                           // using this for vblank (60hz)
@@ -81,16 +81,16 @@ bega::bega()
                                                        // 1000 ms pre sec, 9600
                                                        // bits per second
 
-    cpu_change_interleave(2);
+    cpu::change_interleave(2);
 
     cpu.initial_pc        = 0;
     cpu.must_copy_context = true; // set this to true when you add multiple
                                   // 6502's
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add 6502 cpu
+    cpu::add(&cpu); // add 6502 cpu
 
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type          = CPU_M6502;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type          = cpu::type::M6502;
     cpu.hz            = BEGA_CPU_HZ / 6; // Bega's CPUs run at 2.5 MHz?
     cpu.irq_period[0] = 0.0;
     cpu.nmi_period    = 2.0; // this value is unknown... it controls the speed at
@@ -100,7 +100,7 @@ bega::bega()
     cpu.must_copy_context = true; // set this to true when you add multiple
                                   // 6502's
     cpu.mem = m_cpumem2;
-    add_cpu(&cpu); // add sound 6502 cpu
+    cpu::add(&cpu); // add sound 6502 cpu
 
     struct sound::chip soundchip;
     soundchip.type  = sound::CHIP_AY_3_8910;
@@ -313,7 +313,7 @@ bool bega::set_bank(unsigned char which_bank, unsigned char value)
 // clocks screen updates and vblank timing
 void bega::do_irq(unsigned int which_irq)
 {
-    if (cpu_getactivecpu() == 0) {
+    if (cpu::get_active() == 0) {
         if (which_irq == 0) {
             video_blit();
             vblank = true;
@@ -346,7 +346,7 @@ Uint8 bega::cpu_mem_read(Uint16 addr)
     //   char s[81] = {0};
     Uint8 result;
 
-    if (cpu_getactivecpu() == 0) {
+    if (cpu::get_active() == 0) {
         result = m_cpumem[addr];
 
         // main ram
@@ -435,7 +435,7 @@ Uint8 bega::cpu_mem_read(Uint16 addr)
 
 void bega::cpu_mem_write(Uint16 addr, Uint8 value)
 {
-    if (cpu_getactivecpu() == 0) {
+    if (cpu::get_active() == 0) {
         // main ram (0 - 0x0FFF)
         if (addr <= 0x0fff) {
         }
@@ -447,7 +447,7 @@ void bega::cpu_mem_write(Uint16 addr, Uint8 value)
         // sound data
         else if (addr == 0x1004) {
             m_sounddata_latch = value;
-            cpu_generate_irq(1, 0); // generate an interrupt on the sound cpu
+            cpu::generate_irq(1, 0); // generate an interrupt on the sound cpu
         }
 
         // m6850 control port
@@ -659,11 +659,11 @@ void bega::input_enable(Uint8 move)
         break;
     case SWITCH_COIN1:
         banks[1] &= ~0x40;
-        cpu_generate_nmi(0);
+        cpu::generate_nmi(0);
         break;
     case SWITCH_COIN2:
         banks[1] &= ~0x80;
-        cpu_generate_nmi(0);
+        cpu::generate_nmi(0);
         break;
     case SWITCH_SERVICE:
         banks[0] &= ~0x04;

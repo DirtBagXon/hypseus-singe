@@ -90,10 +90,10 @@
 
 firefox::firefox()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "firefox";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xFF, 4); // fill banks with 0xFF's
                             //	banks[0] = 0xfb;
     banks[1]   = 0x1f;
@@ -113,7 +113,7 @@ firefox::firefox()
                               // bottom 16 lines are hidden)
     m_palette_color_count = FIREFOX_COLORS;
 
-    cpu.type       = CPU_M6809;
+    cpu.type       = cpu::type::M6809;
     cpu.hz         = FIREFOX_CPU_HZ;
     cpu.nmi_period = 0; // firefox has no NMI
 
@@ -133,7 +133,7 @@ firefox::firefox()
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false; // set to true for multiple 6809's
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add a 6809 cpu
+    cpu::add(&cpu); // add a 6809 cpu
 
     ad_converter_channel = 0;
     current_bank         = 0x0000;
@@ -163,7 +163,7 @@ firefox::firefox()
     // UPDATE : this is too slow so I'll handle the DAK delay differently
     // This runs 50 cycles each cpu iteration, which I need in order to have the
     // DAK work in a timely way
-    //	cpu_change_interleave(FIREFOX_CPU_HZ / 50000);
+    //	cpu::change_interleave(FIREFOX_CPU_HZ / 50000);
 }
 
 firefoxa::firefoxa()
@@ -190,7 +190,7 @@ firefoxa::firefoxa()
 
 bool firefox::init()
 {
-    cpu_init();
+    cpu::init();
     g_ldp->pre_play(); // the VP931 starts playing automatically
     return true;
 }

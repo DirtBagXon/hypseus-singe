@@ -51,10 +51,10 @@ enum { S_ESH_BEEP };
 
 esh::esh() : m_needlineblink(false), m_needcharblink(false)
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "esh";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xFF, 4); // fill banks with 0xFF's
 
     // assuming we won't have any nvram saved, set these values.
@@ -69,7 +69,7 @@ esh::esh() : m_needlineblink(false), m_needcharblink(false)
     m_video_overlay_height = ESH_OVERLAY_H;
     m_palette_color_count  = ESH_COLOR_COUNT;
 
-    cpu.type = CPU_Z80;
+    cpu.type = cpu::type::Z80;
     cpu.hz   = 3072000; // PCB has 18.432 MHz crystal,
     // Pac-Man uses same xtal and divides by 6 for CPU clock,
     // so we'll use that here too
@@ -79,7 +79,7 @@ esh::esh() : m_needlineblink(false), m_needcharblink(false)
                                              // (likely guess)
     cpu.irq_period[0] = (1000.0 / 60.0);     // irq from vblank (guess)
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add z80 cpu
+    cpu::add(&cpu); // add z80 cpu
 
     blank_count      = 0;
     palette_high_bit = 0;

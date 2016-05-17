@@ -276,7 +276,7 @@ void change_write_line(bool bEnabled)
             // DAK goes inactive for 15 uS while it is processed, it will become
             // active again when the CPU event fires
             //			g_bVP931_DAK = false;
-            //			cpu_set_event(0, g_cycles_per_dak,
+            //			cpu::set_event(0, g_cycles_per_dak,
             //event_callback, (void *) NULL);
 
             process_cmd(g_u8VP931InputBuf);
@@ -370,7 +370,7 @@ void report_vsync()
 
 void reset()
 {
-    unsigned int cpu_hz = get_cpu_hz(0);
+    unsigned int cpu_hz = cpu::get_hz(0);
     double dCyclesPerUs = cpu_hz / 1000000.0; // cycles per microsecond
 
     g_bVP931_DAV = false; // no status waiting

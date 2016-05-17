@@ -49,7 +49,7 @@
 
 cobraconv::cobraconv()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "cobraconv";
     memset(banks, 0xFF, 4); // fill banks with 0xFF's
@@ -62,8 +62,8 @@ cobraconv::cobraconv()
     m_palette_color_count  = COBRACONV_COLOR_COUNT;
     m_video_row_offset     = -8; // 16 pixels, 8 rows
 
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type              = CPU_M6502;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type              = cpu::type::M6502;
     cpu.hz                = 2500000; // unverified
     cpu.irq_period[0]     = 0; // we'll generate IRQ's manually in the game driver
     cpu.nmi_period        = 0; // no periodic nmi
@@ -71,10 +71,10 @@ cobraconv::cobraconv()
     cpu.must_copy_context = true; // set this to true when you add multiple
                                   // 6502's
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add 6502 cpu
+    cpu::add(&cpu); // add 6502 cpu
 
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type              = CPU_M6502;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type              = cpu::type::M6502;
     cpu.hz                = 2500000; // unverified
     cpu.irq_period[0]     = 0;
     cpu.irq_period[1]     = 0;
@@ -83,7 +83,7 @@ cobraconv::cobraconv()
     cpu.must_copy_context = true; // set this to true when you add multiple
                                   // 6502's
     cpu.mem = m_cpumem2;
-    add_cpu(&cpu); // add 6502 cpu
+    cpu::add(&cpu); // add 6502 cpu
 
     struct sound::chip soundchip;
     soundchip.type = sound::CHIP_AY_3_8910;
@@ -135,7 +135,7 @@ cobraconv::cobraconv()
 void cobraconv::do_irq(unsigned int which_irq)
 {
     // IRQ moved to OnVblank function
-    switch (cpu_getactivecpu()) {
+    switch (cpu::get_active()) {
     default:
         // this should never happen
         LOGW << "unhandled IRQ received";
@@ -160,7 +160,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
     //	static unsigned int loopcount = 0;
     Uint8 result = 0;
 
-    switch (cpu_getactivecpu()) {
+    switch (cpu::get_active()) {
     case 0:
         result = m_cpumem[addr];
 
@@ -263,7 +263,7 @@ Uint8 cobraconv::cpu_mem_read(Uint16 addr)
 
 void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
 {
-    switch (cpu_getactivecpu()) {
+    switch (cpu::get_active()) {
     case 0:
         // main ram
         if (addr <= 0x0fff) {
@@ -314,7 +314,7 @@ void cobraconv::cpu_mem_write(Uint16 addr, Uint8 value)
         // sound core/mixer)
         else if (addr == 0x1005) {
             m_sounddata_latch = value;
-            cpu_generate_irq(1, 0); // generate an interrupt on the sound cpu
+            cpu::generate_irq(1, 0); // generate an interrupt on the sound cpu
         }
 
         else if (addr == 0x1003) {
@@ -483,11 +483,11 @@ void cobraconv::input_enable(Uint8 move)
         break;
     case SWITCH_COIN1:
         banks[3] &= ~0x04;
-        cpu_generate_nmi(0);
+        cpu::generate_nmi(0);
         break;
     case SWITCH_COIN2:
         banks[3] &= ~0x02; // right coin chute is bit 1 (see a97f)
-        cpu_generate_nmi(0);
+        cpu::generate_nmi(0);
         break;
     case SWITCH_SERVICE:
         //		banks[3] &= ~0x08;
@@ -572,7 +572,7 @@ void cobraconv::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
     //  status strobe is good enough for now.
     if ((bIsStatus) && (bIsEnabled)) {
         // do an IRQ
-        cpu_generate_irq(0, 0);
+        cpu::generate_irq(0, 0);
     }
 }
 

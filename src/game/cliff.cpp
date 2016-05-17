@@ -52,10 +52,10 @@
 // cliff constructor
 cliff::cliff()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "cliff";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     // initialize m_blips
     m_blips       = 0;
     m_blips_count = 0;
@@ -86,14 +86,14 @@ cliff::cliff()
     m_video_overlay_height = TMS9128NL_OVERLAY_H;
     m_palette_color_count  = TMS_COLOR_COUNT;
 
-    cpu.type              = CPU_Z80;
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = CLIFF_CPU_HZ;
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false;
     cpu.irq_period[0]     = CLIFF_IRQ_PERIOD;
     cpu.nmi_period        = CLIFF_NMI_PERIOD;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add z80 cpu
+    cpu::add(&cpu); // add z80 cpu
 
     m_num_sounds              = 3;
     m_sound_name[S_C_CORRECT] = "cliff_correct.wav";
@@ -178,7 +178,7 @@ cliffalt2::cliffalt2()
 // resets cliff hanger
 void cliff::reset()
 {
-    cpu_reset();
+    cpu::reset();
     video_shutdown();
     video_init();   // restart the video, because otherwise cliff won't reboot
     pr8210::reset(); // makes sure audio is in the correct state
@@ -187,7 +187,7 @@ void cliff::reset()
 // resets goal to go
 void gtg::reset()
 {
-    cpu_reset();
+    cpu::reset();
     e1ba_accesscount = 0; // reset the frame/chapter read count
     video_shutdown();
     video_init();   // restart the video
@@ -419,7 +419,7 @@ void cliff::cliff_do_blip()
     static Uint64 total_cycles = 0;
 
     Uint8 blip_value        = 0;
-    Uint64 cur_total_cycles = get_total_cycles_executed(0);
+    Uint64 cur_total_cycles = cpu::get_total_cycles_executed(0);
 
     // check to make sure flush_cpu_timers was not called
     if (cur_total_cycles > total_cycles) {

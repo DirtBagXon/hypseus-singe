@@ -44,7 +44,7 @@
 
 badlands::badlands()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "badlands";
     memset(banks, 0xFF, 3); // fill banks with 0xFF's
@@ -55,8 +55,8 @@ badlands::badlands()
     m_video_overlay_height = BADLANDS_OVERLAY_H;
     m_palette_color_count  = BADLANDS_COLOR_COUNT;
 
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type              = CPU_M6809;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type              = cpu::type::M6809;
     cpu.hz                = BADLANDS_CPU_HZ / 4;
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false;
@@ -64,7 +64,7 @@ badlands::badlands()
     cpu.irq_period[1]     = (1000.0 / 8.0 / 59.94); // firq 8 times per vblank
     cpu.nmi_period        = (1000.0 / 59.94);       // nmi from vblank
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add 6809 cpu
+    cpu::add(&cpu); // add 6809 cpu
 
     struct sound::chip soundchip;
 
@@ -543,7 +543,7 @@ bool badlands::set_bank(unsigned char which_bank, unsigned char value)
 
 void badlands::reset()
 {
-    cpu_reset();
+    cpu::reset();
     ldv1000::reset();
 }
 

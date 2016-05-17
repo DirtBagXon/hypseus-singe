@@ -107,7 +107,7 @@ unsigned char read()
             // using uint32 because this number should never get big enough to
             // hit the uint64 range
             Uint32 elapsed_cycles =
-                (Uint32)(get_total_cycles_executed(0) - g_search_begin_cycles);
+                (Uint32)(cpu::get_total_cycles_executed(0) - g_search_begin_cycles);
 
             g_output = 0x50; // default to being busy searching
 
@@ -322,7 +322,7 @@ void write(unsigned char value)
                 else {
                     g_search_pending      = true;
                     g_output              = 0x50;
-                    g_search_begin_cycles = get_total_cycles_executed(0);
+                    g_search_begin_cycles = cpu::get_total_cycles_executed(0);
                 }
             }
 
@@ -607,7 +607,7 @@ void event_callback(void *eventType)
 #ifdef DEBUG
         assert(is_vsync_active() == false);
 #endif
-        cpu_set_event(0, g_until_status_start, event_callback,
+        cpu::set_event(0, g_until_status_start, event_callback,
                       (void *)LDV1000_EVENT_STATUS_START);
         break;
     case LDV1000_EVENT_STATUS_START:
@@ -615,7 +615,7 @@ void event_callback(void *eventType)
 #ifdef DEBUG
         assert(is_status_strobe_active() == true);
 #endif
-        cpu_set_event(0, g_until_status_end, event_callback,
+        cpu::set_event(0, g_until_status_end, event_callback,
                       (void *)LDV1000_EVENT_STATUS_END);
         break;
     case LDV1000_EVENT_STATUS_END:
@@ -623,7 +623,7 @@ void event_callback(void *eventType)
 #ifdef DEBUG
         assert(is_status_strobe_active() == false);
 #endif
-        cpu_set_event(0, g_until_command_start, event_callback,
+        cpu::set_event(0, g_until_command_start, event_callback,
                       (void *)LDV1000_EVENT_COMMAND_START);
         break;
     case LDV1000_EVENT_COMMAND_START:
@@ -631,7 +631,7 @@ void event_callback(void *eventType)
 #ifdef DEBUG
         assert(is_command_strobe_active() == true);
 #endif
-        cpu_set_event(0, g_until_command_end, event_callback,
+        cpu::set_event(0, g_until_command_end, event_callback,
                       (void *)LDV1000_EVENT_COMMAND_END);
         break;
     case LDV1000_EVENT_COMMAND_END:
@@ -656,7 +656,7 @@ void report_vsync()
 #ifdef DEBUG
     assert(is_vsync_active() == true);
 #endif
-    cpu_set_event(0, g_until_vsync_end, event_callback,
+    cpu::set_event(0, g_until_vsync_end, event_callback,
                   (void *)LDV1000_EVENT_VSYNC_END);
     g_last_event = 0;
 }
@@ -685,7 +685,7 @@ bool is_command_strobe_active()
 void reset()
 {
     clear();
-    Uint32 cpu_hz       = get_cpu_hz(0);
+    Uint32 cpu_hz       = cpu::get_hz(0);
     double dCyclesPerUs = cpu_hz / 1000000.0; // cycles per microsecond
 
     // anything else?
@@ -710,7 +710,7 @@ void reset()
     g_until_command_end =
         (Uint32)((dCyclesPerUs * 25.0) + 0.5); // cmd strobe lasts 25 uS
 
-    g_cycles_per_search = (Uint32)(get_cpu_hz(0) * g_seconds_per_search);
+    g_cycles_per_search = (Uint32)(cpu::get_hz(0) * g_seconds_per_search);
 }
 
 void set_seconds_per_search(double d)

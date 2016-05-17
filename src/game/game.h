@@ -72,7 +72,7 @@ enum {
 
 #include <SDL.h>
 #include "../sound/sound.h"
-#include "../cpu/cpu.h"  // for CPU_MEM_SIZE
+#include "../cpu/cpu.h"  // for cpu::MEM_SIZE
 #include "../io/input.h" // for SWITCH definitions, most/all games need them
 
 typedef void *unzFile; // because including the unzip header file gives some
@@ -248,8 +248,8 @@ class game
                                  // "ace" "dle", etc)
     const struct rom_def *m_rom_list; // pointer to a null-terminated array of
                                       // roms to be loaded
-    Uint8 m_cpumem[CPU_MEM_SIZE]; // generic buffer that most 16-bit addressing
-                                  // cpu's can use
+    Uint8 m_cpumem[cpu::MEM_SIZE]; // generic buffer that most 16-bit addressing
+                                   // cpu's can use
     unsigned int m_uDiscFPKS; // frames per kilosecond of the game's laserdisc
                               // (to avoid using gp2x-unfriendly float)
     double m_disc_fps; // frames per second of the game's laserdisc; (only used

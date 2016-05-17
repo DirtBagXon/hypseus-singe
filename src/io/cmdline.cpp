@@ -738,7 +738,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-pal_dl") == 0) {
                 set_frame_modifier(MOD_PAL_DL);
                 printline("Setting up for the PAL Dragon's Lair disc");
-                cpu_change_irq(0, 0,
+                cpu::change_irq(0, 0,
                                LAIR_IRQ_PERIOD * (23.976 / 25.0)); // change IRQ
                                                                    // 0 of CPU 0
                 // DL PAL runs at a different speed so we need to overclock the
@@ -750,7 +750,7 @@ bool parse_cmd_line(int argc, char **argv)
                 set_frame_modifier(MOD_PAL_DL_SC);
                 printline("Setting up for the PAL Dragon's Lair "
                           "Software Corner disc");
-                cpu_change_irq(0, 0, LAIR_IRQ_PERIOD * (23.976 / 25.0));
+                cpu::change_irq(0, 0, LAIR_IRQ_PERIOD * (23.976 / 25.0));
                 // DL Amiga runs at a different speed so we need to overclock
                 // the IRQ slightly
             } else if (strcasecmp(s, "-pal_sa_sc") == 0) {
@@ -795,7 +795,7 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-trace") == 0) {
 #ifdef CPU_DEBUG
                 printline("CPU tracing enabled");
-                set_cpu_trace(1);
+                cpu::set_trace(1);
 #else
                 printline("Needs to be compiled in debug mode for this "
                           "to work");

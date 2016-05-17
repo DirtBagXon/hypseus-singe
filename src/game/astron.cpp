@@ -54,11 +54,11 @@
 
 astron::astron()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "astronp";
 
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xFF, 4);        // fill banks with 0xFF's
     memset(sprite, 0x00, 0x10000); // making sure sprite[] is zero'd out
     memset(used_sprite_color, 0x00, 256);
@@ -72,14 +72,14 @@ astron::astron()
     m_video_overlay_height = ASTRON_OVERLAY_H;
     m_palette_color_count  = ASTRON_COLOR_COUNT;
 
-    cpu.type              = CPU_Z80;
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 5000000; // the schematics seem to indicate that its 20MHz / 4
     cpu.irq_period[0]     = (1000.0 / 59.94); // interrupt from vblank (60hz)
     cpu.nmi_period        = (1000.0 / 59.94); // nmi from LD-V1000 command strobe
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add a z80
+    cpu::add(&cpu); // add a z80
 
     current_bank        = 0;
     m_transparent_color = 0;
@@ -226,7 +226,7 @@ astronh::astronh()
 {
     m_shortgamename = "astron";
 
-    cpu_change_nmi(0, 2.0); // change the NMI period for cpu #0
+    cpu::change_nmi(0, 2.0); // change the NMI period for cpu #0
     // we'll use this to clock the 8251
     rxrdy = txrdy = false;
 

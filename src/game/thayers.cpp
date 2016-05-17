@@ -44,16 +44,16 @@
 
 thayers::thayers() : m_pScoreboard(NULL)
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "tq";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xFF, 2); // fill banks with 0xFF's
     banks[0]    = 0x0;      // put it on free play
     m_disc_fps  = 29.97;
     m_game_type = GAME_THAYERS;
 
-    cpu.type          = CPU_Z80;
+    cpu.type          = cpu::type::Z80;
     cpu.hz            = THAYERS_CPU_HZ;
     cpu.irq_period[0] = (1000.0 / 60.0); // TQ has no clock-driven IRQ, but
                                          // we'll use this to time vsync instead
@@ -61,15 +61,15 @@ thayers::thayers() : m_pScoreboard(NULL)
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu);
+    cpu::add(&cpu);
 
-    cpu.type = CPU_COP421;
+    cpu.type = cpu::type::COP421;
     cpu.hz   = THAYERS_CPU_HZ / 2 / 32; // the cop clock is divided by 2
                                         // externally and 32 internally
     cpu.nmi_period        = 0;
     cpu.must_copy_context = false;
     cpu.mem = coprom;
-    add_cpu(&cpu);
+    cpu::add(&cpu);
 
     m_irq_status = 0x3f;
     ldv1000::enable_instant_seeking();
@@ -118,7 +118,7 @@ bool thayers::init()
 
     // if sound initialization succeeded
     if (result) {
-        cpu_init();
+        cpu::init();
 
         IScoreboard *pScoreboard =
             ScoreboardCollection::GetInstance(tq_get_active_overlay,
@@ -191,7 +191,7 @@ void thayers::shutdown()
     if (m_pScoreboard) {
         m_pScoreboard->PreDeleteInstance();
     }
-    cpu_shutdown();
+    cpu::shutdown();
 }
 
 // TQ supports multiple rom revs

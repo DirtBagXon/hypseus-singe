@@ -33,30 +33,30 @@
 
 mcputest::mcputest()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "mcputest";
-    memset(&cpu, 0, sizeof(struct cpudef)); // clear struct for safety purposes
-    cpu.type              = CPU_Z80;
+    memset(&cpu, 0, sizeof(struct cpu::def)); // clear struct for safety purposes
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 4000000; // cpu speed is irrelevant
     cpu.irq_period[0]     = 1000.0;  // 1 IRQ every second
     cpu.nmi_period        = 500.0;   // 2 NMIs per second
     cpu.initial_pc        = 0;
     cpu.must_copy_context = true;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add this cpu to the list
+    cpu::add(&cpu); // add this cpu to the list
 
     m_game_uses_video_overlay = false;
 
-    memset(&cpu, 0, sizeof(struct cpudef)); // for safety purposes
-    cpu.type              = CPU_Z80;
+    memset(&cpu, 0, sizeof(struct cpu::def)); // for safety purposes
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 5000000; // cpu speed is irrelevant
     cpu.irq_period[0]     = 2000.0;  // 1 IRQ every second
     cpu.nmi_period        = 1000.0;  // 2 NMIs per second
     cpu.initial_pc        = 0;
     cpu.must_copy_context = true;
     cpu.mem = m_cpumem2;
-    add_cpu(&cpu); // add this cpu to the list
+    cpu::add(&cpu); // add this cpu to the list
 
     const static struct rom_def multicputest_roms[] =
         {{"prog1.bin", "cputest", &m_cpumem[0], 113, 0xAEFCA341},
@@ -80,7 +80,7 @@ void mcputest::do_nmi() { Z80_ASSERT_NMI; }
 Uint8 mcputest::cpu_mem_read(Uint16 addr)
 {
     // cpu #0
-    if (cpu_getactivecpu() == 0) {
+    if (cpu::get_active() == 0) {
         return m_cpumem[addr];
     }
     // cpu #1
@@ -92,7 +92,7 @@ Uint8 mcputest::cpu_mem_read(Uint16 addr)
 void mcputest::cpu_mem_write(Uint16 addr, Uint8 value)
 {
     // cpu #0
-    if (cpu_getactivecpu() == 0) {
+    if (cpu::get_active() == 0) {
         m_cpumem[addr] = value;
     }
     // cpu #1
@@ -108,7 +108,7 @@ void mcputest::port_write(Uint16 Port, Uint8 Value)
     Port &= 0xFF; // strip off high byte
     static Uint8 old_val[2][2] = {{255, 255}, {1, 1}};
     Uint8 expected_val[2][2]   = {{0}};
-    Uint8 which_cpu            = cpu_getactivecpu();
+    Uint8 which_cpu            = cpu::get_active();
 
     if (Port > 1) {
         printline("WTF?");

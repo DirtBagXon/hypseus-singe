@@ -46,16 +46,16 @@
 
 cputest::cputest() : m_uZeroCount(0), m_bStarted(false)
 {
-    struct cpudef cpu; // structure we will define our cpu in
+    struct cpu::def cpu; // structure we will define our cpu in
 
     m_shortgamename = "cputest";
-    memset(&cpu, 0, sizeof(struct cpudef));
-    cpu.type              = CPU_Z80;
+    memset(&cpu, 0, sizeof(struct cpu::def));
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 2000000000; // 2000 mhz (fast as possible)!
     cpu.initial_pc        = 0x100;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add this cpu to the list (it will be our only one)
+    cpu::add(&cpu); // add this cpu to the list (it will be our only one)
 
     m_disc_fps = 29.97; // for now this needs _some_ value for vblank purposes
 
@@ -68,13 +68,13 @@ bool cputest::init()
     bool bSuccess = false;
 
 #ifdef CPU_DEBUG
-    // this cpu test requires CPU_DEBUG to be enabled because that's the only
+    // this cpu test requirescpu::type::DEBUG to be enabled because that's the only
     // way that the update_pc callback will get called.
     bSuccess = true;
 #else
-    LOGW << "This build was not compiled with CPU_DEBUG defined.  Recompile "
-              "with CPU_DEBUG defined in order to run the cpu tests.";
-#endif // CPU_DEBUG
+    LOGW << "This build was not compiled withcpu::type::DEBUG defined.  Recompile "
+              "withcpu::type::DEBUG defined in order to run the cpu tests.";
+#endif //cpu::type::DEBUG
 
     return bSuccess;
 }

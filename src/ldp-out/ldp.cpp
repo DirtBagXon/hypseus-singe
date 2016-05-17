@@ -214,7 +214,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     // if it's Dragon's Lair/Space Ace, print the board we are on
     if ((g_game->get_game_type() == GAME_LAIR) || (g_game->get_game_type() == GAME_DLE1) ||
         (g_game->get_game_type() == GAME_DLE2) || (g_game->get_game_type() == GAME_ACE)) {
-        Uint8 *cpumem = get_cpu_mem(0); // get the memory for the first (and
+        Uint8 *cpumem = cpu::get_mem(0); // get the memory for the first (and
                                         // only)
         print_board_info(cpumem[0xA00E], cpumem[0xA00F], cpumem[Z80_GET_IY]);
     }
@@ -267,7 +267,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
 
                 // we know we may be waiting for a while, so we pause the cpu
                 // timer to avoid getting a flood after the seek completes
-                cpu_pause();
+                cpu::pause();
 
                 // wait for player to change its status or for us to timeout
                 while (elapsed_ms_time(cur_time) < 7000) {
@@ -301,7 +301,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
                     think();
                 }
 
-                cpu_unpause(); // done with the delay, so we can unpause
+                cpu::unpause(); // done with the delay, so we can unpause
 
                 // if we didn't succeed, then return an error
                 if (ldp_stat != LDP_PAUSED) {
@@ -512,9 +512,9 @@ void ldp::pre_play()
         // if the disc may need to take a long time to spin up, then pause the
         // cpu timers while the disc spins up
         if (m_status == LDP_STOPPED) {
-            cpu_pause();
+            cpu::pause();
             m_play_time = play();
-            cpu_unpause();
+            cpu::unpause();
         } else {
             m_play_time = play();
         }
@@ -645,7 +645,7 @@ bool ldp::change_speed(unsigned int uNumerator, unsigned int uDenominator)
 
 void ldp::think_delay(unsigned int uMsDelay)
 {
-    bool bEmulatedCpu = (get_cpu_hz(0) != 0); // whether we've got an emulated
+    bool bEmulatedCpu = (cpu::get_hz(0) != 0); // whether we've got an emulated
                                               // cpu
 
     // safety check: make sure that we're not using an emulated CPU
@@ -786,7 +786,7 @@ void ldp::pre_think()
         // otherwise we may deliberately
         //  be calling this function slower than every 1 ms, such as ffr() or
         //  vldp's internal tests )
-        if (get_cpu_hz(0)) {
+        if (cpu::get_hz(0)) {
             // compute milliseconds
             unsigned int uElapsedMS = elapsed_ms_time(m_play_time);
             unsigned int time_result =

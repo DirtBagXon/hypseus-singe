@@ -47,10 +47,10 @@
 
 lgp::lgp()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "lgp";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(m_cpumem, 0x00, 0x10000);  // making sure m_cpumem[] is zero'd out
     memset(m_cpumem2, 0x00, 0x10000); // making sure m_cpumem2[] is zero'd out
     memset(banks, 0x00, 7);           // fill banks with 0xFF's
@@ -61,23 +61,23 @@ lgp::lgp()
     m_video_overlay_height = LGP_OVERLAY_H;
     m_palette_color_count  = LGP_COLOR_COUNT;
 
-    cpu.type              = CPU_Z80;
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 5000000;
     cpu.irq_period[0]     = 16.6666; // interrupt from vblank (60hz)
     cpu.nmi_period        = 0;       // nmi from sound chip?
     cpu.initial_pc        = 0;
     cpu.must_copy_context = true;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add a z80
+    cpu::add(&cpu); // add a z80
 
-    cpu.type              = CPU_Z80;
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 5000000;
     cpu.irq_period[0]     = 0;
     cpu.nmi_period        = 0;
     cpu.initial_pc        = 0;
     cpu.must_copy_context = true;
     cpu.mem = m_cpumem2;
-    add_cpu(&cpu); // add a z80
+    cpu::add(&cpu); // add a z80
 
     struct sound::chip soundchip;
     soundchip.type  = sound::CHIP_AY_3_8910;
@@ -136,7 +136,7 @@ Uint8 lgp::cpu_mem_read(Uint16 addr)
     Uint8 result = 0;
     char s[81]   = {0};
 
-    switch (cpu_getactivecpu()) {
+    switch (cpu::get_active()) {
     case 0:
         result = m_cpumem[addr];
         // patch rom to boot faster
@@ -202,7 +202,7 @@ void lgp::cpu_mem_write(Uint16 addr, Uint8 value)
 {
     char s[81] = {0};
 
-    switch (cpu_getactivecpu()) {
+    switch (cpu::get_active()) {
     case 0:
         m_cpumem[addr] = value;
         // main rom
@@ -431,7 +431,7 @@ void lgp::input_enable(Uint8 move)
         break;
     case SWITCH_COIN1:
         banks[0] = 0xf0;
-        cpu_generate_nmi(0);
+        cpu::generate_nmi(0);
         break;
     case SWITCH_COIN2:
         break;

@@ -55,15 +55,17 @@
 
 using namespace std;
 
-stack <Uint32> g_cpu_paused_timer;	// the time we were at when cpu_pause_timer was called
-bool g_cpu_paused = false;
+namespace cpu
+{
+stack <Uint32> g_paused_timer;	// the time we were at when pause_timer was called
+bool g_paused = false;
 
-struct cpudef *g_head = NULL;	// pointer to the first cpu in our linked list of cpu's
-unsigned char g_cpu_count = 0;	// how many cpu's have been added
-bool g_cpu_initialized[CPU_COUNT] = { false };	// whether cpu core has been initialized
-Uint32 g_cpu_timer = 0;	// used to make cpu's run at the right speed
+struct def *g_head = NULL;	// pointer to the first cpu in our linked list of cpu's
+unsigned char g_count = 0;	// how many cpu's have been added
+bool g_initialized[type::COUNT] = { false };	// whether cpu core has been initialized
+Uint32 g_timer = 0;	// used to make cpu's run at the right speed
 Uint32 g_expected_elapsed_ms = 0;	// how many ms we expect to have elapsed since last cpu execution loop
-Uint8 g_active_cpu = 0;	// which cpu is currently active
+Uint8 g_active = 0;	// which cpu is currently active
 unsigned int g_uInterleavePerMs = 1; // number of times the cpus switch in 1 ms 
 
 // How many milliseconds the CPU emulation is lagging behind.
@@ -89,14 +91,14 @@ unsigned int g_uCPUMsBehind = 0;
 //////////////////////////////////////////////////////////////////////////////////
 
 // adds a cpu to our linked list.  The data is copied, so you can clobber the original data after this call.
-void add_cpu (struct cpudef *candidate)
+void add (struct def *candidate)
 {
-	struct cpudef *cur = NULL;
+	struct def *cur = NULL;
 	
 	// if this is the first cpu to be added to the list
 	if (!g_head)
 	{
-		g_head = new struct cpudef;	// allocate a new cpu, assume allocation is successful
+		g_head = new struct def;	// allocate a new cpu, assume allocation is successful
 		cur = g_head;	// point to the new cpu so we can populate it with info
 	}
 	// else we have to move to the end of the list
@@ -105,23 +107,23 @@ void add_cpu (struct cpudef *candidate)
 		cur = g_head;
 
 		// go to the last cpu in the list
-		while (cur->next_cpu)
+		while (cur->next)
 		{
-			cur = cur->next_cpu;
+			cur = cur->next;
 		}
 
-		cur->next_cpu = new struct cpudef;	// allocate a new cpu at the end of our list
-		cur = cur->next_cpu;	// point to the new cpu so we can populate it with info
+		cur->next = new struct def;	// allocate a new cpu at the end of our list
+		cur = cur->next;	// point to the new cpu so we can populate it with info
 	}
 
 	// now we must copy over the relevant info
-	memcpy(cur, candidate, sizeof(struct cpudef));	// copy entire thing over
-	cur->id = g_cpu_count;
-	g_cpu_count++;
+	memcpy(cur, candidate, sizeof(struct def));	// copy entire thing over
+	cur->id = g_count;
+	g_count++;
 
 	// DEFAULT VALUES
 	cur->ascii_info_callback = generic_ascii_info_stub;
-	cur->elapsedcycles_callback = generic_cpu_elapsedcycles_stub;
+	cur->elapsedcycles_callback = generic_elapsedcycles_stub;
 	cur->getpc_callback = NULL;
 	cur->dasm_callback = generic_dasm_stub;
 	// END DEFAULT VALUES
@@ -129,7 +131,7 @@ void add_cpu (struct cpudef *candidate)
 	// now we must assign the appropriate callbacks
 	switch (cur->type)
 	{
-	case CPU_Z80:
+	case type::Z80:
 #ifdef USE_M80
 		cur->init_callback = m80_reset;
 		cur->shutdown_callback = NULL;
@@ -163,7 +165,7 @@ void add_cpu (struct cpudef *candidate)
 #endif
 		break;
 
-	case CPU_M6809:
+	case type::M6809:
 		cur->init_callback = initialize_m6809;
 		cur->shutdown_callback = NULL;
 		cur->setmemory_callback = m6809_set_memory;
@@ -176,7 +178,7 @@ void add_cpu (struct cpudef *candidate)
 		cur->ascii_info_callback = mc6809_info;
 		break;
 
-	case CPU_M6502:
+	case type::M6502:
 		cur->init_callback = generic_6502_init;
 		cur->shutdown_callback = generic_6502_shutdown;
 		cur->setmemory_callback = generic_6502_setmemory;
@@ -189,7 +191,7 @@ void add_cpu (struct cpudef *candidate)
 		cur->reset_callback = generic_6502_reset;
 		cur->ascii_info_callback = generic_6502_info;
 		break;
-	case CPU_COP421:
+	case type::COP421:
 		cur->init_callback = cop421_reset;
 		cur->shutdown_callback = NULL;
 		cur->setmemory_callback = cop421_setmemory;
@@ -199,7 +201,7 @@ void add_cpu (struct cpudef *candidate)
 		cur->setpc_callback = NULL;
 		cur->reset_callback = cop421_reset;
 		break;
-	case CPU_I88:
+	case type::I88:
 		cur->init_callback = i86_init;
 		cur->shutdown_callback = i86_exit;
 		cur->setmemory_callback = mw_i86_set_mem;
@@ -221,28 +223,28 @@ void add_cpu (struct cpudef *candidate)
 }
 
 // de-allocate all cpu's that have been allocated
-void del_all_cpus()
+void del_all()
 {
-	struct cpudef *cur = g_head;
-	struct cpudef *tmp = NULL;
+	struct def *cur = g_head;
+	struct def *tmp = NULL;
 	
 	// while we have cpu's left to delete
 	while (cur)
 	{
 		tmp = cur;
-		cur = cur->next_cpu;
+		cur = cur->next;
 		delete tmp;	// de-allocate
 	}
 	g_head = NULL;
-	g_cpu_count = 0;
+	g_count = 0;
 
 }
 
 // recalculations all expensive calculations
 // (put in one place to make maintenance easier)
-void cpu_recalc()
+void recalc()
 {
-	struct cpudef *cpu = g_head;
+	struct def *cpu = g_head;
 
 	// re-calculate all cycles per interleave for the new interleave value
 	while (cpu)
@@ -255,23 +257,23 @@ void cpu_recalc()
 			cpu->uIRQMicroPeriod[i] = (unsigned int) ((cpu->irq_period[i] * 1000) + 0.5);	// convert to int for faster math on gp2x
 		}
 
-		cpu = cpu->next_cpu;
+		cpu = cpu->next;
 	}
 }
 
 // initializes all cpus
-void cpu_init()
+void init()
 {
-	struct cpudef *cur = g_head;
+	struct def *cur = g_head;
 	
 	while (cur)
 	{
-		g_active_cpu = cur->id;
+		g_active = cur->id;
 #ifdef CPU_DIAG
-		cd_old_time[g_active_cpu] = refresh_ms_time();
+		cd_old_time[g_active] = refresh_ms_time();
 #endif
 
-		cpu_recalc();
+		recalc();
 
 		cur->pending_nmi_count = 0;
 		for (int i = 0; i < MAX_IRQS; i++)
@@ -284,10 +286,10 @@ void cpu_init()
 		cur->event_callback = NULL;
 
 		// if the cpu core has not been initialized yet, then do so .. it should only be done once per cpu core
-		if (!g_cpu_initialized[cur->type])
+		if (!g_initialized[cur->type])
 		{
 			(cur->init_callback)();	// initialize the cpu
-			g_cpu_initialized[cur->type] = true;
+			g_initialized[cur->type] = true;
 		}
 		(cur->setmemory_callback)(cur->mem);	// set where the memory is located
 		
@@ -310,13 +312,13 @@ void cpu_init()
 			}
 		}
 		
-		cur = cur->next_cpu;	// advance to the next cpu
+		cur = cur->next;	// advance to the next cpu
 
 	} // end while
 
 	// this is needed to get multiple 6502's running properly, and it shouldn't hurt other
 	//  CPUs if they are implemented correctly.
-	cpu_reset();
+	reset();
 
     ldv1000::reset();	// calculate strobe stuff, most games won't need this but it doesn't hurt
     ldp1000::reset();	// calculate ACK latency stuff, most games won't need this but it doesn't hurt
@@ -324,42 +326,42 @@ void cpu_init()
 }
 
 // shutdown all cpu's
-void cpu_shutdown()
+void shutdown()
 {
-	struct cpudef *cur = g_head;
+	struct def *cur = g_head;
 	
 	// go through each cpu and shut it down
 	while (cur)
 	{
-		g_active_cpu = cur->id;
+		g_active = cur->id;
 		// if we have a shutdown callback defined
 		if (cur->shutdown_callback)
 		{
 			// we only want to shutdown the cpu core once
-			if (g_cpu_initialized[cur->type] == true)
+			if (g_initialized[cur->type] == true)
 			{
 				(cur->shutdown_callback)();	// shutdown the cpu
-				g_cpu_initialized[cur->type] = false;
+				g_initialized[cur->type] = false;
 			}
 		}
-		cur = cur->next_cpu; // move to the next cpu entry
+		cur = cur->next; // move to the next cpu entry
 	}
 	
-	del_all_cpus();
+	del_all();
 }
 
 
 
 // executes all cpu cores "simultaneously".  this function only returns when the game exits
-void cpu_execute()
+void execute()
 {
 	int i = 0;
 	Uint32 last_inputcheck = 0; //time we last polled for input events
-	struct cpudef *cpu = g_head;
+	struct def *cpu = g_head;
 
 	// flush the cpu timers one time so we don't begin with the cpu's running too quickly
 	g_expected_elapsed_ms = 0;
-	g_cpu_timer = refresh_ms_time();	// so the cpu doesn't run too quickly when we first start
+	g_timer = refresh_ms_time();	// so the cpu doesn't run too quickly when we first start
 
 	// clear each cpu
 	while (cpu)
@@ -374,7 +376,7 @@ void cpu_execute()
 		cpu->uNMITickBoundaryMs = cpu->uNMIMicroPeriod / 1000;	// when the 1st NMI will tick
 		//cpu->nmi_cycle_count = 0;
 		cpu->total_cycles_executed = 0;		
-		cpu = cpu->next_cpu;
+		cpu = cpu->next;
 	}
 	// end flushing the cpu timers
 
@@ -403,7 +405,7 @@ void cpu_execute()
 					(cpu->setcontext_callback)(cpu->context);	// restore registers
 					(cpu->setmemory_callback)(cpu->mem);	// restore memory we're working with
 				}
-				g_active_cpu = cpu->id;
+				g_active = cpu->id;
 
 				nmi_asserted = false;
 
@@ -452,7 +454,7 @@ void cpu_execute()
 								cpu->total_cycles_executed += elapsed_cycles;	// always track how many cycles have elapsed
 	
 #ifdef CPU_DIAG
-								cd_cycle_count[g_active_cpu] += elapsed_cycles;
+								cd_cycle_count[g_active] += elapsed_cycles;
 #endif // CPU_DIAG
 	
 #ifdef DEBUG
@@ -486,8 +488,8 @@ void cpu_execute()
 				}
 
 #ifdef CPU_DIAG
-				cd_cycle_count[g_active_cpu] += elapsed_cycles;
-				cd_avg_mhz[g_active_cpu] = (cpu->total_cycles_executed * 0.001) / elapsed_ms_time(g_cpu_timer);
+				cd_cycle_count[g_active] += elapsed_cycles;
+				cd_avg_mhz[g_active] = (cpu->total_cycles_executed * 0.001) / elapsed_ms_time(g_timer);
 #endif
 
 				// NOW WE CHECK TO SEE IF IT'S TIME TO DO AN NMI
@@ -507,7 +509,7 @@ void cpu_execute()
 				}
 
 				// if we have an NMI waiting
-				// (this can be created either by a timer, or by calling cpu_generate_nmi)
+				// (this can be created either by a timer, or by calling generate_nmi)
 				if (cpu->pending_nmi_count != 0)
 				{
 					g_game->do_nmi();
@@ -537,7 +539,7 @@ void cpu_execute()
 					} // end if there is an IRQ timer
 
 					// if we have an IRQ waiting
-					// (this can be created either by a timer or by calling cpu_generate_irq)
+					// (this can be created either by a timer or by calling generate_irq)
 					if (cpu->pending_irq_count[i] != 0)
 					{
 						// we don't want to do IRQ's and NMI's at the same time
@@ -572,29 +574,29 @@ void cpu_execute()
 				// the bigger the #, the more accurate the result
 
 				// if it's time to print some statistics
-				if (cd_cycle_count[g_active_cpu] >= CPU_DIAG_ACCURACY)
+				if (cd_cycle_count[g_active] >= CPU_DIAG_ACCURACY)
 				{
-					Uint32 elapsed_ms = elapsed_ms_time(cd_old_time[g_active_cpu]);
-					double cur_mhz = ((double) cd_cycle_count[g_active_cpu] / (double) elapsed_ms) * 0.001;
-					cd_report_count[g_active_cpu]++;
+					Uint32 elapsed_ms = elapsed_ms_time(cd_old_time[g_active]);
+					double cur_mhz = ((double) cd_cycle_count[g_active] / (double) elapsed_ms) * 0.001;
+					cd_report_count[g_active]++;
 
 					sprintf(s,"CPU #%d : cycles = %d, time = %d ms, MHz = %f, avg MHz = %f",
-						g_active_cpu,
-						cd_cycle_count[g_active_cpu], elapsed_ms,
-						cur_mhz, cd_avg_mhz[g_active_cpu]);
+						g_active,
+						cd_cycle_count[g_active], elapsed_ms,
+						cur_mhz, cd_avg_mhz[g_active]);
 					printline(s);
-					sprintf(s, "         NMI's = %d ", cd_nmi_count[g_active_cpu]);
-					cd_nmi_count[g_active_cpu] = 0;
+					sprintf(s, "         NMI's = %d ", cd_nmi_count[g_active]);
+					cd_nmi_count[g_active] = 0;
 					outstr(s);
 					for (int irqi = 0; irqi < MAX_IRQS; irqi++)
 					{
-						sprintf(s, "IRQ%d's = %d ", irqi, cd_irq_count[g_active_cpu][irqi]);
+						sprintf(s, "IRQ%d's = %d ", irqi, cd_irq_count[g_active][irqi]);
 						outstr(s);
-						cd_irq_count[g_active_cpu][irqi] = 0;
+						cd_irq_count[g_active][irqi] = 0;
 					}
 					newline();
-					cd_old_time[g_active_cpu] += elapsed_ms;
-					cd_cycle_count[g_active_cpu] -= CPU_DIAG_ACCURACY;
+					cd_old_time[g_active] += elapsed_ms;
+					cd_cycle_count[g_active] -= CPU_DIAG_ACCURACY;
 					
 					sprintf(s, "Resource Usage: %u percent", 100 - ((cd_extra_ms * 100) / elapsed_ms));
 					printline(s);
@@ -611,7 +613,7 @@ void cpu_execute()
 					(cpu->getcontext_callback)(cpu->context);	// preserve registers
 				}
 
-				cpu = cpu->next_cpu; // go to the next cpu
+				cpu = cpu->next; // go to the next cpu
 
 			} // end while looping through each cpu
 		} // end for loop
@@ -625,7 +627,7 @@ void cpu_execute()
 		// BEGIN FORCING EMULATOR TO RUN AT PROPER SPEED
 
 		// we have executed 1 ms worth of cpu cycles before this point, so slow down if 1 ms has not passed
-		actual_elapsed_ms = elapsed_ms_time(g_cpu_timer);
+		actual_elapsed_ms = elapsed_ms_time(g_timer);
 
 #ifdef CPU_DIAG
 		unsigned int uStartMs = actual_elapsed_ms;
@@ -645,7 +647,7 @@ void cpu_execute()
 			while (g_expected_elapsed_ms > actual_elapsed_ms)
 			{
 				SDL_Delay(1);
-				actual_elapsed_ms = elapsed_ms_time(g_cpu_timer);
+				actual_elapsed_ms = elapsed_ms_time(g_timer);
 			}
 		}
 
@@ -661,7 +663,7 @@ void cpu_execute()
 		// lead to inaccuracies.  It would be better to have a boolean that requests
 		// for the cpu to be paused, and then if that boolean is true, to pause the
 		// cpu at this point.  That would be more accurate.
-		assert(!g_cpu_paused);
+		assert(!g_paused);
 #endif
 
 		do
@@ -676,21 +678,21 @@ void cpu_execute()
 			}
 
 			// be nice to cpu if we're looping here ...
-			if (g_cpu_paused)
+			if (g_paused)
 			{
 				make_delay(1);
 			}
 
-		} while (g_cpu_paused && !get_quitflag());	// the only time this should loop is if the user pauses the game
+		} while (g_paused && !get_quitflag());	// the only time this should loop is if the user pauses the game
 	} // end while quitflag is not true
 }
 
 // sets the PC on all cpu's to their initial PC values.
 // in the future this might reset the context too, but for now let's see if this is sufficient
 // to reboot all our games
-void cpu_reset()
+void reset()
 {
-	struct cpudef *cpu = g_head;
+	struct def *cpu = g_head;
 	
 	// reset each cpu
 	while (cpu)
@@ -716,13 +718,13 @@ void cpu_reset()
 			(cpu->getcontext_callback)(cpu->context);	// preserve registers
 		}
 
-		cpu = cpu->next_cpu;
+		cpu = cpu->next;
 	}
 }
 
-void cpu_set_event(unsigned int uCpuID, unsigned int uCyclesTilEvent, void (*event_callback)(void *data), void *event_data)
+void set_event(unsigned int uCpuID, unsigned int uCyclesTilEvent, void (*event_callback)(void *data), void *event_data)
 {
-	struct cpudef *cpu = get_cpu_struct(uCpuID);
+	struct def *cpu = get_struct(uCpuID);
 
 	if (cpu)
 	{
@@ -736,23 +738,23 @@ void cpu_set_event(unsigned int uCpuID, unsigned int uCyclesTilEvent, void (*eve
 	// make programmer fix this problem :)
 	else
 	{
-		printline("cpu_set_event() : can't find CPU, fix this!");
+		printline("set_event() : can't find CPU, fix this!");
 		set_quitflag();
 	}
 }
 
 // Recursively pauses cpu execution
 //  call this right before you do a function that may take a long time to return from (such as spinning up a laserdisc player)
-// Why is this recursive? Because ldp, cpu-debug and thayer's quest can all call cpu_pause,
-//  and the user can pause the game (which calls cpu_pause).  It's conceivable that the
+// Why is this recursive? Because ldp, cpu-debug and thayer's quest can all call pause,
+//  and the user can pause the game (which calls pause).  It's conceivable that the
 //  user could pause the game, then break into debug mode which would give us two
 //  pauses on top of each other.
 // Personally, I'd prefer to put in an assert that guarantees that the cpu can only be
 //  paused by 1 function at a time, but that is on the future TODO ...
-void cpu_pause()
+void pause()
 {
-	g_cpu_paused_timer.push(refresh_ms_time());
-	g_cpu_paused = true;
+	g_paused_timer.push(refresh_ms_time());
+	g_paused = true;
 #ifdef DEBUG
 //	printline("CPU paused...");
 #endif
@@ -760,19 +762,19 @@ void cpu_pause()
 
 // Recursively unpauses cpu execution
 // call this right after you do a function that may take a long time to return from (such as spinning up a laserdisc player)
-// This function simply adjust the cpu timer so it appears as if no time has elapsed since cpu_pause_timer was called.
-void cpu_unpause()
+// This function simply adjust the cpu timer so it appears as if no time has elapsed since pause_timer was called.
+void unpause()
 {
 	// safety check
-	if (g_cpu_paused_timer.size() > 0)
+	if (g_paused_timer.size() > 0)
 	{
-		g_cpu_timer = refresh_ms_time() - (g_cpu_paused_timer.top() - g_cpu_timer);
-		g_cpu_paused_timer.pop();
+		g_timer = refresh_ms_time() - (g_paused_timer.top() - g_timer);
+		g_paused_timer.pop();
 
 		// if our pause stack is empty, then we can finally, safely, unpause
-		if (g_cpu_paused_timer.size() == 0)
+		if (g_paused_timer.size() == 0)
 		{
-			g_cpu_paused = false;
+			g_paused = false;
 		}
 		// else we are still paused because our stack isn't empty
 
@@ -782,27 +784,27 @@ void cpu_unpause()
 	}
 	else
 	{
-		printline("cpu_unpause_timer() error : cpu wasn't paused!");
+		printline("unpause_timer() error : cpu wasn't paused!");
 	}
 }
 
 // returns the timer used by all cpu's to run at the proper speed
-// WARNING: this timer is reset by flush_cpu_timers
-Uint32 get_cpu_timer()
+// WARNING: this timer is reset by flush_timers
+Uint32 get_timer()
 {
-	return g_cpu_timer;
+	return g_timer;
 }
 
 // returns the total # of cycles that have elapsed 
 // This is very useful in determining how much "time" has elapsed for time critical things like controlling the PR-8210
 // laserdisc player
-// WARNING : flush_cpu_timers will reset the total_cycles_executed so you must always check
+// WARNING : flush_timers will reset the total_cycles_executed so you must always check
 // for this by making sure latest result is greater than previous result
 // Failure to check for this will result in some very puzzling and frustrating bugs
 Uint64 get_total_cycles_executed(Uint8 id)
 {
 	Uint64 result = 0;	
-	struct cpudef *cpu = get_cpu_struct(id);
+	struct def *cpu = get_struct(id);
 	
 	if (cpu)
 	{
@@ -813,10 +815,10 @@ Uint64 get_total_cycles_executed(Uint8 id)
 
 // returns the pointer to the cpu structure using the cpu id as input
 // returns NULL if the cpu doesn't exist
-struct cpudef *get_cpu_struct(Uint8 id)
+struct def *get_struct(Uint8 id)
 {
-	struct cpudef *result = NULL;
-	struct cpudef *cpu = g_head;
+	struct def *result = NULL;
+	struct def *cpu = g_head;
 	
 	while (cpu)
 	{
@@ -825,24 +827,24 @@ struct cpudef *get_cpu_struct(Uint8 id)
 			result = cpu;
 			break;
 		}
-		cpu = cpu->next_cpu;
+		cpu = cpu->next;
 	}
 	
 	return result;
 }
 
 // returns the current active cpu.  First cpu is 0
-unsigned char cpu_getactivecpu()
+unsigned char get_active()
 {
-	return(g_active_cpu);
+	return(g_active);
 }
 
 // returns the location of the memory for the indicated cpu
 // returns NULL of the indicated cpu has no memory (ie if the cpu does not exist)
-Uint8 *get_cpu_mem(Uint8 id)
+Uint8 *get_mem(Uint8 id)
 {
 	Uint8 *result = NULL;
-	struct cpudef *cpustruct = get_cpu_struct(id);
+	struct def *cpustruct = get_struct(id);
 
 	// if the cpu exists, then we can return its memory	
 	if (cpustruct)
@@ -855,10 +857,10 @@ Uint8 *get_cpu_mem(Uint8 id)
 }
 
 // returns the Hz of the CPU indicated, or 0 if the cpu does not exist
-Uint32 get_cpu_hz(Uint8 id)
+Uint32 get_hz(Uint8 id)
 {
 	Uint32 result = 0;
-	struct cpudef *cpustruct = get_cpu_struct(id);
+	struct def *cpustruct = get_struct(id);
 
 	// if the cpu exists, then we can return its memory	
 	if (cpustruct)
@@ -869,14 +871,14 @@ Uint32 get_cpu_hz(Uint8 id)
 	return result;
 }
 
-void cpu_change_nmi(Uint8 id, double new_period)
+void change_nmi(Uint8 id, double new_period)
 {
-	struct cpudef *cpu = get_cpu_struct(id);
+	struct def *cpu = get_struct(id);
 	
 	if (cpu)
 	{
 		cpu->nmi_period = new_period;
-		cpu_recalc();
+		recalc();
 	}
 	else
 	{
@@ -884,9 +886,9 @@ void cpu_change_nmi(Uint8 id, double new_period)
 	}
 }
 
-void cpu_generate_nmi(Uint8 cpu_id)
+void generate_nmi(Uint8 id)
 {
-	struct cpudef *cpu = get_cpu_struct(cpu_id);
+	struct def *cpu = get_struct(id);
 
 #ifdef DEBUG
 	assert(cpu);
@@ -895,32 +897,32 @@ void cpu_generate_nmi(Uint8 cpu_id)
 	cpu->pending_nmi_count++;
 }
 
-void cpu_change_irq(Uint8 id, unsigned int which_irq, double new_period)
+void change_irq(Uint8 id, unsigned int which_irq, double new_period)
 {
 #ifdef DEBUG
 	assert(which_irq < MAX_IRQS);
 #endif
 
-	struct cpudef *cpu = get_cpu_struct(id);
+	struct def *cpu = get_struct(id);
 	
 #ifdef DEBUG
 	assert(cpu);
 #endif
 
 	cpu->irq_period[which_irq] = new_period;
-	cpu_recalc();
+	recalc();
 //	cpu->cycles_per_irq[which_irq] = (Uint32) (cpu->cycles_per_ms * cpu->irq_period[which_irq]);
 //	cpu->irq_cycle_count[which_irq] = 0;
 
 }
 
-void cpu_generate_irq(Uint8 cpu_id, unsigned int which_irq)
+void generate_irq(Uint8 id, unsigned int which_irq)
 {
 #ifdef DEBUG
 	assert(which_irq < MAX_IRQS);
 #endif
 
-	struct cpudef *cpu = get_cpu_struct(cpu_id);
+	struct def *cpu = get_struct(id);
 
 #ifdef DEBUG
 	assert (cpu);
@@ -938,7 +940,7 @@ void generic_6502_init()
 {
 	g_6502 = new NES_6502();
 
-	generic_6502_setmemory(get_cpu_mem(g_active_cpu));
+	generic_6502_setmemory(get_mem(g_active));
 
 	NES_6502::Reset();
 }
@@ -1026,7 +1028,7 @@ const char *generic_6502_info(void *unused, int regnum)
 
 // just a stub if the cpu core cannot return current # of elapsed cycles
 // this always returns 0
-Uint32 generic_cpu_elapsedcycles_stub()
+Uint32 generic_elapsedcycles_stub()
 {
 	return 0;
 }
@@ -1053,29 +1055,30 @@ unsigned int generic_dasm_stub( char *buffer, unsigned pc )
 // WARNING : this function appears not to de-allocate anything in g_head's linked list,
 //  so don't use it unless you have verified that g_head has been de-allocated first.
 // (I think it was added for xbox hypseus)
-void reset_cpu_globals()
+void reset_globals()
 {
 	g_head = NULL;
-	g_cpu_count = 0;
-	for (int i=0; i<CPU_COUNT; i++)
-		g_cpu_initialized[i] = false;
+	g_count = 0;
+	for (int i=0; i<type::COUNT; i++)
+		g_initialized[i] = false;
 	g_expected_elapsed_ms = 0;
-	g_active_cpu = 0;
+	g_active = 0;
 }
 
-void cpu_change_interleave(unsigned int uInterleave)
+void change_interleave(unsigned int uInterleave)
 {
 	// safety check, interleave must be >= 1, as it is used as a denominator
 	if (uInterleave > 0)
 	{
 		g_uInterleavePerMs = uInterleave;
 
-		cpu_recalc();	// recalculate interleave value
+		recalc();	// recalculate interleave value
 	}
 	// else we got an illegal value
 	else
 	{
-		printline("cpu_change_interlave got 0, which is illegal.. fix this!");
+		printline("change_interlave got 0, which is illegal.. fix this!");
 		set_quitflag();	// force developer to fix this :)
 	}
+}
 }

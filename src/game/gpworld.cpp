@@ -52,10 +52,10 @@
 
 gpworld::gpworld()
 {
-    struct cpudef cpu;
+    struct cpu::def cpu;
 
     m_shortgamename = "gpworld";
-    memset(&cpu, 0, sizeof(struct cpudef));
+    memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xff, 7); // fill banks with 0xFF's
     banks[5] = 0;
     banks[6] = 0;
@@ -69,14 +69,14 @@ gpworld::gpworld()
     m_video_overlay_height = GPWORLD_OVERLAY_H;
     m_palette_color_count  = GPWORLD_COLOR_COUNT;
 
-    cpu.type              = CPU_Z80;
+    cpu.type              = cpu::type::Z80;
     cpu.hz                = 5000000; // guess based on Astron's clock speed
     cpu.irq_period[0]     = 16.6666; // interrupt from vblank (60hz)
     cpu.nmi_period        = 16.6666; // nmi from LD-V1000 command strobe
     cpu.initial_pc        = 0;
     cpu.must_copy_context = false;
     cpu.mem = m_cpumem;
-    add_cpu(&cpu); // add a z80
+    cpu::add(&cpu); // add a z80
 
     m_video_row_offset = 8; // shift video up by 16 pixels (8 rows)
 

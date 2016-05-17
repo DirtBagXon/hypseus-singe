@@ -25,16 +25,24 @@
 
 #include <SDL.h>	// for Uint definitions
 
-enum { CPU_UNDEFINED, CPU_Z80, CPU_X86, CPU_M6809, CPU_M6502, CPU_COP421, CPU_I88, CPU_COUNT };	// cpu's supported by hypseus now, leave CPU_COUNT at the end
+namespace cpu
+{
+namespace type
+{
+    enum { UNDEFINED, Z80, X86, M6809, M6502, COP421, I88, COUNT };	// cpu's supported by hypseus now, leave CPU_COUNT at the end
+}
 
-#define CPU_MEM_SIZE	0x100000	// 1 meg for I86
-#define MAX_CONTEXT_SIZE	100	/* max # of bytes that a cpu context can have */
-#define MAX_IRQS	4	/* how many IRQs we will support per CPU */
+// 1 meg for I86
+static const int MEM_SIZE =	0x100000;
+/* max # of bytes that a cpu context can have */
+static const int MAX_CONTEXT_SIZE = 100;
+/* how many IRQs we will support per CPU */
+static const int MAX_IRQS = 4;
 
-struct cpudef;
+struct def;
 
 // structure that defines parameters for each cpu hypseus uses
-struct cpudef
+struct def
 {
 	// these may all be modified externally
 	int type;	// which kind of cpu it is
@@ -76,41 +84,41 @@ struct cpudef
 	void (*event_callback)(void *data);	// callback we call when optional event fires
 	void *event_data;	// whatever data we are supposed to pass back to the event callback
 	Uint8 context[MAX_CONTEXT_SIZE];	// the cpu's context (in case we were forced to copy it out)
-	struct cpudef *next_cpu;	// pointer to the next cpu in this linked list
+	struct def *next;	// pointer to the next cpu in this linked list
 };
 
-void add_cpu(struct cpudef *);	// add a new cpu
-void del_all_cpus();	// delete all cpus that have been added (for shutting down hypseus)
-void cpu_init();	// initialize one cpu
-void cpu_shutdown();	// shutdown all cpus
-void cpu_execute();
-void cpu_reset();
+void add(struct def *);	// add a new cpu
+void del_all();	// delete all cpus that have been added (for shutting down hypseus)
+void init();	// initialize one cpu
+void shutdown();	// shutdown all cpus
+void execute();
+void reset();
 
 // Creates an precisely timed 'event'. After 'uCyclesTilEvent' elapses, event_callback will be called.
 // Each even is just a one-shot deal, it doesn't loop.
-void cpu_set_event(unsigned int uCpuID, unsigned int uCyclesTilEvent, void (*event_callback)(void *data), void *event_data);
+void set_event(unsigned int uCpuID, unsigned int uCyclesTilEvent, void (*event_callback)(void *data), void *event_data);
 
-void cpu_pause();
-void cpu_unpause();
-Uint32 get_cpu_timer();
-Uint64 get_total_cycles_executed(Uint8 cpu_id);
-struct cpudef * get_cpu_struct(Uint8 cpu_id);
-unsigned char cpu_getactivecpu();
-Uint8 *get_cpu_mem(Uint8 cpu_id);
-Uint32 get_cpu_hz(Uint8 cpu_id);
+void pause();
+void unpause();
+Uint32 get_timer();
+Uint64 get_total_cycles_executed(Uint8 id);
+struct def * get_struct(Uint8 id);
+unsigned char get_active();
+Uint8 *get_mem(Uint8 id);
+Uint32 get_hz(Uint8 id);
 
-void cpu_change_nmi(Uint8 cpu_id, double new_period);
+void change_nmi(Uint8 id, double new_period);
 
 // Generates an NMI at the next possible opportunity for the indicated cpu.
 // Used when a CPU does not have a regularly timed NMI (such as in multi-cpu situations).
-void cpu_generate_nmi(Uint8 cpu_id);
+void generate_nmi(Uint8 id);
 
-void cpu_change_irq(Uint8 cpu_id, unsigned int which_irq, double new_period);
+void change_irq(Uint8 id, unsigned int which_irq, double new_period);
 
 // Generates an IRQ (indicated by 'which_irq') at the next possible opportunity for the indicated cpu.
 // Used when a CPU does not have a regularly timed IRQ (such as in multi-cpu situations).
-void cpu_generate_irq(Uint8 cpu_id, unsigned int which_irq);
-void cpu_change_interleave(Uint32);
+void generate_irq(Uint8 id, unsigned int which_irq);
+void change_interleave(Uint32);
 
 void generic_6502_init();
 void generic_6502_shutdown();
@@ -119,9 +127,10 @@ void generic_6502_setmemory(Uint8 *buf);
 Uint32 generic_6502_getcontext(void *context_buf);
 void generic_6502_setcontext(void *context_buf);
 const char *generic_6502_info(void *context, int regnum);
-Uint32 generic_cpu_elapsedcycles_stub();
+Uint32 generic_elapsedcycles_stub();
 const char *generic_ascii_info_stub(void *, int);
 unsigned int generic_dasm_stub( char *buffer, unsigned pc );
-void reset_cpu_globals();
+void reset_globals();
+}
 
 #endif

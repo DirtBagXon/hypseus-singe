@@ -95,7 +95,7 @@ void reset_ldp1450_globals()
 // cycle delays set up
 void reset()
 {
-    Uint32 cpu_hz       = get_cpu_hz(0);
+    Uint32 cpu_hz       = cpu::get_hz(0);
     double dCyclesPerMs = cpu_hz / 1000.0; // cycles per milisecond
 
     // Compute how many CPU cycles we must delay before ACK'ing certain commands
@@ -119,7 +119,7 @@ void event_callback(void *unused)
 void make_ack_latency(unsigned int uCycles)
 {
     g_bLDP1000_Waiting4Event = true;
-    cpu_set_event(0, uCycles, event_callback, NULL);
+    cpu::set_event(0, uCycles, event_callback, NULL);
 }
 
 ////////////////////////////////////////////////////////
