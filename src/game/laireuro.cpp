@@ -126,7 +126,7 @@ void laireuro::do_irq(Uint32 which)
                 Z80_ASSERT_IRQ;
             }
         } else {
-            if (vp932_data_available()) {
+            if (vp932::data_available()) {
                 g_int_vec = g_dart.int_vector | 0x0c;
                 Z80_ASSERT_IRQ;
             }
@@ -323,7 +323,7 @@ Uint8 laireuro::port_read(Uint16 port)
         break;
     // UART (SIO)
     case 0x80:
-        result = vp932_read();
+        result = vp932::read();
         break;
     case 0x81:
     case 0x82:
@@ -639,7 +639,7 @@ void dart_write(bool b, bool command, Uint8 data)
         }
     } else {
         if (data && !b) {
-            vp932_write(data);
+            vp932::write(data);
         } else {
         }
     }

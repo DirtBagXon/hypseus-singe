@@ -655,8 +655,8 @@ void lair2::do_irq(unsigned int which_irq)
                 serial_val = -1;
 
                 if (g_dl2_euro) {
-                    if (vp932_data_available()) {
-                        serial_val = vp932_read();
+                    if (vp932::data_available()) {
+                        serial_val = vp932::read();
                     }
                 } else {
                     // if we're connected to a real 1450 ... read the value now
@@ -805,7 +805,7 @@ numstr::ToStr(uElapsed);
         // write to LDP
         // and set our interupt
         if (g_dl2_euro) {
-            vp932_write(value);
+            vp932::write(value);
         } else {
             // if we're hooked up to a real LDP-1450, send directly to the
             // serial port

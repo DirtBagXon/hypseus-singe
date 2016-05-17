@@ -29,10 +29,13 @@
 #define VP380_REPEAT_NUMBER 0x02
 #define VP380_REPEAT 0x04
 
-int read_vp380();
-void write_vp380(unsigned char value);
-void vp380_enter(void);
-bool vp380_result_ready(void);
-int vp380_stack_push(unsigned char value);
-void vp380_add_digit(char);
+namespace vp380
+{
+int read();
+void write(unsigned char value);
+void enter(void);
+bool result_ready(void);
+int stack_push(unsigned char value);
+void add_digit(char);
+}
 #endif
