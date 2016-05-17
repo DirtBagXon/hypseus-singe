@@ -52,7 +52,7 @@ class superd : public game
     void OnVblank();
     void OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled);
     bool set_bank(unsigned char, unsigned char);
-    void video_repaint();
+    void repaint();
     void palette_calculate();
 
   protected:

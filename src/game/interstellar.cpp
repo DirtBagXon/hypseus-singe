@@ -195,7 +195,7 @@ void interstellar::do_irq(unsigned int which_irq)
 {
     if (cpu::get_active() == 0) {
         // only do a display_update on the vblank irq
-        video_blit();
+        blit();
     }
     Z80_ASSERT_IRQ;
 }
@@ -626,7 +626,7 @@ void interstellar::palette_calculate()
 }
 
 // updates interstellar's video
-void interstellar::video_repaint()
+void interstellar::repaint()
 {
     // clear the video before drawing
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, 0);

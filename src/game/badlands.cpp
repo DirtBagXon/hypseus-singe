@@ -154,7 +154,7 @@ void badlands::do_nmi()
         mc6809_nmi = 1;
     }
 
-    video_blit(); // the NMI runs at the same period as the monitor vsync
+    blit(); // the NMI runs at the same period as the monitor vsync
 }
 
 Uint8 badlands::cpu_mem_read(Uint16 addr)
@@ -422,7 +422,7 @@ void badlands::palette_calculate()
 }
 
 // updates badlands's video
-void badlands::video_repaint()
+void badlands::repaint()
 {
     for (int charx = charx_offset; charx < 40 + charx_offset; charx++) {
         for (int chary = chary_offset; chary < 30 + chary_offset; chary++) {

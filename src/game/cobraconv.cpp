@@ -391,7 +391,7 @@ void cobraconv::palette_calculate()
     // transparent color default to 0, so no change needed
 }
 
-void cobraconv::video_repaint()
+void cobraconv::repaint()
 {
     /*	if (palette_updated)
     {
@@ -554,7 +554,7 @@ void cobraconv::input_disable(Uint8 move)
 
 void cobraconv::OnVblank()
 {
-    video_blit();
+    blit();
     ldv1000::report_vsync();
 }
 

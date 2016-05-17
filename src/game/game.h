@@ -145,29 +145,29 @@ class game
     // m_palette_color_count, m_video_overlay_width, and m_video_overlay_height
     // should all be initialized before this function is called
     // This function called palette_initialize
-    bool video_init();
+    bool init_video();
 
     // generic function to shutdown video
     // This function calls palette_shutdown
-    void video_shutdown();
+    void shutdown_video();
 
     // generic function to ensure that the video buffer gets drawn to the
-    // screen, will call video_repaint()
+    // screen, will call repaint()
     // this will not do anything if m_video_overlay_needs_update is false
-    void video_blit();
+    void blit();
 
     // forces the screen to always be redrawn (useful if you know the screen has
     // been clobbered, such as when using the drop-down console)
-    void video_force_blit();
+    void force_blit();
 
     // game-specific function that calculates and sets the game's color palette
-    // This function is called by video_init
+    // This function is called by init_video
     virtual void palette_calculate();
 
     // game-specific function to force the video buffer to be drawn from scratch
     // (does not blit),
     // this function is called by video_blit
-    virtual void video_repaint();
+    virtual void repaint();
 
     // a way for external functions to indicate that video needs update
     // (currently the tms9128nl routines need to use this because they aren't
@@ -333,7 +333,7 @@ class game
     // the video overlay buffer if nothing is being changed.  Thus,
     // m_video_overlay_needs_update's purpose.
     // The game is responsible for setting this value to true when it knows that
-    // the video_repaint needs to be called
+    // the repaint needs to be called
 
     // how many lines are visible in the video overlay
     // (usually 240 for almost all games, that is, half the resolution of the

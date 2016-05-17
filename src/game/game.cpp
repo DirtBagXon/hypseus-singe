@@ -308,7 +308,7 @@ void game::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
 // It is good to use generic video init and shutdown functions because then we
 // minimize the possibility of errors such as forgetting to call
 // palette_shutdown
-bool game::video_init()
+bool game::init_video()
 {
     bool result = false;
     int index   = 0;
@@ -354,7 +354,7 @@ bool game::video_init()
                 // pixmap
                 if ((m_video_overlay_matrix =
                          (long *)MPO_MALLOC(sizeof(long) * w * h)) == NULL) {
-                    LOGW << "MEM ERROR : malloc failed in video_init!";
+                    LOGW << "MEM ERROR : malloc failed in init_video!";
                     return false;
                 } /*endif*/
 
@@ -383,8 +383,7 @@ bool game::video_init()
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {
-                    LOGW << "ODD ERROR : SDL_CreateRGBSurface failed in "
-                                    "video_init!";
+                    LOGW << "ODD ERROR : SDL_CreateRGBSurface failed in init_video!";
                     result = false;
                 }
             }
@@ -403,7 +402,7 @@ bool game::video_init()
         // if the game has not explicitely specified those variables that we
         // need ...
         else {
-            LOGW << "See video_init() inside game.cpp for what you need to "
+            LOGW << "See init_video() inside game.cpp for what you need to "
                        "do to fix a problem";
             // If your game doesn't use video overlay, set
             // m_game_uses_video_overlay to false ...
@@ -419,7 +418,7 @@ bool game::video_init()
 }
 
 // shuts down any video we might have initialized
-void game::video_shutdown()
+void game::shutdown_video()
 {
     int index = 0;
 
@@ -427,7 +426,7 @@ void game::video_shutdown()
 
     for (index = 0; index < m_video_overlay_count; index++) {
         // only free surface if it has been allocated (if we get an error in
-        // video_init, some surfaces may not be allocated)
+        // init_video, some surfaces may not be allocated)
         if (m_video_overlay[index] != NULL) {
             SDL_FreeSurface(m_video_overlay[index]);
             m_video_overlay[index] = NULL;
@@ -461,12 +460,12 @@ void Scale(SDL_Surface *src, SDL_Surface *dst, long *matrix)
 // end-add
 
 // generic function to ensure that the video buffer gets drawn to the screen,
-// will call video_repaint()
-void game::video_blit()
+// will call repaint()
+void game::blit()
 {
-    // if something has actually changed in the game's video (video_blit() will
+    // if something has actually changed in the game's video (blit() will
     // probably get called regularly on each screen refresh,
-    // and we don't want to call the potentially expensive video_repaint()
+    // and we don't want to call the potentially expensive repaint()
     // unless we have to)
     if (m_video_overlay_needs_update) {
         m_active_video_overlay++; // move to the next video buffer (in case we
@@ -477,7 +476,7 @@ void game::video_blit()
         if (m_active_video_overlay >= m_video_overlay_count) {
             m_active_video_overlay = 0;
         }
-        video_repaint(); // call game-specific function to get palette refreshed
+        repaint(); // call game-specific function to get palette refreshed
         m_video_overlay_needs_update =
             false; // game will need to set this value to true next time it
                    // becomes needful for us to redraw the screen
@@ -506,18 +505,18 @@ void game::video_blit()
 // forces the video overlay to be redrawn to the screen
 // This is necessary when the screen has been clobbered (such as when the debug
 // console is down)
-void game::video_force_blit()
+void game::force_blit()
 {
-    // if the game uses a video overlay, we have to go through this video_blit
+    // if the game uses a video overlay, we have to go through this blit
     // routine to update a bunch of variables
     if (m_game_uses_video_overlay) {
         m_video_overlay_needs_update = true;
-        video_blit();
+        blit();
     }
 
-    // otherwise we can just call video repaint directly
+    // otherwise we can just call repaint directly
     else {
-        video_repaint();
+        repaint();
     }
 }
 
@@ -538,7 +537,7 @@ void game::palette_calculate()
 // redraws the current active video overlay buffer (but doesn't blit anything to
 // the screen)
 // This is a game-specific function
-void game::video_repaint() {}
+void game::repaint() {}
 
 void game::set_video_overlay_needs_update(bool value)
 {

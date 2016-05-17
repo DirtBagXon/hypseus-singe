@@ -267,7 +267,7 @@ void superd::do_irq(unsigned int which_irq)
         // NOTE: IRQ stuff moved to OnVblank routine
         /*
         // Redraws the screen (if needed) on interrupt
-        video_blit();
+        blit();
         ldp_input_latch = ldv1000::read();
         ldv1000::write(ldp_output_latch);
         Z80_ASSERT_IRQ;
@@ -506,7 +506,7 @@ void superd::palette_calculate()
     palette::set_transparency(SUPERDON_TRANSPARENT_COLOR, true);
 }
 
-void superd::video_repaint()
+void superd::repaint()
 {
     for (int charx = 0; charx < 32; charx++) {
         for (int chary = 0; chary < 32; chary++) {
@@ -620,7 +620,7 @@ void superd::OnVblank()
     ldv1000::report_vsync();
 
     // Redraws the screen (if needed)
-    video_blit();
+    blit();
 }
 
 void superd::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)

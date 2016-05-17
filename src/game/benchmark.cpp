@@ -60,7 +60,7 @@ void benchmark::start()
         // draw overlay on all surfaces
         for (int i = 0; i < m_video_overlay_count; i++) {
             m_video_overlay_needs_update = true;
-            video_blit();
+            blit();
         }
     }
 
@@ -96,7 +96,7 @@ void benchmark::palette_calculate()
     palette::set_color(255, color);     // set it
 }
 
-void benchmark::video_repaint()
+void benchmark::repaint()
 {
     Uint32 cur_w = g_ldp->get_discvideo_width() >> 1; // width overlay should be
     Uint32 cur_h = g_ldp->get_discvideo_height() >> 1; // height overlay should
@@ -109,8 +109,8 @@ void benchmark::video_repaint()
         if (g_ldp->lock_overlay(1000)) {
             m_video_overlay_width  = cur_w;
             m_video_overlay_height = cur_h;
-            video_shutdown();
-            if (!video_init()) {
+            shutdown_video();
+            if (!init_video()) {
                 LOGW <<
                     "Fatal Error, trying to re-create the surface failed!";
                 set_quitflag();

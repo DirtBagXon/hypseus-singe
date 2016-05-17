@@ -61,7 +61,7 @@ class gpworld : public game
     virtual void input_disable(Uint8);
     bool set_bank(Uint8, Uint8);
     void palette_calculate();
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
     virtual void write_ldp(Uint8, Uint16);
     virtual Uint8 read_ldp(Uint16);
 

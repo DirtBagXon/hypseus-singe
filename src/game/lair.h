@@ -47,7 +47,7 @@ class lair : public game
     void input_disable(Uint8);
     void OnVblank();
     void OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled);
-    void video_repaint();
+    void repaint();
     void init_overlay_scoreboard();
     void palette_calculate();
     void set_preset(int);

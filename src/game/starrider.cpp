@@ -128,7 +128,7 @@ void starrider::do_irq()
 }
 
 // we cheat here... we call this once per hblank to update the display
-void starrider::do_nmi() { video_blit(); }
+void starrider::do_nmi() { blit(); }
 
 // does anything special needed to send an FIRQ
 void starrider::do_firq() {}
@@ -214,7 +214,7 @@ void starrider::cpu_mem_write(Uint16 addr, Uint8 value)
 void starrider::palette_calculate() {}
 
 // updates starrider's video
-void starrider::video_repaint()
+void starrider::repaint()
 {
     for (int charx = 6; charx < 47; charx++) {
         for (int chary = 2; chary < 32; chary++) {

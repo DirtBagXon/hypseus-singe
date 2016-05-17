@@ -44,7 +44,7 @@ class firefox : public game
     void OnVblank();
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
 
   protected:
     int ad_converter_channel;

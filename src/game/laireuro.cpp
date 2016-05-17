@@ -138,7 +138,7 @@ void laireuro::do_irq(Uint32 which)
 void laireuro::do_nmi()
 {
     // Redraws the screen (if needed) on interrupt
-    video_blit();
+    blit();
 
     // Italian DL doesn't like it if coins held too long
     if (~(m_banks[1] & 0x04)) {
@@ -381,7 +381,7 @@ void laireuro::palette_calculate()
 }
 
 // updates laireuro's video
-void laireuro::video_repaint()
+void laireuro::repaint()
 {
     int charx_offset = 1;
     int chary_offset = 0;

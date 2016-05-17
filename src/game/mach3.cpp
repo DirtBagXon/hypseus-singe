@@ -342,7 +342,7 @@ void mach3::do_nmi()
         }
 
         // update overlay
-        video_blit();
+        blit();
 
         // Call game CPU NMI routine (IRQ# 127 is NMI)
         i86_set_irq_line(127, CLEAR_LINE);  // clear the line from the previous
@@ -1096,7 +1096,7 @@ void mach3::palette_calculate()
     palette::finalize();
 }
 
-void mach3::video_repaint()
+void mach3::repaint()
 {
 
     // fast screen clear

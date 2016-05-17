@@ -547,7 +547,7 @@ void firefox::palette_calculate()
 }
 
 // updates firefox's video
-void firefox::video_repaint()
+void firefox::repaint()
 {
     if (palette_modified) {
         palette_calculate();
@@ -681,7 +681,7 @@ void firefox::input_disable(Uint8 move)
 
 void firefox::OnVblank()
 {
-    video_blit();
+    blit();
 
     // not really used for emulated vblank because the timing is still somewhat
     // unknown

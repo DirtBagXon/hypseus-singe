@@ -120,7 +120,7 @@ void gpworld::do_irq(unsigned int which_irq)
     if (which_irq == 0) {
         // Redraws the screen (if needed) on interrupt
         recalc_palette();
-        video_blit();
+        blit();
         Z80_ASSERT_IRQ;
     }
 }
@@ -466,7 +466,7 @@ void gpworld::recalc_palette()
 }
 
 // updates gpworld's video
-void gpworld::video_repaint()
+void gpworld::repaint()
 {
     // This should be much faster
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);

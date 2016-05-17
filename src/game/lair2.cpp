@@ -704,7 +704,7 @@ void lair2::do_irq(unsigned int which_irq)
         // else we have no room
     }
 
-    if (m_game_uses_video_overlay && m_video_overlay_needs_update) video_blit();
+    if (m_game_uses_video_overlay && m_video_overlay_needs_update) blit();
 }
 
 void lair2::port_write(Uint16 port, Uint8 value)
@@ -1001,7 +1001,7 @@ void lair2::input_disable(Uint8 move)
     }
 }
 
-void lair2::video_repaint()
+void lair2::repaint()
 {
     Uint32 cur_w = g_ldp->get_discvideo_width() >> 1;  // width our overlay
                                                        // should be
@@ -1018,8 +1018,8 @@ void lair2::video_repaint()
         if (g_ldp->lock_overlay(1000)) {
             m_video_overlay_width  = cur_w;
             m_video_overlay_height = cur_h;
-            video_shutdown();
-            if (!video_init()) set_quitflag(); // safety check
+            shutdown_video();
+            if (!init_video()) set_quitflag(); // safety check
             g_ldp->unlock_overlay(1000);       // unblock game video overlay
         }
 

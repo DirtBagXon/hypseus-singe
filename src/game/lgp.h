@@ -45,7 +45,7 @@ class lgp : public game
     virtual void input_enable(Uint8);
     virtual void input_disable(Uint8);
     bool set_bank(Uint8, Uint8);
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
   protected:
     Uint8 m_soundchip1_id;
     Uint8 m_soundchip2_id;

@@ -239,7 +239,7 @@ void esh::do_irq(unsigned int which_irq)
             m_video_overlay_needs_update = true;
         }
 
-        video_blit();
+        blit();
         blank_count++;
         if (blank_count >= 10) {
             blank_count = 0;
@@ -401,7 +401,7 @@ void esh::palette_calculate()
 }
 
 // updates esh's video
-void esh::video_repaint()
+void esh::repaint()
 {
     m_needcharblink = false;
     m_needlineblink = false;

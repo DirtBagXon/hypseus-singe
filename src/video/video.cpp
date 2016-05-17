@@ -216,7 +216,7 @@ void display_repaint()
 {
     vid_blank();
     vid_flip();
-    g_game->video_force_blit();
+    g_game->force_blit();
 }
 
 // loads all the .bmp's

@@ -121,7 +121,7 @@ void lgp::do_irq(unsigned int which_irq)
         recalc_palette();
         m_ldp_read_latch = ldv1000::read();
         ldv1000::write(m_ldp_write_latch);
-        video_blit();
+        blit();
         Z80_ASSERT_IRQ;
     }
 }
@@ -332,7 +332,7 @@ function is unimplemented!", port, value);
 }
 
 // updates lgp's video
-void lgp::video_repaint()
+void lgp::repaint()
 {
     // This should be much faster
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);

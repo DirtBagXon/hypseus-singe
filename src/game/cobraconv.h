@@ -44,7 +44,7 @@ class cobraconv : public game
     void OnVblank();
     void OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled);
     void palette_calculate();
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
     bool set_bank(unsigned char, unsigned char);
 
   protected:

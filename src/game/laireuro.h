@@ -83,7 +83,7 @@ class laireuro : public game
     void input_enable(Uint8);
     void input_disable(Uint8);
     void palette_calculate();
-    void video_repaint();
+    void repaint();
     void set_version(int);
     bool set_bank(Uint8, Uint8);
 

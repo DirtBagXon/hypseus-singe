@@ -58,7 +58,7 @@ class bega : public game
     void input_enable(Uint8);
     void input_disable(Uint8);
     void palette_calculate();
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
     void set_version(int);
     bool set_bank(unsigned char which_bank, unsigned char value);
 

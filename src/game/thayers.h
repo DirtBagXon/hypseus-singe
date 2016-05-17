@@ -47,7 +47,7 @@ class thayers : public game
     void process_keyup(SDL_Keycode);
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
-    void video_repaint();
+    void repaint();
     void init_overlay_scoreboard();
     void write_scoreboard(Uint8, Uint8, int); // function to decode scoreboard
                                               // data

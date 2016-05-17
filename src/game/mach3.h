@@ -83,7 +83,7 @@ class mach3 : public game
                                // is losing signal during seeks
 
     void palette_calculate();
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
 
     // these are separated into methods because the order/priority can change:
     void draw_characters();

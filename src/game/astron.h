@@ -79,7 +79,7 @@ class astron : public game
     void port_write(Uint16 port, Uint8 value);    // write to a port
     virtual void input_enable(Uint8);
     virtual void input_disable(Uint8);
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
     void palette_calculate();
     bool set_bank(Uint8, Uint8);
     virtual void write_ldp(Uint8, Uint16);

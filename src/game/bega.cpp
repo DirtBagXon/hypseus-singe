@@ -315,7 +315,7 @@ void bega::do_irq(unsigned int which_irq)
 {
     if (cpu::get_active() == 0) {
         if (which_irq == 0) {
-            video_blit();
+            blit();
             vblank = true;
         } else {
             // periodicly check if there is any laserdisc data to read
@@ -570,7 +570,7 @@ void bega::palette_calculate()
 }
 
 // updates bega's video
-void bega::video_repaint()
+void bega::repaint()
 {
     // This is much faster!
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL,

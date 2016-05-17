@@ -348,7 +348,7 @@ void astron::do_irq(unsigned int which_irq)
     if (which_irq == 0) {
         // Redraws the screen (if needed) on interrupt
         recalc_palette();
-        video_blit();
+        blit();
         Z80_ASSERT_IRQ;
     }
 }
@@ -741,7 +741,7 @@ void astron::recalc_palette()
 }
 
 // updates astron's video
-void astron::video_repaint()
+void astron::repaint()
 {
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
 

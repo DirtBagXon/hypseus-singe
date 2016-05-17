@@ -144,7 +144,7 @@ void releasetest::start()
     printline(msg.c_str());
 }
 
-void releasetest::video_repaint()
+void releasetest::repaint()
 {
     unsigned int i = 0;
     Uint32 cur_w   = g_ldp->get_discvideo_width() >> 1; // width overlay should be
@@ -160,8 +160,8 @@ void releasetest::video_repaint()
         if (g_ldp->lock_overlay(1000)) {
             m_video_overlay_width  = cur_w;
             m_video_overlay_height = cur_h;
-            video_shutdown();
-            if (!video_init()) {
+            shutdown_video();
+            if (!init_video()) {
                 printline(
                     "Fatal Error, trying to re-create the surface failed!");
                 set_quitflag();
@@ -440,7 +440,7 @@ void releasetest::test_vldp()
     if (g_ldp->pre_init()) {
         g_ldp->pre_search("00001", true); // render an image to the screen
         m_video_overlay_needs_update = true;
-        video_blit(); // re-size our video overlay if necessary
+        blit(); // re-size our video overlay if necessary
         printline("Beginning VLDP comprehensive test ...");
         list<string> lstrPassed, lstrFailed;
         vldp->run_tests(lstrPassed, lstrFailed);
@@ -495,7 +495,7 @@ void releasetest::test_vldp()
         printline("Trying to seek to valid 640x480 frame");
         logtest(g_ldp->pre_search("30000", true), "VLDP Seek to 640x480 Frame");
         m_video_overlay_needs_update = true;
-        video_blit(); // resize-video overlay if needed
+        blit(); // resize-video overlay if needed
         logtest(m_video_overlay_width == 320, "Overlay is 320 wide");
 
         // g_ldp->think_delay(1000);	// let them see it ..
@@ -503,7 +503,7 @@ void releasetest::test_vldp()
         printline("Trying to seek to valid 720x480 frame");
         logtest(g_ldp->pre_search("5", true), "VLDP Seek to 720x480 Frame");
         m_video_overlay_needs_update = true;
-        video_blit(); // resize-video overlay if needed
+        blit(); // resize-video overlay if needed
         logtest(m_video_overlay_width == 360, "Overlay is 360 wide");
 
         // g_ldp->think_delay(1000);	// let them see it ..
@@ -522,7 +522,7 @@ void releasetest::test_vldp()
         g_ldp->pre_search("30000", true); // make overlay go back to 640x480 for
                                           // future tests
         m_video_overlay_needs_update = true;
-        video_blit(); // resize-video overlay if needed
+        blit(); // resize-video overlay if needed
 
     } else {
         printline("Cannot run 2nd set of VLDP tests due to missing file(s)");
@@ -553,7 +553,7 @@ void releasetest::test_vldp_render()
         report_mpeg_dimensions_callback(width, height);
 
         m_video_overlay_needs_update = true;
-        video_blit(); // prepare our video overlay for testing
+        blit(); // prepare our video overlay for testing
 
         printline("Beginning VLDP Render test...");
         g_filter_type = FILTER_NONE; // no filter for this test

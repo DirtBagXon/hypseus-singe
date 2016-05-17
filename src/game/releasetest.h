@@ -41,7 +41,7 @@ class releasetest : public game
     releasetest();
     virtual ~releasetest();
     void start();
-    void video_repaint();
+    void repaint();
 
   private:
     // after a test, call this function to indicate whether test passed or

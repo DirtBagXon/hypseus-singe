@@ -276,7 +276,7 @@ void write(unsigned char value)
                     }
 
                     g_game->set_video_overlay_needs_update(true);
-                    g_game->video_blit();
+                    g_game->blit();
                 }
 
                 // clear vars

@@ -490,7 +490,7 @@ void lair::do_nmi()
 
     // else if we are using a video overlay
     else {
-        video_blit();
+        blit();
     }
 }
 
@@ -801,7 +801,7 @@ void lair::shutdown()
 }
 
 // redraws the scoreboard on the screen
-void lair::video_repaint()
+void lair::repaint()
 {
     // if there is an overlay (for overlay scoreboard)
     if (m_video_overlay[m_active_video_overlay]) {
@@ -820,9 +820,9 @@ void lair::video_repaint()
                 LOGD << fmt("%s : Re-allocated overlay surface (%d x %d)...",
                         m_shortgamename, m_video_overlay_width, m_video_overlay_height);
 
-                video_shutdown();
+                shutdown_video();
 
-                if (!video_init()) {
+                if (!init_video()) {
                     LOGW <<
                         "Fatal Error trying to re-allocate overlay surface!";
                     set_quitflag();

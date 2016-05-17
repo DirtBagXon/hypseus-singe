@@ -47,7 +47,7 @@ class interstellar : public game
     void input_enable(Uint8);
     void input_disable(Uint8);
     void palette_calculate();
-    void video_repaint(); // function to repaint video
+    void repaint(); // function to repaint video
     bool set_bank(Uint8, Uint8);
 
   private:

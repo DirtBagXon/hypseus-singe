@@ -179,8 +179,8 @@ cliffalt2::cliffalt2()
 void cliff::reset()
 {
     cpu::reset();
-    video_shutdown();
-    video_init();   // restart the video, because otherwise cliff won't reboot
+    shutdown_video();
+    init_video();   // restart the video, because otherwise cliff won't reboot
     pr8210::reset(); // makes sure audio is in the correct state
 }
 
@@ -189,8 +189,8 @@ void gtg::reset()
 {
     cpu::reset();
     e1ba_accesscount = 0; // reset the frame/chapter read count
-    video_shutdown();
-    video_init();   // restart the video
+    shutdown_video();
+    init_video();   // restart the video
     pr8210::reset(); // makes sure audio is in the correct state
 }
 
@@ -371,7 +371,7 @@ Uint8 cliff::port_read(Uint16 Port)
 
 void cliff::do_nmi()
 {
-    video_blit(); // vsync
+    blit(); // vsync
 
     // if the TMS chip is producing interrupts, then we do an NMI
     if (tms9128nl_int_enabled()) {
@@ -628,7 +628,7 @@ bool cliff::set_bank(unsigned char which_bank, unsigned char value)
 
 void cliff::palette_calculate() { tms9128nl_palette_calculate(); }
 
-void cliff::video_repaint() { tms9128nl_video_repaint(); }
+void cliff::repaint() { tms9128nl_video_repaint(); }
 
 // post-rom loading adjustment
 void cliff::patch_roms()

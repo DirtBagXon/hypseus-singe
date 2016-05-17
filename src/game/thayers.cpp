@@ -248,7 +248,7 @@ void thayers::do_nmi()
 {
     if (m_game_uses_video_overlay) {
         // check to see if the overlay needs to be redrawn
-        video_blit();
+        blit();
     } else {
         // else check to see if the scoreboard needs to be updated
         m_pScoreboard->RepaintIfNeeded();
@@ -504,7 +504,7 @@ void thayers::palette_calculate()
     }
 }
 
-void thayers::video_repaint()
+void thayers::repaint()
 {
     // if m_game_uses_video_overlay is false, then m_video_overlay_width will be
     // 0, which means
@@ -529,8 +529,8 @@ void thayers::video_repaint()
             if (g_ldp->lock_overlay(1000)) {
                 m_video_overlay_width  = cur_w;
                 m_video_overlay_height = cur_h;
-                video_shutdown();
-                if (!video_init()) set_quitflag(); // safety check
+                shutdown_video();
+                if (!init_video()) set_quitflag(); // safety check
                 g_ldp->unlock_overlay(1000);       // unblock game video overlay
             }
 
@@ -544,7 +544,7 @@ void thayers::video_repaint()
 
     // An 'issues' screen can pop-up before m_pScoreboard has been instantiated.
     if (m_pScoreboard) {
-        // by definition, video_repaint must force a repaint, hence why we call
+        // by definition, repaint must force a repaint, hence why we call
         // invalidate first
         m_pScoreboard->Invalidate();
         m_pScoreboard->RepaintIfNeeded();

@@ -122,7 +122,7 @@ void timetrav::port_write(Uint16 port, Uint8 value)
         m_video_overlay_needs_update = true;
         //display_string[port & 0x07] = value;
         //draw_string(display_string, 0, 0, get_active_video_overlay());
-        video_blit();
+        blit();
         break;
     default:
         sprintf(s, "Unmapped write to port %x, value %x", port, value);

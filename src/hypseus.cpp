@@ -185,7 +185,7 @@ int main(int argc, char **argv)
                     // if the roms were loaded successfully
                     if (g_game->load_roms()) {
                         // if the video was initialized successfully
-                        if (g_game->video_init()) {
+                        if (g_game->init_video()) {
                             // if the game has some problems, notify the user
                             // before the user plays the game
                             if (g_game->get_issues()) {
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
                                 printerror(
                                     "Could not initialize laserdisc player!");
                             }
-                            g_game->video_shutdown();
+                            g_game->shutdown_video();
                         } // end if game video was initted properly
                         else {
                             printerror(

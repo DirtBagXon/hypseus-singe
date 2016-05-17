@@ -87,7 +87,7 @@ class lair2 : public game
     bool handle_cmdline_arg(const char *arg);
     void patch_roms();
     void ldp_fill_buf(); // gets our ldp info and fills DL2 buffer
-    void video_repaint();
+    void repaint();
     void EEPROM_9536_write(Uint8 value);
 
   protected:

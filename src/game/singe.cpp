@@ -202,7 +202,7 @@ void singe::start()
             if (intReturn == 1) {
                 m_video_overlay_needs_update = true;
             }
-            video_blit();
+            blit();
             SDL_check_input();
             samples_do_queued_callbacks(); // hack to ensure sound callbacks are
                                            // called at a time when lua can
@@ -295,7 +295,7 @@ void singe::palette_calculate()
 }
 
 // redraws video
-void singe::video_repaint()
+void singe::repaint()
 {
     Uint32 cur_w = g_ldp->get_discvideo_width() >> 1; // width overlay should be
     Uint32 cur_h = g_ldp->get_discvideo_height() >> 1; // height overlay should
@@ -312,7 +312,7 @@ void singe::video_repaint()
             g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
 
             video_shutdown();
-            if (!video_init()) {
+            if (!init_video()) {
                 printline(
                     "Fatal Error, trying to re-create the surface failed!");
                 set_quitflag();

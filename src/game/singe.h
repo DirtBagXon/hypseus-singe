@@ -56,7 +56,7 @@ class singe : public game
     void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();
-    void video_repaint();
+    void repaint();
 
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }
