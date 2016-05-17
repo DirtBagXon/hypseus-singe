@@ -181,7 +181,7 @@ void cliff::reset()
     cpu_reset();
     video_shutdown();
     video_init();   // restart the video, because otherwise cliff won't reboot
-    pr8210_reset(); // makes sure audio is in the correct state
+    pr8210::reset(); // makes sure audio is in the correct state
 }
 
 // resets goal to go
@@ -191,7 +191,7 @@ void gtg::reset()
     e1ba_accesscount = 0; // reset the frame/chapter read count
     video_shutdown();
     video_init();   // restart the video
-    pr8210_reset(); // makes sure audio is in the correct state
+    pr8210::reset(); // makes sure audio is in the correct state
 }
 
 // when z80 outputs to a port, this gets called
@@ -249,7 +249,7 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
     // example, 0xAA or 0x00
     case 0x57: // get frame from LDP
     {
-        m_frame_val = pr8210_get_current_frame();
+        m_frame_val = pr8210::get_current_frame();
         g_ldp->framenum_to_frame(m_frame_val, m_frame_str);
         sprintf(s, "Playing Frame: %s", m_frame_str);
         tms9128nl_outcommand(s, 43, 23);
@@ -446,7 +446,7 @@ void cliff::cliff_do_blip()
 
             // if buffer is filled, send command
             if (m_blips_count > 9) {
-                pr8210_command(m_blips);
+                pr8210::command(m_blips);
                 m_blips_count = 0;
             }
         } // if we got a blip at all

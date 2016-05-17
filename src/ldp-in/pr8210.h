@@ -24,14 +24,17 @@
 
 #include <SDL.h> // for Uint16
 
-int get_pr8210_playing();
-void pr8210_command(unsigned int);
-void pr8210_audio1();
-void pr8210_audio2();
-void pr8210_seek();
-Uint16 pr8210_get_current_frame();
-void pr8210_add_digit(char);
-void pr8210_reset();
+namespace pr8210
+{
+int get_playing();
+void command(unsigned int);
+void audio1();
+void audio2();
+void seek();
+Uint16 get_current_frame();
+void add_digit(char);
+void reset();
 
 // prints a 10-bit number in binary format (for debugging)
-void pr8210_print_binary(unsigned int);
+void print_binary(unsigned int);
+}

@@ -352,7 +352,7 @@ void mach3::do_nmi()
         // update audio target data buffer (only used by MACH3)
         if (m_game_type == GAME_MACH3) {
             static Uint16 prev_frame = 0xFFFF;
-            Uint16 cur_frame         = pr8210_get_current_frame();
+            Uint16 cur_frame         = pr8210::get_current_frame();
 
             if ((cur_frame != prev_frame) &&
                 (((cur_frame) % 53) == 0)) // target data buffer fills every 53
@@ -447,7 +447,7 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
         else if (addr == 0x5805) // frame decoder board, lowest byte of
                                  // three-byte BCD laserdisc frame #
         {
-            cur_frame = pr8210_get_current_frame();
+            cur_frame = pr8210::get_current_frame();
             result    = cur_frame % 10;                           // lower digit
             result    = result | (((cur_frame % 100) / 10) << 4); // upper digit
 
@@ -459,7 +459,7 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
         } else if (addr == 0x5806) // frame decoder board, middle byte of
                                    // three-byte BCD laserdisc frame #
         {
-            cur_frame = (pr8210_get_current_frame() / 100);
+            cur_frame = (pr8210::get_current_frame() / 100);
             result    = cur_frame % 10;                        // lower digit
             result = result | (((cur_frame % 100) / 10) << 4); // upper digit
         } else if (addr == 0x5807) // shared by two i/o registers, selected by
@@ -480,7 +480,7 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
                 // bit 6 audio clock (not needed)
                 // bit 7 audio clock lost
 
-                cur_frame = pr8210_get_current_frame();
+                cur_frame = pr8210::get_current_frame();
 
                 result = (Uint8)(cur_frame / 10000); // upper single digit,
                                                      // frame cannot reasonably
@@ -633,7 +633,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
                                                          // trailing two 0 bits
         // m_cpumem[Addr] = Value; // store to RAM (not used)
 
-        pr8210_command(blips); // this has the proper layout aside from the
+        pr8210::command(blips); // this has the proper layout aside from the
                                // trailing two 0 bits
 
         // Andrew Hepburn says that the PR-8210 shuts off the video signal
@@ -656,7 +656,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         // BOT causes the audio buffer to reset
         static Uint8 prev_cmd = 0;
         if ((Value == 0x24) && (prev_cmd != 0x24) &&
-            (pr8210_get_current_frame() > 53 * 44)) {
+            (pr8210::get_current_frame() > 53 * 44)) {
             m_audio_ready_bit   = 1;
             m_targetdata_offset = 0;
         }
