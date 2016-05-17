@@ -542,7 +542,7 @@ void firefox::palette_calculate()
         color.r = m_cpumem[0x2c00 + x];
         color.g = m_cpumem[0x2d00 + x];
         color.b = m_cpumem[0x2e00 + x] & 0xfd;
-        palette_set_color(x, color);
+        palette::set_color(x, color);
     }
 }
 
@@ -551,7 +551,7 @@ void firefox::video_repaint()
 {
     if (palette_modified) {
         palette_calculate();
-        palette_finalize();
+        palette::finalize();
     }
 
     for (int charx = 0; charx < 64; charx++) {

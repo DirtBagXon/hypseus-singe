@@ -390,11 +390,11 @@ void superd::port_write(Uint16 Port, Uint8 Value)
         }
         // bit 7 controls whether LD video is displayed
         if ((Value >> 7) & 0x01) {
-            //			palette_set_transparency(SUPERDON_TRANSPARENT_COLOR,
+            //			palette::set_transparency(SUPERDON_TRANSPARENT_COLOR,
             //true);
         } else {
             // NOTE : this gets blanked _after_ a skip command is issued
-            //			palette_set_transparency(SUPERDON_TRANSPARENT_COLOR,
+            //			palette::set_transparency(SUPERDON_TRANSPARENT_COLOR,
             //false);
         }
         break;
@@ -498,12 +498,12 @@ void superd::palette_calculate()
         bit1         = static_cast<Uint8>((color_prom[i] >> 0) & 0x01);
         bit2         = static_cast<Uint8>((color_prom[i] >> 1) & 0x01);
         temp_color.b = static_cast<Uint8>((0x24 * bit0) + (0x4a * bit1) + (0x91 * bit2));
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 
-    palette_set_transparency(0, false); // color 0 is yellow, and is not
+    palette::set_transparency(0, false); // color 0 is yellow, and is not
                                         // transparent
-    palette_set_transparency(SUPERDON_TRANSPARENT_COLOR, true);
+    palette::set_transparency(SUPERDON_TRANSPARENT_COLOR, true);
 }
 
 void superd::video_repaint()

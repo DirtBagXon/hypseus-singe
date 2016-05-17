@@ -374,10 +374,10 @@ void laireuro::palette_calculate()
     colors[7].b = 255;
 
     for (int x = 0; x < LAIREURO_COLOR_COUNT; x++) {
-        palette_set_color(x, colors[x]);
+        palette::set_color(x, colors[x]);
     }
-    palette_set_transparency(0, false);
-    palette_set_transparency(8, true);
+    palette::set_transparency(0, false);
+    palette::set_transparency(8, true);
 }
 
 // updates laireuro's video

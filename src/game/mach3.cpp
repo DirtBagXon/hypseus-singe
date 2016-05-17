@@ -609,7 +609,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         {
             // whether laserdisc video can be seen
             m_ldvideo_enabled = ((Value & 8) == 8);
-            palette_set_transparency(0, m_ldvideo_enabled);
+            palette::set_transparency(0, m_ldvideo_enabled);
         }
         if ((Value & 0x04) != (m_cpumem[0x5803] & 0x04)) // enable display bit
                                                          // has changed
@@ -1038,7 +1038,7 @@ void mach3::palette_calculate()
     SDL_Color temp_color;
 
     // this cannot be done in the constructor, so it must be done here
-    palette_set_transparency(0, m_ldvideo_enabled);
+    palette::set_transparency(0, m_ldvideo_enabled);
 
     // Convert palette rom into a useable palette
     for (int i = 0; i < MACH3_COLOR_COUNT; i++) {
@@ -1090,10 +1090,10 @@ void mach3::palette_calculate()
         // temp_color.b = (Uint8) (255 * pow((static_cast<double>(temp_color.b))
         // / 255, 1/MACH3_GAMMA));
 
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 
-    palette_finalize();
+    palette::finalize();
 }
 
 void mach3::video_repaint()

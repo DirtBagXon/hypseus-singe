@@ -722,8 +722,8 @@ void tms9128nl_palette_update()
     tms9128nl_convert_color(g_tms_foreground_color, &fore);
     tms9128nl_convert_color(g_tms_background_color, &back);
 
-    palette_set_color(0, back);
-    palette_set_color(255, fore);
+    palette::set_color(0, back);
+    palette::set_color(255, fore);
 
     // if we should do extra calculations for stretching
     if (g_vidmode == 2) {
@@ -733,12 +733,12 @@ void tms9128nl_palette_update()
         MIX_COLORS_75_25(fore75back25, fore, back); // 3/4, 1/4
         MIX_COLORS_50(fore5back5, fore, back);      // average
         MIX_COLORS_75_25(fore25back75, back, fore); // 1/4, 3/4
-        palette_set_color(1, fore25back75);
-        palette_set_color(2, fore5back5);
-        palette_set_color(3, fore75back25);
+        palette::set_color(1, fore25back75);
+        palette::set_color(2, fore5back5);
+        palette::set_color(3, fore75back25);
     }
 
-    palette_finalize();
+    palette::finalize();
     g_game->set_video_overlay_needs_update(true);
 }
 
@@ -750,11 +750,11 @@ void tms9128nl_palette_calculate()
     // effectively in 'noldp' mode
     SDL_Color color;
     color.r = color.g = color.b = TMS_TRANSPARENT_COLOR;
-    palette_set_transparency(0, false); // change default to non-transparent
-    palette_set_transparency(TMS_TRANSPARENT_COLOR, true); // make transparent
+    palette::set_transparency(0, false); // change default to non-transparent
+    palette::set_transparency(TMS_TRANSPARENT_COLOR, true); // make transparent
                                                            // color transparent
                                                            // :)
-    palette_set_color(TMS_TRANSPARENT_COLOR, color);
+    palette::set_color(TMS_TRANSPARENT_COLOR, color);
 
     tms9128nl_palette_update();
     tms9128nl_reset();

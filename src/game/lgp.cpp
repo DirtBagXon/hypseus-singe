@@ -402,9 +402,9 @@ void lgp::recalc_palette()
         temp_color.r = static_cast<Uint8>((i * 23) % 256);
         temp_color.g = static_cast<Uint8>((i * 100) % 256);
         temp_color.b = static_cast<Uint8>((i * 34) % 256);
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
-    palette_finalize();
+    palette::finalize();
 
     palette_modified = false;
 }

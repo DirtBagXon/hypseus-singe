@@ -392,10 +392,10 @@ bool game::video_init()
             // if we created the surfaces alright, then allocate space for the
             // color palette
             if (result) {
-                result = palette_initialize(m_palette_color_count);
+                result = palette::initialize(m_palette_color_count);
                 if (result) {
                     palette_calculate();
-                    palette_finalize();
+                    palette::finalize();
                 }
             }
         } // end if video overlay is used
@@ -423,7 +423,7 @@ void game::video_shutdown()
 {
     int index = 0;
 
-    palette_shutdown(); // de-allocate memory in color palette routines
+    palette::shutdown(); // de-allocate memory in color palette routines
 
     for (index = 0; index < m_video_overlay_count; index++) {
         // only free surface if it has been allocated (if we get an error in
@@ -531,7 +531,7 @@ void game::palette_calculate()
         temp_color.r = (unsigned char)i;
         temp_color.g = (unsigned char)i;
         temp_color.b = (unsigned char)i;
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 }
 

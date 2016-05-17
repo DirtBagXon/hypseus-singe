@@ -494,10 +494,10 @@ void interstellar::port_write(Uint16 port, Uint8 value)
                 //				temp_color.b = (Uint8) (255 *
                 //pow((static_cast<double>(temp_color.b)) / 255, 1/ESH_GAMMA));
 
-                palette_set_color(0, temp_color);
+                palette::set_color(0, temp_color);
                 m_background_color = temp_color;
             }
-            palette_finalize();
+            palette::finalize();
             break;
         case 0x05:
             cpu_latch2 = value;
@@ -571,9 +571,9 @@ void interstellar::port_write(Uint16 port, Uint8 value)
         // Port 3 - turns on and off the LD background
         case 0x03:
             if (!value)
-                palette_set_transparency(0, true);
+                palette::set_transparency(0, true);
             else
-                palette_set_transparency(0, false);
+                palette::set_transparency(0, false);
             break;
         default:
             sprintf(s, "INTERSTELLAR: CPU 2: Unsupported Port Output-> %x:%x "
@@ -621,7 +621,7 @@ void interstellar::palette_calculate()
         temp_color.b = static_cast<Uint8>((0x8f * bit0) + (0x43 * bit1) +
                                           (0x1f * bit2) + (0x0e * bit3));
 
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 }
 

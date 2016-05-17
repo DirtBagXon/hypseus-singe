@@ -217,9 +217,9 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
     // DSP On
     else if (addr == 0x1003) {
         if (value) {
-            palette_set_transparency(0, false); // disable laserdisc video
+            palette::set_transparency(0, false); // disable laserdisc video
         } else {
-            palette_set_transparency(0, true); // enable laserdisc video
+            palette::set_transparency(0, true); // enable laserdisc video
         }
     }
 
@@ -345,9 +345,9 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
     // display disable
     else if (addr == 0x0803) {
         if (value) {
-            palette_set_transparency(0, false); // disable laserdisc video
+            palette::set_transparency(0, false); // disable laserdisc video
         } else {
-            palette_set_transparency(0, true); // enable laserdisc video
+            palette::set_transparency(0, true); // enable laserdisc video
         }
     }
     // ?
@@ -417,7 +417,7 @@ void badlands::palette_calculate()
         temp_color.b = (Uint8)(255 * pow((static_cast<double>(temp_color.b)) / 255,
                                          1 / BADLANDS_GAMMA));
 
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 }
 

@@ -385,7 +385,7 @@ void cobraconv::palette_calculate()
         // temp_color.b = (Uint8) (255 * pow((static_cast<double>(temp_color.b))
         // / 255, 1/COBRACONV_GAMMA));
 
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 
     // transparent color default to 0, so no change needed

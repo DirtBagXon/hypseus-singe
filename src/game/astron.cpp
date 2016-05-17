@@ -697,16 +697,16 @@ void astron::palette_calculate()
                 }
 
                 mapped_tile_color[x] = y;
-                palette_set_color(y, palette_lookup[((x & 0x07) << 1) | ((x & 0x38) << 2) |
+                palette::set_color(y, palette_lookup[((x & 0x07) << 1) | ((x & 0x38) << 2) |
                                                     ((x & 0xc0) << 4)]);
                 // since color 0 is moved we need to find our new transparent
                 // color
                 if (x == 0) {
-                    palette_set_transparency(m_transparent_color,
+                    palette::set_transparency(m_transparent_color,
                                              false); // make old transparent
                                                      // color non-transparent
                     m_transparent_color = y;
-                    palette_set_transparency(m_transparent_color, true);
+                    palette::set_transparency(m_transparent_color, true);
                 }
                 y++;
             }
@@ -731,11 +731,11 @@ void astron::recalc_palette()
 
             // only update the sprite colors if they are used
             if (used_sprite_color[i]) {
-                palette_set_color(i, palette_lookup[m_cpumem[j] | ((m_cpumem[j + 1] & 0x0f) << 8)]);
+                palette::set_color(i, palette_lookup[m_cpumem[j] | ((m_cpumem[j + 1] & 0x0f) << 8)]);
             }
         }
 
-        palette_finalize();
+        palette::finalize();
     }
     palette_modified = false;
 }

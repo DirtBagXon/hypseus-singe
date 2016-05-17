@@ -503,9 +503,9 @@ void bega::cpu_mem_write(Uint16 addr, Uint8 value)
             bit2         = (value >> 7) & 0x01;
             temp_color.b = 0x21 * bit0 + 0x47 * bit1 + 0x97 * bit2;
 
-            palette_set_color(addr & 0xff, temp_color);
-            palette_finalize(); // we need to do this here because it takes
-                                // place outside palette_calculate
+            palette::set_color(addr & 0xff, temp_color);
+            palette::finalize(); // we need to do this here because it takes
+                                 // place outside palette_calculate
 
             m_video_overlay_needs_update = true;
         }
@@ -564,9 +564,9 @@ void bega::palette_calculate()
     // we can't set it statically
 
     // setup transparency stuff
-    palette_set_transparency(0, false); // change default color 0 to
+    palette::set_transparency(0, false); // change default color 0 to
                                         // non-transparent
-    palette_set_transparency(BEGA_TRANSPARENT_COLOR, true);
+    palette::set_transparency(BEGA_TRANSPARENT_COLOR, true);
 }
 
 // updates bega's video

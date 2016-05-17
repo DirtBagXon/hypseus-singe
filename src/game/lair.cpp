@@ -784,7 +784,7 @@ void lair::palette_calculate()
         temp_color.g = (unsigned char)i;
         temp_color.b = (unsigned char)i;
 
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 }
 

@@ -415,7 +415,7 @@ void gpworld::recalc_palette()
             j         = 0xca00 + (i * 0x02);
             int color = m_cpumem[j] | ((m_cpumem[j + 1] & 0x0f) << 8);
 
-            palette_set_color(i, palette_lookup[color]);
+            palette::set_color(i, palette_lookup[color]);
 
             // the final palette is blank in gpworld so we'll put our tile
             // palette here
@@ -444,7 +444,7 @@ void gpworld::recalc_palette()
                 }
                 // a new color
                 else {
-                    palette_set_color(k, palette_lookup[color]);
+                    palette::set_color(k, palette_lookup[color]);
 
                     used_tile_colors[color] = k;
                     tile_color_pointer[i]   = k;
@@ -460,7 +460,7 @@ void gpworld::recalc_palette()
             }
         }
 
-        palette_finalize();
+        palette::finalize();
     }
     palette_modified = false;
 }

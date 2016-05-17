@@ -93,7 +93,7 @@ void benchmark::palette_calculate()
 {
     SDL_Color color;
     color.r = color.b = color.g = 255; // white
-    palette_set_color(255, color);     // set it
+    palette::set_color(255, color);     // set it
 }
 
 void benchmark::video_repaint()

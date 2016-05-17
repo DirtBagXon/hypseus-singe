@@ -280,18 +280,18 @@ void singe::palette_calculate()
         temp_color.r = i & 0xE0;        // Top 3 bits for red
         temp_color.g = (i << 3) & 0xC0; // Middle 2 bits for green
         temp_color.b = (i << 5) & 0xE0; // Bottom 3 bits for blue
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
     }
 
     // special case: 00 is reserved for transparency, so 01 becomes fully black
     temp_color.r = temp_color.g = temp_color.b = 0;
-    palette_set_color(1, temp_color);
+    palette::set_color(1, temp_color);
 
     // safety : 00 should never be visible so we'll make it a bright color to
     // help us
     //  catch errors
     temp_color.r = temp_color.g = temp_color.b = 0xFF;
-    palette_set_color(0, temp_color);
+    palette::set_color(0, temp_color);
 }
 
 // redraws video

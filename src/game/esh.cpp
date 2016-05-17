@@ -388,14 +388,14 @@ void esh::palette_calculate()
         temp_color.b =
             (Uint8)(255 * pow((static_cast<double>(temp_color.b)) / 255, 1 / ESH_GAMMA));
 
-        palette_set_color(i, temp_color);
+        palette::set_color(i, temp_color);
 
         // more than color 0 should be transparent, and until someone figures
         // out exactly what the other
         //  color is (surrounding the overlay), then all black will be
         //  transparent, which doesn't hurt anything
         if ((temp_color.r == 0) && (temp_color.g == 0) && (temp_color.b == 0)) {
-            palette_set_transparency(i, true);
+            palette::set_transparency(i, true);
         }
     }
 }
