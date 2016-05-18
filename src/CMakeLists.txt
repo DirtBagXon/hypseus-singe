@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.9)
 
+set(PKG_VERSION "v1.2.0")
+
 project(hypseus)
 
 option(BENCHMARK    "Benchmark"  OFF)
@@ -27,16 +29,10 @@ string(TOUPPER ${CMAKE_SYSTEM_NAME} TARGET_SYSTEM)
 string(CONCAT TARGET_SYSTEM TARGET_ ${TARGET_SYSTEM})
 string(TOUPPER ${CMAKE_TARGET_ARCHITECTURES} TARGET_ARCH)
 string(CONCAT TARGET_ARCH TARGET_ ${TARGET_ARCH})
-set(hypseus_VERSION_MAJOR 1)
-set(hypseus_VERSION_MINOR 0)
-set(hypseus_VERSION_POINT 13)
-
-configure_file(
-    "${PROJECT_SOURCE_DIR}/config.h.in"
-    "${PROJECT_BINARY_DIR}/config.h"
-)
 
 include(BuildSupport)
+include(GNUInstallDirs)
+include(GetGitRevisionDescription)
 include(InstallRequiredSystemLibraries)
 include(FindPkgConfig)
 include(ExternalProject)
@@ -51,6 +47,27 @@ build_libmpeg2( )
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
 
+git_describe(VER_TAG --tags --abbrev=0)
+if("${VER_TAG}" MATCHES "-NOTFOUND")
+    set(VER_TAG  ${PKG_VERSION})
+    set(VER_GIT_COUNT "0")
+else()
+    git_revlist(VER_GIT_COUNT --count ${VER_TAG}..HEAD)
+endif()
+string(REGEX REPLACE "^v" "" RESULT ${VER_TAG})
+string(REGEX REPLACE "[-\\.]" ";" RESULT ${RESULT})
+list(GET RESULT 0 VER_MAJOR)
+list(GET RESULT 1 VER_MINOR)
+list(GET RESULT 2 VER_PATCH)
+if(NOT "${VER_GIT_COUNT}" EQUAL "0")
+    set(VER_TAG "${VER_TAG}-${VER_GIT_COUNT}")
+endif()
+git_describe(VER_GIT_DIRTY --always --dirty)
+if("${VER_GIT_DIRTY}" MATCHES "-dirty")
+    set(VER_TAG "${VER_TAG}-dirty")
+endif()
+message(STATUS "Version: ${VER_TAG}")
+
 include_directories(
     ${PROJECT_BINARY_DIR} # config.h
     ${SDL2_INCLUDE_DIRS}
@@ -60,6 +77,11 @@ if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
     enable_language( ASM )
     set(can_use_assembler TRUE)
 endif()
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/config.h.in"
+    "${PROJECT_BINARY_DIR}/config.h"
+)
 
 add_subdirectory(3rdparty)
 
@@ -86,3 +108,19 @@ target_link_libraries( ${EXECUTABLE_NAME} plog io timer sound video cpu game ${S
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
 target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
+
+add_custom_command( TARGET ${EXECUTABLE_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E md5sum ${EXECUTABLE_NAME} > ${EXECUTABLE_NAME}.md5
+    COMMENT "Create MD5")
+
+set(CPACK_PACKAGE_NAME "Hypseus")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Hypseus - Arcade Laserdisc Emulator")
+set(CPACK_PACKAGE_VENDOR "Jeffrey Clark")
+set(CPACK_PACKAGE_CONTACT "h0tw1r3@users.noreply.github.com")
+set(CPACK_PACKAGE_VERSION "${VER_TAG}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${VER_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${VER_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${VER_PATCH}")
+
+include(CPack)

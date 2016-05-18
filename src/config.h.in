@@ -1,10 +1,10 @@
-#define hypseus_VERSION_MAJOR    @hypseus_VERSION_MAJOR@
-#define hypseus_VERSION_MINOR    @hypseus_VERSION_MINOR@
-#define hypseus_VERSION_POINT    @hypseus_VERSION_POINT@
-#define hypseus_VERSION          "@hypseus_VERSION_MAJOR@.@hypseus_VERSION_MINOR@.@hypseus_VERSION_POINT@"
+#define hypseus_VERSION_MAJOR    @VER_MAJOR@
+#define hypseus_VERSION_MINOR    @VER_MINOR@
+#define hypseus_VERSION_POINT    @VER_PATCH@
+#define hypseus_VERSION          "@VER_TAG@"
 
-#define ${TARGET_SYSTEM}
-#define ${TARGET_ARCH}
+#define @TARGET_SYSTEM@
+#define @TARGET_ARCH@
 
 #cmakedefine BENCHMARK
 #cmakedefine DEBUG
