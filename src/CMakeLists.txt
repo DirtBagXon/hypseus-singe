@@ -9,6 +9,7 @@ option(DEBUG        "Debug"      OFF)
 option(VLDP_DEBUG   "VLDP Debug" OFF)
 option(CPU_DEBUG    "CPU Debug"  OFF)
 option(BUILD_SINGE  "Singe"      OFF)
+option(BUILDBOT     "Buildbot"   OFF)
 
 if( NOT CMAKE_BUILD_TYPE )
     set(CMAKE_BUILD_TYPE "Release")
@@ -101,18 +102,22 @@ add_dependencies( ldp-out vldp )
 add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
-set(EXECUTABLE_NAME "hypseus")
-add_executable( ${EXECUTABLE_NAME} hypseus.cpp globals.h )
-target_link_libraries( ${EXECUTABLE_NAME} plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
+add_executable( hypseus hypseus.cpp globals.h )
+target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
 
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
 target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
 
-add_custom_command( TARGET ${EXECUTABLE_NAME}
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E md5sum ${EXECUTABLE_NAME} > ${EXECUTABLE_NAME}.md5
-    COMMENT "Create MD5")
+if(BUILDBOT)
+    add_custom_command( TARGET hypseus
+        POST_BUILD
+	COMMAND ${CMAKE_STRIP} $<TARGET_FILE:hypseus>
+        COMMAND ${CMAKE_COMMAND} -E remove -f hypseus.zip
+        COMMAND 7za a -mpass=4 -mfb=255 -y -tzip hypseus.zip $<TARGET_FILE:hypseus>
+        COMMAND ${CMAKE_COMMAND} -E md5sum hypseus.zip > hypseus.md5
+        COMMENT "Create zip and md5 for buildbot")
+endif()
 
 set(CPACK_PACKAGE_NAME "Hypseus")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Hypseus - Arcade Laserdisc Emulator")
