@@ -70,12 +70,6 @@
 #endif // BUILD_SINGE
 #include "../game/test_sb.h"
 #include "../ldp-out/ldp.h"
-#include "../ldp-out/sony.h"
-#include "../ldp-out/pioneer.h"
-#include "../ldp-out/ld-v6000.h"
-#include "../ldp-out/hitachi.h"
-#include "../ldp-out/philips.h"
-#include "../ldp-out/ldp-combo.h"
 #include "../ldp-out/ldp-vldp.h"
 #include "../ldp-out/framemod.h"
 
@@ -427,22 +421,10 @@ bool parse_ldp_type()
 
     net_set_ldpname(s); // report to server which ldp we are using
 
-    if (strcasecmp(s, "combo") == 0) {
-        g_ldp = new combo();
-    } else if (strcasecmp(s, "fast_noldp") == 0) {
+    if (strcasecmp(s, "fast_noldp") == 0) {
         g_ldp = new fast_noldp(); // 'no seek-delay' version of noldp
-    } else if (strcasecmp(s, "hitachi") == 0) {
-        g_ldp = new hitachi();
     } else if (strcasecmp(s, "noldp") == 0) {
         g_ldp = new ldp(); // generic interface
-    } else if (strcasecmp(s, "philips") == 0) {
-        g_ldp = new philips();
-    } else if (strcasecmp(s, "pioneer") == 0) {
-        g_ldp = new pioneer();
-    } else if (strcasecmp(s, "sony") == 0) {
-        g_ldp = new sony();
-    } else if (strcasecmp(s, "v6000") == 0) {
-        g_ldp = new v6000();
     } else if (strcasecmp(s, "vldp") == 0) {
         g_ldp = new ldp_vldp();
     } else {
@@ -635,18 +617,6 @@ bool parse_cmd_line(int argc, char **argv)
                 unsigned int u = (unsigned int)numstr::ToUint32(s, 16);
                 set_scoreboard_port(u);
                 sprintf(s, "Setting scoreboard port to %x", u);
-                printline(s);
-            } else if (strcasecmp(s, "-port") == 0) {
-                get_next_word(s, sizeof(s));
-                i = atoi(s);
-                set_serial_port((unsigned char)i);
-                sprintf(s, "Setting serial port to %d", i);
-                printline(s);
-            } else if (strcasecmp(s, "-baud") == 0) {
-                get_next_word(s, sizeof(s));
-                i = atoi(s);
-                set_baud_rate(i);
-                sprintf(s, "Setting baud rate to %d", i);
                 printline(s);
             }
 

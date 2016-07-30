@@ -252,9 +252,6 @@ class ldp
     // helper function, shouldn't be called directly
     void increment_current_frame();
 
-    bool need_serial;        // whether this LDP driver needs the serial port
-                             // initialized
-    bool serial_initialized; // whether serial has been initialized
     bool player_initialized; // whether the LDP has been properly initialized
     bool m_bIsVLDP;          // this is true if our LDP type is VLDP
     bool blitting_allowed;   // whether it's ok to blit directly to the screen

@@ -40,7 +40,6 @@
 #include "../game/game.h"
 #include "../io/conout.h"
 #include "../io/my_stdio.h"
-#include "../io/serial.h"
 #include "../timer/timer.h"
 #include "framemod.h"
 #include "ldp.h"
@@ -51,7 +50,7 @@
 
 // generic ldp constructor
 ldp::ldp()
-    : need_serial(false), serial_initialized(false), player_initialized(false),
+    : player_initialized(false),
       m_bIsVLDP(false), blitting_allowed(true), skipping_supported(false),
       skip_instead_of_search(false), max_skippable_frames(0),
       m_last_try_frame(0), m_last_seeked_frame(0),
@@ -84,17 +83,6 @@ bool ldp::pre_init()
 
     bool result = true; // assume everything works until we find out otherwise
     bool temp   = true; // needed to make && work the way we want below
-
-    // If we are controlling a real LDP,
-    // or if we are controlling a combo and DVD initialized properly,
-    // then initialize the serial port here
-    if (need_serial) {
-        LOGI << "You are attempting to use a real laserdisc player!"
-                "If you don't have a real laserdisc player,"
-                "you should be using VLDP instead.";
-        serial_initialized = serial_init(get_serial_port(), get_baud_rate());
-        temp               = serial_initialized;
-    }
 
     player_initialized        = init_player();
     result                    = temp && player_initialized;
@@ -131,12 +119,6 @@ void ldp::pre_shutdown()
         // if stop on quit has been requested stop the player from playing
         if (m_stop_on_quit) {
             pre_stop();
-        }
-
-        // if serial has been initialized, shut it down now
-        if (serial_initialized) {
-            serial_close();
-            serial_initialized = false;
         }
 
         shutdown_player();

@@ -69,7 +69,6 @@ using namespace std;
 #include "io/input.h"
 #include "hypseus.h"
 #include "timer/timer.h"
-#include "io/serial.h"
 #include "sound/sound.h"
 #include "io/conout.h"
 #include "io/cmdline.h"
@@ -280,15 +279,6 @@ int main(int argc, char **argv)
     SDL_Quit();
     exit(result_code);
 }
-
-// sets the serial port to be used to control LDP
-void set_serial_port(unsigned char i) { serial_port = i; }
-
-unsigned char get_serial_port() { return (serial_port); }
-
-void set_baud_rate(int i) { baud_rate = i; }
-
-int get_baud_rate() { return (baud_rate); }
 
 void set_search_offset(int i) { search_offset = i; }
 

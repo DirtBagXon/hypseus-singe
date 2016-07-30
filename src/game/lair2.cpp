@@ -57,7 +57,6 @@ NORMAL_MODE = 0x20
 #include "../ldp-in/vp932.h"
 #include "../io/conout.h"
 #include "../io/error.h"
-#include "../io/serial.h" // for controlling a real LDP-1450
 #include "../sound/sound.h"
 #include "../cpu/cpu.h"
 #include "../hypseus.h"
@@ -208,7 +207,6 @@ int g_dl2_euro = 0;
 lair2::lair2()
     : m_uSerialBufSize(0),         // the serial buffer starts off being empty
       m_serial_int_enabled(false), // serial interrupts start off disabled
-      m_real_1450(false),          // no real LDP-1450 is attached by default
       // serial hack isn't proper emulation, so it is disabled by default
       m_bSerialHack(false)
 {
@@ -418,19 +416,12 @@ bool lair2::handle_cmdline_arg(const char *arg)
 {
     bool bResult = true;
 
-    // instead of emulating a LDP-1450, just pass the serial port commands
-    // through to the real serial port
-    // This is for people who actually have a real 1450 and want to play DL2 on
-    // it
-    if (strcasecmp(arg, "-real1450") == 0) {
-        m_real_1450 = true;
-    }
     // Instead of generating serial port IRQ's, manually store serial data into
     // the memory
     // (requires knowing memory locations in the ROM, so this probably will only
     // be
     // supported on v3.19)
-    else if (strcasecmp(arg, "-serialhack") == 0) {
+    if (strcasecmp(arg, "-serialhack") == 0) {
         // make sure we're using the right rom version to be able to handle this
         // ...
         if (g_Dv == g_dl2vars_319) {
@@ -659,17 +650,8 @@ void lair2::do_irq(unsigned int which_irq)
                         serial_val = vp932::read();
                     }
                 } else {
-                    // if we're connected to a real 1450 ... read the value now
-                    if (m_real_1450) {
-                        // if there is a character waiting in the buffer to be
-                        // read ...
-                        if (serial_rx_char_waiting()) {
-                            serial_val = serial_rx();
-                        }
-                    }
-
-                    // otherwise just read from our emulated 1450
-                    else if (ldp1000::result_ready()) {
+                    // read from our emulated 1450
+                    if (ldp1000::result_ready()) {
                         serial_val = ldp1000::read();
                     }
                     // else no char is available
@@ -807,17 +789,8 @@ numstr::ToStr(uElapsed);
         if (g_dl2_euro) {
             vp932::write(value);
         } else {
-            // if we're hooked up to a real LDP-1450, send directly to the
-            // serial port
-            if (m_real_1450) {
-                serial_tx(value);
-                while (!serial_rx_char_waiting()) SDL_Delay(1); // TESTING...
-            }
-
             // otherwise send to our emulated LDP
-            else {
-                ldp1000::write(value);
-            }
+            ldp1000::write(value);
         }
         break;
     }

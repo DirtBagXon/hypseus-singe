@@ -31,9 +31,6 @@ ldp *g_ldp   = NULL; // pointer to the ldp class that emulator will use
 
 Uint8 quitflag = 0; // 1 = we are ready to quit the program
 
-Uint8 serial_port = 0; // which serial port to use to control LDP
-// which baud rate they want the serial port to function at
-int baud_rate = 9600;
 // Value to add to every frame we search for (0 unless we have a PAL Dragon's
 // Lair disc and the NTSC roms)
 // PAL disc starts at frame 1, NTSC disc starts at frame 153.

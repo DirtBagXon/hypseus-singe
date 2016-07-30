@@ -102,7 +102,6 @@ class lair2 : public game
 
     bool m_serial_int_enabled; // whether serial port should generate interrupts
 
-    bool m_real_1450;      // whether they have a real LDP-1450 or not
     bool m_sample_trigger; // for triggering our samples
 
     // If we're going to try to write directly to memory to give the ROM the
