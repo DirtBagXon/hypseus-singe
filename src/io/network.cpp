@@ -69,73 +69,19 @@
 // I changed this to 'stats' in case I ever want to change the IP address of the
 // stats
 // server without changing the location of the web server.
-#define NET_IP "stats.daphne-emu.com"
+#define NET_IP "stats.btolab.com"
 
 // which version of this simple protocol we are using (so the server can support
 // multiple versions)
 static const unsigned char PROTOCOL_VERSION = 1;
 
-#define USERID_FILENAME "userid.bin"
-
-bool g_send_data_to_server = false; // whether user allows us to send data to
-                                    // server
+bool g_send_data_to_server = true; // whether user allows us to send data to
+                                   // server
 
 ////////////////////
 
 // disable sending data to server for paranoid users
-// (I don't know why anyone should be paranoid, this is open source for crying
-// out loud)
 void net_server_send() { g_send_data_to_server = true; }
-
-// returns a unique (hopefully) randomly generated user id so we can track how
-// many
-// different daphne users there are out there
-unsigned int get_user_id()
-{
-    bool id_exists  = false; // id already exists?
-    unsigned int id = 0;
-    FILE *F         = NULL;
-
-    F = fopen(USERID_FILENAME, "rb");
-    // if they already have a userid generated previously
-    if (F) {
-        unsigned int len = fread(&id, 1, sizeof(id), F);
-
-        // make sure we read something ...
-        if (len == sizeof(id)) {
-            id_exists = true;
-        }
-        fclose(F);
-    }
-
-    // if we don't have an ID yet then generate one now
-    if (!id_exists) {
-        F = fopen(USERID_FILENAME, "wb");
-        if (F) {
-#ifdef UNIX
-            struct timeval tv;
-            gettimeofday(&tv, NULL); // get a random number (time)
-            srand(tv.tv_sec); // seed randomizer with current usec's elapsed
-                              // (hopefully super random)
-            id = rand() ^ tv.tv_usec; // hopefully this value will be so random
-                                      // that it will be unique
-#endif
-#ifdef WIN32
-            SYSTEMTIME cur_time;
-            FILETIME file_time;
-            GetSystemTime(&cur_time);
-            SystemTimeToFileTime(&cur_time, &file_time);
-            srand(file_time.dwHighDateTime);
-            id = rand() ^ file_time.dwLowDateTime;
-#endif
-            fwrite(&id, sizeof(id), 1, F);
-            fclose(F);
-        }
-        // else we couldn't create so we'll just try again next time
-    }
-
-    return id;
-}
 
 int g_sockfd = -1;          // our socket file descriptor
 struct net_packet g_packet; // what we're gonna send
@@ -447,7 +393,6 @@ void net_send_data_to_server()
 
             // if we are able to connect to socket successfully
             if (connect(g_sockfd, (struct sockaddr *)&saRemote, sizeof(saRemote)) == 0) {
-                g_packet.user_id = get_user_id();
                 g_packet.os      = OS_UNKNOWN;
 #ifdef WIN32
                 g_packet.os = OS_WIN32;

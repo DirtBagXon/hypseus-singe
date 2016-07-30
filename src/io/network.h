@@ -33,7 +33,6 @@
 
 struct net_packet {
     unsigned char protocol;
-    unsigned int user_id;
     unsigned char os;
     char os_desc[NET_LONGSTRSIZE]; // long OS description
     unsigned int mem;
@@ -48,7 +47,6 @@ struct net_packet {
 };
 
 void net_server_send();
-unsigned int get_user_id();
 void net_set_gamename(char *gamename);
 void net_set_ldpname(char *ldpname);
 unsigned int get_sys_mem();
