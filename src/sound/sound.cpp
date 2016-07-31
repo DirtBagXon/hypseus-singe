@@ -270,8 +270,8 @@ bool play(Uint32 whichone)
     // only play a sound if sound has been initialized (and if whichone points
     // to a valid wav)
     if (is_enabled() && (whichone < MAX_NUM)) {
-        samples_play_sample(g_samples[whichone].pu8Buf, g_samples[whichone].uLength,
-                            g_samples[whichone].uChannels);
+		samples::play(g_samples[whichone].pu8Buf, g_samples[whichone].uLength,
+                      g_samples[whichone].uChannels);
         result = true;
     }
 
@@ -284,7 +284,7 @@ bool play_saveme()
     bool result = false;
 
     if (is_enabled()) {
-        samples_play_sample(g_sample_saveme.pu8Buf, g_sample_saveme.uLength);
+		samples::play(g_sample_saveme.pu8Buf, g_sample_saveme.uLength);
         result = true;
     }
 
@@ -435,9 +435,9 @@ unsigned int add_chip(struct chip *candidate)
     // now we must assign the appropriate callbacks
     switch (cur->type) {
     case CHIP_SAMPLES:
-        cur->init_callback     = samples_init;
-        cur->shutdown_callback = samples_shutdown;
-        cur->stream_callback   = samples_get_stream;
+        cur->init_callback     = samples::init;
+        cur->shutdown_callback = samples::shutdown;
+        cur->stream_callback   = samples::get_stream;
         break;
     case CHIP_VLDP:
         // we only need to define stream_callback, everything else is handled by
@@ -453,28 +453,28 @@ unsigned int add_chip(struct chip *candidate)
         break;
     case CHIP_AY_3_8910:
         cur->bNeedsConstantUpdates    = true; // doesn't sound good without it
-        cur->init_callback            = gisound_initialize;
-        cur->shutdown_callback        = gisound_shutdown;
-        cur->write_ctrl_data_callback = gisound_writedata;
-        cur->stream_callback          = gisound_stream;
+        cur->init_callback            = gisound::initialize;
+        cur->shutdown_callback        = gisound::shutdown;
+        cur->write_ctrl_data_callback = gisound::writedata;
+        cur->stream_callback          = gisound::stream;
         break;
     case CHIP_PC_BEEPER:                      // used by DL2/SA91
         cur->bNeedsConstantUpdates    = true; // for now we'll have it this way
-        cur->init_callback            = beeper_init;
-        cur->write_ctrl_data_callback = beeper_ctrl_data;
-        cur->stream_callback          = beeper_get_stream;
+        cur->init_callback            = beeper::init;
+        cur->write_ctrl_data_callback = beeper::ctrl_data;
+        cur->stream_callback          = beeper::get_stream;
         break;
     case CHIP_DAC: // used by MACK 3
         cur->bNeedsConstantUpdates    = true;
-        cur->init_callback            = dac_init;
-        cur->write_ctrl_data_callback = dac_ctrl_data;
-        cur->stream_callback          = dac_get_stream;
+        cur->init_callback            = dac::init;
+        cur->write_ctrl_data_callback = dac::ctrl_data;
+        cur->stream_callback          = dac::get_stream;
         break;
     case CHIP_TONEGEN: // generic 4 voice tone generator
         cur->bNeedsConstantUpdates    = true;
-        cur->init_callback            = tonegen_initialize;
-        cur->write_ctrl_data_callback = tonegen_writedata;
-        cur->stream_callback          = tonegen_stream;
+        cur->init_callback            = tonegen::initialize;
+        cur->write_ctrl_data_callback = tonegen::writedata;
+        cur->stream_callback          = tonegen::stream;
         break;
     default:
         LOGW << "FATAL ERROR : unknown sound chip added";

@@ -33,7 +33,10 @@
 #include "sound.h" // for sample_s definition
 #include <SDL.h>
 
-void tqsynth_init(int freq, Uint16 format, int channels, long base_F0);
+namespace tqsynth
+{
+void init(int freq, Uint16 format, int channels, long base_F0);
 bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample);
-bool tqsynth_phones_to_wave(char *phonemes, int len, sound::sample_s *ptrSample);
-void tqsynth_free_chunk(Uint8 *pu8Buf);
+bool phones_to_wave(char *phonemes, int len, sound::sample_s *ptrSample);
+void free_chunk(Uint8 *pu8Buf);
+}

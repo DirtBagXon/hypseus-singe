@@ -83,6 +83,9 @@
 #define PI 3.1415927
 #endif
 
+namespace tqsynth
+{
+
 typedef struct {
     float a;
     float b;
@@ -2361,7 +2364,7 @@ struct this_type_doesnt_matter {
 } au_spec = {{0}};
 
 // Initialize startup parameters for synthesizer and audio.
-void tqsynth_init(int freq, Uint16 format, int channels, long base_F0)
+void init(int freq, Uint16 format, int channels, long base_F0)
 {
     double mSec_per_frame = 10;
 
@@ -2388,7 +2391,7 @@ void tqsynth_init(int freq, Uint16 format, int channels, long base_F0)
 }
 
 // Release a previously synthesized wave chunk.
-void tqsynth_free_chunk(Uint8 *pu8Buf) { MPO_FREE(pu8Buf); }
+void free_chunk(Uint8 *pu8Buf) { MPO_FREE(pu8Buf); }
 
 // Take a synthesized sample and convert to an SDL-ready wave chunk.
 bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample)
@@ -2438,7 +2441,7 @@ bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample
 }
 
 // Take a string of phonemes and synthesize to wave data.
-bool tqsynth_phones_to_wave(char *phonemes, int len, sound::sample_s *ptrSample)
+bool phones_to_wave(char *phonemes, int len, sound::sample_s *ptrSample)
 {
     darray_t elm;
     unsigned frames;
@@ -3670,4 +3673,5 @@ void darray_free(darray_t *a)
     }
 
     a->items = a->alloc = 0;
+}
 }

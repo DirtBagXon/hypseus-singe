@@ -31,10 +31,13 @@
 #include <memory.h>
 #include <plog/Log.h>
 
+namespace tonegen
+{
+
 tonegen g_tonegen;
 bool g_tonegen_init = false;
 
-int tonegen_initialize(Uint32 unused)
+int initialize(Uint32 unused)
 {
     int result = -1;
     if (!g_tonegen_init) {
@@ -53,13 +56,13 @@ int tonegen_initialize(Uint32 unused)
     return result;
 }
 
-void tonegen_writedata(Uint32 channel, Uint32 frequency, int index)
+void writedata(Uint32 channel, Uint32 frequency, int index)
 {
     g_tonegen.bytes_per_switch[channel] =
         frequency ? (int)((sound::FREQ / frequency * 4 / 2) + .5) : 0;
 }
 
-void tonegen_stream(Uint8* stream, int length, int index)
+void stream(Uint8* stream, int length, int index)
 {
     for (int pos = 0; pos < length; pos += 4) {
         // endian-independent! :)
@@ -92,4 +95,5 @@ void tonegen_stream(Uint8* stream, int length, int index)
             }
         }
     }
+}
 }

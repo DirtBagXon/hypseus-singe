@@ -34,6 +34,9 @@
 #include <assert.h>
 #endif
 
+namespace dac
+{
+
 // how many DACs have been created
 unsigned int g_uDACCount = 0;
 
@@ -82,7 +85,7 @@ mpo_io *sample_io = NULL;
 #endif
 
 // init callback
-int dac_init(unsigned int uCpuFreq)
+int init(unsigned int uCpuFreq)
 {
 
 #ifdef DEBUG
@@ -110,7 +113,7 @@ int dac_init(unsigned int uCpuFreq)
     return 0;
 }
 
-void dac_ctrl_data(unsigned int uCyclesSinceLastChange, unsigned int u8Byte, int internal_id)
+void ctrl_data(unsigned int uCyclesSinceLastChange, unsigned int u8Byte, int internal_id)
 {
 #ifdef DEBUG
     assert(u8Byte <= 255); // make sure it is really 8-bit
@@ -158,7 +161,7 @@ void dac_ctrl_data(unsigned int uCyclesSinceLastChange, unsigned int u8Byte, int
 }
 
 // called from sound mixer to get audio stream
-void dac_get_stream(Uint8 *stream, int length, int internal_id)
+void get_stream(Uint8 *stream, int length, int internal_id)
 {
 #ifdef DEBUG
     // make sure this is in the proper format (stereo 16-bit)
@@ -228,4 +231,5 @@ void dac_get_stream(Uint8 *stream, int length, int internal_id)
     // a new interval begins now
     g_uCyclesUsedThisInterval  = 0;
     g_uSampleCountThisInterval = 0;
+}
 }

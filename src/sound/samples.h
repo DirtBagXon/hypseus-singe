@@ -25,14 +25,17 @@
 
 #include <SDL.h> // for data-type defs
 
+namespace samples
+{
+
 // init callback
-int samples_init(unsigned int unused);
+int init(unsigned int unused);
 
 // shutdown
-void samples_shutdown(int shutdown);
+void shutdown(int shutdown);
 
 // called from sound mixer to get audio stream
-void samples_get_stream(Uint8 *stream, int length, int internal_id);
+void get_stream(Uint8 *stream, int length, int internal_id);
 
 // Plays a sample
 // The sample's audio specs must match our the audio device's specs
@@ -45,19 +48,20 @@ void samples_get_stream(Uint8 *stream, int length, int internal_id);
 // Returns the slot that the sample is playing in, or
 //  -1 if uChannels or iSlot is out of range, or
 //  -2 if there are no slots available
-int samples_play_sample(Uint8 *pu8Buf, unsigned int uLength,
-                        unsigned int uChannels = sound::CHANNELS, int iSlot = -1,
-                        void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot) = NULL);
+int play(Uint8 *pu8Buf, unsigned int uLength,
+                unsigned int uChannels = sound::CHANNELS, int iSlot = -1,
+                void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot) = NULL);
 
 // returns true if the sample indicated by 'uSlot' is currently playing
 //  or false if the sample isn't playing
-bool samples_is_sample_playing(unsigned int uSlot);
+bool is_playing(unsigned int uSlot);
 
 // This is a hack (for now) to ensure that any callbacks that were queued get
 // fired by the main thread (instead of the audio thread).
 // For now it must be manually called as often as you want your callbacks to be
 // called.
 // (in the future this will be automated)
-void samples_do_queued_callbacks();
+void do_queued_callbacks();
 
+}
 #endif // SAMPLES_H

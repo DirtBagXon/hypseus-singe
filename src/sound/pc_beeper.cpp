@@ -32,6 +32,9 @@
 #include "../io/conout.h"
 #include <plog/Log.h>
 
+namespace beeper
+{
+
 // how many beepers have been created
 unsigned int g_uBeeperCount = 0;
 
@@ -62,7 +65,7 @@ unsigned int g_uSampleCount = 0;
 unsigned int g_uSamplesPerHalfCycle = 0;
 
 // init callback
-int beeper_init(Uint32 unused)
+int init(Uint32 unused)
 {
 
 #ifdef DEBUG
@@ -84,7 +87,7 @@ int beeper_init(Uint32 unused)
 }
 
 // should be called from the game driver to control beeper
-void beeper_ctrl_data(unsigned int uPort, unsigned int uByte, int internal_id)
+void ctrl_data(unsigned int uPort, unsigned int uByte, int internal_id)
 {
     switch (uPort) {
     case 0x42: // frequency
@@ -120,7 +123,7 @@ void beeper_ctrl_data(unsigned int uPort, unsigned int uByte, int internal_id)
 }
 
 // called from sound mixer to get audio stream
-void beeper_get_stream(Uint8 *stream, int length, int internal_id)
+void get_stream(Uint8 *stream, int length, int internal_id)
 {
 #ifdef DEBUG
     // make sure this is in the proper format (stereo 16-bit)
@@ -152,4 +155,5 @@ void beeper_get_stream(Uint8 *stream, int length, int internal_id)
     else {
         memset(stream, 0, length);
     }
+}
 }

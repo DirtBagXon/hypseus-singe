@@ -25,10 +25,13 @@
 
 #include <SDL.h>
 
-int gisound_initialize(Uint32 core_frequency);
-void gisound_writedata(Uint32, Uint32, int index);
-void gisound_stream(Uint8* stream, int length, int index);
-void gisound_shutdown(int index);
+namespace gisound
+{
+
+int initialize(Uint32 core_frequency);
+void writedata(Uint32, Uint32, int index);
+void stream(Uint8* stream, int length, int index);
+void shutdown(int index);
 
 enum {
     CHANNEL_A_TONE_PERIOD_FINE,
@@ -102,5 +105,6 @@ struct gi_sound_chip {
     Uint8 port_b_data_store;
     Uint32 random_seed;
 };
+}
 
 #endif

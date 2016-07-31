@@ -108,10 +108,10 @@ bool thayers::init()
     // the synthesizer unless audio is enabled. If -notqspeech was present
     // on the command line, m_use_speech will be false.
     if (sound::is_enabled()) {
-        result = ssi263_init(m_use_speech);
+        result = ssi263::init(m_use_speech);
     } else {
         // The -nosound option must have been present.
-        result                 = ssi263_init(false);
+        result                 = ssi263::init(false);
         m_use_speech           = false;
         m_show_speech_subtitle = true;
     }
@@ -357,21 +357,21 @@ void thayers::port_write(Uint16 port, Uint8 value)
     case 0x00: // Ports 00-04 output to speech chip
         // As far as I can tell, it's reg0 of the SSI-263 that issues an IRQ.
         // So always check on return if an IRQ needs to be raised.
-        ssi263_reg0(value, &m_irq_status);
+        ssi263::reg0(value, &m_irq_status);
 
         if (!(m_irq_status & 0x04)) thayers_irq();
         break;
     case 0x01:
-        ssi263_reg1(value);
+        ssi263::reg1(value);
         break;
     case 0x02:
-        ssi263_reg2(value);
+        ssi263::reg2(value);
         break;
     case 0x03:
-        ssi263_reg3(value);
+        ssi263::reg3(value);
         break;
     case 0x04:
-        ssi263_reg4(value);
+        ssi263::reg4(value);
         break;
     case 0x20: // Bits 5-7 write to COP421 ports G0-G2, Bit 2 /BANKSELT
         if (value == 0x20) cop_write_latch = 0xfa;

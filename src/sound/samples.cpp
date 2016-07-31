@@ -16,7 +16,9 @@
 #include <queue>
 using namespace std;
 
-struct sample_data_s {
+namespace samples
+{
+struct data_s {
     // holds audio buffer
     Uint8 *pu8Buf;
 
@@ -39,33 +41,33 @@ struct sample_data_s {
 
 // temporary holding struct so that main thread can issue callbacks instead of
 // the audio thread
-struct sample_callback_s {
+struct callback_s {
     void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSampleIdx);
     Uint8 *pu8Buf;
     unsigned int uSampleIdx;
 };
 
 // MUST BE PROTECTED BY MUTEX!
-queue<sample_callback_s> g_qCallbacks;
+queue<callback_s> g_qCallbacks;
 
 // this number can be any size, but there's no reason to make it huge
 const unsigned int MAX_DYNAMIC_SAMPLES = 32; // Raised from 8 by RDG2010
 
-struct sample_data_s g_SampleStates[MAX_DYNAMIC_SAMPLES];
+struct data_s g_SampleStates[MAX_DYNAMIC_SAMPLES];
 
 // so that we don't need to scan through to find a free slot in the dynamic
 // samples array
 unsigned int g_uNextSampleIdx = 0;
 
 // init callback
-int samples_init(unsigned int unused)
+int init(unsigned int unused)
 {
     int iResult    = 0;
     unsigned int u = 0;
 
     // make sure these are all initialized
     for (u = 0; u < MAX_DYNAMIC_SAMPLES; ++u) {
-        sample_data_s *s    = &g_SampleStates[u];
+        data_s *s           = &g_SampleStates[u];
         s->pu8Buf           = NULL;
         s->uLength          = 0;
         s->uPos             = 0;
@@ -77,11 +79,11 @@ int samples_init(unsigned int unused)
     return iResult;
 }
 
-void samples_shutdown(int unused) {}
+void shutdown(int unused) {}
 
 // called from sound mixer to get audio stream
 // NOTE : This runs on the audio thread!!!
-void samples_get_stream(Uint8 *stream, int length, int unused)
+void get_stream(Uint8 *stream, int length, int unused)
 {
 #ifdef DEBUG
     assert(length % 4 == 0); // make sure it's divisible by 4
@@ -97,7 +99,7 @@ void samples_get_stream(Uint8 *stream, int length, int unused)
 
     // check to see if any sample is playing ...
     for (u = 0; u < MAX_DYNAMIC_SAMPLES; ++u) {
-        sample_data_s *data = &g_SampleStates[u];
+        data_s *data = &g_SampleStates[u];
 
         if (data->bActive) {
             Uint8 *ptrStream = stream;
@@ -141,7 +143,7 @@ void samples_get_stream(Uint8 *stream, int length, int unused)
                     // if caller has requested to be notified when this sample
                     // is done ...
                     if (data->finishedCallback != NULL) {
-                        sample_callback_s cb;
+                        callback_s cb;
                         cb.finishedCallback = data->finishedCallback;
                         cb.pu8Buf           = data->pu8Buf;
                         cb.uSampleIdx       = u;
@@ -160,12 +162,12 @@ void samples_get_stream(Uint8 *stream, int length, int unused)
     }         // end looping through all sample slots
 }
 
-int samples_play_sample(Uint8 *pu8Buf, unsigned int uLength,
-                        unsigned int uChannels, int iSlot,
-                        void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot))
+int play(Uint8 *pu8Buf, unsigned int uLength,
+         unsigned int uChannels, int iSlot,
+         void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot))
 {
     int iResult          = -1;
-    sample_data_s *state = NULL;
+    data_s *state = NULL;
 
     // range check
     if ((uChannels == 1) || (uChannels == 2)) {
@@ -233,7 +235,7 @@ int samples_play_sample(Uint8 *pu8Buf, unsigned int uLength,
     return iResult;
 }
 
-bool samples_is_sample_playing(unsigned int uSlot)
+bool is_playing(unsigned int uSlot)
 {
     bool bResult = false;
     if (uSlot < MAX_DYNAMIC_SAMPLES) {
@@ -242,20 +244,19 @@ bool samples_is_sample_playing(unsigned int uSlot)
         bResult = g_SampleStates[uSlot].bActive;
         SDL_UnlockAudio();
     } else {
-        LOGE << "samples_is_sample_playing() was called with an "
-                "out-of-range parameter";
+        LOGE << "was called with an out-of-range parameter";
     }
     return bResult;
 }
 
-void samples_do_queued_callbacks()
+void do_queued_callbacks()
 {
     // about to access shared variables
     SDL_LockAudio();
 
     // do all the callbacks that are queued up
     while (!g_qCallbacks.empty()) {
-        sample_callback_s cb = g_qCallbacks.front();
+        callback_s cb = g_qCallbacks.front();
 
         // call the callback here
         cb.finishedCallback(cb.pu8Buf, cb.uSampleIdx);
@@ -265,4 +266,5 @@ void samples_do_queued_callbacks()
     }
 
     SDL_UnlockAudio();
+}
 }

@@ -674,10 +674,10 @@ void releasetest::test_sound_mixing()
     unsigned char u8BufClipped[4] = {0xFF, 0x7F, 0, 0}; // maximum value
     unsigned char u8Stream[4];
 
-    int iSlot = samples_play_sample(u8Buf, sizeof(u8Buf), 2, -1, NULL);
+    int iSlot = samples::play(u8Buf, sizeof(u8Buf), 2, -1, NULL);
 
     if (iSlot >= 0) {
-        samples_get_stream(u8Stream, 4, sizeof(u8Stream));
+        samples::get_stream(u8Stream, 4, sizeof(u8Stream));
 
         // these should be the same ...
         if (memcmp(u8Stream, u8Buf, sizeof(u8Buf)) == 0) {
@@ -688,7 +688,7 @@ void releasetest::test_sound_mixing()
     logtest(bTestPassed, "Sample Mixing");
 
     bTestPassed = false;
-    iSlot = samples_play_sample(u8Buf, sizeof(u8Buf), 2, -1, NULL);
+    iSlot = samples::play(u8Buf, sizeof(u8Buf), 2, -1, NULL);
     if (iSlot >= 0) {
         // test the sample mixer passed through the main audio mixer
         sound::callback(NULL, u8Stream, sizeof(u8Stream));
@@ -703,8 +703,8 @@ void releasetest::test_sound_mixing()
 
     bTestPassed = false;
     // play the sample twice to ensure that it exceeds the threshold
-    iSlot      = samples_play_sample(u8Buf, sizeof(u8Buf), 2, -1, NULL);
-    int iSlot2 = samples_play_sample(u8Buf, sizeof(u8Buf), 2, -1, NULL);
+    iSlot      = samples::play(u8Buf, sizeof(u8Buf), 2, -1, NULL);
+    int iSlot2 = samples::play(u8Buf, sizeof(u8Buf), 2, -1, NULL);
     if ((iSlot >= 0) && (iSlot2 >= 0)) {
         // test the sample mixer passed through the main audio mixer
         sound::callback(NULL, u8Stream, sizeof(u8Stream));

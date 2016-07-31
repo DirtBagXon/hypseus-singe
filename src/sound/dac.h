@@ -25,13 +25,15 @@
 
 #include <SDL.h> // for data-type defs
 
+namespace dac
+{
 // init callback
-int dac_init(Uint32 unused);
+int init(Uint32 unused);
 
 // should be called from the game driver
-void dac_ctrl_data(unsigned int uSamplesSinceLastChange, unsigned int uByte, int internal_id);
+void ctrl_data(unsigned int uSamplesSinceLastChange, unsigned int uByte, int internal_id);
 
 // called from sound mixer to get audio stream
-void dac_get_stream(Uint8 *stream, int length, int internal_id);
-
+void get_stream(Uint8 *stream, int length, int internal_id);
+}
 #endif // DAC_H

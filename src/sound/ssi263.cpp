@@ -56,6 +56,9 @@
 // This code attempts to emulate the SSI263 speech chip used in the game
 // Thayer's Quest
 
+namespace ssi263
+{
+
 // SSI-263 Control flag.
 static bool m_ssi_control = false; // Whe true SSI-263 is in Control Mode.
 
@@ -71,12 +74,12 @@ static thayers *m_thayers = NULL;     // Need to call into the TQ class to
                                       // subtitle the speech buffer text.
 
 // Forward declarations of local funtions.
-void ssi263_say_phones(char *phonemes, int len);
+void say_phones(char *phonemes, int len);
 
 // Duration/Phoneme
 // Working theory: top 2 bits are for duration, the rest is for the phoneme
 // A duration of 0x0 is the slowest, 0x03 (both bits set) is the fastest
-void ssi263_reg0(unsigned char value, Uint8 *irq_status)
+void reg0(unsigned char value, Uint8 *irq_status)
 {
     static char phones_text[SSI_PHRASE_BUF_LEN]; // Holds rsynth phonemes.
     static int phones_len = 0;
@@ -156,7 +159,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
                     cpu::pause(); // MPO : this replaces flush_cpu_timers
 
                     // Synthesize and speak the phonemes.
-                    ssi263_say_phones(phones_text, phones_len);
+                    say_phones(phones_text, phones_len);
 
                     cpu::unpause();
                 }
@@ -248,7 +251,7 @@ void ssi263_reg0(unsigned char value, Uint8 *irq_status)
 }
 
 // INFLECT
-void ssi263_reg1(unsigned char value)
+void reg1(unsigned char value)
 {
 #ifdef SSI_REG_DEBUG
     char s[81] = {0};
@@ -277,7 +280,7 @@ void ssi263_reg1(unsigned char value)
 }
 
 // Speech Rate
-void ssi263_reg2(unsigned char value)
+void reg2(unsigned char value)
 {
     switch (value) {
     case 0x98:
@@ -299,7 +302,7 @@ void ssi263_reg2(unsigned char value)
 }
 
 // CTTRAMP
-void ssi263_reg3(unsigned char value)
+void reg3(unsigned char value)
 {
     if (value & 0x80) {
         // High bit set puts SSI-263 into control mode.
@@ -330,7 +333,7 @@ void ssi263_reg3(unsigned char value)
 }
 
 // Filter Frequency
-void ssi263_reg4(unsigned char value)
+void reg4(unsigned char value)
 {
     switch (value) {
     case 0xE6:
@@ -355,7 +358,7 @@ void ssi263_reg4(unsigned char value)
 // *  All functions from here add SSI-263->rsynth support.                 * //
 // ************************************************************************* //
 // Query the current audio parameters and pass them on to the synthesizer.
-bool ssi263_init(bool init_speech)
+bool init(bool init_speech)
 {
     bool result = false;
 
@@ -365,7 +368,7 @@ bool ssi263_init(bool init_speech)
     if (m_thayers) {
         if (init_speech) {
             // Request voice to have an F0 base frequency of 110Hz.
-            tqsynth_init(sound::FREQ, sound::FORMAT, sound::CHANNELS, 1100);
+            tqsynth::init(sound::FREQ, sound::FORMAT, sound::CHANNELS, 1100);
             m_speech_enabled = true;
         }
 
@@ -381,28 +384,28 @@ bool g_bSamplePlaying = false;
 // request a raw waveform because it provides an opportunity exercise a little
 // more control over the playback (could have done this in the tqsynth code,
 // but wanted tqsynth to be somewhat independent of the Hypseus code).
-void ssi263_say_phones(char *phonemes, int len)
+void say_phones(char *phonemes, int len)
 {
     sound::sample_s the_sample;
 
     the_sample.pu8Buf  = NULL;
     the_sample.uLength = 0;
 
-    if (tqsynth_phones_to_wave(phonemes, len, &the_sample)) {
+    if (tqsynth::phones_to_wave(phonemes, len, &the_sample)) {
         g_bSamplePlaying = true; // so that we don't overlap samples (only
                                  // happens at the very beginning of boot-up)
-        samples_play_sample(the_sample.pu8Buf, the_sample.uLength,
-                            sound::CHANNELS, -1, ssi263_finished_callback);
+        samples::play(the_sample.pu8Buf, the_sample.uLength,
+                      sound::CHANNELS, -1, finished_callback);
 
         // Wait for sample to stop playing
         // NOTE : This is a hack and isn't proper emulation.
         // The proper fix to this is to return to the ROM some signal that our
         // sample has finished playing.
         while ((g_bSamplePlaying) && (!get_quitflag())) {
-            samples_do_queued_callbacks(); // hack to ensure sound callbacks are
-                                           // called in a thread-safe way.  In
-                                           // the next major version, this hack
-                                           // must be done away with.
+            samples::do_queued_callbacks(); // hack to ensure sound callbacks are
+                                            // called in a thread-safe way.  In
+                                            // the next major version, this hack
+                                            // must be done away with.
             SDL_Delay(10);
             SDL_check_input();
         }
@@ -413,8 +416,9 @@ void ssi263_say_phones(char *phonemes, int len)
 }
 
 // gets called when sample has finished playing
-void ssi263_finished_callback(Uint8 *pu8Buf, unsigned int uSlot)
+void finished_callback(Uint8 *pu8Buf, unsigned int uSlot)
 {
     g_bSamplePlaying = false;
-    tqsynth_free_chunk(pu8Buf);
+    tqsynth::free_chunk(pu8Buf);
+}
 }

@@ -33,12 +33,16 @@
 #include <plog/Log.h>
 
 #define MAX_GISOUND_CHIPS 4
+
+namespace gisound
+{
+
 int g_gisoundchip_count = -1;
 
 gi_sound_chip *g_gi_chips[MAX_GISOUND_CHIPS] = {NULL};
 Sint16 g_volumetable[16];
 
-int gisound_initialize(Uint32 core_frequency)
+int initialize(Uint32 core_frequency)
 {
     LOGD << fmt("GI Sound chip initialized at %d Hz", core_frequency);
     g_gi_chips[++g_gisoundchip_count] = new gi_sound_chip;
@@ -80,7 +84,7 @@ int gisound_initialize(Uint32 core_frequency)
     return g_gisoundchip_count;
 }
 
-void gisound_writedata(Uint32 address, Uint32 data, int index)
+void writedata(Uint32 address, Uint32 data, int index)
 {
     Uint16 chan_a_tone_period;
     Uint16 chan_b_tone_period;
@@ -255,7 +259,7 @@ void gisound_writedata(Uint32 address, Uint32 data, int index)
     }
 }
 
-void gisound_stream(Uint8 *stream, int length, int index)
+void stream(Uint8 *stream, int length, int index)
 {
     for (int pos = 0; pos < length; pos += 4) {
         // endian-independent! :)
@@ -375,8 +379,9 @@ void gisound_stream(Uint8 *stream, int length, int index)
     }
 }
 
-void gisound_shutdown(int index)
+void shutdown(int index)
 {
     delete g_gi_chips[index];
     g_gi_chips[index] = NULL;
+}
 }
