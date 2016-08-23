@@ -129,6 +129,9 @@ game::game()
     m_crc_disabled   = false;
     m_prefer_samples = false; // default to emulated sound
     m_fastboot       = false;
+
+    // switch to SDL software rendering if hardware acceleration is troublesome
+    m_sdl_software_rendering = false;
 }
 
 game::~game()

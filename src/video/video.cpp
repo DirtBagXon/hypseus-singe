@@ -137,8 +137,13 @@ bool init_display()
         if (!g_window) {
             LOGW << fmt("Could not initialize window: %s", SDL_GetError());
         } else {
-            g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED |
+            if (g_game->m_sdl_software_rendering) {
+                g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_SOFTWARE |
                                                               SDL_RENDERER_TARGETTEXTURE);
+            } else {
+                g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED |
+                                                              SDL_RENDERER_TARGETTEXTURE);
+            }
 
             if (!g_renderer) {
                 LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
