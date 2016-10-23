@@ -868,6 +868,10 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
 
+            // check if we need to use the SDL software renderer
+            else if (strcasecmp(s, "-sdl_software_rendering") == 0) {
+                g_game->m_sdl_software_rendering = true;
+            }
             // check for any game-specific arguments ...
             else if (g_game->handle_cmdline_arg(s)) {
                 // don't do anything in here, it has already been handled by the

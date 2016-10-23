@@ -233,6 +233,8 @@ class game
     void set_issues(const char *);
     void toggle_game_pause(); // toggles whether the game is paused or not
     const char *get_shortgamename(); // returns short game name
+    void set_sdl_software_rendering(); // turns off hardware acceleration
+
 #ifdef CPU_DEBUG
     const char *get_address_name(unsigned int addr); // get a potential name for
                                                      // a memory address (very
@@ -241,6 +243,9 @@ class game
 
     // returns m_bMouseEnabled
     bool getMouseEnabled();
+
+    // some platforms have problems with SDL acceleration.
+    bool m_sdl_software_rendering;
 
   protected:
     bool m_game_paused;          // whether the game is paused or not
