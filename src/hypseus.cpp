@@ -178,8 +178,8 @@ int main(int argc, char **argv)
         change_led(false, false, false); // turns all keyboard leds off
 
         // if the display initialized properly
-	// MAC: init_display() call moved to the sdl_video_run thread: it's now
-	// called at the begining of the sdl_video_run thread main function.
+        // MAC: init_display() call moved to the sdl_video_run thread: it's now
+        // called at the begining of the sdl_video_run thread main function.
 	if (video::sdl_video_run_start() && video::load_bmps()) {
             if (sound::init()) {
                 if (SDL_input_init()) {
@@ -214,9 +214,10 @@ int main(int argc, char **argv)
                                     // slight delay (like 1 second), which
                                     // throws off the think_delay function in
                                     // the LDP class.
+                                    
                                     // MAC: Commented to speed up testing 
-				    // without internet connection.
-				    // net_send_data_to_server();
+                                    // without internet connection.
+                                    // net_send_data_to_server();
 
                                     result_code = 0; // hypseus will exit without
                                                      // any errors
@@ -249,8 +250,8 @@ int main(int argc, char **argv)
                 printerror("Sound initialization failed!");
             }
             // MAC : DON'T do this here, it's too soon
-	    // to call SDL_Quit(VIDEO), we don't want segfaults on exit.
-	    // video::shutdown_display();
+            // to call SDL_Quit(VIDEO), we don't want segfaults on exit.
+            // video::shutdown_display();
         }                       // end init display
         else {
             printerror("Video initialization failed!");
@@ -281,7 +282,7 @@ int main(int argc, char **argv)
     video::sdl_video_run_end();
     
     video::shutdown_display(); // shut down the display. MAC: DON'T do this (calls SDL_Quit(VIDEO)!!)
-			       // until you have ended the sdl_video_run thread AND freed renderer, etc.
+                               // until you have ended the sdl_video_run thread AND freed renderer, etc.
 
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)

@@ -1475,12 +1475,12 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 // displays the frame as fast as possible
 void display_frame_callback()
 {
-    //SDL_RenderCopy(video::get_renderer(), g_yuv_texture, NULL, NULL);
+    // SDL_RenderCopy(video::get_renderer(), g_yuv_texture, NULL, NULL);
     // SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This
     // could change at any
     // vid_blit(gamevid, 0, 0);
     // vid_flip();
-    //SDL_RenderPresent(video::get_renderer()); // display it!
+    // SDL_RenderPresent(video::get_renderer()); // display it!
     //    display_repaint();
  
     // MAC: SDL_RenderCopy() and SDL_RenderPresent calls moved to the sdl_video_run thread.
@@ -1648,7 +1648,7 @@ void report_mpeg_dimensions_callback(int width, int height)
         // MAC: SDL_CreateTexture() call moved to sdl_video_run thread. 
 	/* g_yuv_texture = SDL_CreateTexture(video::get_renderer(), SDL_PIXELFORMAT_YV12,
                                           SDL_TEXTUREACCESS_STATIC, width, height);*/
-	g_yuv_texture = video::sdl_video_run_create_yuv_texture(width, height);
+        g_yuv_texture = video::sdl_video_run_create_yuv_texture(width, height);
         // safety check
         if (!g_yuv_texture) {
             LOGW << "YUV texture creation failed!";
@@ -1669,8 +1669,8 @@ void report_mpeg_dimensions_callback(int width, int height)
 void free_yuv_overlay()
 {
     if (g_yuv_texture) {
-    	// MAC: SDL_DestroyTexture() call moved to the sdl_video_run thread.
-        // SDL_DestroyTexture(g_yuv_texture);
+    // MAC: SDL_DestroyTexture() call moved to the sdl_video_run thread.
+    // SDL_DestroyTexture(g_yuv_texture);
     	video::sdl_video_run_destroy_texture(g_yuv_texture);
     }
     g_yuv_texture = NULL;

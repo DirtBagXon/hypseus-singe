@@ -158,11 +158,6 @@ bool init_display()
         // If doing fullscreen window, make the window bordeless (no title
         // bar).
         // This is achieved by adding the SDL_NOFRAME flag.
-
-	// MAC: Hide SDL mouse cursor and enable bilinear filtering.
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	SDL_ShowCursor(SDL_DISABLE);
-
 	g_window =
             SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -181,6 +176,15 @@ bool init_display()
             if (!g_renderer) {
                 LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
             } else {
+                // MAC: If we start in fullscreen mode, we have to set the logical
+	        // render sizeget the desired aspect ratio.
+                // Also, we set bilinear filtering and hide the mouse cursor.
+	        if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+                    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	            SDL_ShowCursor(SDL_DISABLE);
+                    SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+                }
+
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18,
                             FC_MakeColor(0, 0, 0, 255), TTF_STYLE_NORMAL);
