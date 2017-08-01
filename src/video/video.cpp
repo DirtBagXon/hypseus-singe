@@ -177,11 +177,11 @@ bool init_display()
                 LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
             } else {
                 // MAC: If we start in fullscreen mode, we have to set the logical
-	        // render sizeget the desired aspect ratio.
+                // render size to get the desired aspect ratio.
                 // Also, we set bilinear filtering and hide the mouse cursor.
-	        if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+                if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
                     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	            SDL_ShowCursor(SDL_DISABLE);
+                    SDL_ShowCursor(SDL_DISABLE);
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
 
