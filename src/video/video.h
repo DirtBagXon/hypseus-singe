@@ -68,6 +68,17 @@ enum {
 
 bool init_display();
 
+// MAC: sdl_video_run thread block
+bool init_display();
+bool sdl_video_run_start();
+void sdl_video_run_end();
+
+SDL_Texture *sdl_video_run_create_yuv_texture (int width, int height);
+int sdl_video_run_update_yuv_texture (SDL_Texture *, uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
+void sdl_video_run_destroy_texture(SDL_Texture *);
+void sdl_video_run_update_renderer(SDL_Texture *);
+// MAC: sdl_video_run thread block ends here
+
 #ifdef USE_OPENGL
 bool init_opengl();
 #endif // USE_OPENGL

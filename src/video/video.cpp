@@ -41,6 +41,14 @@
 #include <string.h>
 #include <string> // for some error messages
 
+// MAC: sdl_video_run thread defines block
+#define SDL_VIDEO_RUN_INIT			1
+#define SDL_VIDEO_RUN_UPDATE_RENDERER		2
+#define SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE	3
+#define SDL_VIDEO_RUN_CREATE_YUV_TEXTURE	4
+#define SDL_VIDEO_RUN_DESTROY_TEXTURE		5
+#define SDL_VIDEO_RUN_END_THREAD		6
+
 using namespace std;
 
 namespace video
@@ -80,6 +88,27 @@ bool g_bForceAspectRatio = true;
 
 // the # of degrees to rotate counter-clockwise in opengl mode
 float g_fRotateDegrees = 0.0;
+
+// SDL sdl_video_run thread variables
+SDL_Thread *sdl_video_run_thread;
+SDL_cond *sdl_video_run_cond;
+SDL_mutex *sdl_video_run_mutex;
+bool sdl_video_run_loop = true;
+int sdl_video_run_action = 0;
+int sdl_video_run_result = 0;
+
+// SDL Texture creation, update and destruction parameters
+SDL_Texture *sdl_yuv_texture;
+int yuv_texture_width;
+int yuv_texture_height;
+
+// SDL YUV texture update parameters
+uint8_t *yuv_texture_Yplane;
+uint8_t *yuv_texture_Uplane;
+uint8_t *yuv_texture_Vplane;
+int yuv_texture_Ypitch;
+int yuv_texture_Upitch;
+int yuv_texture_Vpitch;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -129,8 +158,7 @@ bool init_display()
         // If doing fullscreen window, make the window bordeless (no title
         // bar).
         // This is achieved by adding the SDL_NOFRAME flag.
-
-        g_window =
+	g_window =
             SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              g_vid_width, g_vid_height, sdl_flags);
@@ -148,6 +176,15 @@ bool init_display()
             if (!g_renderer) {
                 LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
             } else {
+                // MAC: If we start in fullscreen mode, we have to set the logical
+                // render size to get the desired aspect ratio.
+                // Also, we set bilinear filtering and hide the mouse cursor.
+                if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+                    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+                    SDL_ShowCursor(SDL_DISABLE);
+                    SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+                }
+
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18,
                             FC_MakeColor(0, 0, 0, 255), TTF_STYLE_NORMAL);
@@ -181,6 +218,18 @@ bool init_display()
     }
 
     return (result);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// deinitializes the window and renderer we have used.
+// returns true if successful, false if failure
+bool deinit_display()
+{
+	SDL_FreeSurface(g_screen_blitter);
+	SDL_DestroyTexture(g_screen);
+	SDL_DestroyRenderer(g_renderer);
+	return (true);
 }
 
 // shuts down video display
@@ -423,7 +472,11 @@ void free_bmps()
     }
 }
 
-void free_one_bmp(SDL_Texture *candidate) { SDL_DestroyTexture(candidate); }
+void free_one_bmp(SDL_Texture *candidate) { 
+	// MAC: Call moved to sdl_video_run thread
+	// SDL_DestroyTexture(candidate); 
+	sdl_video_run_destroy_texture(candidate);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
@@ -519,11 +572,121 @@ void vid_toggle_fullscreen()
     SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
 }
 
-void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
-
-bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
-
+void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
 unsigned int get_draw_width() { return g_draw_width; }
-
 unsigned int get_draw_height() { return g_draw_height; }
+
+int sdl_video_run (void *data) {
+	
+	init_display();
+	
+	while (sdl_video_run_loop) {
+		// MAC: We signal upon entering the thread loop to notify
+		// the hypseus thread that init_display has returned.
+		// We will signal here after each loop, too, to notify that the
+		// thread as completed it's task and is ready for more.
+		SDL_LockMutex(sdl_video_run_mutex);
+		SDL_CondSignal(sdl_video_run_cond);
+		SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
+		SDL_UnlockMutex(sdl_video_run_mutex);
+		switch (sdl_video_run_action) {
+			case SDL_VIDEO_RUN_UPDATE_RENDERER:		
+				SDL_RenderCopy(get_renderer(), sdl_yuv_texture, NULL, NULL);
+				SDL_RenderPresent(get_renderer()); // display it!
+				break;
+			case SDL_VIDEO_RUN_CREATE_YUV_TEXTURE:
+				sdl_yuv_texture = SDL_CreateTexture(get_renderer(), SDL_PIXELFORMAT_YV12,
+                                	SDL_TEXTUREACCESS_STATIC, yuv_texture_width, yuv_texture_height);
+				break;		
+			case SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE:
+				sdl_video_run_result = SDL_UpdateYUVTexture(sdl_yuv_texture, NULL,
+					yuv_texture_Yplane, yuv_texture_Ypitch, yuv_texture_Uplane,
+					yuv_texture_Upitch, yuv_texture_Vplane, yuv_texture_Vpitch);
+				break;
+			case SDL_VIDEO_RUN_DESTROY_TEXTURE:
+        			SDL_DestroyTexture(sdl_yuv_texture);
+				break;
+			case SDL_VIDEO_RUN_END_THREAD:
+				sdl_video_run_loop = false;
+				break;
+			default:
+				break;
+		}
+	}	
+	deinit_display();
+	return 0;
+}
+
+bool sdl_video_run_start () {
+	sdl_video_run_mutex = SDL_CreateMutex();
+	sdl_video_run_cond = SDL_CreateCond();
+
+	// Create thread, then wait for it to signal. 
+	// When it signals, it means init_display() has returned and 
+	// the thread is ready, waiting for orders.
+	sdl_video_run_thread = SDL_CreateThread (sdl_video_run, "sdl_video_run", (void*)NULL);	
+
+	SDL_LockMutex(sdl_video_run_mutex);
+	SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
+ 	SDL_UnlockMutex(sdl_video_run_mutex);
+
+	// MAC: TODO: some error handling would be good.
+	return true;
+}
+
+SDL_Texture *sdl_video_run_create_yuv_texture (int width, int height) {
+	SDL_LockMutex(sdl_video_run_mutex);
+	yuv_texture_width = width;	
+	yuv_texture_height = height;
+	sdl_video_run_action = SDL_VIDEO_RUN_CREATE_YUV_TEXTURE;
+	SDL_CondSignal(sdl_video_run_cond);
+	SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
+	SDL_UnlockMutex(sdl_video_run_mutex);
+	return sdl_yuv_texture;
+}
+
+int sdl_video_run_update_yuv_texture (SDL_Texture *texture, uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+	int Ypitch, int Upitch, int Vpitch)
+{
+	SDL_LockMutex(sdl_video_run_mutex);
+	sdl_yuv_texture = texture;
+	yuv_texture_Yplane = Yplane;
+	yuv_texture_Uplane = Uplane;
+	yuv_texture_Vplane = Vplane;
+	yuv_texture_Ypitch = Ypitch;
+	yuv_texture_Upitch = Upitch;
+	yuv_texture_Vpitch = Vpitch;
+	sdl_video_run_action = SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE;
+	SDL_CondSignal(sdl_video_run_cond);
+	SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
+	SDL_UnlockMutex(sdl_video_run_mutex);
+	return sdl_video_run_result;
+}
+
+void sdl_video_run_destroy_texture(SDL_Texture *texture) {
+	SDL_LockMutex(sdl_video_run_mutex);
+	sdl_video_run_action = SDL_VIDEO_RUN_DESTROY_TEXTURE;
+	sdl_yuv_texture = texture;
+	SDL_CondSignal(sdl_video_run_cond);
+	SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
+	SDL_UnlockMutex(sdl_video_run_mutex);
+}
+
+void sdl_video_run_update_renderer(SDL_Texture *texture) {
+	SDL_LockMutex(sdl_video_run_mutex);
+	sdl_yuv_texture = texture;
+	sdl_video_run_action = SDL_VIDEO_RUN_UPDATE_RENDERER;
+	SDL_CondSignal(sdl_video_run_cond);
+	SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
+	SDL_UnlockMutex(sdl_video_run_mutex);
+}
+
+void sdl_video_run_end () {
+	SDL_LockMutex(sdl_video_run_mutex);
+	sdl_video_run_action = SDL_VIDEO_RUN_END_THREAD;
+	SDL_CondSignal(sdl_video_run_cond);
+	SDL_UnlockMutex(sdl_video_run_mutex);
+    	SDL_WaitThread(sdl_video_run_thread, (int *)NULL);
+}
+
 }
