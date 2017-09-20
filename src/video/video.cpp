@@ -793,10 +793,12 @@ void vid_destroy_texture (SDL_Texture *texture) {
     SDL_UnlockMutex(sdl_video_run_mutex);
 }
 
+// Does the overlay texture need to be updated on VIDEO_RUN_BLIT?
 void vid_set_overlay_needs_update(bool needs) {
     g_overlay_needs_update = needs;
 }
 
+// Does the yuv texture need to be updated on VIDEO_RUN_BLIT?
 void vid_set_yuv_video_needs_update(bool needs) {
     g_yuv_video_needs_update = needs;
 }
