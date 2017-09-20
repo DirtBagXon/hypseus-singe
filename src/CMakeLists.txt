@@ -5,14 +5,14 @@ set(PKG_VERSION "v1.2.0")
 project(hypseus)
 
 option(BENCHMARK    "Benchmark"  OFF)
-option(DEBUG        "Debug"      OFF)
+option(DEBUG        "Debug"      ON)
 option(VLDP_DEBUG   "VLDP Debug" OFF)
 option(CPU_DEBUG    "CPU Debug"  OFF)
 option(BUILD_SINGE  "Singe"      OFF)
 option(BUILDBOT     "Buildbot"   OFF)
 
 if( NOT CMAKE_BUILD_TYPE )
-    set(CMAKE_BUILD_TYPE "Release")
+    set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")

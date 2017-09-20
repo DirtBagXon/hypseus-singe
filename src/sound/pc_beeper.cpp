@@ -70,7 +70,7 @@ int init(Uint32 unused)
 
 #ifdef DEBUG
     // a couple of assumptions...
-    assert(sound::HANNELS == 2);
+    assert(sound::CHANNELS == 2);
     assert(sound::BYTES_PER_SAMPLE == 4);
 #endif
 

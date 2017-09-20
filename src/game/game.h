@@ -243,6 +243,12 @@ class game
 
     // returns m_bMouseEnabled
     bool getMouseEnabled();
+    
+    bool getGameUsesOverlay();
+    
+    bool getGameNeedsOverlayUpdate();
+    
+    void setGameNeedsOverlayUpdate(bool);
 
     // some platforms have problems with SDL acceleration.
     bool m_sdl_software_rendering;

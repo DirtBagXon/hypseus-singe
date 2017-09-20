@@ -361,7 +361,7 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
             update_parse_meter();
             video::vid_blank();
             // vid_blit(get_screen_blitter(), 0, 0);
-            video::vid_flip();
+            // video::vid_flip();
             g_bGotParseUpdate = false;
         }
 
@@ -1459,13 +1459,12 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     int result = VLDP_FALSE;
 
     // MAC: SDL call moved to the sdl_video_run thread.
-    /*result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
+    /* result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
                                    Upitch, Vplane, Vpitch) == 0)
                  ? VLDP_TRUE
-                 : VLDP_FALSE*/
-    
-    result = (video::sdl_video_run_update_yuv_texture (g_yuv_texture, Yplane, Uplane,
-		Vplane, Ypitch, Upitch, Vpitch) == 0)
+                 : VLDP_FALSE;
+    */
+    result = (video::vid_update_yuv_texture (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
 
@@ -1475,16 +1474,23 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 // displays the frame as fast as possible
 void display_frame_callback()
 {
-    // SDL_RenderCopy(video::get_renderer(), g_yuv_texture, NULL, NULL);
-    // SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This
-    // could change at any
-    // vid_blit(gamevid, 0, 0);
-    // vid_flip();
-    // SDL_RenderPresent(video::get_renderer()); // display it!
-    //    display_repaint();
+    // SDL_Surface *gamevid = g_game->get_finished_video_overlay();
  
-    // MAC: SDL_RenderCopy() and SDL_RenderPresent calls moved to the sdl_video_run thread.
-    video::sdl_video_run_update_renderer(g_yuv_texture);
+    //if (!g_game->getGameUsesOverlay()) {
+        /*if (g_game->getGameNeedsOverlayUpdate()) {
+            // If the game needs to update the overlay again, he has to tell us.
+            g_game->setGameNeedsOverlayUpdate(false);
+            // Update normal overlay texture. The scoreboard LEDs texture is updated whenever scoreboard.cpp wants.
+            //video::vid_update_overlay_texture(gamevid, 0, 0);
+        }*/
+    //}
+
+    // MAC: It's VERY important that SDL_RenderCopy(), SDL_RenderPresent(), etc... are all on the same thread,
+    // or we could be ending up trying to flip on a thread while updating the renderer on anorther thread!!
+    // The same for SDL_UpdateTexture().
+    //video::vid_set_yuv_video_needs_update(true);    
+    video::vid_blit();
+    //video::vid_flip();
 }
 
 ///////////////////
@@ -1649,6 +1655,10 @@ void report_mpeg_dimensions_callback(int width, int height)
 	/* g_yuv_texture = SDL_CreateTexture(video::get_renderer(), SDL_PIXELFORMAT_YV12,
                                           SDL_TEXTUREACCESS_STATIC, width, height);*/
         g_yuv_texture = video::sdl_video_run_create_yuv_texture(width, height);
+
+        // MAC: Register the vldp YUV texture on video class
+        // video::vid_register_yuv_texture(g_yuv_texture);
+
         // safety check
         if (!g_yuv_texture) {
             LOGW << "YUV texture creation failed!";
@@ -1671,7 +1681,7 @@ void free_yuv_overlay()
     if (g_yuv_texture) {
     // MAC: SDL_DestroyTexture() call moved to the sdl_video_run thread.
     // SDL_DestroyTexture(g_yuv_texture);
-    	video::sdl_video_run_destroy_texture(g_yuv_texture);
+    	video::vid_destroy_texture(g_yuv_texture);
     }
     g_yuv_texture = NULL;
 }

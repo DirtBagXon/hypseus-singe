@@ -74,9 +74,11 @@ bool sdl_video_run_start();
 void sdl_video_run_end();
 
 SDL_Texture *sdl_video_run_create_yuv_texture (int width, int height);
-int sdl_video_run_update_yuv_texture (SDL_Texture *, uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
-void sdl_video_run_destroy_texture(SDL_Texture *);
-void sdl_video_run_update_renderer(SDL_Texture *);
+int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
+
+void vid_update_overlay_surface(SDL_Surface *tx, int x, int y);
+void vid_destroy_texture(SDL_Texture *);
+void vid_blit();
 // MAC: sdl_video_run thread block ends here
 
 #ifdef USE_OPENGL
@@ -91,9 +93,6 @@ void vid_flip();
 // blanks the back video buffer (makes it black)
 void vid_blank();
 
-// blits an SDL Surface to the back buffer
-void vid_blit(SDL_Surface *srf, int x, int y);
-
 void display_repaint();
 bool load_bmps();
 bool draw_led(int, int, int);
@@ -102,8 +101,8 @@ void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y,
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
 void free_bmps();
-SDL_Texture *load_one_bmp(const char *);
-void free_one_bmp(SDL_Texture *);
+SDL_Surface *load_one_bmp(const char *);
+void free_one_bmp(SDL_Surface *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
 SDL_Renderer *get_renderer();
@@ -129,5 +128,9 @@ bool get_force_aspect_ratio();
 
 unsigned int get_draw_width();
 unsigned int get_draw_height();
+
+void vid_set_overlay_needs_update(bool needs);
+void vid_set_yuv_video_needs_update(bool needs);
+
 }
 #endif
