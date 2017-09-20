@@ -1024,8 +1024,6 @@ const char *game::get_address_name(unsigned int addr)
 
 bool game::getMouseEnabled() { return m_bMouseEnabled; }
 
-bool game::getGameUsesOverlay() { return m_game_uses_video_overlay; }
-
 bool game::getGameNeedsOverlayUpdate() { return m_video_overlay_needs_update; }
 
 void game::setGameNeedsOverlayUpdate(bool val) { m_video_overlay_needs_update = val; }

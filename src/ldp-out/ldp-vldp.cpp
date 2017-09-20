@@ -1476,21 +1476,10 @@ void display_frame_callback()
 {
     // SDL_Surface *gamevid = g_game->get_finished_video_overlay();
  
-    //if (!g_game->getGameUsesOverlay()) {
-        /*if (g_game->getGameNeedsOverlayUpdate()) {
-            // If the game needs to update the overlay again, he has to tell us.
-            g_game->setGameNeedsOverlayUpdate(false);
-            // Update normal overlay texture. The scoreboard LEDs texture is updated whenever scoreboard.cpp wants.
-            //video::vid_update_overlay_texture(gamevid, 0, 0);
-        }*/
-    //}
-
     // MAC: It's VERY important that SDL_RenderCopy(), SDL_RenderPresent(), etc... are all on the same thread,
     // or we could be ending up trying to flip on a thread while updating the renderer on anorther thread!!
     // The same for SDL_UpdateTexture().
-    //video::vid_set_yuv_video_needs_update(true);    
     video::vid_blit();
-    //video::vid_flip();
 }
 
 ///////////////////

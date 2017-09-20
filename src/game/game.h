@@ -244,8 +244,6 @@ class game
     // returns m_bMouseEnabled
     bool getMouseEnabled();
     
-    bool getGameUsesOverlay();
-    
     bool getGameNeedsOverlayUpdate();
     
     void setGameNeedsOverlayUpdate(bool);
