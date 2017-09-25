@@ -361,7 +361,7 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
             update_parse_meter();
             video::vid_blank();
             // vid_blit(get_screen_blitter(), 0, 0);
-            video::vid_flip();
+            // video::vid_flip();
             g_bGotParseUpdate = false;
         }
 
@@ -1458,14 +1458,15 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 {
     int result = VLDP_FALSE;
 
-    // MAC: SDL call moved to the sdl_video_run thread.
-    /*result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
+    // MAC: SDL call moved to the sdl_video_run thread. In fact, at this point we only update a yuv surface
+    // we have invented (because YUV surfaces don't exist in SDL2).
+    /* result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
                                    Upitch, Vplane, Vpitch) == 0)
                  ? VLDP_TRUE
-                 : VLDP_FALSE*/
+                 : VLDP_FALSE;
+    */
     
-    result = (video::sdl_video_run_update_yuv_texture (g_yuv_texture, Yplane, Uplane,
-		Vplane, Ypitch, Upitch, Vpitch) == 0)
+    result = (video::vid_update_yuv_surface (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
 
@@ -1475,16 +1476,12 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 // displays the frame as fast as possible
 void display_frame_callback()
 {
-    // SDL_RenderCopy(video::get_renderer(), g_yuv_texture, NULL, NULL);
-    // SDL_Surface *gamevid = g_game->get_finished_video_overlay(); // This
-    // could change at any
-    // vid_blit(gamevid, 0, 0);
-    // vid_flip();
-    // SDL_RenderPresent(video::get_renderer()); // display it!
-    //    display_repaint();
+    // SDL_Surface *gamevid = g_game->get_finished_video_overlay();
  
-    // MAC: SDL_RenderCopy() and SDL_RenderPresent calls moved to the sdl_video_run thread.
-    video::sdl_video_run_update_renderer(g_yuv_texture);
+    // MAC: It's VERY important that SDL_RenderCopy(), SDL_RenderPresent(), etc... are all on the same thread,
+    // or we could be ending up trying to flip on a thread while updating the renderer on anorther thread!!
+    // The same for SDL_UpdateTexture().
+    //video::vid_blit();
 }
 
 ///////////////////
@@ -1648,7 +1645,8 @@ void report_mpeg_dimensions_callback(int width, int height)
         // MAC: SDL_CreateTexture() call moved to sdl_video_run thread. 
 	/* g_yuv_texture = SDL_CreateTexture(video::get_renderer(), SDL_PIXELFORMAT_YV12,
                                           SDL_TEXTUREACCESS_STATIC, width, height);*/
-        g_yuv_texture = video::sdl_video_run_create_yuv_texture(width, height);
+        g_yuv_texture = video::vid_create_yuv_texture(width, height);
+
         // safety check
         if (!g_yuv_texture) {
             LOGW << "YUV texture creation failed!";
@@ -1671,7 +1669,7 @@ void free_yuv_overlay()
     if (g_yuv_texture) {
     // MAC: SDL_DestroyTexture() call moved to the sdl_video_run thread.
     // SDL_DestroyTexture(g_yuv_texture);
-    	video::sdl_video_run_destroy_texture(g_yuv_texture);
+    	video::vid_destroy_texture(g_yuv_texture);
     }
     g_yuv_texture = NULL;
 }

@@ -466,10 +466,10 @@ void Scale(SDL_Surface *src, SDL_Surface *dst, long *matrix)
 // will call repaint()
 void game::blit()
 {
-    // if something has actually changed in the game's video (blit() will
+    // if something has actually changed in the game's video, blit() will
     // probably get called regularly on each screen refresh,
     // and we don't want to call the potentially expensive repaint()
-    // unless we have to)
+    // unless we have to.
     if (m_video_overlay_needs_update) {
         m_active_video_overlay++; // move to the next video buffer (in case we
                                   // are supporting more than one buffer)
@@ -484,25 +484,12 @@ void game::blit()
             false; // game will need to set this value to true next time it
                    // becomes needful for us to redraw the screen
 
-        // if we are in non-VLDP mode, then we can blit to the main surface
-        // right here,
-        // otherwise we do nothing because the yuv_callback in ldp-vldp.cpp will
-        // take care of it
-        //if (!g_ldp->is_vldp()) {
-        //        // If we're not scaling the video
-        //        if (!m_bFullScale) {
-        //            vid_blit(m_video_overlay[m_active_video_overlay], 0, 0);
-        //        } else {
-        //            // scale game graphics to the screen dimensions
-        //            Scale(m_video_overlay[m_active_video_overlay],
-        //                  m_video_overlay_scaled, m_video_overlay_matrix);
-        //            vid_blit(m_video_overlay_scaled, 0, 0);
-        //        } /*endelse*/
-        //        vid_flip();
-        //} // end if this isn't VLDP
-
+        // MAC: No software scaling to be done on SDL2, so we just update the texture here,
+        // and SDL_RenderCopy() will hw-scale for us.
+        video::vid_update_overlay_surface(m_video_overlay[m_active_video_overlay], 0, 0);
         m_finished_video_overlay = m_active_video_overlay;
     }
+    video::vid_blit();
 }
 
 // forces the video overlay to be redrawn to the screen
@@ -1035,3 +1022,7 @@ const char *game::get_address_name(unsigned int addr)
 #endif //cpu::type::DEBUG
 
 bool game::getMouseEnabled() { return m_bMouseEnabled; }
+
+bool game::getGameNeedsOverlayUpdate() { return m_video_overlay_needs_update; }
+
+void game::setGameNeedsOverlayUpdate(bool val) { m_video_overlay_needs_update = val; }
