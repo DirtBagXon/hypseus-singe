@@ -69,11 +69,13 @@ enum {
 bool init_display();
 
 // MAC: sdl_video_run thread block
+
 bool init_display();
 bool sdl_video_run_start();
 void sdl_video_run_end();
 
-SDL_Texture *sdl_video_run_create_yuv_texture (int width, int height);
+SDL_Texture *vid_create_yuv_texture (int width, int height);
+int vid_update_yuv_surface (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 
 void vid_update_overlay_surface(SDL_Surface *tx, int x, int y);
@@ -128,9 +130,6 @@ bool get_force_aspect_ratio();
 
 unsigned int get_draw_width();
 unsigned int get_draw_height();
-
-void vid_set_overlay_needs_update(bool needs);
-void vid_set_yuv_video_needs_update(bool needs);
 
 }
 #endif

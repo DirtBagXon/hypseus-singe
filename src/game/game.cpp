@@ -486,11 +486,10 @@ void game::blit()
 
         // MAC: No software scaling to be done on SDL2, so we just update the texture here,
         // and SDL_RenderCopy() will hw-scale for us.
-      
-        // video::vid_update_overlay_surface(m_video_overlay[m_active_video_overlay], 0, 0);
+        video::vid_update_overlay_surface(m_video_overlay[m_active_video_overlay], 0, 0);
         m_finished_video_overlay = m_active_video_overlay;
     }
-    //video::vid_blit();
+    video::vid_blit();
 }
 
 // forces the video overlay to be redrawn to the screen
