@@ -737,9 +737,9 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
     
     // Also prepare the YUV "surface"
     // 12 bits (1 + 0.5 bytes) per pixel, and each plane has different size. Crazy stuff.
-    g_yuv_surface.Ysize = width * height + (width * height / 2);
+    g_yuv_surface.Ysize = width * height;
     g_yuv_surface.Usize = g_yuv_surface.Ysize / 4;
-    g_yuv_surface.Vsize = g_yuv_surface.Ysize / 6;
+    g_yuv_surface.Vsize = g_yuv_surface.Ysize / 4;
    
     g_yuv_surface.Yplane = (uint8_t*) malloc (g_yuv_surface.Ysize);
     g_yuv_surface.Uplane = (uint8_t*) malloc (g_yuv_surface.Usize);
