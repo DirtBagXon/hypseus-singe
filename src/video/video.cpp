@@ -99,6 +99,7 @@ float g_fRotateDegrees = 0.0;
 // SDL sdl_video_run thread variables
 SDL_Thread *sdl_video_run_thread;
 SDL_cond *sdl_video_run_cond;
+SDL_cond *yuv_pending_update_cond;
 SDL_mutex *sdl_video_run_mutex;
 SDL_mutex *yuv_surface_mutex;
 bool sdl_video_run_loop = true;
@@ -662,10 +663,11 @@ int sdl_video_run (void *data) {
                                 SDL_LockMutex(yuv_surface_mutex);
                                 if (g_yuv_video_needs_update) {
                                     SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-                                        g_yuv_surface.Yplane, g_yuv_surface.Ypitch, g_yuv_surface.Uplane,
-                                        g_yuv_surface.Vpitch, g_yuv_surface.Vplane,  g_yuv_surface.Vpitch);
-                                        // Only RenderCopy the YUV texture when there has been a YUV texture update!
-                                        SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL);
+                                        g_yuv_surface.Yplane, g_yuv_surface.Ypitch,
+                                        g_yuv_surface.Uplane, g_yuv_surface.Vpitch,
+                                        g_yuv_surface.Vplane, g_yuv_surface.Vpitch);
+                                    g_yuv_video_needs_update = false;
+                                    SDL_CondSignal(yuv_pending_update_cond);
                                 }
 		                SDL_UnlockMutex(yuv_surface_mutex);
 
@@ -682,7 +684,11 @@ int sdl_video_run (void *data) {
                                         (void *)g_screen_blitter->pixels, g_screen_blitter->pitch);
 				    g_overlay_needs_update = false;
                                 }
- 
+
+                                // Sadly, we have to RenderCopy the YUV texture on every blitting strike, because
+                                // the image on the renderer gets "dirty" with previous overlay frames on top of the yuv.
+                                SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL); 
+                                
                                 // If there's an overlay texture, it means we are using some kind of overlay,
                                 // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
                                 // ONLY a rect of the LEDs surface size is copied for now.
@@ -693,8 +699,9 @@ int sdl_video_run (void *data) {
                                 SDL_RenderPresent(g_renderer);
                                 break;
 			case SDL_VIDEO_RUN_CREATE_YUV_TEXTURE:
-				g_yuv_texture = SDL_CreateTexture(get_renderer(), SDL_PIXELFORMAT_YV12,
-                                	SDL_TEXTUREACCESS_STREAMING, yuv_texture_width, yuv_texture_height);
+				g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
+                                	SDL_TEXTUREACCESS_TARGET, yuv_texture_width, yuv_texture_height);
+                                vid_blank_yuv_texture(); 
                                 break;		
 			case SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE:		
 				sdl_video_run_result = SDL_UpdateYUVTexture(g_yuv_texture, NULL,
@@ -718,6 +725,7 @@ int sdl_video_run (void *data) {
 bool sdl_video_run_start () {
     sdl_video_run_mutex = SDL_CreateMutex();
     sdl_video_run_cond = SDL_CreateCond();
+    yuv_pending_update_cond = SDL_CreateCond();
     yuv_surface_mutex = SDL_CreateMutex();
 
     // Create thread, then wait for it to signal. 
@@ -758,10 +766,27 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
     return g_yuv_texture;
 }
 
+void vid_blank_yuv_texture () {
+    // "Y 0x00, U 0x00, V 0x00" is NOT black in YUV colorspace!
+    memset(g_yuv_surface.Yplane, 0x00, g_yuv_surface.Ysize);
+    memset(g_yuv_surface.Uplane, 0x80, g_yuv_surface.Usize);
+    memset(g_yuv_surface.Vplane, 0x80, g_yuv_surface.Vsize);
+    
+    int ret = SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+	g_yuv_surface.Yplane, g_yuv_surface.width,
+        g_yuv_surface.Uplane, g_yuv_surface.width/2,
+        g_yuv_surface.Vplane, g_yuv_surface.width/2);
+}
+
 int vid_update_yuv_surface ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 	int Ypitch, int Upitch, int Vpitch)
 {
     SDL_LockMutex(yuv_surface_mutex);
+    // We must get sure there's no pending texture updates
+    // before overwritting the surface contents with a new frame.
+    if (g_yuv_video_needs_update) // We still have a surface update that has not been transferred to texture!
+        SDL_CondWait(yuv_pending_update_cond, yuv_surface_mutex);
+
     memcpy (g_yuv_surface.Yplane, Yplane, g_yuv_surface.Ysize);	
     memcpy (g_yuv_surface.Uplane, Uplane, g_yuv_surface.Usize);	
     memcpy (g_yuv_surface.Vplane, Vplane, g_yuv_surface.Vsize);
@@ -775,16 +800,6 @@ int vid_update_yuv_surface ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 
     return 0;
 }
-
-/*int vid_update_yuv_texture ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
-	int Ypitch, int Upitch, int Vpitch)
-{
-    SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-	    Yplane, Ypitch, Uplane,
-	    Upitch, Vplane, Vpitch);
-
-    return 0;
-}*/
 
 void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
 
@@ -833,6 +848,12 @@ void sdl_video_run_end () {
     SDL_CondSignal(sdl_video_run_cond);
     SDL_UnlockMutex(sdl_video_run_mutex);
     SDL_WaitThread(sdl_video_run_thread, (int *)NULL);
+
+    // Destroy the mutexes and conditions used by the threading scheme.
+    SDL_DestroyMutex(sdl_video_run_mutex);
+    SDL_DestroyMutex(yuv_surface_mutex);
+    SDL_DestroyCond(sdl_video_run_cond);
+    SDL_DestroyCond(yuv_pending_update_cond);
 }
 
 void vid_destroy_texture (SDL_Texture *texture) {

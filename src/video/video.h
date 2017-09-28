@@ -77,6 +77,7 @@ void sdl_video_run_end();
 SDL_Texture *vid_create_yuv_texture (int width, int height);
 int vid_update_yuv_surface (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
+void vid_blank_yuv_texture ();
 
 void vid_update_overlay_surface(SDL_Surface *tx, int x, int y);
 void vid_destroy_texture(SDL_Texture *);
