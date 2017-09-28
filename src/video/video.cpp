@@ -43,11 +43,10 @@
 
 // MAC: sdl_video_run thread defines block
 #define SDL_VIDEO_RUN_BLIT                      0
-#define SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE	4
-#define SDL_VIDEO_RUN_CREATE_YUV_TEXTURE	5
-#define SDL_VIDEO_RUN_DESTROY_TEXTURE		7
-//#define SDL_VIDEO_RUN_FLIP			8
-#define SDL_VIDEO_RUN_END_THREAD		9
+#define SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE	1
+#define SDL_VIDEO_RUN_CREATE_YUV_TEXTURE	2
+#define SDL_VIDEO_RUN_DESTROY_TEXTURE		3
+#define SDL_VIDEO_RUN_END_THREAD		4
 
 using namespace std;
 
@@ -100,9 +99,8 @@ float g_fRotateDegrees = 0.0;
 // SDL sdl_video_run thread variables
 SDL_Thread *sdl_video_run_thread;
 SDL_cond *sdl_video_run_cond;
+SDL_cond *yuv_pending_update_cond;
 SDL_mutex *sdl_video_run_mutex;
-SDL_mutex *leds_surface_mutex;
-SDL_mutex *overlay_surface_mutex;
 SDL_mutex *yuv_surface_mutex;
 bool sdl_video_run_loop = true;
 int sdl_video_run_action = 0;
@@ -116,9 +114,8 @@ int yuv_texture_width;
 int yuv_texture_height;
 SDL_Renderer *sdl_renderer;
 SDL_Texture *yuv_texture;
-SDL_Texture *sdl_texture;
-SDL_Rect *sdl_rect_src;
-SDL_Rect *sdl_rect_dst;
+//SDL_Texture *sdl_texture;
+void *sdl_run_param;
 
 // SDL YUV texture update parameters
 uint8_t *yuv_texture_Yplane;
@@ -272,14 +269,15 @@ bool init_display()
 bool deinit_display()
 {
     SDL_FreeSurface(g_screen_blitter);
-    if (g_leds_surface)
-	SDL_FreeSurface(g_leds_surface);
-    if (g_overlay_texture) {
-	SDL_DestroyTexture(g_overlay_texture);
-        free (g_yuv_surface.Yplane);
-        free (g_yuv_surface.Uplane);
-        free (g_yuv_surface.Vplane);
-    }
+    SDL_FreeSurface(g_leds_surface);
+    SDL_DestroyTexture(g_overlay_texture);
+
+    // We invented the YUV surface and we allocated memory for it, so we free it too.
+    // No need to check for NULL, freeing a NULL pointer is ok.
+    free (g_yuv_surface.Yplane);
+    free (g_yuv_surface.Uplane);
+    free (g_yuv_surface.Vplane);
+    
     SDL_DestroyRenderer(g_renderer);
 
     return (true);
@@ -360,7 +358,6 @@ bool load_bmps()
     return (result);
 }
 
-//SDL_Surface *load_one_bmp(const char *filename)
 SDL_Surface *load_one_bmp(const char *filename)
 {
     SDL_Surface *result  = SDL_LoadBMP(filename);
@@ -387,16 +384,19 @@ SDL_Surface *load_one_bmp(const char *filename)
     return (texture);
 }*/
 
+// MAC: This is for some kind of bitmap-based nice scoreboard.
+// Still not implemented. 7-segments scoreboard is good enough (and also bitmap based really).
 // Draw's one of our LED's to the screen
 // value contains the bitmap to draw (0-9 is valid)
 // x and y contain the coordinates on the screen
-// This function is called from scoreboard.cpp
+// This function is called from img-scoreboard.cpp
 // 1 is returned on success, 0 on failure
 bool draw_led(int value, int x, int y)
 {
     //vid_blit(g_led_bmps[value], x, y);
     return true;
 }
+
 
 // Update scoreboard surface
 void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
@@ -415,7 +415,6 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
     
     // The leds surface is accessed from VIDEO_RUN_BLIT, which is called from the vldp thread, so it's access
     // must be "protected". The same happens with g_scoreboard_needs_update.
-    SDL_LockMutex(leds_surface_mutex);
     // Draw the digit(s) to the overlay surface
     for (int i = 0; i < num_digits; i++) {
         src.x = values[i] * OVERLAY_LED_WIDTH;
@@ -431,7 +430,6 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 
     g_scoreboard_needs_update = true;
 
-    SDL_UnlockMutex(leds_surface_mutex);
     // MAC: Even if we updated the overlay surface here, there's no need to do not-thread-safe stuff
     // like SDL_UpdateTexture(), SDL_RenderCopy(), etc... until we are going to compose a final frame
     // with the YUV texture and the overlay on top (which is issued from vldp for now) in VIDEO_RUN_BLIT.
@@ -653,40 +651,44 @@ int sdl_video_run (void *data) {
 		SDL_UnlockMutex(sdl_video_run_mutex);
 		switch (sdl_video_run_action) {
 			case SDL_VIDEO_RUN_BLIT:		
-                                // The "do we need to update this texture?" booleans can be accessed randomly by 
-				// draw_overlay_leds() or update_overlay_surface(), and from here.
-                                // Hence, the access to both the surfaces and the bools must be always protected
-                                // by mutexes.
+                                // *IF* we get to SDL_VIDEO_BLIT from game::blit(), then the access to the
+                                // overlay and scoreboard textures is done from the "hypseus" thread, that blocks
+                                // until all blitting operations are completed and only then loops again, SO no
+                                // need to protect the access to these surfaces or their needs_update booleans.
+                                // However, since we get here from game::blit(), the yuv "surface" is accessed
+                                // simultaneously from vldp and from here (to update the yuv texture), so access to 
+                                // that surface and it's boolean DO need to be protected with a mutex.
 
                                 // Does YUV texture need update from the YUV "surface"?
                                 SDL_LockMutex(yuv_surface_mutex);
                                 if (g_yuv_video_needs_update) {
                                     SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-                                        g_yuv_surface.Yplane, g_yuv_surface.Ypitch, g_yuv_surface.Uplane,
-                                        g_yuv_surface.Vpitch, g_yuv_surface.Vplane,  g_yuv_surface.Vpitch);
-                                        // Only RenderCopy the YUV texture when there has been a YUV texture update!
-                                        SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL);
+                                        g_yuv_surface.Yplane, g_yuv_surface.Ypitch,
+                                        g_yuv_surface.Uplane, g_yuv_surface.Vpitch,
+                                        g_yuv_surface.Vplane, g_yuv_surface.Vpitch);
+                                    g_yuv_video_needs_update = false;
+                                    SDL_CondSignal(yuv_pending_update_cond);
                                 }
 		                SDL_UnlockMutex(yuv_surface_mutex);
 
                                 // Does OVERLAY texture need update from the scoreboard surface?
-                                SDL_LockMutex(leds_surface_mutex);
                                 if(g_scoreboard_needs_update) {
 				    SDL_UpdateTexture(g_overlay_texture, &g_leds_size_rect,
 					(void *)g_leds_surface->pixels, g_leds_surface->pitch);
 				    g_scoreboard_needs_update = false;
                                 }
-                                SDL_UnlockMutex(leds_surface_mutex);
 	       
                                 // Does OVERLAY texture need update from the overlay surface?
-                                SDL_LockMutex(overlay_surface_mutex);
                                 if(g_overlay_needs_update) {
                                     SDL_UpdateTexture(g_overlay_texture, &g_overlay_size_rect,
                                         (void *)g_screen_blitter->pixels, g_screen_blitter->pitch);
 				    g_overlay_needs_update = false;
                                 }
-                                SDL_UnlockMutex(overlay_surface_mutex);
- 
+
+                                // Sadly, we have to RenderCopy the YUV texture on every blitting strike, because
+                                // the image on the renderer gets "dirty" with previous overlay frames on top of the yuv.
+                                SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL); 
+                                
                                 // If there's an overlay texture, it means we are using some kind of overlay,
                                 // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
                                 // ONLY a rect of the LEDs surface size is copied for now.
@@ -697,8 +699,9 @@ int sdl_video_run (void *data) {
                                 SDL_RenderPresent(g_renderer);
                                 break;
 			case SDL_VIDEO_RUN_CREATE_YUV_TEXTURE:
-				g_yuv_texture = SDL_CreateTexture(get_renderer(), SDL_PIXELFORMAT_YV12,
-                                	SDL_TEXTUREACCESS_STREAMING, yuv_texture_width, yuv_texture_height);
+				g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
+                                	SDL_TEXTUREACCESS_TARGET, yuv_texture_width, yuv_texture_height);
+                                vid_blank_yuv_texture(); 
                                 break;		
 			case SDL_VIDEO_RUN_UPDATE_YUV_TEXTURE:		
 				sdl_video_run_result = SDL_UpdateYUVTexture(g_yuv_texture, NULL,
@@ -706,7 +709,7 @@ int sdl_video_run (void *data) {
 					yuv_texture_Upitch, yuv_texture_Vplane, yuv_texture_Vpitch);
                                 break;
                         case SDL_VIDEO_RUN_DESTROY_TEXTURE:
-        			SDL_DestroyTexture(sdl_texture);
+        			SDL_DestroyTexture((SDL_Texture*)sdl_run_param);
 				break;
 			case SDL_VIDEO_RUN_END_THREAD:
 				sdl_video_run_loop = false;
@@ -722,14 +725,13 @@ int sdl_video_run (void *data) {
 bool sdl_video_run_start () {
     sdl_video_run_mutex = SDL_CreateMutex();
     sdl_video_run_cond = SDL_CreateCond();
-    leds_surface_mutex = SDL_CreateMutex();
-    overlay_surface_mutex = SDL_CreateMutex();
+    yuv_pending_update_cond = SDL_CreateCond();
     yuv_surface_mutex = SDL_CreateMutex();
 
     // Create thread, then wait for it to signal. 
     // When it signals, it means init_display() has returned and 
     // the thread is ready, waiting for orders.
-    sdl_video_run_thread = SDL_CreateThread (sdl_video_run, "sdl_video_run", (void*)NULL);	
+    sdl_video_run_thread = SDL_CreateThread (sdl_video_run, "sdl_video_run", (void*)sdl_run_param);	
 
     SDL_LockMutex(sdl_video_run_mutex);
     SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
@@ -743,9 +745,9 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
     
     // Also prepare the YUV "surface"
     // 12 bits (1 + 0.5 bytes) per pixel, and each plane has different size. Crazy stuff.
-    g_yuv_surface.Ysize = width * height + (width * height / 2);
+    g_yuv_surface.Ysize = width * height;
     g_yuv_surface.Usize = g_yuv_surface.Ysize / 4;
-    g_yuv_surface.Vsize = g_yuv_surface.Ysize / 6;
+    g_yuv_surface.Vsize = g_yuv_surface.Ysize / 4;
    
     g_yuv_surface.Yplane = (uint8_t*) malloc (g_yuv_surface.Ysize);
     g_yuv_surface.Uplane = (uint8_t*) malloc (g_yuv_surface.Usize);
@@ -764,10 +766,27 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
     return g_yuv_texture;
 }
 
+void vid_blank_yuv_texture () {
+    // "Y 0x00, U 0x00, V 0x00" is NOT black in YUV colorspace!
+    memset(g_yuv_surface.Yplane, 0x00, g_yuv_surface.Ysize);
+    memset(g_yuv_surface.Uplane, 0x80, g_yuv_surface.Usize);
+    memset(g_yuv_surface.Vplane, 0x80, g_yuv_surface.Vsize);
+    
+    int ret = SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+	g_yuv_surface.Yplane, g_yuv_surface.width,
+        g_yuv_surface.Uplane, g_yuv_surface.width/2,
+        g_yuv_surface.Vplane, g_yuv_surface.width/2);
+}
+
 int vid_update_yuv_surface ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 	int Ypitch, int Upitch, int Vpitch)
 {
     SDL_LockMutex(yuv_surface_mutex);
+    // We must get sure there's no pending texture updates
+    // before overwritting the surface contents with a new frame.
+    if (g_yuv_video_needs_update) // We still have a surface update that has not been transferred to texture!
+        SDL_CondWait(yuv_pending_update_cond, yuv_surface_mutex);
+
     memcpy (g_yuv_surface.Yplane, Yplane, g_yuv_surface.Ysize);	
     memcpy (g_yuv_surface.Uplane, Uplane, g_yuv_surface.Usize);	
     memcpy (g_yuv_surface.Vplane, Vplane, g_yuv_surface.Vsize);
@@ -782,28 +801,15 @@ int vid_update_yuv_surface ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     return 0;
 }
 
-/*int vid_update_yuv_texture ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
-	int Ypitch, int Upitch, int Vpitch)
-{
-    SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-	    Yplane, Ypitch, Uplane,
-	    Upitch, Vplane, Vpitch);
-
-    return 0;
-}*/
-
 void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
 
     // We have got here from game::blit(), which is also called when scoreboard is updated,
     // so in that case we simply return and don't do any overlay surface update. 
     // Access to g_scoreboard_needs_update is protected because it's also accessed from the sdl_video_run thread.
-    SDL_LockMutex(leds_surface_mutex);
     if (g_scoreboard_needs_update) {
-        SDL_UnlockMutex(leds_surface_mutex);
         return;
     }
     else
-        SDL_UnlockMutex(leds_surface_mutex);
     
     // Remember: tx is m_video_overlay[] passed from game::blit() 
     // Careful not comment this part on testing, because this rect is used in vid_blit!
@@ -813,7 +819,6 @@ void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
     g_overlay_size_rect.h = tx->h;
 
     // MAC: 8bpp to RGBA8888 conversion. Black pixels are considered totally transparent so they become 0x00000000;
-    SDL_LockMutex(overlay_surface_mutex);
     for (int i = 0; i < (tx->w * tx->h); i++){
         if (     *(  ((uint8_t*)tx->pixels)+i ) != 0x00   ) {
 	    *((uint32_t*)(g_screen_blitter->pixels)+i) = //0xff0000ff;
@@ -825,7 +830,6 @@ void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
         else *((uint32_t*)(g_screen_blitter->pixels)+i) = 0x00000000;
     }
     g_overlay_needs_update = true;
-    SDL_UnlockMutex(overlay_surface_mutex);
     // MAC: We update the overlay texture later, just when we are going to SDL_RenderCpy() it to the renderer.
     // SDL_UpdateTexture(g_overlay_texture, &g_overlay_size_rect, (void *)g_screen_blitter->pixels, g_screen_blitter->pitch);
 }
@@ -844,12 +848,18 @@ void sdl_video_run_end () {
     SDL_CondSignal(sdl_video_run_cond);
     SDL_UnlockMutex(sdl_video_run_mutex);
     SDL_WaitThread(sdl_video_run_thread, (int *)NULL);
+
+    // Destroy the mutexes and conditions used by the threading scheme.
+    SDL_DestroyMutex(sdl_video_run_mutex);
+    SDL_DestroyMutex(yuv_surface_mutex);
+    SDL_DestroyCond(sdl_video_run_cond);
+    SDL_DestroyCond(yuv_pending_update_cond);
 }
 
 void vid_destroy_texture (SDL_Texture *texture) {
     SDL_LockMutex(sdl_video_run_mutex);
     sdl_video_run_action = SDL_VIDEO_RUN_DESTROY_TEXTURE;
-    sdl_texture = texture;
+    sdl_run_param = (void*)texture;
     SDL_CondSignal(sdl_video_run_cond);
     SDL_CondWait(sdl_video_run_cond, sdl_video_run_mutex);
     SDL_UnlockMutex(sdl_video_run_mutex);

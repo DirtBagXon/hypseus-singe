@@ -1458,11 +1458,11 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 {
     int result = VLDP_FALSE;
 
-    // MAC: SDL call moved to the sdl_video_run thread. In fact, at this point we only update a yuv surface
+    // MAC: SDL call moved toa the sdl_video_run thread. In fact, at this point we only update a yuv surface
     // we have invented (because YUV surfaces don't exist in SDL2).
     /* result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
                                    Upitch, Vplane, Vpitch) == 0)
-                 ? VLDP_TRUE
+                 ? VLDP_TRUEl
                  : VLDP_FALSE;
     */
     
@@ -1476,11 +1476,11 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 // displays the frame as fast as possible
 void display_frame_callback()
 {
-    // SDL_Surface *gamevid = g_game->get_finished_video_overlay();
- 
-    // MAC: It's VERY important that SDL_RenderCopy(), SDL_RenderPresent(), etc... are all on the same thread,
-    // or we could be ending up trying to flip on a thread while updating the renderer on anorther thread!!
-    // The same for SDL_UpdateTexture().
+    // MAC: vid_blit() updates all textures from their corresponding surfaces as needed.
+    // It's not called from here anymore, but from game::blit() instead, because it runs on every frame-complete
+    // emulation loop, and "takes" the yuv "surface" I invented to "mix" it with the other surfaces (using
+    // textures and alpha blending) to build each "complete frame" with YUV video and overlay.
+    
     //video::vid_blit();
 }
 
