@@ -772,7 +772,7 @@ void vid_blank_yuv_texture () {
     memset(g_yuv_surface.Uplane, 0x80, g_yuv_surface.Usize);
     memset(g_yuv_surface.Vplane, 0x80, g_yuv_surface.Vsize);
     
-    int ret = SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+    SDL_UpdateYUVTexture(g_yuv_texture, NULL,
 	g_yuv_surface.Yplane, g_yuv_surface.width,
         g_yuv_surface.Uplane, g_yuv_surface.width/2,
         g_yuv_surface.Vplane, g_yuv_surface.width/2);

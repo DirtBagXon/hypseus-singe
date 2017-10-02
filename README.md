@@ -11,7 +11,7 @@ Some features that differ from the original:
 * [cmake] build tool
 * More bugs!
 
-**WIP!!! Overlays have not been implemented with SDL2 yet!**
+**Overlays have been implemented with SDL2 at last, but they need testing. So please test and report issues.**
 
 ## Compile
 

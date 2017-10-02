@@ -156,8 +156,6 @@ int main(int argc, char **argv)
 
     set_cur_dir(argv[0]); // set active directory
 
-    reset_logfile(argc, argv);
-
     // initialize SDL without any subsystems but with the no parachute option so
     // 1 - we can initialize either audio or video first
     // 2 - we can trace segfaults using a debugger
@@ -176,6 +174,11 @@ int main(int argc, char **argv)
         // user does not enable them
         remember_leds(); // memorizes the status of keyboard leds
         change_led(false, false, false); // turns all keyboard leds off
+
+        // MAC : we also have to wait after the command line is parsed before
+        // knowing if we want loging or not.
+        if (!log_was_disabled)
+            reset_logfile(argc, argv);
 
         // if the display initialized properly
         // MAC: init_display() call moved to the sdl_video_run thread: it's now
@@ -354,4 +357,8 @@ unsigned int get_idleexit() { return (idleexit); }
 void set_startsilent(unsigned char value) { startsilent = value; }
 
 unsigned char get_startsilent() { return (startsilent); }
+// end edit
+
+// added by MAC for -nolog
+void set_log_was_disabled (bool value) { log_was_disabled = value; }
 // end edit
