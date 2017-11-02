@@ -183,7 +183,8 @@ int main(int argc, char **argv)
         // if the display initialized properly
         // MAC: init_display() call moved to the sdl_video_run thread: it's now
         // called at the begining of the sdl_video_run thread main function.
-	if (video::sdl_video_run_start() && video::load_bmps()) {
+	//if (video::load_bmps() && video::init_display()) {
+	if (video::load_bmps()) {
             if (sound::init()) {
                 if (SDL_input_init()) {
                     // if the roms were loaded successfully
@@ -282,7 +283,7 @@ int main(int argc, char **argv)
     }
 
     video::free_bmps(); // always do this no matter what
-    video::sdl_video_run_end();
+    video::deinit_display();
     
     video::shutdown_display(); // shut down the display. MAC: DON'T do this (calls SDL_Quit(VIDEO)!!)
                                // until you have ended the sdl_video_run thread AND freed renderer, etc.

@@ -68,19 +68,21 @@ enum {
 
 bool init_display();
 
-// MAC: sdl_video_run thread block
+// MAC: YUV surface protection block: it needs protection because it's accessed from both
+// the main "hypseus" thread and the vldp thread.
 
 bool init_display();
-bool sdl_video_run_start();
-void sdl_video_run_end();
+bool deinit_display();
 
 SDL_Texture *vid_create_yuv_texture (int width, int height);
-int vid_update_yuv_surface (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
+void vid_setup_yuv_overlay (int width, int height);
+// MAC : REMEMBER, vid_update_yuv_overlay() ONLY updates the YUV surface. The YUV texture is updated on vid_blit()
+int vid_update_yuv_overlay (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 void vid_blank_yuv_texture ();
+void vid_free_yuv_overlay ();
 
 void vid_update_overlay_surface(SDL_Surface *tx, int x, int y);
-void vid_destroy_texture(SDL_Texture *);
 void vid_blit();
 // MAC: sdl_video_run thread block ends here
 
@@ -131,6 +133,11 @@ bool get_force_aspect_ratio();
 
 unsigned int get_draw_width();
 unsigned int get_draw_height();
+
+int get_yuv_overlay_width();
+int get_yuv_overlay_height();
+
+bool get_yuv_overlay_ready();
 
 }
 #endif

@@ -75,7 +75,6 @@ unsigned int g_filter_type = FILTER_NONE;
 // used a lot, we only want to calculate once
 SDL_Rect *g_screen_clip_rect = NULL;
 
-SDL_Texture *g_yuv_texture = NULL;
 // this will contain a blank YUV overlay suitable for search/seek blanking
 struct yuv_buf g_blank_yuv_buf;
 Uint8 *g_line_buf = NULL;  // temp sys RAM for doing calculations so we can do
@@ -1458,15 +1457,9 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 {
     int result = VLDP_FALSE;
 
-    // MAC: SDL call moved toa the sdl_video_run thread. In fact, at this point we only update a yuv surface
-    // we have invented (because YUV surfaces don't exist in SDL2).
-    /* result = (SDL_UpdateYUVTexture(g_yuv_texture, NULL, Yplane, Ypitch, Uplane,
-                                   Upitch, Vplane, Vpitch) == 0)
-                 ? VLDP_TRUEl
-                 : VLDP_FALSE;
-    */
-    
-    result = (video::vid_update_yuv_surface (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
+    // MAC: We only update the YUV surface we have invented (because YUV surfaces don't exist in SDL2).
+    // The corresponding YUV texture is updated by the main thread "hypseus" in vid_blit().
+    result = (video::vid_update_yuv_overlay (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
 
@@ -1618,60 +1611,38 @@ void report_mpeg_dimensions_callback(int width, int height)
         g_screen_clip_rect->h = video::get_draw_height();
     }
 
+    // create overlay, taking into account any letterbox removal we're doing
+    // (*4 because our pixels are *2 the height of the graphics, AND we're
+    // doing it at the top and bottom)
+
+    // MAC: Set the new YUV texture dimensions and tell the video object we need to create 
+    // the YUV texture before drawing next frame, on vid_bit(), instead of creating it here.
+    // REMEMBER vid_setup_yuv_surface() will destroy both the YUV surface and texture
+    // internally if they already exist.
+
     // if we drew some stuff on the screen, then we need to free the overlay and
     // re-create it
     if (g_parsed) {
-        free_yuv_overlay();
+        video::vid_setup_yuv_overlay(width, height);
         g_parsed = false;
+    }   
+ 
+    // Delete and create the YUV overlay (YUV surface + YUV texture) if it doesn't have the
+    // new dimensions we need, or just create it for the first time if we haven't done so yet, 
+    // in wich case the get_* functions will return zero.
+    if (video::get_yuv_overlay_width() != width && video::get_yuv_overlay_height() != height)
+    {
+            video::vid_setup_yuv_overlay(width, height);
     }
-
-    // if an overlay exists, but its dimensions are wrong, we need to
-    // de-allocate it
-    if (g_yuv_texture) {
-        int tw, th;
-        SDL_QueryTexture(g_yuv_texture, NULL, NULL, &tw, &th);
-        if (tw != width || th != height) free_yuv_overlay();
-    }
-
+    
     // blitting is not allowed once we create the YUV overlay ...
     g_ldp->set_blitting_allowed(false);
-
-    // if our overlay has been de-allocated, or if we never had one to begin
-    // with ... then allocate it now
-    if (!g_yuv_texture) {
-        // create overlay, taking into account any letterbox removal we're doing
-        // (*4 because our pixels are *2 the height of the graphics, AND we're
-        // doing it at the top and bottom)
-        // MAC: SDL_CreateTexture() call moved to sdl_video_run thread. 
-	/* g_yuv_texture = SDL_CreateTexture(video::get_renderer(), SDL_PIXELFORMAT_YV12,
-                                          SDL_TEXTUREACCESS_STATIC, width, height);*/
-        g_yuv_texture = video::vid_create_yuv_texture(width, height);
-
-        // safety check
-        if (!g_yuv_texture) {
-            LOGW << "YUV texture creation failed!";
-            set_quitflag();
-        }
-
-        // if overlay was successfully created, then indicate in the log whether
-        // it is HW accelerated or not
-        else {
-            SDL_RendererInfo rendererinfo;
-            SDL_GetRendererInfo(video::get_renderer(), &rendererinfo);
-            LOGI << fmt("Using %s rendering", rendererinfo.name);
-        }
-    }
-    // else g_yuv_texture exists, so we don't need to re-allocate it
 }
 
 void free_yuv_overlay()
 {
-    if (g_yuv_texture) {
-    // MAC: SDL_DestroyTexture() call moved to the sdl_video_run thread.
-    // SDL_DestroyTexture(g_yuv_texture);
-    	video::vid_destroy_texture(g_yuv_texture);
-    }
-    g_yuv_texture = NULL;
+    // We free both the YUV surface and the YUV texture
+    video::vid_free_yuv_overlay();
 }
 
 // makes the laserdisc video black while drawing game's video overlay on top
@@ -1679,7 +1650,7 @@ void blank_overlay()
 {
     // FIXME
     // only do this if the HW overlay has already been allocated
-    if (g_yuv_texture) {
+    if (video::get_yuv_overlay_ready()) {
         g_local_info.display_frame();
     }
 }

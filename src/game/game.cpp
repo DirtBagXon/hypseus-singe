@@ -324,6 +324,8 @@ bool game::init_video()
     float srcx;
     float srcy;
 
+    // Set up SDL display (create window, renderer, surfaces, textures...)
+    video::init_display();
     // set instance variables and local variables to the actual screen (or
     // window) dimension
     m_video_screen_width = w = video::get_screen_blitter()->w;
