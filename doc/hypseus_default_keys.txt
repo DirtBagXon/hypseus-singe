@@ -1,0 +1,29 @@
+Hypseus Default Keys
+--------------------
+// default key assignments, in case input.ini file is missing
+// Notice each switch can have two keys assigned to it
+// NOTE : Use doc/keylist.txt to lookup key code for input.ini
+
+Switch      Default Assignment        Description
+KEY_UP            {SDLK_UP, SDLK_KP_8},     // up
+KEY_LEFT          {SDLK_LEFT, SDLK_KP_4},   // left
+KEY_DOWN          {SDLK_DOWN, SDLK_KP_2},   // down
+KEY_RIGHT         {SDLK_RIGHT, SDLK_KP_6},  // right
+KEY_START1        {SDLK_1, 0},              // 1 player start
+KEY_START2        {SDLK_2, 0},              // 2 player start
+KEY_BUTTON1       {SDLK_SPACE, SDLK_LCTRL}, // action button 1
+KEY_BUTTON2       {SDLK_LALT, 0},           // action button 2
+KEY_BUTTON3       {SDLK_LSHIFT, 0},         // action button 3
+KEY_COIN1         {SDLK_5, SDLK_c},         // coin chute left
+KEY_COIN2         {SDLK_6, 0},              // coin chute right
+KEY_SKILL1        {SDLK_KP_DIVIDE, 0},      // skill easy
+KEY_SKILL2        {SDLK_KP_MULTIPLY, 0},    // skill medium
+KEY_SKILL3        {SDLK_KP_MINUS, 0},       // skill hard
+KEY_SERVICE       {SDLK_9, 0},              // service coin
+KEY_TEST          {SDLK_F2, 0},             // test mode
+KEY_RESET         {SDLK_F3, 0},             // reset cpu
+KEY_SCREENSHOT    {SDLK_F12, SDLK_F11},     // take screenshot
+KEY_QUIT          {SDLK_ESCAPE, SDLK_q},    // Quit DAPHNE
+KEY_PAUSE         {SDLK_p, 0},              // pause game
+KEY_CONSOLE       {SDLK_BACKQUOTE, 0},      // toggle console (TODO)
+KEY_TILT          {SDLK_t, 0},              // Tilt/Slam switch
