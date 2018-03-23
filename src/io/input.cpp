@@ -147,9 +147,9 @@ void CFG_Keys()
     int val1 = 0, val2 = 0, val3 = 0;
     //	bool done = false;
 
-    // find where the dapinput ini file is (if the file doesn't exist, this
+    // find where the hypinput ini file is (if the file doesn't exist, this
     // string will be empty)
-    string strDapInput = g_homedir.find_file("dapinput.ini", true);
+    string strDapInput = g_homedir.find_file("hypinput.ini", true);
 
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
