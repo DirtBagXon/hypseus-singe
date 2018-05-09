@@ -71,6 +71,7 @@ bool initialize(unsigned int num_colors)
         for (unsigned int x = 0; x < g_size; x++) {
             // set RGB values to black
             g_rgb[x].r = g_rgb[x].g = g_rgb[x].b = 0;
+            g_rgb[x].a = 0xFF;
 
             g_uRGBAPalette[x] = 0xFF000000; // initialize to opaque black
 
@@ -98,8 +99,10 @@ void set_transparency(unsigned int uColorIndex, bool transparent)
     g_yuv[uColorIndex].transparent = transparent;
 
     if (transparent) {
+        g_rgb[uColorIndex].a = 0x00;
         g_uRGBAPalette[uColorIndex] &= 0x00FFFFFF; // set alpha channel to 0
     } else {
+        g_rgb[uColorIndex].a = 0xFF;
         g_uRGBAPalette[uColorIndex] |= 0xFF000000; // set alpha channel to FF
     }
 }
@@ -117,7 +120,9 @@ void set_color(unsigned int color_num, SDL_Color color_value)
     if ((g_rgb[color_num].r != color_value.r) ||
         (g_rgb[color_num].g != color_value.g) ||
         (g_rgb[color_num].b != color_value.b)) {
-        g_rgb[color_num] = color_value;
+        g_rgb[color_num].r = color_value.r;
+        g_rgb[color_num].g = color_value.g;
+        g_rgb[color_num].b = color_value.b;
         g_modified       = true;
 
         // change R,G,B, values, but don't change A

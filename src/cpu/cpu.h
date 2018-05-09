@@ -35,7 +35,7 @@ namespace type
 // 1 meg for I86
 static const int MEM_SIZE =	0x100000;
 /* max # of bytes that a cpu context can have */
-static const int MAX_CONTEXT_SIZE = 100;
+static const int MAX_CONTEXT_SIZE = 128;
 /* how many IRQs we will support per CPU */
 static const int MAX_IRQS = 4;
 
