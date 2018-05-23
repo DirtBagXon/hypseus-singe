@@ -633,6 +633,7 @@ void lair2::do_irq(unsigned int which_irq)
     if (which_irq == 0) {
         g_dl2_irq_val = 0x1C; // the value of the TIMER_INT
         i86_set_irq_line(0, ASSERT_LINE);
+	m_video_overlay_needs_update = true;
     }
 
     // serial port IRQ (COM 2)

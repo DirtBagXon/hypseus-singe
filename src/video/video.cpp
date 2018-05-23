@@ -707,7 +707,7 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     if (g_yuv_video_needs_update) {
         // We still have a surface update that has not been transferred to texture,
         // so we get to wait until it's done and we are told so.
-        SDL_CondWait(g_yuv_surface->pending_update_cond, g_yuv_surface->mutex);
+        SDL_CondWaitTimeout(g_yuv_surface->pending_update_cond, g_yuv_surface->mutex, 100);
     }
 
     memcpy (g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);	
