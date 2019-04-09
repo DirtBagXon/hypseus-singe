@@ -141,10 +141,15 @@ bool thayers::init()
 
             // if user has also requested a hardware scoreboard, then enable
             // that too
-            if (get_scoreboard() != 0) {
+            if (get_scoreboard() & 0x01) {
                 ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::HARDWARE);
             }
 
+	    // if user has also requested a USB scoreboard, then enable that too
+	    if (get_scoreboard() & 0x02) {
+	        ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
+	    }
+	    
             m_pScoreboard = pScoreboard;
         } else {
             result = false;

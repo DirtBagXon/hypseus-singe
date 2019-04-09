@@ -11,10 +11,11 @@ class ScoreboardFactory
 public:
 	typedef enum
 	{
-		NULLTYPE,		// null scoreboard (used for testing)
-		IMAGE,	// graphics drawn on the screen (no VLDP)
-		OVERLAY,	// overlay graphics drawn over VLDP video
-		HARDWARE,	// hardware scoreboard controlled via parallel port
+		NULLTYPE,  // null scoreboard (used for testing)
+		IMAGE,	   // graphics drawn on the screen (no VLDP)
+		OVERLAY,   // overlay graphics drawn over VLDP video
+		HARDWARE,  // hardware scoreboard controlled via parallel port
+	        USB,	   // hardware scoreboard controlled via USB
 	} ScoreboardType;
 
 	// call this to get a new scoreboard instance

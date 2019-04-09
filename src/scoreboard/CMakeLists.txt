@@ -1,5 +1,6 @@
 set( LIB_SOURCES
     hw_scoreboard.cpp
+    usb_scoreboard.cpp
     img_scoreboard.cpp
     null_scoreboard.cpp
     overlay_scoreboard.cpp
@@ -10,6 +11,7 @@ set( LIB_SOURCES
 
 set( LIB_HEADERS
     hw_scoreboard.h
+    usb_scoreboard.h
     img_scoreboard.h
     null_scoreboard.h
     overlay_scoreboard.h

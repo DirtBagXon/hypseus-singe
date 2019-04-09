@@ -451,6 +451,7 @@ bool parse_cmd_line(int argc, char **argv)
 
     //////////////////////////////////////////////////////////////////////////////////////
 
+    set_scoreboard(0);      // Now this is a bitmapped type, so set it to NONE to start
     g_argc      = argc;
     g_argv      = argv;
     g_arg_index = 1; // skip name of executable from command line
@@ -608,7 +609,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
 
             else if (strcasecmp(s, "-scoreboard") == 0) {
-                set_scoreboard(1);
+	        set_scoreboard(get_scoreboard() | 0x01);             // Bitmapped -- enable parallel SB
                 printline("Enabling external scoreboard...");
             } else if (strcasecmp(s, "-scoreport") == 0) {
                 get_next_word(s, sizeof(s));
@@ -617,6 +618,14 @@ bool parse_cmd_line(int argc, char **argv)
                 sprintf(s, "Setting scoreboard port to %x", u);
                 printline(s);
             }
+
+	    
+	    else if (strcasecmp(s, "-usbsb")==0)
+	    {
+	        set_scoreboard(get_scoreboard() | 0x02);             // Bitmapped -- enable USB SB
+		printline("Enabling USB scoreboard...");
+	    }
+
 
             // used to modify the dip switch settings of the game in question
             else if (strcasecmp(s, "-bank") == 0) {
