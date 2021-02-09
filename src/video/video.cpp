@@ -803,7 +803,9 @@ void vid_blit () {
 
     // Sadly, we have to RenderCopy the YUV texture on every blitting strike, because
     // the image on the renderer gets "dirty" with previous overlay frames on top of the yuv.
-    SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL); 
+    if(g_yuv_texture) {
+        SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL); 
+    }
 
     // If there's an overlay texture, it means we are using some kind of overlay,
     // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
