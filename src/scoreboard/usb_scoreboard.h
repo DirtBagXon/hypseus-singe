@@ -1,3 +1,4 @@
+#ifdef USB_SCOREBOARD
 #ifndef USB_SCOREBOARD_H
 #define USB_SCOREBOARD_H
 
@@ -51,3 +52,4 @@ private:
 };
 
 #endif // USB_SCOREBOARD_H
+#endif //USB_SCOREBOARD

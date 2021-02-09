@@ -4,12 +4,13 @@ set(PKG_VERSION "v1.2.0")
 
 project(hypseus)
 
-option(BENCHMARK    "Benchmark"  OFF)
-option(DEBUG        "Debug"      OFF)
-option(VLDP_DEBUG   "VLDP Debug" OFF)
-option(CPU_DEBUG    "CPU Debug"  OFF)
-option(BUILD_SINGE  "Singe"      OFF)
-option(BUILDBOT     "Buildbot"   OFF)
+option(BENCHMARK        "Benchmark"             OFF)
+option(DEBUG            "Debug"                 OFF)
+option(VLDP_DEBUG       "VLDP Debug"            OFF)
+option(CPU_DEBUG        "CPU Debug"             OFF)
+option(BUILD_SINGE      "Singe"                 OFF)
+option(BUILDBOT         "Buildbot"              OFF)
+option(USB_SCOREBOARD   "UsbScoreboard"         OFF)
 
 if( NOT CMAKE_BUILD_TYPE )
     set(CMAKE_BUILD_TYPE "Release")
@@ -103,7 +104,11 @@ add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
 add_executable( hypseus hypseus.cpp globals.h )
-target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ftdi1 )
+target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES})
+
+if(USB_SCOREBOARD)
+    add_library(ftdi1)
+endif()
 
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )

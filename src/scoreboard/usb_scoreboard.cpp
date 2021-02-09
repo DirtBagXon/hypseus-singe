@@ -1,3 +1,4 @@
+#ifdef USB_SCOREBOARD
 #include "usb_scoreboard.h"
 #include <libftdi1/ftdi.h>
 #include <string.h>
@@ -70,3 +71,4 @@ bool USBScoreboard::get_digit(unsigned int &uValue, WhichDigit which) {
 }
 
 bool USBScoreboard::ChangeVisibility(bool bDontCare) { return false; }
+#endif //USB_SCOREBOARD

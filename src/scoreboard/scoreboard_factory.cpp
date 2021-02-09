@@ -28,11 +28,12 @@ IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type,
 	case HARDWARE:	// hardware scoreboard via parallel port
 		pRes = HwScoreboard::GetInstance(uWhichPort);
 		break;
+#ifdef USB_SCOREBOARD
 	case USB:	// Hardware scoreboard via USB
 	        pRes = USBScoreboard::GetInstance();
 		break;
+#endif
 	}
-
 	// set the annunciator value while we're here
 	if (pRes != NULL)
 	{
