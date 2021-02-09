@@ -765,6 +765,12 @@ void vid_blit () {
     // the YUV texture from the YUV surface), so access to that surface and it's
     // boolean DO need to be protected with a mutex.
 
+
+    // First clear the renderer before the SDL_RenderCopy() calls for this frame.
+    // Prevents stroboscopic effects on the background in fullscreen mode,
+    // and is recommended by SDL_Rendercopy() documentation.
+    SDL_RenderClear(g_renderer);
+
     // Does YUV texture need update from the YUV "surface"?
     // Don't try if the vldp object didn't call setup_yuv_surface (in noldp mode)
     if (g_yuv_surface) {
@@ -814,6 +820,7 @@ void vid_blit () {
     if(g_overlay_texture) {
 	SDL_RenderCopy(g_renderer, g_overlay_texture, &g_leds_size_rect, NULL);
     }
+
     // Issue flip.
     SDL_RenderPresent(g_renderer);
 }
