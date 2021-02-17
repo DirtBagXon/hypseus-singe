@@ -129,8 +129,7 @@ typedef struct {
     uint8_t *Vplane;
     int width, height;
     int Ysize, Usize, Vsize; // The size of each plane in bytes.
-    int Ypitch, Upitch, Vpitch; // The size of each plane in bytes.
-    SDL_cond *pending_update_cond;
+    int Ypitch, Upitch, Vpitch; // The pitch of each plane in bytes.
     SDL_mutex *mutex;
 } g_yuv_surface_t;
 
@@ -272,7 +271,6 @@ bool init_display()
 void vid_free_yuv_overlay () {
     // Here we free both the YUV surface and YUV texture.
     SDL_DestroyMutex (g_yuv_surface->mutex);
-    SDL_DestroyCond (g_yuv_surface->pending_update_cond);
    
     free(g_yuv_surface->Yplane);
     free(g_yuv_surface->Uplane);
@@ -670,8 +668,7 @@ void vid_setup_yuv_overlay (int width, int height) {
     g_yuv_surface->width  = width;
     g_yuv_surface->height = height;
 
-    // Setup the threading access stuff, since this surface is accessed from the vldp thread.
-    g_yuv_surface->pending_update_cond = SDL_CreateCond();
+    // Setup the threaded access stuff, since this surface is accessed from the vldp thread, too.
     g_yuv_surface->mutex = SDL_CreateMutex();
 }
 
@@ -698,17 +695,9 @@ void vid_blank_yuv_texture () {
 int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 	int Ypitch, int Upitch, int Vpitch)
 {
-    // vid_update_yuv_surface is called from the vldp thread, so access to the
+    // This function is called from the vldp thread, so access to the
     // yuv surface (including it's boolean) is protected (mutexed).
     SDL_LockMutex(g_yuv_surface->mutex);
-
-    // We must get sure there's no pending texture updates
-    // before overwritting the surface contents with a new frame.
-    if (g_yuv_video_needs_update) {
-        // We still have a surface update that has not been transferred to texture,
-        // so we get to wait until it's done and we are told so.
-        SDL_CondWaitTimeout(g_yuv_surface->pending_update_cond, g_yuv_surface->mutex, 100);
-    }
 
     memcpy (g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);	
     memcpy (g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);	
@@ -719,6 +708,7 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     g_yuv_surface->Vpitch = Vpitch;
 
     g_yuv_video_needs_update = true;
+
     SDL_UnlockMutex(g_yuv_surface->mutex);
 
     return 0;
@@ -789,7 +779,6 @@ void vid_blit () {
 		g_yuv_surface->Uplane, g_yuv_surface->Vpitch,
 		g_yuv_surface->Vplane, g_yuv_surface->Vpitch);
 	    g_yuv_video_needs_update = false;
-	    SDL_CondSignal(g_yuv_surface->pending_update_cond);
 	}
 	SDL_UnlockMutex(g_yuv_surface->mutex);
     }
