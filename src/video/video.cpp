@@ -696,7 +696,10 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 	int Ypitch, int Upitch, int Vpitch)
 {
     // This function is called from the vldp thread, so access to the
-    // yuv surface (including it's boolean) is protected (mutexed).
+    // yuv surface is protected (mutexed).
+    // As a reminder, mutexes are very simple: this fn tries to lock(=get)
+    // the mutex, but if it's already taken, LockMutex doesn't return
+    // until the mutex is free and we can lock(=get) it here.
     SDL_LockMutex(g_yuv_surface->mutex);
 
     memcpy (g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);	
