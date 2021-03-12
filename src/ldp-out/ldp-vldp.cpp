@@ -1642,7 +1642,9 @@ void report_mpeg_dimensions_callback(int width, int height)
 void free_yuv_overlay()
 {
     // We free both the YUV surface and the YUV texture
-    video::vid_free_yuv_overlay();
+    if (video::get_yuv_overlay_ready()) {
+	video::vid_free_yuv_overlay();
+    }
 }
 
 // makes the laserdisc video black while drawing game's video overlay on top

@@ -85,7 +85,7 @@ void outchr(const char ch)
         s[1] = 0;
     }
 
-    printf(s);
+    printf("%s", s);
 }
 
 void printline(const char *s_format, ...)
@@ -94,6 +94,8 @@ void printline(const char *s_format, ...)
     va_start(args, s_format);
     LOGI << fmt(s_format, args);
     va_end(args);
+
+    fprintf(stdout, "%s\n", s_format);
 }
 
 // flood-safe printline
