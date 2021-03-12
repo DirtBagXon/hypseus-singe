@@ -85,5 +85,6 @@ void input_disable(Uint8);
 inline void add_coin_to_queue(bool enabled, Uint8 val);
 void reset_idle(void); // added by JFA
 void set_use_joystick(bool val);
+void set_inputini_file(const char *inputFile);
 
 #endif // INPUT_H

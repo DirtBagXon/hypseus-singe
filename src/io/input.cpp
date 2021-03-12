@@ -60,6 +60,9 @@ bool g_alt_pressed       = false; // whether the ALT key is presssed (for ALT-En
                                   // combo)
 unsigned int idle_timer;          // added by JFA for -idleexit
 
+string g_inputini_file = "hypinput.ini"; // Default keymap file
+bool m_altInputFileSet = false;
+
 const double STICKY_COIN_SECONDS =
     0.125; // how many seconds a coin acceptor is forced to be "depressed" and
            // how many seconds it is forced to be "released"
@@ -147,10 +150,14 @@ void CFG_Keys()
     int val1 = 0, val2 = 0, val3 = 0;
     //	bool done = false;
 
-    // find where the hypinput ini file is (if the file doesn't exist, this
-    // string will be empty)
-    string strDapInput = g_homedir.find_file("hypinput.ini", true);
+    if (m_altInputFileSet) {
+       string keyinput_notice = "Loading alternate keymap file: ";
+       keyinput_notice += g_inputini_file.c_str();
+       LOGI << keyinput_notice.c_str();
+    }
 
+    // find where the keymap ini file is (if the file doesn't exist, this string will be empty)
+    string strDapInput = g_homedir.find_file(g_inputini_file.c_str(), true);
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
         LOGD << "Remapping input ...";
@@ -747,3 +754,9 @@ void reset_idle(void)
 
 // primarily to disable joystick use if user wishes not to use one
 void set_use_joystick(bool val) { g_use_joystick = val; }
+
+// Allow us to specify an alternate keymap.ini file
+void set_inputini_file(const char *inputFile) {
+    m_altInputFileSet = true;
+    g_inputini_file = inputFile;
+}

@@ -514,6 +514,47 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
 
+           // specify an alternate dapinput.ini file (located in home or app directory)
+           else if (strcasecmp(s, "-keymapfile")==0) {
+
+		bool loadini = true;
+                int iLen, k;
+
+                get_next_word(s, sizeof(s));
+
+                iLen = strlen(s);
+
+                if (iLen < 5) {
+                  loadini = false;
+                 }
+
+                if (loadini) {
+
+                   for(k=0;k<iLen;k++)
+                     s[k] = tolower(s[k]);
+
+                    string s1(s);
+                    string s2(s1.substr(s1.length()-4));
+
+                    if (s2.compare(".ini") != 0) {
+                       loadini = false;
+                    }
+
+                    if (loadini) {
+                       string s3 = s1.substr(0, s1.size()-4);
+
+                       for (int i = 0; s3[i] != '\0'; i++) {
+                           if (!isalnum(s3[i])) {
+                              loadini = false;
+                           }
+                       }
+
+                       if (loadini)
+                          set_inputini_file(s);
+                    }
+                }
+           }
+
             // if they are defining an alternate soundtrack to be used by VLDP
             else if (strcasecmp(s, "-altaudio") == 0) {
                 ldp_vldp *cur_ldp =
