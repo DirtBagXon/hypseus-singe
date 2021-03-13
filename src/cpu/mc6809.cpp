@@ -226,7 +226,7 @@ static unsigned char fetch_buffer[MC6809_FETCH_BUFFER_SIZE];
 
 /* le caractère 8-bit du MC6809 impose l'utilisation de char
    pour la manipulation des opcodes qui sont des octets signés */
-static char *op;
+static signed char *op;
 static int ad;
 static int *regist[4], *exreg[16];
 static int illegal_instruction_flag;
@@ -2004,7 +2004,7 @@ unsigned int mc6809_StepExec(unsigned int ncycles)
 
         /* on remplit le buffer de fetch */
         FetchInstr(pc, fetch_buffer);
-        op=(char*) fetch_buffer;
+        op=(signed char*) fetch_buffer;
 
         /* on décode l'instruction */
         r=(*(op++))&0xFF;
@@ -2049,7 +2049,7 @@ int mc6809_TimeExec(mc6809_clock_t time_limit)
 
         /* on remplit le buffer de fetch */
         FetchInstr(pc, fetch_buffer);
-        op=(char*) fetch_buffer;
+        op=(signed char*) fetch_buffer;
 
         /* on décode l'instruction */
         r=(*(op++))&0xFF;

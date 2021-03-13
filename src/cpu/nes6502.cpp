@@ -295,10 +295,10 @@
    if (condition) \
    { \
       IMMEDIATE_BYTE(btemp); \
-      if (((int8) btemp + (PC & 0x00FF)) & 0x100) \
+      if (((int8_t) btemp + (PC & 0x00FF)) & 0x100) \
          ADD_CYCLES(1); \
       ADD_CYCLES(3); \
-      PC += ((int8) btemp); \
+      PC += ((int8_t) btemp); \
    } \
    else \
    { \
