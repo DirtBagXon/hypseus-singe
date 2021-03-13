@@ -19,12 +19,26 @@ _Currently there is no documentation for the new build process. Pull requests
 gladly accepted._
 
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
-[vorbis] and [ogg].
+[libtool], [vorbis] and [ogg].
 
     mkdir build
     cd build
     cmake ../src
     make
+
+## Install and Run
+
+Ensure you have daphne data in the following `~/.daphne` folders:
+
+    pics, ram, roms, screenshots, sound, vldp and vldp_dl
+
+**From the repo path:**
+
+    cp -R fonts ~/.daphne
+    cp doc/hyphypinput.ini doc/flightkey.ini ~/.daphne
+    sudo cp build/hypseus /usr/local/bin/hypseus.bin
+    sudo cp ./run.sh /usr/local/bin/hypseus
+    hypseus
 
 ## Support
 
@@ -89,5 +103,6 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [vorbis]: https://en.wikipedia.org/wiki/Vorbis
 [cmake]: https://cmake.org
 [autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
+[libtool]: https://www.gnu.org/software/libtool/manual/libtool.html
 [GNU General Public License]: http://www.gnu.org/licenses/gpl-3.0.en.html
 [JAC]: https://github.com/h0tw1r3

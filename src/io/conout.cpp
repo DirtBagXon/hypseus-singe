@@ -95,7 +95,11 @@ void printline(const char *s_format, ...)
     LOGI << fmt(s_format, args);
     va_end(args);
 
-    fprintf(stdout, "%s\n", s_format);
+    if (s_format[0] == '\0') {
+       fprintf(stdout, "[console] <NULL>\n");
+    } else {
+       fprintf(stdout, "[console] %s\n", s_format);
+    }
 }
 
 // flood-safe printline

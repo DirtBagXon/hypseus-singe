@@ -381,7 +381,8 @@ bool parse_game_type()
     } else if (strcasecmp(s, "uvt") == 0) {
         g_game = new uvt();
     } else {
-        printline("ERROR: Unknown game type specified : %s", s);
+        printline("ERROR: Unknown game type specified : ");
+        printline(s);
         result = false;
     }
 

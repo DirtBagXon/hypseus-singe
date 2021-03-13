@@ -1,16 +1,11 @@
 #!/bin/bash
 
-SCRIPT_DIR=`dirname "$0"`
-if realpath / >/dev/null; then SCRIPT_DIR=$(realpath "$SCRIPT_DIR"); fi
-DAPHNE_BIN=hypseus
+HYPSEUS_BIN=hypseus.bin
 DAPHNE_SHARE=~/.daphne
 
 function STDERR () {
 	/bin/cat - 1>&2
 }
-
-echo "Daphne Launcher : Script dir is $SCRIPT_DIR"
-cd "$SCRIPT_DIR"
 
 if [ "$1" = "-fullscreen" ]; then
     FULLSCREEN="-fullscreen"
@@ -176,7 +171,7 @@ if [ ! -f $DAPHNE_SHARE/$VLDP_DIR/$1/$1.txt ]; then
 fi
 
 #strace -o strace.txt \
-./$DAPHNE_BIN $1 vldp \
+$HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
 $KEYINPUT \
@@ -202,7 +197,7 @@ if [ "$EXIT_CODE" -ne "0" ] ; then
 		echo ""
 		echo "Hypseus failed to start." | STDERR
 		echo "This is probably due to a library problem." | STDERR
-		echo "Run ./hypseus directly to see which libraries are missing." | STDERR
+		echo "Run hypseus.bin directly to see which libraries are missing." | STDERR
 		echo ""
 	else
 		echo "HypseusLoader failed with an unknown exit code : $EXIT_CODE." | STDERR

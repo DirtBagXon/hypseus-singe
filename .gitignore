@@ -1,10 +1,12 @@
 *.o
 /daphne*
 /testvldp*
+hypseus
 .deps
 *.d
 *.so
 *.a
 *.res
 roms
+build
 src/Makefile.vars
