@@ -403,7 +403,7 @@ void outcommand(char *s) // dangit Matt, stop ripping out my useful routines =]
     static int row = 1, commandnum = 0;
 
     int slength, x;
-    char strtoprint[25], string2[25];
+    char strtoprint[25], string2[40];
     // gotoxy(43,row++);
     if (row == 21) row = 1;
     slength = strlen(s);

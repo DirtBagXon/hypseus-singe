@@ -341,7 +341,7 @@ Uint8 gpworld::port_read(Uint16 port)
 // writes a byte to the cpu's port
 void gpworld::port_write(Uint16 port, Uint8 value)
 {
-    char s[81] = {0};
+    char s[82] = {0};
 
     port &= 0xFF;
 

@@ -212,7 +212,7 @@ lair2::lair2()
 {
     m_shortgamename = "lair2";
     memset(m_cpumem, 0, cpu::MEM_SIZE);
-    memset(EEPROM_9536, 0, 0x80);
+    memset(EEPROM_9536, 0, sizeof(EEPROM_9536));
     m_uCoinCount[0] = m_uCoinCount[1] = 0;
     banks[0] = 0xff; // bank 0 is active low
     banks[1] = 0x01; // bank 1 is active high - bit 0 is set for EEP

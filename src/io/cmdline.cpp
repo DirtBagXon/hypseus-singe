@@ -953,7 +953,7 @@ void get_next_word(char *result, int result_size)
 {
     // make sure we still have command line left to parse
     if (g_arg_index < g_argc) {
-        strncpy(result, g_argv[g_arg_index], result_size);
+        strncpy(result, g_argv[g_arg_index], result_size-1);
         result[result_size - 1] = 0; // terminate end of string just in case we
                                      // hit the limit
         g_arg_index++;

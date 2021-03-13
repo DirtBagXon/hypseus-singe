@@ -190,6 +190,9 @@ bool init_display()
         // If doing fullscreen window, make the window bordeless (no title
         // bar).
         // This is achieved by adding the SDL_NOFRAME flag.
+
+	if (g_window) SDL_DestroyWindow(g_window);
+
 	g_window =
             SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -445,7 +448,8 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 // Draw LDP1450 overlay characters to the screen (added by Brad O.)
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
 {
-    SDL_Rect src, dest;
+    SDL_Rect dest;
+    //SDL_Rect src;
 
     int i     = 0;
     int value = 0;
@@ -457,9 +461,9 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
     dest.w = OVERLAY_LDP1450_WIDTH;
     dest.h = OVERLAY_LDP1450_HEIGHT;
 
-    src.y = 0;
-    src.w = OVERLAY_LDP1450_WIDTH;
-    src.h = OVERLAY_LDP1450_WIDTH;
+    //src.y = 0;
+    //src.w = OVERLAY_LDP1450_WIDTH;
+    //src.h = OVERLAY_LDP1450_WIDTH;
 
     LDP1450_strlen = strlen(LDP1450_String);
 
@@ -490,7 +494,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
             value = 0x31; // if not a number, symbol, or alpha, recognize as a
                           // space
 
-        src.x = value * OVERLAY_LDP1450_WIDTH;
+        //src.x = value * OVERLAY_LDP1450_WIDTH;
         //SDL_RenderCopy(g_renderer, g_other_bmps[B_OVERLAY_LDP1450], &src, &dest);
 
         dest.x += OVERLAY_LDP1450_CHARACTER_SPACING;

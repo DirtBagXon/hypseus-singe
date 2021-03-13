@@ -88,12 +88,12 @@ struct net_packet g_packet; // what we're gonna send
 
 void net_set_gamename(char *gamename)
 {
-    strncpy(g_packet.gamename, gamename, sizeof(g_packet.gamename));
+    strncpy(g_packet.gamename, gamename, sizeof(g_packet.gamename)-1);
 }
 
 void net_set_ldpname(char *ldpname)
 {
-    strncpy(g_packet.ldpname, ldpname, sizeof(g_packet.ldpname));
+    strncpy(g_packet.ldpname, ldpname, sizeof(g_packet.ldpname)-1);
 }
 
 #if defined(_MSC_VER) && defined(_M_IX86)
@@ -423,7 +423,7 @@ void net_send_data_to_server()
                         sizeof(g_packet.video_desc));
                 strncpy(g_packet.cpu_name, get_cpu_name(), sizeof(g_packet.cpu_name));
                 strncpy(g_packet.hypseus_version, get_hypseus_version(),
-                        sizeof(g_packet.hypseus_version));
+                        sizeof(g_packet.hypseus_version)-1);
 
                 // now compute CRC32 of the rest of the packet
                 g_packet.crc32 = crc32(0L, Z_NULL, 0);
