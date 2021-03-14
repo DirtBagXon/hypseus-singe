@@ -124,7 +124,7 @@ Uint16 get_video_width();
 void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
-void draw_string(const char *, int, int, SDL_Renderer *);
+void draw_string(const char *, int, int);
 void vid_toggle_fullscreen();
 
 void set_force_aspect_ratio(bool bEnabled);

@@ -69,6 +69,7 @@ unsigned int g_draw_width = 640, g_draw_height = 480;
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
 
 FC_Font *g_font                    = NULL;
+TTF_Font *g_tfont                  = NULL;
 SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
 SDL_Window *g_window               = NULL;
@@ -191,8 +192,6 @@ bool init_display()
         // bar).
         // This is achieved by adding the SDL_NOFRAME flag.
 
-	if (g_window) SDL_DestroyWindow(g_window);
-
 	g_window =
             SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -223,9 +222,20 @@ bool init_display()
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
 
+               char font[18]="fonts/default.ttf";
+               char ttfont[20]="fonts/pixelboy.ttf";
+
                 g_font = FC_CreateFont();
-                FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", 18,
-                            FC_MakeColor(0, 0, 0, 255), TTF_STYLE_NORMAL);
+                FC_LoadFont(g_font, g_renderer, font, 18,
+                            FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
+
+                TTF_Init();
+                g_tfont = TTF_OpenFont(ttfont, 14);
+                if (g_tfont == NULL) {
+                        LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
+                        shutdown_display();
+                        exit(1);
+                }
 
                 // Create a 32-bit surface with alpha component. As big as an overlay can possibly be...
 		int surfacebpp;
@@ -303,6 +313,8 @@ void shutdown_display()
 {
     LOGD << "Shutting down video display...";
 
+    FC_FreeFont(g_font);
+    TTF_Quit();
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
@@ -611,22 +623,18 @@ void set_video_height(Uint16 height)
 
 FC_Font *get_font() { return g_font; }
 
-void draw_string(const char *t, int col, int row, SDL_Renderer *renderer)
+void draw_string(const char *t, int col, int row)
 {
     SDL_Rect dest;
-
     dest.x = (short)((col * 6));
-    dest.y = (short)((row * 13));
-    dest.w = (unsigned short)(6 * strlen(t)); // width of rectangle area to draw
-                                              // (width of font * length of
-                                              // string)
-    dest.h = 13;                              // height of area (height of font)
+    dest.y = (short)(row);
+    dest.w = (unsigned short)(6 * strlen(t));;
+    dest.h = 13;
 
-    // SDL_FillRect(overlay, &dest, 0); // erase anything at our destination
-    // before
-    //                                 // we print new text
-    FC_Draw(g_font, renderer, dest.x, dest.y, t);
-    // SDL_UpdateRects(overlay, 1, &dest); FIXME
+    SDL_Color color={205, 205, 205};
+    SDL_Surface *text_surface;
+    text_surface=TTF_RenderText_Solid(g_tfont, t, color);
+    SDL_BlitSurface(text_surface, NULL, g_leds_surface, &dest);
 }
 
 // toggles fullscreen mode

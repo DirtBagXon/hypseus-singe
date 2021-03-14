@@ -809,6 +809,7 @@ void lair::shutdown()
 void lair::repaint()
 {
     // if there is an overlay (for overlay scoreboard)
+    /*
     if (m_video_overlay[m_active_video_overlay]) {
         Uint32 cur_w = g_ldp->get_discvideo_width() >> 1;  // width overlay
                                                            // should be
@@ -840,6 +841,7 @@ void lair::repaint()
             }
         } // end if dimensions are incorrect
     }
+    */
 
     // we invalidate to force a repaint, because this function should _always_
     // repaint
