@@ -51,42 +51,34 @@ case "$1" in
 	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00100001 -bank 0 00000010"
-	SCREENSIZE="-x 720 -y 480"
 	;;
     astron)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     badlands)
 	VLDP_DIR="vldp"
 	BANKS="-bank 1 10000001 -bank 0 00000000"
-	SCREENSIZE="-x 640 -y 480"
 	;;
     bega)
 	VLDP_DIR="vldp"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     blazer)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     cliff)
 	VLDP_DIR="vldp"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 01000000 -bank 0 00000000 -cheat"
-	SCREENSIZE="-x 640 -y 480"
 	;;
     cobraab)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	BANKS="-cheat"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     dle21)
 	VLDP_DIR="vldp_dl"
-	SCREENSIZE="-x 640 -y 480"
 
 	if [ "$PROTOTYPE" ]; then
 		BANKS="-bank 1 10110011 -bank 0 11011000"
@@ -99,65 +91,53 @@ case "$1" in
 	VLDP_DIR="vldp"
 	FASTBOOT="-nocrc"
 	BANKS="-cheat"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     galaxy)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     gpworld)
 	VLDP_DIR="vldp"
-	SCREENSIZE="-x 720 -y 480"
 	;;
     interstellar)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     mach3)
 	VLDP_DIR="vldp"
 	BANKS="-bank 0 01000001"
 	KEYINPUT="-keymapfile flightkey.ini"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     lair)
 	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00110011 -bank 0 10011000"
-	SCREENSIZE="-x 640 -y 480"
 	;;
     lair2)
 	VLDP_DIR="vldp_dl"
 	BANKS="-cheat"
-	SCREENSIZE="-x 640 -y 480"
 	;;
     roadblaster)
 	VLDP_DIR="vldp"
 	BANKS="-cheat"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     sae)
 	VLDP_DIR="vldp_dl"
 	BANKS="-bank 1 01100011 -bank 0 10011000"
-	SCREENSIZE="-x 720 -y 480"
 	;;
     sdq)
 	VLDP_DIR="vldp"
 	#BANKS="-bank 1 00000000 -bank 0 00000001"
 	BANKS="-bank 1 00000000 -bank 0 00000000"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     tq)
 	VLDP_DIR="vldp_dl"
 	BANKS=" -bank 0 00010000"
-	SCREENSIZE="-x 640 -y 480"
 	;;
     uvt)
 	VLDP_DIR="vldp"
 	BANKS="-bank 0 01000001"
 	KEYINPUT="-keymapfile flightkey.ini"
-	SCREENSIZE="-x 512 -y 480"
 	;;
     *) echo -e "\nInvalid game selected\n"
        exit 1
@@ -179,12 +159,11 @@ $BANKS \
 -framefile $DAPHNE_SHARE/$VLDP_DIR/$1/$1.txt \
 -homedir $DAPHNE_SHARE \
 -datadir $DAPHNE_SHARE \
--useoverlaysb 3 \
+-useoverlaysb 2 \
 -sound_buffer 2048 \
 -nojoystick \
 -volume_nonvldp 5 \
--volume_vldp 20 \
-$SCREENSIZE
+-volume_vldp 20
 
 #-blank_searches \
 #-min_seek_delay 1000 \

@@ -40,6 +40,10 @@ Ensure you have daphne data in the following `~/.daphne` folders:
     sudo cp ./run.sh /usr/local/bin/hypseus
     hypseus
 
+
+![singeloader](https://raw.githubusercontent.com/DirtBagXon/hypseus/master/screenshot.png)
+
+
 ## Support
 
 This software intended for educational purposes only. Please submit [issues] or
