@@ -1499,7 +1499,7 @@ void update_parse_meter()
         double percent_complete = g_dPercentComplete01 * 100.0;
 
         // compute elapsed seconds
-        elapsed_s = (elapsed_ms_time(g_parse_start_time)) * 0.001;
+        elapsed_s = (elapsed_ms_time(g_parse_start_time)) * 0.01;
         // how much 'percentage' points we've accomplished
         double percentage_accomplished = percent_complete - g_parse_start_percentage;
 
@@ -1513,6 +1513,7 @@ void update_parse_meter()
 
         // the main screen that we can draw on ...
         SDL_Surface *screen = video::get_screen_blitter();
+        SDL_Renderer *renderer = video::get_renderer();
         // erase previous stuff on the screen blitter
         SDL_FillRect(screen, NULL, 0);
 
@@ -1520,14 +1521,15 @@ void update_parse_meter()
         if (remaining_s > 0) {
             char s[160];
             // calculations to center message on screen ...
-            int half_h = screen->h >> 1;
-            int half_w = screen->w >> 1;
+            int screen_h = screen->h;
+            int screen_w = screen->w;
             sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds "
                        "remaining.\n",
                     percent_complete, remaining_s);
-            FC_Draw(video::get_font(), video::get_renderer(),
-                    (half_w - ((strlen(s) / 2) * video::FONT_SMALL_W)),
-                    half_h - video::FONT_SMALL_H, s);
+
+            FC_Draw(video::get_font(), renderer,
+			    (screen_h / 3.5), (screen_w / 1.5), s);
+            SDL_RenderPresent(renderer);
 
             // now draw a little graph thing ...
             SDL_Rect clip       = screen->clip_rect;
