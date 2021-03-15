@@ -113,7 +113,9 @@ void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
 SDL_Renderer *get_renderer();
 SDL_Texture *get_screen();
 SDL_Surface *get_screen_blitter();
+SDL_Surface *get_screen_leds();
 FC_Font *get_font();
+TTF_Font *get_tfont();
 bool get_fullscreen();
 void set_fullscreen(bool value);
 int get_scalefactor();           // by RDG2010
@@ -124,7 +126,7 @@ Uint16 get_video_width();
 void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
-void draw_string(const char *, int, int);
+void draw_string(const char *, int, int, SDL_Surface *);
 void vid_toggle_fullscreen();
 
 void set_force_aspect_ratio(bool bEnabled);

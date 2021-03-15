@@ -571,6 +571,8 @@ SDL_Texture *get_screen() { return g_overlay_texture; }
 
 SDL_Surface *get_screen_blitter() { return g_screen_blitter; }
 
+SDL_Surface *get_screen_leds() { return g_leds_surface; }
+
 bool get_fullscreen() { return g_fullscreen; }
 
 // sets our g_fullscreen bool (determines whether will be in fullscreen mode or
@@ -622,8 +624,9 @@ void set_video_height(Uint16 height)
 }
 
 FC_Font *get_font() { return g_font; }
+TTF_Font *get_tfont() { return g_tfont; }
 
-void draw_string(const char *t, int col, int row)
+void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 {
     SDL_Rect dest;
     dest.x = (short)((col * 6));
@@ -631,10 +634,12 @@ void draw_string(const char *t, int col, int row)
     dest.w = (unsigned short)(6 * strlen(t));;
     dest.h = 13;
 
+    SDL_FillRect(surface, &dest, 0x00000000);
     SDL_Color color={205, 205, 205};
     SDL_Surface *text_surface;
     text_surface=TTF_RenderText_Solid(g_tfont, t, color);
-    SDL_BlitSurface(text_surface, NULL, g_leds_surface, &dest);
+    SDL_BlitSurface(text_surface, NULL, surface, &dest);
+    SDL_FreeSurface(text_surface);
 }
 
 // toggles fullscreen mode

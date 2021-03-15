@@ -22,6 +22,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
 	if (m_bNeedsRepaint)
 	{
 		SDL_Surface *pSurface = m_pFuncGetActiveOverlay();
+		SDL_Surface *pLed =  video::get_screen_leds();
 
 		// if the overlay is visible
 		if (m_bVisible)
@@ -31,15 +32,15 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			{
 				// Draw all DL/SA scoreboard labels.
 				// Credits Label
-				video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3), 3);
+				video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3), 3, pLed);
 
 				// Player labels.
-                                video::draw_string("Player 1: ", 1, 3);
-                                video::draw_string("Player 2: ", pSurface->w / 6 - 19, 3);
+                                video::draw_string("Player 1: ", 1, 3, pLed);
+                                video::draw_string("Player 2: ", pSurface->w / 6 - 19, 3, pLed);
 
 				// Lives labels.
-			        video::draw_string("Lives: ", 1, 16);
-				video::draw_string("Lives: ", pSurface->w / 6 - 10, 16);
+			        video::draw_string("Lives: ", 1, 16, pLed);
+				video::draw_string("Lives: ", pSurface->w / 6 - 10, 16, pLed);
 
 				// Update Player Scores
 				update_player_score(pSurface, 0, 0, m_DigitValues + this->PLAYER1_0, 6);
@@ -54,7 +55,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			{
 				// Thayer's Quest only uses "Credits" portion of the DL/SA
 				// scoreboard.
-				video::draw_string("Time", pSurface->w / 12 - 2, 3);
+				video::draw_string("Time", pSurface->w / 12 - 2, 3, pLed);
 			}
 
 			// Update Credits

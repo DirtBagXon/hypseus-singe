@@ -268,7 +268,7 @@ void thayers::do_nmi()
         memset(t, 0x20, 59); // set the string to a bunch of blanks
 
         if (m_game_uses_video_overlay) {
-            // FIXME draw_string(t, 0, 17, m_video_overlay[m_active_video_overlay]);
+		video::draw_string(t, 1, 225, video::get_screen_leds());
         }
     }
 
@@ -437,7 +437,7 @@ void thayers::show_speech_subtitle()
             text[60] = '\0';
 
             if (m_game_uses_video_overlay) {
-                // FIXME draw_string(text, 0, 17, m_video_overlay[m_active_video_overlay]);
+		    video::draw_string(text, 1, 225, video::get_screen_leds());
             }
         }
 
@@ -455,7 +455,7 @@ void thayers::show_speech_subtitle()
 
         // Make sure m_video_overlay pointer array is not NULL
         if (m_game_uses_video_overlay) {
-            // FIXME draw_string(text, 0, 17, m_video_overlay[m_active_video_overlay]);
+		video::draw_string(text, 1, 225, video::get_screen_leds());
         }
 
 #ifdef SSI_DEBUG

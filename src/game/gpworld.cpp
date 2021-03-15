@@ -523,7 +523,7 @@ void gpworld::repaint()
                 for (int x = 0; x < 8; x++) {
                     if (pixel[x]) {
                         *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 8 + x)) =
+                          ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 7 + x)) =
                             tile_color_pointer[(pixel[x]) | ((m_cpumem[current_character]) & 0xfc)];
                     }
                 }
@@ -542,9 +542,9 @@ void gpworld::repaint()
     //		}
 
     // draw low or high depending on the state of the shifter
-    //const char *t = "HIGH";
-    //if (banks[2]) t = "LOW";
-    //draw_string(t, 1, 17, m_video_overlay[m_active_video_overlay]);
+    const char *t = "HIGH";
+    if (banks[2]) t = "LOW";
+    video::draw_string(t, 1, 225, m_video_overlay[m_active_video_overlay]);
 }
 
 // this gets called when the user presses a key or moves the joystick
@@ -737,7 +737,7 @@ void gpworld::draw_sprite(int spr_number)
                       (y * GPWORLD_OVERLAY_W) + x + 3) = pixel4 + (0x10 * sprite_color);
                 }
             }
-            x += 4;
+            x += 3;
 
             // stop drawing when the sprite data is 0xf
             if (((data_lo & 0x0f) == 0x0f) && (!(src & 0x8000))) {
