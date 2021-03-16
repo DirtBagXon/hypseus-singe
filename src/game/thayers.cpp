@@ -266,10 +266,12 @@ void thayers::do_nmi()
         char t[60] = {0};
 
         memset(t, 0x20, 59); // set the string to a bunch of blanks
+        speech_buffer_cleanup((char *)&m_cpumem[0xa500], t, sizeof(t));
 
         if (m_game_uses_video_overlay) {
-		video::draw_string(t, 1, 225, video::get_screen_leds());
+		video::draw_subtitle(t, video::get_screen_leds(), 1);
         }
+
     }
 
     thayers_irq();
@@ -435,9 +437,10 @@ void thayers::show_speech_subtitle()
             // Erase previous message that's still showing.
             memset(text, 0x20, 59);
             text[60] = '\0';
+            speech_buffer_cleanup((char *)&m_cpumem[0xa500], text, sizeof(text));
 
             if (m_game_uses_video_overlay) {
-		    video::draw_string(text, 1, 225, video::get_screen_leds());
+		    video::draw_subtitle(text, video::get_screen_leds(), 1);
             }
         }
 
@@ -455,7 +458,7 @@ void thayers::show_speech_subtitle()
 
         // Make sure m_video_overlay pointer array is not NULL
         if (m_game_uses_video_overlay) {
-		video::draw_string(text, 1, 225, video::get_screen_leds());
+		video::draw_subtitle(text, video::get_screen_leds(), 1);
         }
 
 #ifdef SSI_DEBUG

@@ -127,9 +127,12 @@ void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
 void draw_string(const char *, int, int, SDL_Surface *);
+void draw_subtitle(char *, SDL_Surface *, bool value);
 void vid_toggle_fullscreen();
 
 void set_force_aspect_ratio(bool bEnabled);
+void set_subtitle_enabled(bool bEnabled);
+void set_subtitle_display(char *, SDL_Surface *);
 
 bool get_force_aspect_ratio();
 

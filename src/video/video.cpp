@@ -93,6 +93,11 @@ int sboverlay_characterset = 1;
 // (this is probably a good idea as a default option)
 bool g_bForceAspectRatio = true;
 
+// Move subtitle rendering to SDL_RenderPresent(g_renderer);
+bool g_bSubtitleShown = false;
+static char *subchar;
+SDL_Surface *subscreen;
+
 // the # of degrees to rotate counter-clockwise in opengl mode
 float g_fRotateDegrees = 0.0;
 
@@ -632,7 +637,7 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
     dest.x = (short)((col * 6));
     dest.y = (short)(row);
     dest.w = (unsigned short)(6 * strlen(t));;
-    dest.h = 13;
+    dest.h = 14;
 
     SDL_FillRect(surface, &dest, 0x00000000);
     SDL_Color color={205, 205, 205};
@@ -640,6 +645,32 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
     text_surface=TTF_RenderText_Solid(g_tfont, t, color);
     SDL_BlitSurface(text_surface, NULL, surface, &dest);
     SDL_FreeSurface(text_surface);
+}
+
+void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
+{
+    SDL_Renderer *renderer = get_renderer();
+    int screen_h = surface->h;
+    int screen_w = surface->w;
+    static int count;
+    int delay = 100;
+
+    if (insert) {
+       count = 0;
+       set_subtitle_enabled(true);
+       set_subtitle_display(s, surface);
+    }
+
+    if ((!insert) && (count > delay)) {
+        set_subtitle_enabled(false);
+    }
+
+    if (count > 2)
+       FC_Draw(get_font(), renderer, (screen_h - (screen_h * 0.98) + 20),
+                    ((screen_w * 0.98) + 120), s);
+
+    SDL_RenderPresent(renderer);
+    count++;
 }
 
 // toggles fullscreen mode
@@ -658,6 +689,8 @@ void vid_toggle_fullscreen()
     SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
 }
 
+void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
+void set_subtitle_display(char *s, SDL_Surface *surface) { subchar = strdup(s); subscreen = surface; }
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
 unsigned int get_draw_width() { return g_draw_width; }
 unsigned int get_draw_height() { return g_draw_height; }
@@ -831,7 +864,11 @@ void vid_blit () {
     }
 
     // Issue flip.
-    SDL_RenderPresent(g_renderer);
+    if (g_bSubtitleShown) {
+        draw_subtitle(subchar, subscreen, 0);
+    } else {
+        SDL_RenderPresent(g_renderer);
+    }
 }
 
 int get_yuv_overlay_width() {
