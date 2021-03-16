@@ -21,6 +21,13 @@ gladly accepted._
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 [libtool], [vorbis] and [ogg].
 
+For RetroPie clone the ``RetroPie`` branch via:
+
+    git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus.git
+    sudo apt-get install libmpeg2-4-dev
+
+Then:
+
     mkdir build
     cd build
     cmake ../src
