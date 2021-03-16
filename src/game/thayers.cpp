@@ -80,8 +80,12 @@ thayers::thayers() : m_pScoreboard(NULL)
     m_game_issues = "Use PageUp, PageDown to change speech volume. F9 toggles "
                     "speech subtitle on/off";
 
-    m_game_uses_video_overlay = false;
-    m_use_overlay_scoreboard  = false; // overlay scoreboard option must be
+    m_video_overlay_width    = 320;
+    m_video_overlay_height   = 240;
+    m_palette_color_count    = 256;
+    m_overlay_size_is_dynamic = true;
+    m_game_uses_video_overlay = true;
+    m_use_overlay_scoreboard  = true; // overlay scoreboard option must be
                                        // enabled from cmd line
 
     // default ROM images for TQ (this must be static!)
@@ -164,7 +168,7 @@ bool thayers::init()
 void thayers::init_overlay_scoreboard()
 {
     m_game_uses_video_overlay = true;
-    m_overlay_size_is_dynamic = true;
+    //m_overlay_size_is_dynamic = true;
 
     // note : in the past, m_video_overlay_count was set to 1 because the
     // overlay scoreboard would update only part of the SDL surface
@@ -176,10 +180,10 @@ void thayers::init_overlay_scoreboard()
     // I am hoping that today's faster cpu's will make this choice a win for
     // everyone.
 
-    m_video_overlay_width    = 320;
-    m_video_overlay_height   = 240;
-    m_palette_color_count    = 256;
-    m_use_overlay_scoreboard = true;
+    //m_video_overlay_width    = 320;
+    //m_video_overlay_height   = 240;
+    //m_palette_color_count    = 256;
+    //m_use_overlay_scoreboard = true;
 }
 
 // As with the original, speech synthesis is on by default. But in the interest

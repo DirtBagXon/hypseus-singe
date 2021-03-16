@@ -88,8 +88,12 @@ lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
     m_disc_fps  = 23.976;
     m_game_type = GAME_LAIR;
 
-    m_game_uses_video_overlay = false; // this game doesn't (by default) use
-                                       // video overlay
+    m_video_overlay_width  = 320;
+    m_video_overlay_height = 240;
+    m_palette_color_count  = 256;
+    m_overlay_size_is_dynamic = true;
+    m_game_uses_video_overlay = true; // this game by default now has
+                                       // to use video overlay
     m_video_overlay_needs_update = false;
 
     ldv1000::enable_instant_seeking(); // make the LD-V1000 perform instantaneous
@@ -757,8 +761,12 @@ bool lair::init()
 // Initialize overlay scoreboard if -useroverlaysb command line switch used.
 void lair::init_overlay_scoreboard()
 {
+
+    // Now enabled by default in class constructor
+    // otherwise we don't get video
+
     m_game_uses_video_overlay = true;
-    m_overlay_size_is_dynamic = true;
+    //m_overlay_size_is_dynamic = true;
 
     // note : in the past, m_video_overlay_count was set to 1 because the
     // overlay scoreboard would update only part of the SDL surface
@@ -770,9 +778,9 @@ void lair::init_overlay_scoreboard()
     // I am hoping that today's faster cpu's will make this choice a win for
     // everyone.
 
-    m_video_overlay_width  = 320;
-    m_video_overlay_height = 240;
-    m_palette_color_count  = 256;
+    //m_video_overlay_width  = 320;
+    //m_video_overlay_height = 240;
+    //m_palette_color_count  = 256;
 
     // this is used to enable visibility on the overlay scoreboard, which is now
     // enabled by default

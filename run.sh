@@ -156,15 +156,10 @@ $BANKS \
 -framefile $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
--useoverlaysb 2 \
 -sound_buffer 2048 \
 -nojoystick \
 -volume_nonvldp 5 \
 -volume_vldp 20
-
-#-blank_searches \
-#-min_seek_delay 1000 \
-#-seek_frames_per_ms 20 \
 
 EXIT_CODE=$?
 

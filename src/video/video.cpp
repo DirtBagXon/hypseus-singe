@@ -87,7 +87,7 @@ bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
                            // value (for CRT TVs with overscan problems).
-int sboverlay_characterset = 1;
+int sboverlay_characterset = 2;
 
 // whether we will try to force a 4:3 aspect ratio regardless of window size
 // (this is probably a good idea as a default option)
