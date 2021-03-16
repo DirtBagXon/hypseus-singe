@@ -1499,7 +1499,7 @@ void update_parse_meter()
         double percent_complete = g_dPercentComplete01 * 100.0;
 
         // compute elapsed seconds
-        elapsed_s = (elapsed_ms_time(g_parse_start_time)) * 0.01;
+        elapsed_s = (elapsed_ms_time(g_parse_start_time)) * 0.001;
         // how much 'percentage' points we've accomplished
         double percentage_accomplished = percent_complete - g_parse_start_percentage;
 
