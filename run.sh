@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HYPSEUS_BIN=hypseus.bin
-DAPHNE_SHARE=~/.daphne
+HYPSEUS_SHARE=~/.daphne
 
 function STDERR () {
 	/bin/cat - 1>&2
@@ -22,7 +22,7 @@ if [ -z "$1" ] ; then
     echo  -e "\t$0 [-fullscreen] <gamename> [-prototype]" | STDERR
 
     for game in ace astron badlands bega blazer cliff cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
-	if ls ~/.daphne/vldp*/$game >/dev/null 2>&1; then
+	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
 	    uninstalled="$uninstalled $game"
@@ -30,13 +30,13 @@ if [ -z "$1" ] ; then
     done
     if [ "$uninstalled" ]; then
 	echo
-	echo "Games not found in ~/.daphne/vldp*: " | STDERR
+	echo "Games not found in $HYPSEUS_SHARE/vldp*: " | STDERR
 	echo "$uninstalled" | fold -s -w60 | sed 's/^ //; s/^/\t/' | STDERR
     fi
     if [ -z "$installed" ]; then
 	cat <<EOF
 
-Error: Please put the required files in ~/.daphne/vldp_dl/gamename/ or ~/.daphne/vldp/gamename/
+Error: Please put the required files in $HYPSEUS_SHARE/vldp_dl/gamename/ or $HYPSEUS_SHARE/vldp/gamename/
 EOF
     else
 	echo
@@ -129,7 +129,7 @@ case "$1" in
 	;;
     tq)
 	VLDP_DIR="vldp_dl"
-	BANKS=" -bank 0 00000000"
+	BANKS=" -bank 0 00010000"
 	;;
     uvt)
 	VLDP_DIR="vldp"
@@ -140,9 +140,9 @@ case "$1" in
        exit 1
 esac
 
-if [ ! -f $DAPHNE_SHARE/$VLDP_DIR/$1/$1.txt ]; then
+if [ ! -f $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt ]; then
         echo
-        echo "Missing frame file: $DAPHNE_SHARE/$VLDP_DIR/$1/$1.txt ?" | STDERR
+        echo "Missing frame file: $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt ?" | STDERR
         echo
         exit 1
 fi
@@ -153,9 +153,9 @@ $FASTBOOT \
 $FULLSCREEN \
 $KEYINPUT \
 $BANKS \
--framefile $DAPHNE_SHARE/$VLDP_DIR/$1/$1.txt \
--homedir $DAPHNE_SHARE \
--datadir $DAPHNE_SHARE \
+-framefile $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt \
+-homedir $HYPSEUS_SHARE \
+-datadir $HYPSEUS_SHARE \
 -useoverlaysb 2 \
 -sound_buffer 2048 \
 -nojoystick \
