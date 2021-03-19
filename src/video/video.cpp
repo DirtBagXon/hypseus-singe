@@ -227,8 +227,10 @@ bool init_display()
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
 
-               char font[18]="fonts/default.ttf";
-               char ttfont[20]="fonts/pixelboy.ttf";
+                SDL_ShowCursor(SDL_DISABLE);
+
+                char font[18]="fonts/default.ttf";
+                char ttfont[20]="fonts/pixelboy.ttf";
 
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, font, 18,
