@@ -213,6 +213,9 @@ bool init_display()
                              g_vid_width, g_vid_height, sdl_flags);
         if (!g_window) {
             LOGW << fmt("Could not initialize window: %s", SDL_GetError());
+            deinit_display();
+            shutdown_display();
+            SDL_Quit();
         } else {
             if (g_game->m_sdl_software_rendering) {
                 g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_SOFTWARE |
@@ -227,16 +230,19 @@ bool init_display()
 
             if (!g_renderer) {
                 LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
+                deinit_display();
+                shutdown_display();
+                SDL_Quit();
             } else {
                 // MAC: If we start in fullscreen mode, we have to set the logical
                 // render size to get the desired aspect ratio.
-                // Also, we set bilinear filtering and hide the mouse cursor.
+                // Also, we set bilinear filtering
                 if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
                     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-                    SDL_ShowCursor(SDL_DISABLE);
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
 
+		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
 
                 char font[32]="fonts/default.ttf";
