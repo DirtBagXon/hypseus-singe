@@ -69,6 +69,7 @@ unsigned int g_draw_width = 640, g_draw_height = 480;
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
 
 FC_Font *g_font                    = NULL;
+FC_Font *g_fixfont                 = NULL;
 TTF_Font *g_tfont                  = NULL;
 SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
@@ -83,6 +84,8 @@ SDL_Rect g_overlay_size_rect;
 SDL_Rect g_display_size_rect = {0, 0, g_vid_width, g_vid_height};
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
 
+bool g_LDP1450_overlay = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
@@ -95,8 +98,15 @@ bool g_bForceAspectRatio = true;
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
-static char *subchar;
+char *subchar;
 SDL_Surface *subscreen;
+
+char *LDP1450_104;
+char *LDP1450_120;
+char *LDP1450_136;
+char *LDP1450_168;
+char *LDP1450_184;
+char *LDP1450_200;
 
 // the # of degrees to rotate counter-clockwise in opengl mode
 float g_fRotateDegrees = 0.0;
@@ -229,11 +239,16 @@ bool init_display()
 
                 SDL_ShowCursor(SDL_DISABLE);
 
-                char font[18]="fonts/default.ttf";
-                char ttfont[20]="fonts/pixelboy.ttf";
+                char font[32]="fonts/default.ttf";
+                char fixfont[32]="fonts/whitrabt.ttf";
+                char ttfont[32]="fonts/pixelboy.ttf";
 
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, font, 18,
+                            FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
+
+                g_fixfont = FC_CreateFont();
+                FC_LoadFont(g_fixfont, g_renderer, fixfont, 38,
                             FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
 
                 TTF_Init();
@@ -320,8 +335,9 @@ void shutdown_display()
 {
     LOGD << "Shutting down video display...";
 
-    FC_FreeFont(g_font);
     TTF_Quit();
+    FC_FreeFont(g_font);
+    FC_FreeFont(g_fixfont);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
@@ -464,65 +480,33 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
     // with the YUV texture and the overlay on top (which is issued from vldp for now) in VIDEO_RUN_BLIT.
 }
 
-// Draw LDP1450 overlay characters to the screen (added by Brad O.)
+// Draw LDP1450 overlay characters to the screen - rewrite for SDL2 (DBX)
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
 {
-    SDL_Rect dest;
-    //SDL_Rect src;
-
-    int i     = 0;
-    int value = 0;
+    int i, j = 0;
     int LDP1450_strlen;
-    //	char s[81]="";
-
-    dest.x = start_x;
-    dest.y = y;
-    dest.w = OVERLAY_LDP1450_WIDTH;
-    dest.h = OVERLAY_LDP1450_HEIGHT;
-
-    //src.y = 0;
-    //src.w = OVERLAY_LDP1450_WIDTH;
-    //src.h = OVERLAY_LDP1450_WIDTH;
 
     LDP1450_strlen = strlen(LDP1450_String);
 
-    if (!LDP1450_strlen) // if a blank line is sent, we must blank out the
-                         // entire line
+    if (!LDP1450_strlen)
     {
         strcpy(LDP1450_String, "           ");
         LDP1450_strlen = strlen(LDP1450_String);
     } else {
-        if (LDP1450_strlen <= 11) // pad end of string with spaces (in case
-                                  // previous line was not cleared)
+        if (LDP1450_strlen <= 11)
         {
             for (i = LDP1450_strlen; i <= 11; i++) LDP1450_String[i] = 32;
             LDP1450_strlen = strlen(LDP1450_String);
         }
     }
 
-    for (i = 0; i < LDP1450_strlen; i++) {
-        value = LDP1450_String[i];
+    char* p = new char[LDP1450_strlen];
+    strcpy(p, LDP1450_String);
+    for (i = 0; i < LDP1450_strlen; p++, i++)
+       if (*p == 32) j++;
 
-        if (value >= 0x26 && value <= 0x39) // numbers and symbols
-            value -= 0x25;
-        else if (value >= 0x41 && value <= 0x5a) // alpha
-            value -= 0x2a;
-        else if (value == 0x13) // special LDP-1450 character (inversed space)
-            value = 0x32;
-        else
-            value = 0x31; // if not a number, symbol, or alpha, recognize as a
-                          // space
-
-        //src.x = value * OVERLAY_LDP1450_WIDTH;
-        //SDL_RenderCopy(g_renderer, g_other_bmps[B_OVERLAY_LDP1450], &src, &dest);
-
-        dest.x += OVERLAY_LDP1450_CHARACTER_SPACING;
-    }
-    dest.x = start_x;
-    dest.w = LDP1450_strlen * OVERLAY_LDP1450_CHARACTER_SPACING;
-
-    // MPO : calling UpdateRects probably isn't necessary and may be harmful
-    // SDL_UpdateRects(overlay, 1, &dest);
+    if (j == 12) draw_LDP1450_overlay(LDP1450_String, overlay, 0, 0, 1);
+    else draw_LDP1450_overlay(LDP1450_String, overlay, y, 1, 0);
 }
 
 //  used to draw non LED stuff like scoreboard text
@@ -582,9 +566,13 @@ SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
 bool get_fullscreen() { return g_fullscreen; }
 
+bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
+
 // sets our g_fullscreen bool (determines whether will be in fullscreen mode or
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
+
+void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 int get_scalefactor() { return g_scalefactor; }
 void set_scalefactor(int value)
@@ -631,6 +619,7 @@ void set_video_height(Uint16 height)
 }
 
 FC_Font *get_font() { return g_font; }
+FC_Font *get_fixfont() { return g_fixfont; }
 TTF_Font *get_tfont() { return g_tfont; }
 
 void draw_string(const char *t, int col, int row, SDL_Surface *surface)
@@ -673,6 +662,53 @@ void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
 
     SDL_RenderPresent(renderer);
     count++;
+}
+
+void draw_LDP1450_overlay(char *s, SDL_Surface *surface, int y, bool insert, bool reset)
+{
+    SDL_Renderer *renderer = get_renderer();
+    int x = surface->h - 30;
+    static int rcount;
+
+    if (reset) {
+       rcount++;
+       if (rcount > 2) {
+          LDP1450_104 = strdup(s);
+          LDP1450_120 = strdup(s);
+          LDP1450_136 = strdup(s);
+          LDP1450_168 = strdup(s);
+          LDP1450_184 = strdup(s);
+          LDP1450_200 = strdup(s);
+          set_LDP1450_enabled(false);
+          rcount = 0;
+       }
+    }
+
+    if (insert) {
+       if (y == 104) {
+          LDP1450_104 = strdup(s); }
+       else if (y == 120) {
+          LDP1450_120 = strdup(s); }
+       else if (y == 136) {
+          LDP1450_136 = strdup(s); }
+       else if (y == 168) {
+          LDP1450_168 = strdup(s); }
+       else if (y == 184) {
+          LDP1450_184 = strdup(s); }
+       else if (y == 200) {
+          LDP1450_200 = strdup(s); }
+
+       set_LDP1450_enabled(true);
+    }
+
+    FC_Draw(get_fixfont(), renderer, x, 104*2, LDP1450_104);
+    FC_Draw(get_fixfont(), renderer, x, 120*2, LDP1450_120);
+    FC_Draw(get_fixfont(), renderer, x, 136*2, LDP1450_136);
+    FC_Draw(get_fixfont(), renderer, x, 168*2, LDP1450_168);
+    FC_Draw(get_fixfont(), renderer, x, 184*2, LDP1450_184);
+    FC_Draw(get_fixfont(), renderer, x, 200*2, LDP1450_200);
+
+    SDL_RenderPresent(renderer);
 }
 
 // toggles fullscreen mode
@@ -868,6 +904,8 @@ void vid_blit () {
     // Issue flip.
     if (g_bSubtitleShown) {
         draw_subtitle(subchar, subscreen, 0);
+    } else if (get_LDP1450_enabled()) {
+        draw_LDP1450_overlay(NULL, get_screen_blitter(), 0, 0, 0);
     } else {
         SDL_RenderPresent(g_renderer);
     }

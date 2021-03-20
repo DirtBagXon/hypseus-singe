@@ -115,6 +115,7 @@ SDL_Texture *get_screen();
 SDL_Surface *get_screen_blitter();
 SDL_Surface *get_screen_leds();
 FC_Font *get_font();
+FC_Font *get_fixfont();
 TTF_Font *get_tfont();
 bool get_fullscreen();
 void set_fullscreen(bool value);
@@ -128,11 +129,15 @@ Uint16 get_video_height();
 void set_video_height(Uint16);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, SDL_Surface *, bool value);
+void draw_LDP1450_overlay(char *, SDL_Surface *, int, bool ins, bool rst);
+
+
 void vid_toggle_fullscreen();
 
 void set_force_aspect_ratio(bool bEnabled);
 void set_subtitle_enabled(bool bEnabled);
 void set_subtitle_display(char *, SDL_Surface *);
+void set_LDP1450_enabled(bool bEnabled);
 
 bool get_force_aspect_ratio();
 

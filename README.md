@@ -42,7 +42,7 @@ Ensure you have daphne data in the following `~/.daphne` folders:
 **From the repo path:**
 
     cp -R fonts ~/.daphne
-    cp doc/hyphypinput.ini doc/flightkey.ini ~/.daphne
+    cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
     sudo cp ./run.sh /usr/local/bin/hypseus
     hypseus

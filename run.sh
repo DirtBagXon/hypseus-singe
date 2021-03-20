@@ -113,11 +113,9 @@ case "$1" in
 	;;
     lair2)
 	VLDP_DIR="vldp_dl"
-	BANKS="-cheat"
 	;;
     roadblaster)
 	VLDP_DIR="vldp"
-	BANKS="-cheat"
 	;;
     sae)
 	VLDP_DIR="vldp_dl"
