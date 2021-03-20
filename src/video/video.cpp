@@ -304,6 +304,10 @@ bool init_display()
         }
     } else {
         LOGW << fmt("Could not initialize SDL: %s", SDL_GetError());
+        deinit_display();
+        shutdown_display();
+        SDL_Quit();
+        exit(1);
     }
 
     return (result);
