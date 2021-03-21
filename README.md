@@ -48,8 +48,17 @@ Ensure you have daphne data in the following `~/.daphne` folders:
     hypseus
 
 
-![singeloader](https://raw.githubusercontent.com/DirtBagXon/hypseus/master/screenshot.png)
 
+[![Hypseus](https://img.youtube.com/vi/bHPl31gzUIw/0.jpg)](https://www.youtube.com/watch?v=bHPl31gzUIw)
+
+
+## Altering Daphne/Hypseus ROM location
+
+Edit **run.sh** before copying to reflect the location of your ROM folders:
+
+    HYPSEUS_SHARE=~/.daphne
+
+    HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
 
 ## Support
 
