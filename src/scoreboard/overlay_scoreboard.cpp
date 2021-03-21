@@ -35,11 +35,11 @@ bool OverlayScoreboard::RepaintIfNeeded()
 
 				// Player labels.
                                 video::draw_string("Player 1: ", 1, 3, pSurface);
-                                video::draw_string("Player 2: ", pSurface->w / 6 - 19, 3, pSurface);
+                                video::draw_string("Player 2: ", (pSurface->w / 6 - 19)+1,  3, pSurface);
 
 				// Lives labels.
 			        video::draw_string("Lives: ", 1, 16, pSurface);
-				video::draw_string("Lives: ", pSurface->w / 6 - 10, 16, pSurface);
+				video::draw_string("Lives: ", (pSurface->w / 6 - 10)+1, 16, pSurface);
 
 				// Update Player Scores
 				update_player_score(pSurface, 0, 0, m_DigitValues + this->PLAYER1_0, 6);

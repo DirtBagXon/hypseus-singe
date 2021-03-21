@@ -635,7 +635,7 @@ TTF_Font *get_tfont() { return g_tfont; }
 void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 {
     SDL_Rect dest;
-    dest.x = (short)((col * 6));
+    dest.x = (short)((col * 5.9));
     dest.y = (short)(row);
     dest.w = (unsigned short)(6 * strlen(t));;
     dest.h = 14;
