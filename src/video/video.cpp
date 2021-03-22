@@ -510,7 +510,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
         }
     }
 
-    char* p = new char[LDP1450_strlen];
+    char* p = (char*)malloc(LDP1450_strlen+1);
     strcpy(p, LDP1450_String);
     for (i = 0; i < LDP1450_strlen; p++, i++)
        if (*p == 32) j++;
