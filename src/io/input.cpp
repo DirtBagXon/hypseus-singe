@@ -117,17 +117,25 @@ int g_key_defs[SWITCH_COUNT][2] = {
 
 // added by Russ
 // global button mapping array. just hardcoded room for 10 buttons max
-int joystick_buttons_map[10] = {
-    SWITCH_BUTTON1, // button 1
-    SWITCH_BUTTON2, // button 2
-    SWITCH_BUTTON3, // button 3
-    SWITCH_BUTTON1, // button 4
-    SWITCH_COIN1,   // button 5
-    SWITCH_START1,  // button 6
-    SWITCH_BUTTON1, // button 7
-    SWITCH_BUTTON1, // button 8
-    SWITCH_BUTTON1, // button 9
-    SWITCH_BUTTON1, // button 10
+int joystick_buttons_map[18] = {
+    -1, // button 0
+    -1, // button 1
+    -1, // button 2
+    -1, // button 3
+    -1, // button 4
+    -1, // button 5
+    -1, // button 6
+    -1, // button 7
+    -1, // button 8
+    -1, // button 9
+    -1, // button 10
+    -1, // button 11
+    -1, // button 12
+    -1, // button 13
+    -1, // button 14
+    -1, // button 15
+    -1, // button 16
+    -1  // button 17
 };
 
 // Mouse button to key mappings
@@ -158,6 +166,7 @@ void CFG_Keys()
 
     // find where the keymap ini file is (if the file doesn't exist, this string will be empty)
     string strDapInput = g_homedir.find_file(g_inputini_file.c_str(), true);
+    int max_buttons = (int) (sizeof(joystick_buttons_map) / sizeof(int));
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
         LOGD << "Remapping input ...";
@@ -210,9 +219,13 @@ void CFG_Keys()
                                             // if zero then no mapping
                                             // necessary, just use default, if
                                             // any
-                                            if (val3 > 0)
-                                                joystick_buttons_map[val3 - 1] = i;
-                                            found_match                        = true;
+                                            if ( val3 -1  < max_buttons)
+                                            {
+                                               if (val3 > 0 ) joystick_buttons_map[val3 - 1] = i;
+                                            }
+                                               else printf("Support for only %d joystick buttons. Unable to map button %d, check hypinput.ini\n",
+							       max_buttons, val3 - 1 );
+                                            found_match = true;
                                             break;
                                         }
                                     }
