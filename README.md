@@ -22,7 +22,7 @@ Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 
 For RetroPie clone the ``RetroPie`` branch via:
 
-    git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus.git
+    git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
     sudo apt-get install libmpeg2-4-dev
 
 Build:
