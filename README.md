@@ -3,7 +3,7 @@
 Hypseus is a fork of [Matt Ownby's][CUS] [Daphne]. A program to play
 the original versions of many laserdisc arcade games on a PC or RPi.
 
-This version includes the **Singe** *(1.14)* plug-in.
+This version includes the **Singe** *(1.14)* plug-in for [American Laser Games][ALG].
 
 Features:
 
@@ -11,8 +11,8 @@ Features:
 * Working MPEG2 x86_64 hw accel (SSE2)
 * SDL2 support
 * [cmake] build tool
-* Digital Leisure game overlays
-* Singe
+* Digital Leisure overlays
+* Singe plugin
 * Bugs
 
 ## Compile
@@ -60,6 +60,10 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne/singe
 
+**Note:** The default Hypseus home directory, *created* when run without arguments is:
+
+    ~/.hypseus
+
 ## Singe
 
 For Singe, provide arguments to *hypseus* thus:
@@ -78,16 +82,19 @@ This software intended for educational purposes only. Please submit [issues] or
 
 Open development by the original author, [Matt Ownby][CUS], ceased years ago.
 
+Singe was created by [Scott Duensing][SD] as a plugin to Daphne to allow the
+playing of [American Laser Games][ALG].
+
 This repository was created to build upon the ``SDL2 Hypseus`` project created
-by [Jeffrey Clark][JAC]. Many main overlays were still missing in the original
-repo and Singe had been completely removed.
+by [Jeffrey Clark][JAC]. Many overlays were still unimplmented in the original
+repository and Singe had been removed.
 
 The name was changed to _Hypseus_ by Jeffrey so the original authors of
 [Daphne] would not be burdened with requests for support.
 
-A big thanks goes out to [Matt Ownby][CUS], [Jeffrey Clark][JAC],
-[Manuel Corchete][MAC] and the many other developers who
-made their work available for me to build upon. Without them this
+A big thanks goes out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
+[Manuel Corchete][MAC], [David Griffith][DG] and the many other developers
+who made their work available for me to build upon. Without them this
 project would not be possible.
 
 ## License
@@ -137,3 +144,6 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [GNU General Public License]: http://www.gnu.org/licenses/gpl-3.0.en.html
 [JAC]: https://github.com/h0tw1r3
 [MAC]: https://github.com/vanfanel
+[ALG]: https://en.wikipedia.org/wiki/American_Laser_Games
+[SD]: https://github.com/sduensin
+[DG]: https://github.com/DavidGriffith

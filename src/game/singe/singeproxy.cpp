@@ -843,7 +843,7 @@ static int sep_mpeg_get_pixel(lua_State *L)
 	int E;
 
 	if (!unimplented)
-	   g_pSingeIn->printline("ActionMax overlay not implemented");
+	   sep_print("ActionMax overlay not implemented");
 
 	unimplented = true;
 	
@@ -965,14 +965,13 @@ static int sep_say_font(lua_State *L)
 							dest.w = textsurface->w;
 							dest.h = textsurface->h;
 
+							if (dest.h == 22) // JR
+								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112)-2;
+							else if (g_se_overlay_width == 360)
+								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
+
 							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
-
-//							SDL_SaveBMP(textsurface, "nukeme.bmp");
-
 							SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
-
-//							SDL_SaveBMP(g_se_surface, "nukeme2.bmp");
-
 							SDL_FreeSurface(textsurface);
 						}
           }
@@ -1176,16 +1175,25 @@ static int sep_sprite_draw(lua_State *L)
 							if ((dest.w == 13 && dest.h == 13) || (dest.w == 23 && dest.h == 25) ||
 									(dest.w == 27 && dest.h == 14))
 							{
-								if (dest.w == 27) // Maddog
-									dest.x = dest.x - 23;
+								if (dest.w == 23) // MD
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.75))/30);
 								else
-									dest.x = dest.x - 25;
-							} else
-								dest.x = dest.x - 17;
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/32);
+							} else {
+
+								if (dest.w == 6 && dest.h == 11) // MD / MD2
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112);
+								else if (dest.x < 250 && dest.y >= 195) // CP / DW / LBH
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/56);
+								else if (dest.x == 300 && dest.y == 215) // TT
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112);
+								else
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
+							}
 
 							if (!redrawn)
 							{
-								g_pSingeIn->printline("OVERLAY: Redrawn to 360 x 240");
+								sep_print("Overlay redrawn to 360 x 240");
 								redrawn = true;
 							}
 						}
