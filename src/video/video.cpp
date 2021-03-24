@@ -201,6 +201,8 @@ bool init_display()
             g_draw_height = g_draw_height * g_scalefactor / 100;
         }
 
+        if (g_window) SDL_DestroyWindow(g_window);
+
         // by RDG2010
         // Step 2. Create a borderless SDL window.
         // If doing fullscreen window, make the window bordeless (no title
@@ -208,7 +210,7 @@ bool init_display()
         // This is achieved by adding the SDL_NOFRAME flag.
 
 	g_window =
-            SDL_CreateWindow("HYPSEUS: Multiple Arcade Laserdisc Emulator",
+            SDL_CreateWindow("HYPSEUS Singe: Multiple Arcade Laserdisc Emulator",
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              g_vid_width, g_vid_height, sdl_flags);
         if (!g_window) {

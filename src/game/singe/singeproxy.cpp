@@ -1,16 +1,16 @@
 /*
- * ____ DAPHNE COPYRIGHT NOTICE ____
+ * singeproxy.cpp
  *
  * Copyright (C) 2006 Scott C. Duensing
  *
- * This file is part of DAPHNE, a laserdisc arcade game emulator
+ * This file is part of HYPSEUS, a laserdisc arcade game emulator
  *
- * DAPHNE is free software; you can redistribute it and/or modify
+ * HYPSEUS is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * DAPHNE is distributed in the hope that it will be useful,
+ * HYPSEUS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -22,6 +22,8 @@
 
 #include "singeproxy.h"
 #include "singe_interface.h"
+
+#include "../../video/video.h"
 
 #include <vector>
 
@@ -64,7 +66,8 @@ double                g_sep_overlay_scale_x =  1;
 double                g_sep_overlay_scale_y =  1;
 bool				  g_pause_state		    = false; // by RDG2010
 
-int (*g_original_prepare_frame)(struct yuv_buf *buf);
+int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+               int Ypitch, int Upitch, int Vpitch);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -275,33 +278,16 @@ int sep_lua_error(lua_State *L)
 	return 0;
 }
 
-int sep_prepare_frame_callback(struct yuv_buf *src)
+int sep_prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+                           int Ypitch, int Upitch, int Vpitch)
 {
-	// Is our buffer the correct size?
-	if ((g_sep_yuv_buf.Y_size != src->Y_size) || (g_sep_yuv_buf.UV_size != src->UV_size)) {
-		if (g_sep_yuv_buf.Y != NULL) free(g_sep_yuv_buf.Y);
-		if (g_sep_yuv_buf.U != NULL) free(g_sep_yuv_buf.U);
-		if (g_sep_yuv_buf.V != NULL) free(g_sep_yuv_buf.V);
-		g_sep_yuv_buf.Y_size = 0;
-		g_sep_yuv_buf.UV_size = 0;
-	}
+	int result = VLDP_FALSE;
 
-	// Is our buffer allocated?
-	if ((g_sep_yuv_buf.Y_size == 0) || (g_sep_yuv_buf.UV_size == 0)) {
-		g_sep_yuv_buf.Y = (unsigned char *)malloc(src->Y_size * sizeof(unsigned char));
-		g_sep_yuv_buf.U = (unsigned char *)malloc(src->UV_size * sizeof(unsigned char));
-		g_sep_yuv_buf.V = (unsigned char *)malloc(src->UV_size * sizeof(unsigned char));
-		g_sep_yuv_buf.Y_size = src->Y_size;
-		g_sep_yuv_buf.UV_size = src->UV_size;
-	}
+	result = (video::vid_update_yuv_overlay(Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
+		? VLDP_TRUE
+		: VLDP_FALSE;
 
-	// Make a copy of the passed YUV buffer for our own use later
-	memcpy(g_sep_yuv_buf.Y, src->Y, src->Y_size * sizeof(unsigned char));
-	memcpy(g_sep_yuv_buf.U, src->U, src->UV_size * sizeof(unsigned char));
-	memcpy(g_sep_yuv_buf.V, src->V, src->UV_size * sizeof(unsigned char));
-	
-	// Pass callback along
-	return g_original_prepare_frame(src);
+	return result;
 }
 
 void sep_print(const char *fmt, ...)
@@ -337,7 +323,7 @@ void sep_set_surface(int width, int height)
 	bool createSurface = false;
 	
 	g_se_overlay_height = height;
-  g_se_overlay_width = width;
+	g_se_overlay_width = width;
 	
 	if (g_se_surface == NULL) {
 		createSurface = true;
@@ -350,7 +336,7 @@ void sep_set_surface(int width, int height)
 	}
 	
 	if (createSurface) {
-		g_se_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_se_overlay_width, g_se_overlay_height, 32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000);
+		g_se_surface = SDL_CreateRGBSurface(0, g_se_overlay_width, g_se_overlay_height, 32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000);
 		g_sep_overlay_scale_x = (double)g_se_overlay_width / (double)g_pSingeIn->get_video_width();
 		g_sep_overlay_scale_y = (double)g_se_overlay_height / (double)g_pSingeIn->get_video_height();
 	}
@@ -482,7 +468,7 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
 
 void sep_startup(const char *script)
 {
-  g_se_lua_context = luaL_newstate();
+  g_se_lua_context = lua_open();
   luaL_openlibs(g_se_lua_context);
 	lua_atpanic(g_se_lua_context, sep_lua_error);
 
@@ -670,7 +656,7 @@ static int sep_color_set_backcolor(lua_State *L)
 					g_colorBackground.r = (char)lua_tonumber(L, 1);
 					g_colorBackground.g = (char)lua_tonumber(L, 2);
 					g_colorBackground.b = (char)lua_tonumber(L, 3);
-					g_colorBackground.unused = (char)0;
+					g_colorBackground.a = (char)0;
 				}
 					
 	return 0;
@@ -688,7 +674,7 @@ static int sep_color_set_forecolor(lua_State *L)
 					g_colorForeground.r = (char)lua_tonumber(L, 1);
 					g_colorForeground.g = (char)lua_tonumber(L, 2);
 					g_colorForeground.b = (char)lua_tonumber(L, 3);
-					g_colorForeground.unused = (char)0;
+					g_colorForeground.a = (char)0;
 				}
 
 	return 0;
@@ -802,20 +788,7 @@ static int sep_font_sprite(lua_State *L)
 					sep_die("Font surface is null!");
 				} else {
 
-					// the colorkey is only 0 when using Solid (quick n' dirty) mode.
-					// In shaded mode, color 0 refers to the background color.
-					if (g_fontQuality == 1)
-					{
-						SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
-
-						// by definition, the transparent index is 0
-						SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
-					}
-					// alpha must be set for 32-bit surface when blitting or else alpha channel will be ignored
-					else if (g_fontQuality == 3)
-					{
-						SDL_SetAlpha(textsurface, SDL_SRCALPHA | SDL_RLEACCEL, 0);
-					}
+					SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
 
 					g_spriteList.push_back(textsurface);
 					result = g_spriteList.size() - 1;
@@ -852,12 +825,13 @@ static int sep_mpeg_get_height(lua_State *L)
 
 static int sep_mpeg_get_pixel(lua_State *L)
 {
-  int n = lua_gettop(L);
+	int n = lua_gettop(L);
 	bool result = false;
-	int xpos;
-	int ypos;
-	unsigned int Y_index;
-	unsigned int UV_index;
+	static bool unimplented;
+	//int xpos;
+	//int ypos;
+	//unsigned int Y_index;
+	//unsigned int UV_index;
 	unsigned char Y;
 	unsigned char U;
 	unsigned char V;
@@ -867,10 +841,18 @@ static int sep_mpeg_get_pixel(lua_State *L)
 	int C;
 	int D;
 	int E;
+
+	if (!unimplented)
+	   g_pSingeIn->printline("ActionMax overlay not implemented");
+
+	unimplented = true;
 	
-  if (n == 2)
-		if (lua_isnumber(L, 1))
+	if (n == 2) {
+		if (lua_isnumber(L, 1)) {
 			if (lua_isnumber(L, 2)) {
+				/*
+				// FIXME - ActionMAX unimplemented
+				//
 				xpos = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w / (double)g_se_overlay_width));
 				ypos = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h / (double)g_se_overlay_height));
 				Y_index = (g_pSingeIn->g_vldp_info->w * ypos) + xpos;
@@ -878,6 +860,11 @@ static int sep_mpeg_get_pixel(lua_State *L)
 				Y = g_sep_yuv_buf.Y[Y_index];
 				U = g_sep_yuv_buf.U[UV_index];
 				V = g_sep_yuv_buf.V[UV_index];
+				*/
+				Y = 16;
+				U = 128;
+				V = 128;
+
 				C = Y - 16;
 				D = U - 128;
 				E = V - 128;
@@ -886,6 +873,8 @@ static int sep_mpeg_get_pixel(lua_State *L)
 				B = sep_byte_clip(( 298 * C + 516 * D           + 128) >> 8);
 				result = true;
 			}
+		}
+	}
 
 	if (result) {
 		lua_pushnumber(L, (int)R);
@@ -976,20 +965,7 @@ static int sep_say_font(lua_State *L)
 							dest.w = textsurface->w;
 							dest.h = textsurface->h;
 
-							// the colorkey is only 0 when using Solid (quick n' dirty) mode.
-							// In shaded mode, color 0 refers to the background color.
-							if (g_fontQuality == 1)
-							{
-								SDL_SetAlpha(textsurface, SDL_RLEACCEL, 0);
-
-								// by definition, the transparent index is 0
-								SDL_SetColorKey(textsurface, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
-							}
-							// alpha must be set for 32-bit surface when blitting or else alpha channel will be ignored
-							else if (g_fontQuality == 3)
-							{
-								SDL_SetAlpha(textsurface, SDL_SRCALPHA | SDL_RLEACCEL, 0);
-							}
+							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
 
 //							SDL_SaveBMP(textsurface, "nukeme.bmp");
 
@@ -1013,8 +989,6 @@ static int sep_screenshot(lua_State *L)
     g_pSingeIn->request_screenshot();
   }
 	
-	//SDL_SaveBMP(g_se_surface, "/Users/scott/source/hypseus/singe/g_se_surface.bmp");
-
   return 0;
 }
 
@@ -1180,6 +1154,7 @@ static int sep_sound_play(lua_State *L)
 static int sep_sprite_draw(lua_State *L)
 {
   int n = lua_gettop(L);
+  static bool redrawn;
 
   if (n == 3)
     if (lua_isnumber(L, 1))
@@ -1194,7 +1169,27 @@ static int sep_sprite_draw(lua_State *L)
 						dest.y = lua_tonumber(L, 2);
 						dest.w = g_spriteList[sprite]->w;
 						dest.h = g_spriteList[sprite]->h;
-						
+
+						if (g_se_overlay_width == 360)
+						{
+							// Mouse sprites
+							if ((dest.w == 13 && dest.h == 13) || (dest.w == 23 && dest.h == 25) ||
+									(dest.w == 27 && dest.h == 14))
+							{
+								if (dest.w == 27) // Maddog
+									dest.x = dest.x - 23;
+								else
+									dest.x = dest.x - 25;
+							} else
+								dest.x = dest.x - 17;
+
+							if (!redrawn)
+							{
+								g_pSingeIn->printline("OVERLAY: Redrawn to 360 x 240");
+								redrawn = true;
+							}
+						}
+
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);
 					}
 				}
@@ -1233,7 +1228,7 @@ static int sep_sprite_load(lua_State *L)
 			SDL_Surface *temp = IMG_Load(sprite);
 			if (temp != NULL)
 			{
-				SDL_SetAlpha(temp, SDL_RLEACCEL, 0);
+				SDL_SetColorKey(temp, SDL_TRUE|SDL_RLEACCEL, 0);
 				g_spriteList.push_back(temp);
 				result = g_spriteList.size() - 1;
 			} else
@@ -1290,7 +1285,7 @@ static int sep_keyboard_set_mode(lua_State *L)
 	* Singe can scan keyboard input in two ways:
 	*
 	* MODE_NORMAL - Singe will only check for keys defined
-	* in hypseus.ini. This is the default behavior.
+	* in hypinput.ini. This is the default behavior.
 	* 
 	* MODE_FULL   - Singe will scan the keyboard for most keypresses.
 	* 
@@ -1321,7 +1316,7 @@ static int sep_keyboard_get_mode(lua_State *L)
 	* Singe can scan keyboard input in two ways:
 	*
 	* MODE_NORMAL - Singe will only check for keys defined
-	* in hypseus.ini. This is the default behavior.
+	* in hypinput.ini. This is the default behavior.
 	* 
 	* MODE_FULL   - Singe will scan the keyboard for most keypresses.
 	* 
@@ -1425,7 +1420,7 @@ static int sep_singe_version(lua_State *L)
 static int sep_ldp_verbose(lua_State *L)
 {
 	/*
-	 * Enables/Disables writing of VLDP playback activity to hypseus_log.txt
+	 * Enables/Disables writing of VLDP playback activity to hypseus_log.csv
 	 * Enabled by default.
 	 */
 

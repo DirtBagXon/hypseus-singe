@@ -16,7 +16,7 @@ struct singe_in_info
 	void (*set_quitflag)();
 
 	// print a line to the debug console, and the log file (and to stdout on some platforms)
-	void (*printline)(const char *);
+	void (*printline)(const char *, ...);
 	
 	// notifies hypseus of the last error that singe got (so hypseus can display it)
 	void (*set_last_error)(const char *);

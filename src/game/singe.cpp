@@ -114,10 +114,10 @@ bool singe::init()
         g_SingeIn.set_skip_blanking   = set_skip_blanking;
         g_SingeIn.g_local_info        = &g_local_info;
         g_SingeIn.g_vldp_info         = g_vldp_info;
-        g_SingeIn.get_video_height    = get_video_height;
-        g_SingeIn.get_video_width     = get_video_width;
-        g_SingeIn.draw_string         = draw_string;
-        g_SingeIn.samples_play_sample = samples_play_sample;
+        g_SingeIn.get_video_height    = video::get_video_height;
+        g_SingeIn.get_video_width     = video::get_video_width;
+        g_SingeIn.draw_string         = video::draw_string;
+        g_SingeIn.samples_play_sample = samples::play;
         g_SingeIn.set_last_error      = set_last_error;
 
         // by RDG2010
@@ -204,10 +204,10 @@ void singe::start()
             }
             blit();
             SDL_check_input();
-            samples_do_queued_callbacks(); // hack to ensure sound callbacks are
-                                           // called at a time when lua can
-                                           // accept them without crashing
-            g_ldp->think_delay(10);        // don't hog cpu, and advance timer
+            samples::do_queued_callbacks(); // hack to ensure sound callbacks are
+                                            // called at a time when lua can
+                                            // accept them without crashing
+            g_ldp->think_delay(15);         // don't hog cpu, and advance timer
         }
 
         g_pSingeOut->sep_call_lua("onShutdown", "");
@@ -272,7 +272,7 @@ void singe::palette_calculate()
 {
     SDL_Color temp_color;
 
-    temp_color.unused = 0; // Eliminates a warning.
+    temp_color.a = 0; // Eliminates a warning.
 
     // go through all colors and compute the palette
     // (start at 2 because 0 and 1 are a special case)
@@ -298,8 +298,7 @@ void singe::palette_calculate()
 void singe::repaint()
 {
     Uint32 cur_w = g_ldp->get_discvideo_width() >> 1; // width overlay should be
-    Uint32 cur_h = g_ldp->get_discvideo_height() >> 1; // height overlay should
-                                                       // be
+    Uint32 cur_h = g_ldp->get_discvideo_height() >> 1; // height overlay should be
 
     // if the width or height of the mpeg video has changed since we last were
     // here (ie, opening a new mpeg)
@@ -311,7 +310,7 @@ void singe::repaint()
 
             g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
 
-            video_shutdown();
+            shutdown_video();
             if (!init_video()) {
                 printline(
                     "Fatal Error, trying to re-create the surface failed!");
@@ -393,7 +392,7 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
         else if (key >= SDLK_MINUS && key <= SDLK_9)
             input_enable(key);
         // numeric keypad keys
-        else if (key >= SDLK_KP0 && key <= SDLK_KP_EQUALS)
+        else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
             input_enable(key);
         // arrow keys and insert, delete, home, end, pgup, pgdown
         else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
@@ -402,10 +401,7 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
         else if (key >= SDLK_F1 && key <= SDLK_F15)
             input_enable(key);
         // Key state modifier keys (left and right ctrls, alts)
-        else if (key >= SDLK_NUMLOCK && key <= SDLK_LMETA)
-            input_enable(key);
-        // International keys
-        else if (key >= SDLK_WORLD_0 && key <= SDLK_WORLD_95)
+        else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
             input_enable(key);
         else {
 
@@ -481,7 +477,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
             else if (key >= SDLK_MINUS && key <= SDLK_9)
                 input_disable(key);
             // numeric keypad keys
-            else if (key >= SDLK_KP0 && key <= SDLK_KP_EQUALS)
+            else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
                 input_disable(key);
             // arrow keys and insert, delete, home, end, pgup, pgdown
             else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
@@ -490,10 +486,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
             else if (key >= SDLK_F1 && key <= SDLK_F15)
                 input_disable(key);
             // Key state modifier keys (left and right ctrls, alts)
-            else if (key >= SDLK_NUMLOCK && key <= SDLK_LMETA)
-                input_disable(key);
-            // International keys
-            else if (key >= SDLK_WORLD_0 && key <= SDLK_WORLD_95)
+            else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
                 input_disable(key);
             else {
                 /*

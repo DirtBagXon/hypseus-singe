@@ -1,22 +1,21 @@
-# Hypseus
+# Hypseus Singe
 
-Hypseus is a fork of [Matt Ownby's][CUS] [Daphne]. A program that "lets one play
-the original versions of many laserdisc arcade games on one's PC."
+Hypseus is a fork of [Matt Ownby's][CUS] [Daphne]. A program to play
+the original versions of many laserdisc arcade games on a PC or RPi.
 
-Some features that differ from the original:
+This version includes the **Singe** *(1.14)* plug-in.
+
+Features:
 
 * Updated MPEG2 decoder
 * Working MPEG2 x86_64 hw accel (SSE2)
 * SDL2 support
 * [cmake] build tool
-* More bugs!
-
-**Overlays have been implemented with SDL2 at last, but they need testing. So please test and report issues.**
+* Digital Leisure game overlays
+* Singe
+* Bugs
 
 ## Compile
-
-_Currently there is no documentation for the new build process. Pull requests
-gladly accepted._
 
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 [libtool], [vorbis] and [ogg].
@@ -26,12 +25,12 @@ For RetroPie clone the ``RetroPie`` branch via:
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus.git
     sudo apt-get install libmpeg2-4-dev
 
-Then:
+Build:
 
     mkdir build
     cd build
     cmake ../src
-    make
+    make -j 4
 
 ## Install and Run
 
@@ -45,20 +44,28 @@ Ensure you have daphne data in the following `~/.daphne` folders:
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
     sudo cp ./run.sh /usr/local/bin/hypseus
+    sudo cp ./singe.sh /usr/local/bin/singe
     hypseus
+    singe
 
 
+[![Hypseus](https://img.youtube.com/vi/1ZDjMNAxHWw/0.jpg)](https://www.youtube.com/watch?v=1ZDjMNAxHWw)
 
-[![Hypseus](https://img.youtube.com/vi/bHPl31gzUIw/0.jpg)](https://www.youtube.com/watch?v=bHPl31gzUIw)
 
+## Altering Hypseus or Singe ROM locations
 
-## Altering Daphne/Hypseus ROM location
-
-Edit **run.sh** before copying to reflect the location of your ROM folders:
+Edit **run.sh** and **singe.sh** before copying, to reflect the location of your ROM folders:
 
     HYPSEUS_SHARE=~/.daphne
-
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
+    HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne/singe
+
+## Singe
+
+For Singe, provide arguments to *hypseus* thus:
+
+    hypseus.bin singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
+
 
 ## Support
 
@@ -71,14 +78,17 @@ This software intended for educational purposes only. Please submit [issues] or
 
 Open development by the original author, [Matt Ownby][CUS], ceased years ago.
 
-My intention for creating this public repository was to clean up the build
-process, fix bugs, learn, upgrade, and publish to foster collaborative
-development. The name was changed to _Hypseus_ so the original authors of
+This repository was created to build upon the ``SDL2 Hypseus`` project created
+by [Jeffrey Clark][JAC]. Many main overlays were still missing in the original
+repo and Singe had been completely removed.
+
+The name was changed to _Hypseus_ by Jeffrey so the original authors of
 [Daphne] would not be burdened with requests for support.
 
-A big thanks goes out to [Matt Ownby][CUS] and the many other developers who
-made their work available for me to learn from. Without them this project
-would not be possible.
+A big thanks goes out to [Matt Ownby][CUS], [Jeffrey Clark][JAC],
+[Manuel Corchete][MAC] and the many other developers who
+made their work available for me to build upon. Without them this
+project would not be possible.
 
 ## License
 
@@ -102,7 +112,7 @@ Copyright (C) 1999-2013  [Matt Ownby][CUS]
 
 ## Trademark
 
-The "Hypseus" mark is used to uniquely identify this project  as an Arcade
+The "Hypseus Singe" mark is used to uniquely identify this project as an Arcade
 Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 "Hypseus" is strictly prohibited without express permission.__
 
@@ -126,3 +136,4 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [libtool]: https://www.gnu.org/software/libtool/manual/libtool.html
 [GNU General Public License]: http://www.gnu.org/licenses/gpl-3.0.en.html
 [JAC]: https://github.com/h0tw1r3
+[MAC]: https://github.com/vanfanel

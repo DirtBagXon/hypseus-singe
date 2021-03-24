@@ -1,16 +1,16 @@
 /*
- * ____ DAPHNE COPYRIGHT NOTICE ____
+ * singeproxy.h
  *
  * Copyright (C) 2006 Scott C. Duensing
  *
- * This file is part of DAPHNE, a laserdisc arcade game emulator
+ * This file is part of HYPSEUS, a laserdisc arcade game emulator
  *
- * DAPHNE is free software; you can redistribute it and/or modify
+ * HYPSEUS is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * DAPHNE is distributed in the hope that it will be useful,
+ * HYPSEUS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -32,16 +32,16 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 #else
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_ttf.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #endif
 
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
 {
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,8 @@ void          sep_do_blit(SDL_Surface *srfDest);
 void          sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
 void          sep_error(const char *fmt, ...);
 int           sep_lua_error(lua_State *L);
-int           sep_prepare_frame_callback(struct yuv_buf *src);
+int           sep_prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+                           int Ypitch, int Upitch, int Vpitch);
 void          sep_print(const char *fmt, ...);
 void          sep_release_vldp();
 void          sep_set_static_pointers(double *m_disc_fps, unsigned int *m_uDiscFPKS);

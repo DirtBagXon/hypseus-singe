@@ -1235,8 +1235,11 @@ Uint8 FC_LoadFont(FC_Font* font, FC_Target* renderer, const char* filename_ttf, 
 
     if(rwops == NULL)
     {
-        //FC_Log("Unable to open file for reading: %s \n", SDL_GetError());
+#ifdef  __linux__
         fprintf (stdout, "\033[31;1mERROR: Unable to open font file for reading: %s \033[0m\n", SDL_GetError());
+#else
+        FC_Log("Unable to open file for reading: %s \n", SDL_GetError());
+#endif
         return 0;
     }
 
