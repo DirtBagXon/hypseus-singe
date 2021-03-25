@@ -86,6 +86,8 @@ SDL_Rect g_leds_size_rect = {0, 0, 320, 240};
 
 bool g_LDP1450_overlay = false;
 
+bool g_blendosd = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
@@ -584,6 +586,8 @@ bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
 
+void set_blend_osd(bool value) { g_blendosd = value; }
+
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 int get_scalefactor() { return g_scalefactor; }
@@ -642,15 +646,25 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
     dest.w = (unsigned short)(6 * strlen(t));
     dest.h = 14;
 
-    clear.x = dest.x;
-    clear.y = dest.y;
-    clear.w = (unsigned short)(7 * strlen(t));
-    clear.h = 16;
-
-    SDL_FillRect(surface, &clear, 0x00000000);
-    SDL_Color color={255, 255, 255, 200};
     SDL_Surface *text_surface;
-    text_surface=TTF_RenderText_Blended(g_tfont, t, color);
+
+    if (g_blendosd)
+    {
+        clear.x = dest.x;
+        clear.y = dest.y;
+        clear.w = (unsigned short)(7 * strlen(t));
+        clear.h = 16;
+
+        SDL_FillRect(surface, &clear, 0x00000000);
+        SDL_Color color={255, 255, 255, 200};
+        text_surface=TTF_RenderText_Blended(g_tfont, t, color);
+    }
+    else
+    {
+        SDL_FillRect(surface, &dest, 0x00000000);
+        SDL_Color color={205, 205, 205};
+        text_surface=TTF_RenderText_Solid(g_tfont, t, color);
+    }
     SDL_BlitSurface(text_surface, NULL, surface, &dest);
     SDL_FreeSurface(text_surface);
 }

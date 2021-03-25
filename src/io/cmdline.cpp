@@ -734,7 +734,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
             }
-
+            // enable TTF_RenderText_Blended on OSD
+            else if (strcasecmp(s, "-blend_osd") == 0) {
+                video::set_blend_osd(true);
+            }
             // disable log file
             else if (strcasecmp(s, "-nolog") == 0) {
                 set_log_was_disabled(true);
