@@ -201,7 +201,7 @@ bool init_display()
             g_draw_height = g_draw_height * g_scalefactor / 100;
         }
 
-        if (g_window) SDL_DestroyWindow(g_window);
+        if (g_window) SDL_HideWindow(g_window);
 
         // by RDG2010
         // Step 2. Create a borderless SDL window.

@@ -58,7 +58,6 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
 
     HYPSEUS_SHARE=~/.daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
-    HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne/singe
 
 **Note:** The default Hypseus home directory, *created* when run without arguments is:
 
