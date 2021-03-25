@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.9)
 
-set(PKG_VERSION "v1.3.0")
+set(PKG_VERSION "v2.0.0")
 
 project(hypseus)
 
