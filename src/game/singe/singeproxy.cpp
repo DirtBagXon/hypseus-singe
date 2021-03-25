@@ -966,7 +966,7 @@ static int sep_say_font(lua_State *L)
 							dest.h = textsurface->h;
 
 							if (dest.h == 22) // JR
-								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112)-2;
+								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112)-15;
 							else if (g_se_overlay_width == 360)
 								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
 
@@ -1183,6 +1183,8 @@ static int sep_sprite_draw(lua_State *L)
 
 								if (dest.w == 6 && dest.h == 11) // MD / MD2
 									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112);
+								else if (dest.w == 204 && dest.h == 21) // JR
+									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/22);
 								else if (dest.x < 250 && dest.y >= 195) // CP / DW / LBH
 									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/56);
 								else if (dest.x == 300 && dest.y == 215) // TT
@@ -1197,6 +1199,9 @@ static int sep_sprite_draw(lua_State *L)
 								redrawn = true;
 							}
 						}
+
+						if (dest.w == 137 && dest.h == 28) // SP
+							SDL_SetColorKey (g_spriteList[sprite], SDL_FALSE, 0x000000ff);
 
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);
 					}
