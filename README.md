@@ -70,6 +70,14 @@ For Singe, provide arguments to *hypseus* thus:
     hypseus.bin singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
 
 
+## Extended arguments
+
+The follow additional arguments have been added to Hypseus Singe:
+
+    -keymapfile [Allows specifying an alternate hypinput.ini file]
+    -blend_osd  [Use TTF blending on OSD - for best results use in conjunction with -fullscreen]
+
+
 ## Support
 
 This software intended for educational purposes only. Please submit [issues] or
