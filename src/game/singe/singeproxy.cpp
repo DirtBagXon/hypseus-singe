@@ -1201,7 +1201,7 @@ static int sep_sprite_draw(lua_State *L)
 						}
 
 						if (dest.w == 137 && dest.h == 28) // SP
-							SDL_SetColorKey (g_spriteList[sprite], SDL_FALSE, 0x000000ff);
+							SDL_SetColorKey(g_spriteList[sprite], SDL_FALSE|SDL_RLEACCEL, 0x000000ff);
 
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);
 					}

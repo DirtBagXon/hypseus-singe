@@ -636,16 +636,21 @@ TTF_Font *get_tfont() { return g_tfont; }
 
 void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 {
-    SDL_Rect dest;
+    SDL_Rect dest, clear;
     dest.x = (short)((col * 5.9));
     dest.y = (short)(row);
-    dest.w = (unsigned short)(6 * strlen(t));;
+    dest.w = (unsigned short)(6 * strlen(t));
     dest.h = 14;
 
-    SDL_FillRect(surface, &dest, 0x00000000);
-    SDL_Color color={205, 205, 205};
+    clear.x = dest.x;
+    clear.y = dest.y;
+    clear.w = (unsigned short)(7 * strlen(t));
+    clear.h = 16;
+
+    SDL_FillRect(surface, &clear, 0x00000000);
+    SDL_Color color={255, 255, 255, 200};
     SDL_Surface *text_surface;
-    text_surface=TTF_RenderText_Solid(g_tfont, t, color);
+    text_surface=TTF_RenderText_Blended(g_tfont, t, color);
     SDL_BlitSurface(text_surface, NULL, surface, &dest);
     SDL_FreeSurface(text_surface);
 }
