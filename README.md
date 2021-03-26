@@ -49,7 +49,7 @@ Ensure you have daphne data in the following `~/.daphne` folders:
     singe
 
 
-[![Hypseus](https://img.youtube.com/vi/1ZDjMNAxHWw/0.jpg)](https://www.youtube.com/watch?v=1ZDjMNAxHWw)
+[![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
 
 ## Altering Hypseus or Singe ROM locations
@@ -72,7 +72,7 @@ For Singe, provide arguments to *hypseus* thus:
 
 ## Extended arguments
 
-The follow additional arguments have been added to Hypseus Singe:
+The following additional arguments have been added to Hypseus Singe:
 
     -keymapfile [Allows specifying an alternate hypinput.ini file]
     -blend_osd  [Use TTF blending on OSD - for best results use in conjunction with -fullscreen]
