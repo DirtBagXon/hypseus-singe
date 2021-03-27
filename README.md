@@ -70,12 +70,15 @@ For Singe, provide arguments to *hypseus* thus:
     hypseus.bin singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
 
 
-## Extended arguments
+## Extended arguments and keys
 
 The following additional arguments have been added to Hypseus Singe:
 
     -keymapfile [Allows specifying an alternate hypinput.ini file]
     -blend_osd  [Use TTF blending on OSD - for best results use in conjunction with -fullscreen]
+
+    Alt-Enter   [Toggle FAKE fullscreen]
+    Space       [Toggle scoreboard display - Digital Leasure games]
 
 
 ## Support
