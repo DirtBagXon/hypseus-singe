@@ -514,8 +514,15 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
+	    // Ignore some obsolete arguments (Rather than error)
+            else if (strcasecmp(s, "-nohwaccel")==0 || strcasecmp(s, "-noserversend")==0) {
 
-           // specify an alternate dapinput.ini file (located in home or app directory)
+                 bool dummy = true;
+
+                 if(dummy)
+                    printline("NOTE : Ignoring obsolete argument");
+            }
+           // specify an alternate hypseus.ini file (located in home or app directory)
            else if (strcasecmp(s, "-keymapfile")==0) {
 
 		bool loadini = true;
