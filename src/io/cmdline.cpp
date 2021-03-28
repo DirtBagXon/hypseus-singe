@@ -514,6 +514,10 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
+           else if (strcasecmp(s, "-nolair2_overlay")==0) {
+
+                    video::set_nolair2_overlay(true);
+            }
 	    // Ignore some obsolete arguments (Rather than error)
             else if (strcasecmp(s, "-nohwaccel")==0 || strcasecmp(s, "-noserversend")==0) {
 

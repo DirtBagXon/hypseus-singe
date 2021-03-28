@@ -20,11 +20,11 @@ Features:
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 [libtool], [vorbis] and [ogg].
 
-For RetroPie clone the ``RetroPie`` branch via:
+For **RetroPie** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further RetroPie Instructions [here](RETROPIE.md)
+Further **RetroPie** Instructions [here](RETROPIE.md)
 
 Build:
 
@@ -75,11 +75,12 @@ For Singe, provide arguments to *hypseus* thus:
 
 The following additional arguments have been added to Hypseus Singe:
 
-    -keymapfile [Allows specifying an alternate hypinput.ini file]
-    -blend_osd  [Use TTF blending on OSD - for best results use in conjunction with -fullscreen]
+    -keymapfile       [Allows specifying an alternate hypinput.ini file]
+    -blend_osd        [Use TTF blending on OSD - for best results use in conjunction with -fullscreen]
+    -nolair2_overlay  [Disable lair2 overlay]
 
-    Alt-Enter   [Toggle FAKE fullscreen]
-    Space       [Toggle scoreboard display - Digital Leasure games]
+    Alt-Enter         [Toggle fullscreen]
+    Space             [Toggle scoreboard display - Digital Leasure games]
 
 
 ## Support

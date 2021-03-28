@@ -120,6 +120,7 @@ TTF_Font *get_tfont();
 bool get_fullscreen();
 void set_fullscreen(bool value);
 void set_blend_osd(bool value);
+void set_nolair2_overlay(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);

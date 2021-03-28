@@ -1,10 +1,10 @@
 # RetroPie Install (Hypseus drop-in Daphne replacement)
 
-Install Standard Daphne plugin via **RetroPie configuration script**.
+* Install Standard Daphne plugin via **RetroPie configuration script**.
 
-Place ROMS as per standard configuration: https://retropie.org.uk/docs/Daphne/
+* Place ROMS as per standard configuration: https://retropie.org.uk/docs/Daphne/
 
-SSH into the retropie and perform the following to switch `daphne` to `hypseus-singe`.
+* SSH into the retropie and perform the following to switch `daphne` to `hypseus-singe`.
 
 
 ## Install hypseus-singe
@@ -43,11 +43,11 @@ Link ``singe`` with emulator path:
 
 ### Enable games within Singe sub directory
 
-Place your ``timegal.daphne`` within ``/home/pi/RetroPie/roms/daphne/`` as normal.
+* Place your ``timegal.daphne`` within ``/home/pi/RetroPie/roms/daphne/`` as normal.
 
-Enabling games will depend on the filesystem you have your ``roms`` directory mounted upon:
+* Enabling games will depend on the filesystem you have your ``roms`` directory mounted upon:
 
-See detail for ``EXT`` (Linux) and ``FAT32`` (Windows)  partition types below.
+* See details for ``EXT`` (*Linux*) and ``FAT32`` (*Windows*) partition types below.
 
 ### ``EXT`` (Linux filesystem)
 
@@ -124,4 +124,4 @@ This should duplicate less than 1Mb of data
 
 Follow standard plugin documentation at: https://retropie.org.uk/docs/Daphne/
 
-However, key and joystick control configuration should be within `hypinput.ini`
+* However, key and joystick control configuration should be within `hypinput.ini`

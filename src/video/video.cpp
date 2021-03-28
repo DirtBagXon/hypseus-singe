@@ -88,6 +88,8 @@ bool g_LDP1450_overlay = false;
 
 bool g_blendosd = false;
 
+bool g_nolair2_overlay = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
@@ -588,6 +590,8 @@ void set_fullscreen(bool value) { g_fullscreen = value; }
 
 void set_blend_osd(bool value) { g_blendosd = value; }
 
+void set_nolair2_overlay(bool value) { g_nolair2_overlay = value; }
+
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 int get_scalefactor() { return g_scalefactor; }
@@ -698,8 +702,12 @@ void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
 void draw_LDP1450_overlay(char *s, SDL_Surface *surface, int y, bool insert, bool reset)
 {
     SDL_Renderer *renderer = get_renderer();
+    FC_Font *fixfont = get_fixfont();
     int x = surface->h - 30;
     static int rcount;
+
+    if (g_nolair2_overlay)
+       return;
 
     if (reset) {
        rcount++;
@@ -732,12 +740,14 @@ void draw_LDP1450_overlay(char *s, SDL_Surface *surface, int y, bool insert, boo
        set_LDP1450_enabled(true);
     }
 
-    FC_Draw(get_fixfont(), renderer, x, 104*2, LDP1450_104);
-    FC_Draw(get_fixfont(), renderer, x, 120*2, LDP1450_120);
-    FC_Draw(get_fixfont(), renderer, x, 136*2, LDP1450_136);
-    FC_Draw(get_fixfont(), renderer, x, 168*2, LDP1450_168);
-    FC_Draw(get_fixfont(), renderer, x, 184*2, LDP1450_184);
-    FC_Draw(get_fixfont(), renderer, x, 200*2, LDP1450_200);
+    if (get_LDP1450_enabled()) {
+       FC_Draw(fixfont, renderer, x, 104*2, LDP1450_104);
+       FC_Draw(fixfont, renderer, x, 120*2, LDP1450_120);
+       FC_Draw(fixfont, renderer, x, 136*2, LDP1450_136);
+       FC_Draw(fixfont, renderer, x, 168*2, LDP1450_168);
+       FC_Draw(fixfont, renderer, x, 184*2, LDP1450_184);
+       FC_Draw(fixfont, renderer, x, 200*2, LDP1450_200);
+    }
 
     SDL_RenderPresent(renderer);
 }
