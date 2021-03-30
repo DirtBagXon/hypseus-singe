@@ -1,7 +1,8 @@
 # Hypseus Singe
 
-Hypseus is a fork of [Matt Ownby's][CUS] [Daphne]. A program to play
-the original versions of many laserdisc arcade games on a PC or RPi.
+Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
+
+A program to play the laserdisc arcade games on a PC or RPi.
 
 This version includes the **Singe** *(1.14)* plug-in for [American Laser Games][ALG].
 
@@ -76,8 +77,9 @@ For Singe, provide arguments to *hypseus* thus:
 The following additional arguments have been added to Hypseus Singe:
 
     -keymapfile       [Allows specifying an alternate hypinput.ini file]
-    -blend_osd        [Use TTF blending on OSD - for best results use in conjunction with -fullscreen]
     -nolair2_overlay  [Disable lair2 overlay]
+    -alt_osd          [Use alternate lair/ace OSD]
+    -blend_osd        [Use TTF blending on alternate OSD]
 
     Alt-Enter         [Toggle fullscreen]
     Space             [Toggle scoreboard display - Digital Leasure games]

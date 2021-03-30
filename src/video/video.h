@@ -118,8 +118,10 @@ FC_Font *get_font();
 FC_Font *get_fixfont();
 TTF_Font *get_tfont();
 bool get_fullscreen();
+bool get_alt_osd();
 void set_fullscreen(bool value);
 void set_blend_osd(bool value);
+void set_alt_osd(bool value);
 void set_nolair2_overlay(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
@@ -131,11 +133,8 @@ Uint16 get_video_height();
 void set_video_height(Uint16);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, SDL_Surface *, bool value);
-void draw_LDP1450_overlay(char *, SDL_Surface *, int, bool ins, bool rst);
-
-
+void draw_LDP1450_overlay(char *, int, bool ins, bool rst);
 void vid_toggle_fullscreen();
-
 void set_force_aspect_ratio(bool bEnabled);
 void set_subtitle_enabled(bool bEnabled);
 void set_subtitle_display(char *, SDL_Surface *);

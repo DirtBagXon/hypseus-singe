@@ -30,16 +30,20 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			if (!m_bThayers)
 			{
 				// Draw all DL/SA scoreboard labels.
-				// Credits Label
-				video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3), 3, pSurface);
-
-				// Player labels.
-                                video::draw_string("Player 1: ", 1, 3, pSurface);
-                                video::draw_string("Player 2: ", (pSurface->w / 6 - 19)+1,  3, pSurface);
-
-				// Lives labels.
-			        video::draw_string("Lives: ", 1, 16, pSurface);
-				video::draw_string("Lives: ", (pSurface->w / 6 - 10)+1, 16, pSurface);
+                                if (video::get_alt_osd()) {
+                                   video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3), 3, pSurface);
+                                   video::draw_string("Player 1: ", 1, 3, pSurface);
+                                   video::draw_string("Player 2: ", (pSurface->w / 6 - 19) + 1, 3, pSurface);
+                                   video::draw_string("Lives: ", 1, 16, pSurface);
+                                   video::draw_string("Lives: ", (pSurface->w / 6 - 10) + 1, 16, pSurface);
+                                }
+                                else {
+                                   video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3) + 5, 1, pSurface);
+                                   video::draw_string("Player 1: ", 1, 1, pSurface);
+                                   video::draw_string("Player 2: ", (pSurface->w / 6 - 19)+6, 1, pSurface);
+                                   video::draw_string("Lives: ", 1, 15, pSurface);
+                                   video::draw_string("Lives: ", (pSurface->w / 6 - 10) + 9, 15, pSurface);
+                                }
 
 				// Update Player Scores
 				update_player_score(pSurface, 0, 0, m_DigitValues + this->PLAYER1_0, 6);
@@ -52,9 +56,11 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			// for Thayer's Quest
 			else
 			{
-				// Thayer's Quest only uses "Credits" portion of the DL/SA
-				// scoreboard.
-				video::draw_string("Time", pSurface->w / 12 - 2, 3, pSurface);
+				// Thayer's Quest only uses "Credits" portion of the DL/SA // scoreboard.
+                                if (video::get_alt_osd())
+                                   video::draw_string("Time", pSurface->w / 12 - 2, 3, pSurface);
+                                else
+                                   video::draw_string("Time", pSurface->w / 12 + 3, 1, pSurface);
 			}
 
 			// Update Credits

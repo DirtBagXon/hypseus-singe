@@ -88,6 +88,8 @@ bool g_LDP1450_overlay = false;
 
 bool g_blendosd = false;
 
+bool g_altosd = false;
+
 bool g_nolair2_overlay = false;
 
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
@@ -251,16 +253,23 @@ bool init_display()
 		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
 
+                // Calculate font sizes
+                int fs = get_draw_width() / 36;
+                int ffs = get_draw_width() / 18;
+
                 char font[32]="fonts/default.ttf";
-                char fixfont[32]="fonts/whitrabt.ttf";
-                char ttfont[32]="fonts/pixelboy.ttf";
+                char fixfont[32] = "fonts/timewarp.ttf";
+                char ttfont[32];
+
+		if (get_alt_osd()) strncpy(ttfont, "fonts/pixel.ttf", sizeof(ttfont));
+		else strncpy(ttfont, "fonts/digital.ttf", sizeof(ttfont));
 
                 g_font = FC_CreateFont();
-                FC_LoadFont(g_font, g_renderer, font, 18,
+                FC_LoadFont(g_font, g_renderer, font, fs,
                             FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
 
                 g_fixfont = FC_CreateFont();
-                FC_LoadFont(g_fixfont, g_renderer, fixfont, 38,
+                FC_LoadFont(g_fixfont, g_renderer, fixfont, ffs,
                             FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
 
                 TTF_Init();
@@ -521,8 +530,8 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
     for (i = 0; i < LDP1450_strlen; p++, i++)
        if (*p == 32) j++;
 
-    if (j == 12) draw_LDP1450_overlay(LDP1450_String, overlay, 0, 0, 1);
-    else draw_LDP1450_overlay(LDP1450_String, overlay, y, 1, 0);
+    if (j == 12) draw_LDP1450_overlay(LDP1450_String, 0, 0, 1);
+    else draw_LDP1450_overlay(LDP1450_String, y, 1, 0);
 }
 
 //  used to draw non LED stuff like scoreboard text
@@ -582,6 +591,8 @@ SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
 bool get_fullscreen() { return g_fullscreen; }
 
+bool get_alt_osd() { return g_altosd; }
+
 bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 
 // sets our g_fullscreen bool (determines whether will be in fullscreen mode or
@@ -589,6 +600,8 @@ bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 void set_fullscreen(bool value) { g_fullscreen = value; }
 
 void set_blend_osd(bool value) { g_blendosd = value; }
+
+void set_alt_osd(bool value) { g_altosd = value; }
 
 void set_nolair2_overlay(bool value) { g_nolair2_overlay = value; }
 
@@ -645,14 +658,16 @@ TTF_Font *get_tfont() { return g_tfont; }
 void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 {
     SDL_Rect dest, clear;
-    dest.x = (short)((col * 5.9));
     dest.y = (short)(row);
     dest.w = (unsigned short)(6 * strlen(t));
     dest.h = 14;
 
     SDL_Surface *text_surface;
 
-    if (g_blendosd)
+    if (g_altosd) dest.x = (short)((col * 5.9));
+    else dest.x = (short)((col * 5));
+
+    if (g_blendosd && g_altosd)
     {
         clear.x = dest.x;
         clear.y = dest.y;
@@ -675,9 +690,9 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 
 void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
 {
+    int x = (int)(get_draw_width() - (get_draw_width() * 0.97));
+    int y = (int)(get_draw_height() * 0.92);
     SDL_Renderer *renderer = get_renderer();
-    int screen_h = surface->h;
-    int screen_w = surface->w;
     static int count;
     int delay = 100;
 
@@ -692,19 +707,20 @@ void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
     }
 
     if (count > 2)
-       FC_Draw(get_font(), renderer, (screen_h - (screen_h * 0.98) + 20),
-                    ((screen_w * 0.98) + 120), s);
+       FC_Draw(get_font(), renderer, x, y, s);
 
     SDL_RenderPresent(renderer);
     count++;
 }
 
-void draw_LDP1450_overlay(char *s, SDL_Surface *surface, int y, bool insert, bool reset)
+void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
 {
     SDL_Renderer *renderer = get_renderer();
     FC_Font *fixfont = get_fixfont();
-    int x = surface->h - 30;
+    float f = (get_draw_height()*0.004);
+    float x = ((get_draw_height()*3)/4)-(get_draw_width()/4.6);
     static int rcount;
+    static bool y1, y2, y3, y4, y5, y6;
 
     if (g_nolair2_overlay)
        return;
@@ -718,35 +734,51 @@ void draw_LDP1450_overlay(char *s, SDL_Surface *surface, int y, bool insert, boo
           LDP1450_168 = strdup(s);
           LDP1450_184 = strdup(s);
           LDP1450_200 = strdup(s);
+          y1 = false, y2 = y1, y3 = y1,
+             y4 = y1, y5 = y1, y6 = y1;
           set_LDP1450_enabled(false);
           rcount = 0;
        }
     }
 
     if (insert) {
-       if (y == 104) {
-          LDP1450_104 = strdup(s); }
-       else if (y == 120) {
-          LDP1450_120 = strdup(s); }
-       else if (y == 136) {
-          LDP1450_136 = strdup(s); }
-       else if (y == 168) {
-          LDP1450_168 = strdup(s); }
-       else if (y == 184) {
-          LDP1450_184 = strdup(s); }
-       else if (y == 200) {
-          LDP1450_200 = strdup(s); }
-
+       switch(y)
+       {
+          case 104:
+             LDP1450_104 = strdup(s);
+             y1 = true;
+             break;
+          case 120:
+             LDP1450_120 = strdup(s);
+             y2 = true;
+             break;
+          case 136:
+             LDP1450_136 = strdup(s);
+             y3 = true;
+             break;
+          case 168:
+             LDP1450_168 = strdup(s);
+             y4 = true;
+             break;
+          case 184:
+             LDP1450_184 = strdup(s);
+             y5 = true;
+             break;
+          case 200:
+             LDP1450_200 = strdup(s);
+             y6 = true;
+             break;
+       }
        set_LDP1450_enabled(true);
     }
 
     if (get_LDP1450_enabled()) {
-       FC_Draw(fixfont, renderer, x, 104*2, LDP1450_104);
-       FC_Draw(fixfont, renderer, x, 120*2, LDP1450_120);
-       FC_Draw(fixfont, renderer, x, 136*2, LDP1450_136);
-       FC_Draw(fixfont, renderer, x, 168*2, LDP1450_168);
-       FC_Draw(fixfont, renderer, x, 184*2, LDP1450_184);
-       FC_Draw(fixfont, renderer, x, 200*2, LDP1450_200);
+       if (y1) FC_Draw(fixfont, renderer, x, 104*f, LDP1450_104);
+       if (y2) FC_Draw(fixfont, renderer, x, 120*f, LDP1450_120);
+       if (y3) FC_Draw(fixfont, renderer, x, 136*f, LDP1450_136);
+       if (y4) FC_Draw(fixfont, renderer, x, 168*f, LDP1450_168);
+       if (y5) FC_Draw(fixfont, renderer, x, 184*f, LDP1450_184);
+       if (y6) FC_Draw(fixfont, renderer, x, 200*f, LDP1450_200);
     }
 
     SDL_RenderPresent(renderer);
@@ -946,7 +978,7 @@ void vid_blit () {
     if (g_bSubtitleShown) {
         draw_subtitle(subchar, subscreen, 0);
     } else if (get_LDP1450_enabled()) {
-        draw_LDP1450_overlay(NULL, get_screen_blitter(), 0, 0, 0);
+        draw_LDP1450_overlay(NULL, 0, 0, 0);
     } else {
         SDL_RenderPresent(g_renderer);
     }

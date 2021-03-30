@@ -745,6 +745,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
             }
+            // Use alternate OSD font
+            else if (strcasecmp(s, "-alt_osd") == 0) {
+                video::set_alt_osd(true);
+            }
             // enable TTF_RenderText_Blended on OSD
             else if (strcasecmp(s, "-blend_osd") == 0) {
                 video::set_blend_osd(true);
