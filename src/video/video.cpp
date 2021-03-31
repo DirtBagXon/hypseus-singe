@@ -107,8 +107,12 @@ bool g_bSubtitleShown = false;
 char *subchar;
 SDL_Surface *subscreen;
 
+char *LDP1450_069;
+char *LDP1450_085;
+char *LDP1450_101;
 char *LDP1450_104;
 char *LDP1450_120;
+char *LDP1450_128;
 char *LDP1450_136;
 char *LDP1450_168;
 char *LDP1450_184;
@@ -731,9 +735,9 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
     FC_Font *fixfont = get_fixfont();
     float f = (get_draw_height()*0.004);
     float x = ((get_draw_height()*3)/4)-(get_draw_width()/4.6);
+    static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9;
     static int rcount, cr;
     static char *rank;
-    static bool y1, y2, y3, y4, y5, y6;
     int i, k = 0;
     char t[13];
 
@@ -742,15 +746,21 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
 
     if (reset) {
        rcount++;
-       if (rcount > 2) {
+       if (rcount > 1) {
+          LDP1450_069 = strdup(s);
+          LDP1450_085 = strdup(s);
+          LDP1450_101 = strdup(s);
           LDP1450_104 = strdup(s);
           LDP1450_120 = strdup(s);
+          LDP1450_128 = strdup(s);
           LDP1450_136 = strdup(s);
           LDP1450_168 = strdup(s);
           LDP1450_184 = strdup(s);
           LDP1450_200 = strdup(s);
-          y1 = false, y2 = y1, y3 = y1,
-             y4 = y1, y5 = y1, y6 = y1;
+          y0 = false, y1 = y0, y2 = y0,
+             y3 = y0, y4 = y0, y5 = y0,
+             y6 = y0, y7 = y0, y8 = y0,
+             y9 = y0;
           set_LDP1450_enabled(false);
           rcount = 0;
        }
@@ -759,6 +769,18 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
     if (insert) {
        switch(y)
        {
+          case 69:
+             LDP1450_069 = strdup(s);
+             y0 = true;
+             break;
+          case 85:
+             LDP1450_085 = strdup(s);
+             y1 = true;
+             break;
+          case 101:
+             LDP1450_101 = strdup(s);
+             y2 = true;
+             break;
           case 104:
              clean_control_char(s, t, sizeof(t));
              LDP1450_104 = strdup(t);
@@ -771,29 +793,33 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
                 if (cr>2) cr = 0;
              }
              else cr = 0;
-             y1 = true;
+             y3 = true;
              break;
           case 120:
              LDP1450_120 = strdup(s);
-             y2 = true;
+             y4 = true;
+             break;
+          case 128:
+             LDP1450_128 = strdup(s);
+             y5 = true;
              break;
           case 136:
              LDP1450_136 = strdup(s);
-             y3 = true;
+             y6 = true;
              break;
           case 168:
              LDP1450_168 = strdup(s);
-             y4 = true;
+             y7 = true;
              break;
           case 184:
              LDP1450_184 = strdup(s);
              cr = 0;
-             y5 = true;
+             y8 = true;
              break;
           case 200:
              LDP1450_200 = strdup(s);
              cr = 0;
-             y6 = true;
+             y9 = true;
              break;
        }
        rcount = 0;
@@ -801,12 +827,16 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
     }
 
     if (get_LDP1450_enabled()) {
-       if (y1) FC_Draw(fixfont, renderer, x, 104*f, LDP1450_104);
-       if (y2) FC_Draw(fixfont, renderer, x, 120*f, LDP1450_120);
-       if (y3) FC_Draw(fixfont, renderer, x, 136*f, LDP1450_136);
-       if (y4) FC_Draw(fixfont, renderer, x, 168*f, LDP1450_168);
-       if (y5) FC_Draw(fixfont, renderer, x, 184*f, LDP1450_184);
-       if (y6) FC_Draw(fixfont, renderer, x, 200*f, LDP1450_200);
+       if (y0) FC_Draw(fixfont, renderer, x+(x/1.5), 69*f+(f*24), LDP1450_069);
+       if (y1) FC_Draw(fixfont, renderer, x+(x/1.5), 85*f+(f*24), LDP1450_085);
+       if (y2) FC_Draw(fixfont, renderer, x+(x/1.5), 101*f+(f*24), LDP1450_101);
+       if (y3) FC_Draw(fixfont, renderer, x, 104*f, LDP1450_104);
+       if (y4) FC_Draw(fixfont, renderer, x, 120*f, LDP1450_120);
+       if (y5) FC_Draw(fixfont, renderer, x+(x/6), 128*f-(f*96), LDP1450_128);
+       if (y6) FC_Draw(fixfont, renderer, x, 136*f, LDP1450_136);
+       if (y7) FC_Draw(fixfont, renderer, x, 168*f, LDP1450_168);
+       if (y8) FC_Draw(fixfont, renderer, x, 184*f, LDP1450_184);
+       if (y9) FC_Draw(fixfont, renderer, x, 200*f, LDP1450_200);
     }
 
     SDL_RenderPresent(renderer);
