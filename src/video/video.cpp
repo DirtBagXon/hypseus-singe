@@ -796,6 +796,7 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
              y6 = true;
              break;
        }
+       rcount = 0;
        set_LDP1450_enabled(true);
     }
 
