@@ -579,6 +579,18 @@ void free_one_bmp(SDL_Surface *candidate) {
 	SDL_FreeSurface(candidate); 
 }
 
+void clean_control_char(char *src, char *dst, int len)
+{
+    int i;
+
+    for (i = 0; i < len; src++, i++) {
+        if (*src == 19 ) *dst = '#';
+        else *dst = *src;
+        dst++;
+    }
+    *dst = '\0';
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 SDL_Renderer *get_renderer() { return g_renderer; }
@@ -719,8 +731,11 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
     FC_Font *fixfont = get_fixfont();
     float f = (get_draw_height()*0.004);
     float x = ((get_draw_height()*3)/4)-(get_draw_width()/4.6);
-    static int rcount;
+    static int rcount, cr;
+    static char *rank;
     static bool y1, y2, y3, y4, y5, y6;
+    int i, k = 0;
+    char t[13];
 
     if (g_nolair2_overlay)
        return;
@@ -745,7 +760,17 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
        switch(y)
        {
           case 104:
-             LDP1450_104 = strdup(s);
+             clean_control_char(s, t, sizeof(t));
+             LDP1450_104 = strdup(t);
+             for (i = 0; i < (int)sizeof(s); s++, i++)
+               if (*s != 32) k++;
+             if (k==3) {
+                if (cr == 1) rank = strdup(LDP1450_104);
+                else if(rank) LDP1450_104 = strdup(rank);
+                cr++;
+                if (cr>2) cr = 0;
+             }
+             else cr = 0;
              y1 = true;
              break;
           case 120:
@@ -762,10 +787,12 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
              break;
           case 184:
              LDP1450_184 = strdup(s);
+             cr = 0;
              y5 = true;
              break;
           case 200:
              LDP1450_200 = strdup(s);
+             cr = 0;
              y6 = true;
              break;
        }
