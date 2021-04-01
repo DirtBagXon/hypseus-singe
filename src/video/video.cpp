@@ -224,7 +224,7 @@ bool init_display()
                              SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                              g_vid_width, g_vid_height, sdl_flags);
         if (!g_window) {
-            LOGW << fmt("Could not initialize window: %s", SDL_GetError());
+            LOGE << fmt("Could not initialize window: %s", SDL_GetError());
             deinit_display();
             shutdown_display();
             SDL_Quit();
@@ -241,10 +241,11 @@ bool init_display()
             }
 
             if (!g_renderer) {
-                LOGW << fmt("Could not initialize renderer: %s", SDL_GetError());
+                LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
                 deinit_display();
                 shutdown_display();
                 SDL_Quit();
+                exit(1);
             } else {
                 // MAC: If we start in fullscreen mode, we have to set the logical
                 // render size to get the desired aspect ratio.
@@ -322,7 +323,7 @@ bool init_display()
             }
         }
     } else {
-        LOGW << fmt("Could not initialize SDL: %s", SDL_GetError());
+        LOGE << fmt("Could not initialize SDL: %s", SDL_GetError());
         deinit_display();
         shutdown_display();
         SDL_Quit();
