@@ -1195,7 +1195,7 @@ static int sep_sprite_draw(lua_State *L)
 
 							if (!redrawn)
 							{
-								sep_print("Overlay redrawn to 360 x 240");
+								sep_print("Overlay redrawn to %d x %d", g_se_overlay_width, g_se_overlay_height);
 								redrawn = true;
 							}
 						}

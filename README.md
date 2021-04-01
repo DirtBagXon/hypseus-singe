@@ -2,9 +2,9 @@
 
 Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
-A program to play the laserdisc arcade games on a PC or RPi.
+A program to play laserdisc arcade games on a PC or RPi.
 
-This version includes the **Singe** *(1.14)* plug-in for [American Laser Games][ALG].
+This version includes **Singe** *(1.14)* support for [American Laser Games][ALG].
 
 Features:
 
@@ -13,7 +13,7 @@ Features:
 * SDL2 support
 * [cmake] build tool
 * Digital Leisure overlays
-* Singe plugin
+* Singe support
 * Bugs
 
 ## Compile
@@ -61,13 +61,13 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
     HYPSEUS_SHARE=~/.daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
 
-**Note:** The default Hypseus home directory, *created* when run without arguments is:
+**Note:** The default Hypseus home directory, *created* when run without arguments, is:
 
     ~/.hypseus
 
 ## Singe
 
-For Singe, provide arguments to *hypseus* thus:
+For Singe, provide the following arguments to *hypseus*:
 
     hypseus.bin singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
 
@@ -78,8 +78,8 @@ The following additional arguments have been added to Hypseus Singe:
 
     -keymapfile       [Allows specifying an alternate hypinput.ini file]
     -nolair2_overlay  [Disable lair2 overlay]
-    -alt_osd          [Use alternate lair/ace OSD]
-    -blend_osd        [Use TTF blending on alternate OSD]
+    -alt_osd          [Use alternate lair/ace font overlay]
+    -blend_osd        [Use TTF blending on alternate font overlay]
 
     Alt-Enter         [Toggle fullscreen]
     Space             [Toggle scoreboard display - Digital Leasure games]

@@ -523,8 +523,11 @@ bool parse_cmd_line(int argc, char **argv)
 
                  bool dummy = true;
 
-                 if(dummy)
-                    printline("NOTE : Ignoring obsolete argument");
+                 if(dummy) {
+                    char e[355];
+                    sprintf(e, "NOTE : Ignoring obsolete argument: %s", s);
+                    printline(e);
+                 }
             }
            // specify an alternate hypseus.ini file (located in home or app directory)
            else if (strcasecmp(s, "-keymapfile")==0) {
