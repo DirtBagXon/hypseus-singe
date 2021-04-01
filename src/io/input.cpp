@@ -608,7 +608,7 @@ void process_joystick_motion(SDL_Event *event)
     } // end verticle axis
 
     // horizontal axis
-    else {
+    else if (event->jaxis.axis == 0) {
         // if they're moving right
         if (event->jaxis.value > JOY_AXIS_MID) {
             input_enable(SWITCH_RIGHT);
