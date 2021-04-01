@@ -1520,44 +1520,15 @@ void update_parse_meter()
         // if we have some progress to report ...
         if (remaining_s > 0) {
             char s[160];
+
             // calculations to center message on screen ...
-            int screen_h = screen->h;
-            int screen_w = screen->w;
             sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds "
                        "remaining.\n",
                     percent_complete, remaining_s);
 
             FC_Draw(video::get_font(), renderer,
-			    (screen_h / 3.5), (screen_w / 1.5), s);
+			    (video::get_draw_height()*0.18), (video::get_draw_width()*0.35), s);
             SDL_RenderPresent(renderer);
-
-            // now draw a little graph thing ...
-            SDL_Rect clip       = screen->clip_rect;
-            const int THICKNESS = 10; // how thick our little status bar will be
-            // where to start our little status bar
-            clip.y = (clip.h - THICKNESS) / 2;
-            clip.h = THICKNESS;
-            // give us some padding
-            clip.y += video::FONT_SMALL_H + 5;
-
-            // draw a white bar across the screen ...
-            SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 255, 255, 255));
-
-            clip.x++;    // move left boundary in 1 pixel
-            clip.y++;    // move upper boundary down 1 pixel
-            clip.w -= 2; // move right boundary in 1 pixel
-            clip.h -= 2; // move lower boundary in 1 pixel
-
-            // fill inside with black
-            SDL_FillRect(screen, &clip, SDL_MapRGB(screen->format, 0, 0, 0));
-
-            // compute how wide our progress bar should be (-1 to take into account left pixel border)
-            clip.w = (Uint16)((screen->w * g_dPercentComplete01) + 0.5) - 1;
-
-            // go from full red (hardly complete) to full green (fully complete)
-            SDL_FillRect(screen, &clip,
-                         SDL_MapRGB(screen->format, (Uint8)(255 * (1.0 - g_dPercentComplete01)),
-                                    (Uint8)(255 * g_dPercentComplete01), 0));
         }
     }
 }
