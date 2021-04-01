@@ -828,12 +828,12 @@ void draw_LDP1450_overlay(char *s, int y, bool insert, bool reset)
     }
 
     if (get_LDP1450_enabled()) {
-       if (y0) FC_Draw(fixfont, renderer, x+(x/1.5), 69*f+(f*24), LDP1450_069);
-       if (y1) FC_Draw(fixfont, renderer, x+(x/1.5), 85*f+(f*24), LDP1450_085);
-       if (y2) FC_Draw(fixfont, renderer, x+(x/1.5), 101*f+(f*24), LDP1450_101);
+       if (y0) FC_Draw(fixfont, renderer, x+(x/1.1), 69*f + (f*8), LDP1450_069);
+       if (y1) FC_Draw(fixfont, renderer, x+(x/1.1), 85*f + (f*8), LDP1450_085);
+       if (y2) FC_Draw(fixfont, renderer, x+(x/1.1), 101*f + (f*8), LDP1450_101);
        if (y3) FC_Draw(fixfont, renderer, x, 104*f, LDP1450_104);
        if (y4) FC_Draw(fixfont, renderer, x, 120*f, LDP1450_120);
-       if (y5) FC_Draw(fixfont, renderer, x+(x/6), 128*f-(f*96), LDP1450_128);
+       if (y5) FC_Draw(fixfont, renderer, x+(x/6),  128*f - (f*120), LDP1450_128);
        if (y6) FC_Draw(fixfont, renderer, x, 136*f, LDP1450_136);
        if (y7) FC_Draw(fixfont, renderer, x, 168*f, LDP1450_168);
        if (y8) FC_Draw(fixfont, renderer, x, 184*f, LDP1450_184);
