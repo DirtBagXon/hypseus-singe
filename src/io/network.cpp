@@ -350,94 +350,9 @@ char *get_os_description()
     return result;
 }
 
-// send stats to server
+// DBX: Pretty certain MPO's server doesn't want these
+// Disabled but rip it out for the paranoid....
 void net_send_data_to_server()
 {
-    struct sockaddr_in saRemote;
-    struct hostent *info = NULL;
-    char ip[81];
-
-    if (!g_send_data_to_server)
-        return; // if user forbids data to be sent, don't do it
-
-#ifdef DEBUG
-    // I don't wanna mess up the server stats with people trying to debug daphne
     return;
-#endif
-
-#ifdef WIN32
-    // initialize Winschlock
-    WSADATA wsaData;
-
-    WSAStartup(MAKEWORD(1, 1), &wsaData);
-#endif
-
-    info = gethostbyname(NET_IP); // do DNS to convert address to numbers
-
-    // if the DNS resolution worked
-    if (info) {
-        //		inet_ntop(AF_INET, info->h_addr, ip, sizeof(ip));
-        sprintf(ip, "%u.%u.%u.%u", (unsigned char)info->h_addr_list[0][0],
-                (unsigned char)info->h_addr_list[0][1],
-                (unsigned char)info->h_addr_list[0][2],
-                (unsigned char)info->h_addr_list[0][3]);
-
-        g_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-        if (g_sockfd != -1) {
-            memset(&saRemote, 0, sizeof(saRemote));
-            saRemote.sin_family      = AF_INET;
-            saRemote.sin_addr.s_addr = inet_addr(ip); // inet_addr is broken and
-                                                      // should not be used
-            saRemote.sin_port = htons(NET_PORT);
-
-            // if we are able to connect to socket successfully
-            if (connect(g_sockfd, (struct sockaddr *)&saRemote, sizeof(saRemote)) == 0) {
-                g_packet.os      = OS_UNKNOWN;
-#ifdef WIN32
-                g_packet.os = OS_WIN32;
-#endif
-#ifdef LINUX
-#ifdef NATIVE_CPU_X86
-                g_packet.os = OS_X86_LINUX;
-#endif
-#ifdef NATIVE_CPU_MIPS
-                g_packet.os = OS_PS2_LINUX;
-#endif
-#endif // end LINUX
-
-#ifdef MAC_OSX
-                g_packet.os = OS_MAC_OSX;
-#endif
-
-                // safety check
-                if (g_packet.os == OS_UNKNOWN) {
-                    printerror(
-                        "your OS is unknown in network.cpp, please fix this");
-                }
-
-                strncpy(g_packet.os_desc, get_os_description(), sizeof(g_packet.os_desc));
-                g_packet.protocol = PROTOCOL_VERSION;
-                g_packet.mem = get_sys_mem();
-                strncpy(g_packet.video_desc, get_video_description(),
-                        sizeof(g_packet.video_desc));
-                strncpy(g_packet.cpu_name, get_cpu_name(), sizeof(g_packet.cpu_name));
-                strncpy(g_packet.hypseus_version, get_hypseus_version(),
-                        sizeof(g_packet.hypseus_version)-1);
-
-                // now compute CRC32 of the rest of the packet
-                g_packet.crc32 = crc32(0L, Z_NULL, 0);
-                g_packet.crc32 = crc32(g_packet.crc32, (unsigned char *)&g_packet,
-                                       sizeof(g_packet) - sizeof(g_packet.crc32));
-                send(g_sockfd, (const char *)&g_packet, sizeof(g_packet), 0);
-            }
-// else connection was refused (server down)
-
-#ifdef WIN32
-            closesocket(g_sockfd);
-#else
-            close(g_sockfd); // we're done!
-#endif
-        }
-    } // end if DNS look-up worked
 }
