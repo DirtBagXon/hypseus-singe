@@ -62,7 +62,7 @@ class ldp_vldp : public ldp
     // NOTE : open_and_block prepands m_mpeg_path to the filename
     bool open_and_block(const string &strFilename);
     bool precache_and_block(const string &strFilename);
-    bool wait_for_status(unsigned int uStatus);
+    bool wait_for_status(unsigned int uStatus, const string &strFilename);
     bool nonblocking_search(char *);
     int get_search_result();
     unsigned int play();
@@ -196,7 +196,7 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                            int Ypitch, int Upitch, int Vpitch);
 void display_frame_callback();
 void set_blend_fields(bool val);
-void update_parse_meter();
+void update_parse_meter(const string &strFilename);
 void report_parse_progress_callback(double percent_complete);
 void report_mpeg_dimensions_callback(int, int);
 void free_yuv_overlay();

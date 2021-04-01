@@ -320,7 +320,7 @@ bool ldp_vldp::open_and_block(const string &strFilename)
          (g_vldp_info->open((m_mpeg_path + strFilename).c_str())))
         // OR if the file has been precached and we are able to refer to it
         || (g_vldp_info->open_precached(mi->second, (m_mpeg_path + strFilename).c_str()))) {
-        bResult = wait_for_status(STAT_STOPPED);
+        bResult = wait_for_status(STAT_STOPPED, strFilename.c_str());
         if (bResult) {
             m_cur_mpeg_filename = strFilename;
         }
@@ -341,7 +341,7 @@ bool ldp_vldp::precache_and_block(const string &strFilename)
     blitting_allowed = true;
 
     if (g_vldp_info->precache((m_mpeg_path + strFilename).c_str())) {
-        bResult = wait_for_status(STAT_STOPPED);
+        bResult = wait_for_status(STAT_STOPPED, strFilename.c_str());
     }
 
     blitting_allowed = false;
@@ -349,7 +349,7 @@ bool ldp_vldp::precache_and_block(const string &strFilename)
     return bResult;
 }
 
-bool ldp_vldp::wait_for_status(unsigned int uStatus)
+bool ldp_vldp::wait_for_status(unsigned int uStatus, const string &strFilename)
 {
     bool bResult = false;
 
@@ -357,7 +357,7 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus)
         // if we got a parse update, then show it ...
         if (g_bGotParseUpdate) {
             // redraw screen blitter before we display it
-            update_parse_meter();
+            update_parse_meter(strFilename);
             video::vid_blank();
             // vid_blit(get_screen_blitter(), 0, 0);
             // video::vid_flip();
@@ -1485,7 +1485,7 @@ double g_parse_start_percentage = 0.0; // the first percentage report we
 bool g_parsed = false; // whether we've received any data at all ...
 
 // this should be called from parent thread
-void update_parse_meter()
+void update_parse_meter(const string &strFilename)
 {
     // if we have some data collected
     if (g_dPercentComplete01 >= 0) {
@@ -1519,15 +1519,22 @@ void update_parse_meter()
 
         // if we have some progress to report ...
         if (remaining_s > 0) {
+            int len;
             char s[160];
+            char f[160];
+            const char * c = strFilename.c_str();
 
-            // calculations to center message on screen ...
+            len = strlen(c);
+            sprintf(f, "Parsing file: %s\n", c);
             sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds "
                        "remaining.\n",
                     percent_complete, remaining_s);
 
             FC_Draw(video::get_font(), renderer,
-			    (video::get_draw_height()*0.18), (video::get_draw_width()*0.35), s);
+			    ((video::get_draw_height()/2)-((video::get_draw_height()/200)*len)),
+			    (video::get_draw_width()*0.36), f);
+            FC_Draw(video::get_font(), renderer,
+			    (video::get_draw_height()*0.20), (video::get_draw_width()*0.40), s);
             SDL_RenderPresent(renderer);
         }
     }
