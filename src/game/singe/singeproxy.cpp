@@ -24,6 +24,7 @@
 #include "singe_interface.h"
 
 #include "../../video/video.h"
+#include "../../sound/sound.h"
 
 #include <vector>
 
@@ -48,6 +49,8 @@ unsigned int *g_se_uDiscFPKS;
 
 // used to know whether try to shutdown lua would crash
 bool g_bLuaInitialized = false;
+
+bool g_se_saveme = true;
 
 // Communications from the DLL to and from Hypseus
 struct       singe_out_info  g_SingeOut;
@@ -210,8 +213,14 @@ void sep_die(const char *fmt, ...)
 	va_list argp;
 	va_start(argp, fmt);
 	vsprintf(temp, fmt, argp);
-	
+
 	strcat(message, temp);
+
+	if (g_se_saveme) {
+		sound::play_saveme();
+		SDL_Delay(1000);
+		g_se_saveme = false;
+	}
 
 	// tell hypseus what our last error was ...
 	g_pSingeIn->set_last_error(message);
@@ -1356,6 +1365,7 @@ static int sep_singe_quit(lua_State *L)
 	* 
 	*/
 
+	g_se_saveme = false;
 	sep_die("User decided to quit early.");
 	return 0;
 }

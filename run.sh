@@ -19,7 +19,7 @@ fi
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "\t$0 [-fullscreen] <gamename> [-prototype]" | STDERR
+    echo  -e "$0 [-fullscreen] <gamename> [-prototype]" | STDERR
 
     for game in ace astron badlands bega blazer cliff cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
