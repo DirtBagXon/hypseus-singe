@@ -13,7 +13,8 @@ Features:
 * SDL2 support
 * [cmake] build tool
 * Digital Leisure overlays
-* Singe support
+* Singe 1 support (excluding ActionMax)
+* Psuedo Singe 2 support (experimental)
 * Bugs
 
 ## Compile
@@ -70,6 +71,14 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
 For Singe, provide the following arguments to *hypseus*:
 
     hypseus.bin singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
+
+## Singe 2
+
+Hypseus Singe now has psuedo support for Singe 2 games.
+
+For the current list see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
+
+**Note:** This feature is experimental.
 
 
 ## Extended arguments and keys

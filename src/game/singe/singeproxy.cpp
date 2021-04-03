@@ -530,6 +530,11 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "vldpGetWidth",       sep_mpeg_get_width);
   lua_register(g_se_lua_context, "vldpSetVerbose",     sep_ldp_verbose);  
 
+  // Singe 2
+  lua_register(g_se_lua_context, "overlaySetResolution",   sep_singe_two_pseudo_call_true);
+  lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
+  lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_two_pseudo_call_false);
+
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
   lua_register(g_se_lua_context, "keyboardSetMode",    sep_keyboard_set_mode);
@@ -895,6 +900,17 @@ static int sep_mpeg_get_pixel(lua_State *L)
 		lua_pushnumber(L, -1);
 	}
 	return 3;
+}
+
+
+static int sep_singe_two_pseudo_call_true(lua_State *L)
+{
+   return 0;
+}
+
+static int sep_singe_two_pseudo_call_false(lua_State *L)
+{
+   return 1;
 }
 
 static int sep_mpeg_get_width(lua_State *L)
