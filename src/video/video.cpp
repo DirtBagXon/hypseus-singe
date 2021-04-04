@@ -92,6 +92,8 @@ bool g_altosd = false;
 
 bool g_nolair2_overlay = false;
 
+bool g_fs_scale_nearest = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
@@ -251,7 +253,8 @@ bool init_display()
                 // render size to get the desired aspect ratio.
                 // Also, we set bilinear filtering
                 if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
-                    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+                    if(!g_fs_scale_nearest)
+                        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
 
@@ -616,6 +619,8 @@ bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
 
+void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
+
 void set_blend_osd(bool value) { g_blendosd = value; }
 
 void set_alt_osd(bool value) { g_altosd = value; }
@@ -853,7 +858,8 @@ void vid_toggle_fullscreen()
         return;
     }
     if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
-        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+        if(!g_fs_scale_nearest)
+           SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
         SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
         return;
     }

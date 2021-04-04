@@ -121,6 +121,7 @@ TTF_Font *get_tfont();
 bool get_fullscreen();
 bool get_alt_osd();
 void set_fullscreen(bool value);
+void set_fullscreen_scale_nearest(bool value);
 void set_blend_osd(bool value);
 void set_alt_osd(bool value);
 void set_nolair2_overlay(bool value);

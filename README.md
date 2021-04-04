@@ -4,7 +4,7 @@ Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
 A program to play laserdisc arcade games on a PC or RPi.
 
-This version includes **Singe** *(1.14)* support for [American Laser Games][ALG].
+This version includes **Singe** support for Fan Made and [American Laser Games][ALG].
 
 Features:
 
@@ -14,7 +14,7 @@ Features:
 * [cmake] build tool
 * Digital Leisure overlays
 * Singe 1 support (excluding ActionMax)
-* Psuedo Singe 2 support (experimental)
+* Psuedo Singe 2 support (see below)
 * Bugs
 
 ## Compile
@@ -37,9 +37,9 @@ Build:
 
 ## Install and Run
 
-Ensure you have daphne data in the following `~/.daphne` folders:
+Ensure you have data in the following `daphne` folders:
 
-    pics, ram, roms, screenshots, sound, vldp and vldp_dl
+    pics, ram, roms, sound, vldp and vldp_dl
 
 **From the repo path:**
 
@@ -62,7 +62,7 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
     HYPSEUS_SHARE=~/.daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
 
-**Note:** The default Hypseus home directory, *created* when run without arguments, is:
+**Note:** The default Hypseus home directory, *created* when run without arguments:
 
     ~/.hypseus
 
@@ -76,22 +76,21 @@ For Singe, provide the following arguments to *hypseus*:
 
 Hypseus Singe now has psuedo support for Singe 2 games.
 
-For the current list see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
-
-**Note:** This feature is experimental.
+For current details see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
 
 
 ## Extended arguments and keys
 
 The following additional arguments have been added to Hypseus Singe:
 
-    -keymapfile       [Allows specifying an alternate hypinput.ini file]
-    -nolair2_overlay  [Disable lair2 overlay]
-    -alt_osd          [Use alternate lair/ace font overlay]
-    -blend_osd        [Use TTF blending on alternate font overlay]
+    -keymapfile                [Specify an alternate hypinput.ini file]
+    -nolair2_overlay           [Disable lair2 overlay]
+    -alt_osd                   [Use alternate lair/ace font overlay]
+    -blend_osd                 [Use TTF blending on alternate font overlay]
+    -fullscreen_scale_nearest  [Disable linear scaling in fullscreen]
 
-    Alt-Enter         [Toggle fullscreen]
-    Space             [Toggle scoreboard display - Digital Leasure games]
+    Alt-Enter                  [Toggle fullscreen]
+    Space                      [Toggle scoreboard display]
 
 
 ## Support

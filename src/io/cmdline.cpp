@@ -748,6 +748,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
             }
+            // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
+            else if (strcasecmp(s, "-fullscreen_scale_nearest") == 0) {
+                video::set_fullscreen_scale_nearest(true);
+            }
             // Use alternate OSD font
             else if (strcasecmp(s, "-alt_osd") == 0) {
                 video::set_alt_osd(true);

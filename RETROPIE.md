@@ -33,7 +33,7 @@
 
 ## To enable Singe extension
 
-Link ``singe`` with emulator path:
+Link ``singe`` within emulator path:
 
     cp /opt/retropie/emulators/daphne/daphne.sh /opt/retropie/emulators/daphne/daphne.sh.orig
     cp retropie/daphne.sh /opt/retropie/emulators/daphne/daphne.sh
@@ -41,9 +41,9 @@ Link ``singe`` with emulator path:
     mkdir  /home/pi/RetroPie/roms/daphne/singe
     ln -s /home/pi/RetroPie/roms/daphne/singe /opt/retropie/emulators/daphne/singe
 
-### Enable games within Singe sub directory
+### Enable games within Singe subdirectory
 
-* Place your ``timegal.daphne`` within ``/home/pi/RetroPie/roms/daphne/`` as normal.
+* Place ``timegal.daphne`` within ``/home/pi/RetroPie/roms/daphne/`` as normal.
 
 * Enabling games will depend on the filesystem you have your ``roms`` directory mounted upon:
 
@@ -81,7 +81,9 @@ The file structure is like so:
 
 ### Windows based ``FAT32`` filesystem
 
-You cannot created symlinks. So you need to copy peripheral data to the ``singe`` sub-directory:
+**You cannot created symlinks.**
+
+You therefore need to copy peripheral data to the ``singe`` subdirectory:
 
     cd /home/pi/RetroPie/roms/daphne/singe
     mkdir timegal
@@ -107,9 +109,9 @@ The file structure is like so:
                    |-- *.*  <<- All other files except .m2v & .ogg
 
 
-This should duplicate less than 1Mb of data
+*This should duplicate less than 1Mb of data*
 
-## Revert to original Daphne
+## Revert to original Daphne plugin
 
      mv /opt/retropie/emulators/daphne/daphne.bin.orig /opt/retropie/emulators/daphne/daphne.bin
      rm /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini

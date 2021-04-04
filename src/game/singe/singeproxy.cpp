@@ -533,6 +533,7 @@ void sep_startup(const char *script)
   // Singe 2
   lua_register(g_se_lua_context, "overlaySetResolution",   sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
+  lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_two_pseudo_call_false);
 
   // by RDG2010
@@ -996,6 +997,7 @@ static int sep_say_font(lua_State *L)
 								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
 
 							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
+							SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 							SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
 							SDL_FreeSurface(textsurface);
 						}
@@ -1227,6 +1229,9 @@ static int sep_sprite_draw(lua_State *L)
 
 						if (dest.w == 137 && dest.h == 28) // SP
 							SDL_SetColorKey(g_spriteList[sprite], SDL_FALSE|SDL_RLEACCEL, 0x000000ff);
+
+						if (dest.w != 204 && dest.h != 21) // JR
+							SDL_SetSurfaceBlendMode(g_spriteList[sprite], SDL_BLENDMODE_NONE);
 
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);
 					}
