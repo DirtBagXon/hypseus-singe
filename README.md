@@ -54,6 +54,9 @@ Ensure you have data in the following `daphne` folders:
 
 [![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
+[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/singe2.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
+
+
 
 ## Altering Hypseus or Singe ROM locations
 
@@ -108,8 +111,8 @@ Singe was created by [Scott Duensing][SD] as a plugin to Daphne to allow the
 playing of [American Laser Games][ALG].
 
 This repository was created to build upon the ``SDL2 Hypseus`` project created
-by [Jeffrey Clark][JAC]. Many overlays were still unimplmented in the original
-repository and Singe had been removed.
+by [Jeffrey Clark][JAC]. Many overlays were still unimplemented in the original
+repository, Singe had also been removed.
 
 The name was changed to _Hypseus_ by Jeffrey so the original authors of
 [Daphne] would not be burdened with requests for support.

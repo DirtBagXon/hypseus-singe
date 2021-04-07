@@ -592,7 +592,7 @@ void clean_control_char(char *src, char *dst, int len)
     int i;
 
     for (i = 0; i < len; src++, i++) {
-        if (*src == 19 ) *dst = '#';
+        if (*src == 0x13 ) *dst = ' ';
         else *dst = *src;
         dst++;
     }
@@ -694,7 +694,7 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
         clear.x = dest.x;
         clear.y = dest.y;
         clear.w = (unsigned short)(7 * strlen(t));
-        clear.h = 16;
+        clear.h = dest.h + 2;
 
         SDL_FillRect(surface, &clear, 0x00000000);
         SDL_Color color={255, 255, 255, 200};
@@ -731,7 +731,6 @@ void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
     if (count > 2)
        FC_Draw(get_font(), renderer, x, y, s);
 
-    SDL_RenderPresent(renderer);
     count++;
 }
 
@@ -754,16 +753,6 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     if (reset) {
        rcount++;
        if (rcount > 1) {
-          LDP1450_069 = strdup(s);
-          LDP1450_085 = strdup(s);
-          LDP1450_101 = strdup(s);
-          LDP1450_104 = strdup(s);
-          LDP1450_120 = strdup(s);
-          LDP1450_128 = strdup(s);
-          LDP1450_136 = strdup(s);
-          LDP1450_168 = strdup(s);
-          LDP1450_184 = strdup(s);
-          LDP1450_200 = strdup(s);
           y0 = false, y1 = y0, y2 = y0,
              y3 = y0, y4 = y0, y5 = y0,
              y6 = y0, y7 = y0, y8 = y0,
@@ -1040,14 +1029,16 @@ void vid_blit () {
 	SDL_RenderCopy(g_renderer, g_overlay_texture, &g_leds_size_rect, NULL);
     }
 
-    // Issue flip.
+    // If there's a subtitle overlay
     if (g_bSubtitleShown) {
         draw_subtitle(subchar, subscreen, 0);
-    } else if (get_LDP1450_enabled()) {
-        draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
-    } else {
-        SDL_RenderPresent(g_renderer);
     }
+
+    // Write LDP1450 overlay (inc. SDL_RenderPresent)
+    if(get_LDP1450_enabled()) {
+        draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
+    } else
+        SDL_RenderPresent(g_renderer);
 }
 
 int get_yuv_overlay_width() {

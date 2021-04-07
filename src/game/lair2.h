@@ -34,7 +34,7 @@
 #define LAIR2_CPU_HZ 10000000            // speed of cpu
 
 // The # of coin slots that dragon's lair 2 has
-#define NUM_COIN_SLOTS 1
+#define NUM_COIN_SLOTS 2
 
 // sounds
 enum {

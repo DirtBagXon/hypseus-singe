@@ -157,7 +157,6 @@ $BANKS \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 -sound_buffer 2048 \
--nojoystick \
 -volume_nonvldp 5 \
 -volume_vldp 20
 
