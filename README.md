@@ -13,8 +13,8 @@ Features:
 * SDL2 support
 * [cmake] build tool
 * Digital Leisure overlays
-* Singe 1 support (excluding ActionMax)
-* Psuedo Singe 2 support (see below)
+* Singe support
+* Psuedo Singe 2 support (details below)
 * Bugs
 
 ## Compile
@@ -90,6 +90,7 @@ The following additional arguments have been added to Hypseus Singe:
     -nolair2_overlay           [Disable lair2 overlay]
     -alt_osd                   [Use alternate lair/ace font overlay]
     -blend_osd                 [Use TTF blending on alternate font overlay]
+    -blend_singe_sprites       [Restore BLENDMODE outline on singe sprites]
     -fullscreen_scale_nearest  [Disable linear scaling in fullscreen]
 
     Alt-Enter                  [Toggle fullscreen]

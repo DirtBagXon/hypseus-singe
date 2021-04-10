@@ -94,6 +94,8 @@ bool g_nolair2_overlay = false;
 
 bool g_fs_scale_nearest = false;
 
+bool g_singe_blend_sprite = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
@@ -607,9 +609,13 @@ SDL_Texture *get_screen() { return g_overlay_texture; }
 
 SDL_Surface *get_screen_blitter() { return g_screen_blitter; }
 
+SDL_Texture *get_yuv_screen() { return g_yuv_texture; }
+
 SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
 bool get_fullscreen() { return g_fullscreen; }
+
+bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
 
 bool get_alt_osd() { return g_altosd; }
 
@@ -620,6 +626,8 @@ bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 void set_fullscreen(bool value) { g_fullscreen = value; }
 
 void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
+
+void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
 
 void set_blend_osd(bool value) { g_blendosd = value; }
 

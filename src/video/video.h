@@ -113,6 +113,7 @@ void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
 SDL_Renderer *get_renderer();
 SDL_Texture *get_screen();
+SDL_Texture *get_yuv_screen();
 SDL_Surface *get_screen_blitter();
 SDL_Surface *get_screen_leds();
 FC_Font *get_font();
@@ -120,6 +121,7 @@ FC_Font *get_fixfont();
 TTF_Font *get_tfont();
 bool get_fullscreen();
 bool get_alt_osd();
+bool get_singe_blend_sprite();
 void set_fullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
 void set_blend_osd(bool value);
@@ -141,6 +143,7 @@ void set_force_aspect_ratio(bool bEnabled);
 void set_subtitle_enabled(bool bEnabled);
 void set_subtitle_display(char *, SDL_Surface *);
 void set_LDP1450_enabled(bool bEnabled);
+void set_singe_blend_sprite(bool bEnabled);
 
 bool get_force_aspect_ratio();
 

@@ -752,6 +752,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen_scale_nearest") == 0) {
                 video::set_fullscreen_scale_nearest(true);
             }
+            // Enable singe game sprite outlines
+            else if (strcasecmp(s, "-blend_singe_sprites") == 0) {
+                video::set_singe_blend_sprite(true);
+            }
             // Use alternate OSD font
             else if (strcasecmp(s, "-alt_osd") == 0) {
                 video::set_alt_osd(true);

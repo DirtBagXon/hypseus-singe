@@ -1,3 +1,2 @@
-* ActionMax
 * Screenshots
 * Bugs

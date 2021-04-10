@@ -840,52 +840,42 @@ static int sep_mpeg_get_height(lua_State *L)
 
 static int sep_mpeg_get_pixel(lua_State *L)
 {
-	int n = lua_gettop(L);
-	bool result = false;
-	static bool unimplented;
-	//int xpos;
-	//int ypos;
-	//unsigned int Y_index;
-	//unsigned int UV_index;
-	unsigned char Y;
-	unsigned char U;
-	unsigned char V;
-	unsigned char R;
-	unsigned char G;
-	unsigned char B;
-	int C;
-	int D;
-	int E;
+        int32_t  n                   = lua_gettop(L);
+        bool     result              = false;
+        SDL_Renderer *g_renderer     = video::get_renderer();
+        SDL_Texture  *g_texture      = video::get_yuv_screen();
+        const Uint32 format          = SDL_PIXELFORMAT_YV12;
+        unsigned char pixel[SDL_BYTESPERPIXEL(format)*3];
+        unsigned char R;
+        unsigned char G;
+        unsigned char B;
+        SDL_Rect rect;
+        int Y;
+        int U;
+        int V;
 
-	if (!unimplented)
-	   sep_print("ActionMax overlay not implemented");
+        if (n == 2) {
+                if (lua_isnumber(L, 1)) {
+                        if (lua_isnumber(L, 2)) {
 
-	unimplented = true;
-	
-	if (n == 2) {
-		if (lua_isnumber(L, 1)) {
-			if (lua_isnumber(L, 2)) {
-				/*
-				// FIXME - ActionMAX unimplemented
-				//
-				xpos = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w / (double)g_se_overlay_width));
-				ypos = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h / (double)g_se_overlay_height));
-				Y_index = (g_pSingeIn->g_vldp_info->w * ypos) + xpos;
-				UV_index = (g_pSingeIn->g_vldp_info->w * ypos / 4) + (xpos / 2);
-				Y = g_sep_yuv_buf.Y[Y_index];
-				U = g_sep_yuv_buf.U[UV_index];
-				V = g_sep_yuv_buf.V[UV_index];
-				*/
-				Y = 16;
-				U = 128;
-				V = 128;
-
-				C = Y - 16;
-				D = U - 128;
-				E = V - 128;
-				R = sep_byte_clip(( 298 * C           + 409 * E + 128) >> 8);
-				G = sep_byte_clip(( 298 * C - 100 * D - 208 * E + 128) >> 8);
-				B = sep_byte_clip(( 298 * C + 516 * D           + 128) >> 8);
+				rect.h = 1;
+				rect.w = 1;
+				rect.x = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w / (double)g_se_overlay_width));
+				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h / (double)g_se_overlay_height));
+				if (g_renderer && g_texture) {
+					if (SDL_SetRenderTarget(g_renderer, g_texture) < 0) sep_die("Could not RenderTarget in get_pixel");
+					if (SDL_RenderReadPixels(g_renderer, &rect, format, pixel, SDL_BYTESPERPIXEL(format)) < 0)
+						sep_die("Could not ReadPixel in get_pixel");
+					SDL_SetRenderTarget(g_renderer, NULL);
+				} else {
+					sep_die("Could not initialize get_pixel");
+				}
+				Y = pixel[0] - 16;
+				U = (int)rand()% 6 + (-3);
+				V = (int)rand()% 6 + (-3);
+				R = sep_byte_clip(( 298 * Y           + 409 * V + 128) >> 8);
+				G = sep_byte_clip(( 298 * Y - 100 * U - 208 * V + 128) >> 8);
+				B = sep_byte_clip(( 298 * Y + 516 * U           + 128) >> 8);
 				result = true;
 			}
 		}
@@ -993,11 +983,15 @@ static int sep_say_font(lua_State *L)
 
 							if (dest.h == 22) // JR
 								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112)-15;
+							else if (dest.x == 5 && dest.y == 5 && dest.h == 23) // AM
+								dest.x = dest.x + 8;
 							else if (g_se_overlay_width == 360)
 								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
 
 							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
-							SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
+							if (!video::get_singe_blend_sprite())
+								SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
+
 							SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
 							SDL_FreeSurface(textsurface);
 						}
@@ -1230,7 +1224,8 @@ static int sep_sprite_draw(lua_State *L)
 						if (dest.w == 137 && dest.h == 28) // SP
 							SDL_SetColorKey(g_spriteList[sprite], SDL_FALSE|SDL_RLEACCEL, 0x000000ff);
 
-						if (dest.w != 204 && dest.h != 21) // JR
+						if ((!video::get_singe_blend_sprite()) &&
+								(dest.w != 204 && dest.h != 21) && (dest.w != 11 && dest.h != 11)) // JR / AM
 							SDL_SetSurfaceBlendMode(g_spriteList[sprite], SDL_BLENDMODE_NONE);
 
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);

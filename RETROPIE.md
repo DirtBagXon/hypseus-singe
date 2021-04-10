@@ -30,7 +30,7 @@
     cp doc/hypinput.ini /opt/retropie/configs/daphne/
     ln -s /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini
 
-If you only want ``Daphne`` games, you can **stop here**.
+If you only want ``Daphne`` games, **stop here**.
 
 For extending with ``Singe`` game support, continue below:
 
