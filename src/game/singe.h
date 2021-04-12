@@ -39,7 +39,7 @@ using namespace std;
 
 // by rdg2010
 #define SINGE_VERSION                                                          \
-    1.14 // Update this number whenever you issue a major change
+    1.15 // Update this number whenever you issue a major change
 enum { KEYBD_NORMAL, KEYBD_FULL };
 
 ////////////////////////////////////////////////////////////////////////////////

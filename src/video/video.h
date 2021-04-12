@@ -26,6 +26,12 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
+#if defined(WIN32) || defined(_WIN32)
+#define PATH_SEPARATOR "\\"
+#else
+#define PATH_SEPARATOR "/"
+#endif
+
 #include "SDL_FontCache.h"
 #include <SDL.h>
 
@@ -146,6 +152,9 @@ void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 
 bool get_force_aspect_ratio();
+
+void take_screenshot();
+void set_queue_screenshot(bool bEnabled);
 
 unsigned int get_draw_width();
 unsigned int get_draw_height();

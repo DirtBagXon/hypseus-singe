@@ -158,9 +158,8 @@ bool ldp_vldp::init_player()
             // if the last video file has not been parsed, assume none have been
             // This is safe because if parsed, it will just skip them
             if (!last_video_file_parsed()) {
-                printnotice("Press any key to parse your video file(s). "
-                            "This may take a while. Press ESC if you'd "
-                            "rather quit.");
+                printnotice("Parsing video file(s). "
+                            "This may take a while. ");
                 need_to_parse = true;
             }
 
@@ -1462,6 +1461,11 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     result = (video::vid_update_yuv_overlay (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
+
+    if (g_take_screenshot) {
+        g_take_screenshot = false;
+        video::set_queue_screenshot(true);
+    }
 
     return result;
 }

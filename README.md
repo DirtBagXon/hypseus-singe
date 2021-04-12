@@ -15,6 +15,7 @@ Features:
 * Digital Leisure overlays
 * Singe support
 * Psuedo Singe 2 support (details below)
+* PNG screenshots
 * Bugs
 
 ## Compile

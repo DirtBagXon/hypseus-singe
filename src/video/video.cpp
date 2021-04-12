@@ -35,6 +35,7 @@
 #include "palette.h"
 #include "video.h"
 #include <SDL_syswm.h> // rdg2010
+#include <SDL_image.h> // screenshot
 #include <plog/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,6 +88,8 @@ SDL_Rect g_leds_size_rect = {0, 0, 320, 240};
 bool g_LDP1450_overlay = false;
 
 bool g_blendosd = false;
+
+bool queue_take_screenshot = false;
 
 bool g_altosd = false;
 
@@ -625,6 +628,8 @@ bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
 
+void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
+
 void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
 
 void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
@@ -1047,6 +1052,11 @@ void vid_blit () {
         draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
     } else
         SDL_RenderPresent(g_renderer);
+
+    if (queue_take_screenshot) {
+        set_queue_screenshot(false);
+        take_screenshot();
+    }
 }
 
 int get_yuv_overlay_width() {
@@ -1066,6 +1076,60 @@ int get_yuv_overlay_height() {
 bool get_yuv_overlay_ready() {
     if (g_yuv_surface && g_yuv_texture) return true;
     else return false;
+}
+
+void take_screenshot()
+{
+    struct       stat info;
+    char         filename[64];
+    int32_t      screenshot_num = 0;
+    const char   dir[12] = "screenshots";
+
+    if (stat(dir, &info ) != 0 )
+        { LOGW << fmt("'%s' directory does not exist.", dir); return; }
+    else if (!(info.st_mode & S_IFDIR))
+        { LOGW << fmt("'%s' is not a directory.", dir); return; }
+
+    int flags = SDL_GetWindowFlags(g_window);
+    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+        { LOGW << "Cannot screenshot in fullscreen render."; return; }
+
+    SDL_Rect     screenshot;
+    SDL_Renderer *g_renderer   = get_renderer();
+    SDL_Surface  *surface      = NULL;
+
+    if (g_renderer) {
+        SDL_RenderGetViewport(g_renderer, &screenshot);
+        surface = SDL_CreateRGBSurface(0, screenshot.w, screenshot.h, 32, 0, 0, 0, 0);
+        if (!surface) { LOGE << "Cannot allocate surface"; return; }
+        if (SDL_RenderReadPixels(g_renderer, NULL, surface->format->format,
+            surface->pixels, surface->pitch) != 0)
+            { LOGE << fmt("Cannot ReadPixels - Something bad happened: %s", SDL_GetError());
+                 deinit_display();
+                 shutdown_display();
+                 SDL_Quit();
+                 exit(1); }
+    } else {
+        LOGE << "Could not allocate renderer";
+        return;
+    }
+
+    for (;;) {
+        screenshot_num++;
+        sprintf(filename, "%s%shypseus-%d.png",
+          dir, PATH_SEPARATOR, screenshot_num);
+
+        if (!mpo_file_exists(filename))
+            break;
+    }
+
+    if (IMG_SavePNG(surface, filename) == 0) {
+        LOGI << fmt("Wrote screenshot: %s", filename);
+    } else {
+        LOGE <<  fmt("Could not write screenshot: %s !!", filename);
+    }
+
+    SDL_FreeSurface(surface);
 }
 
 }

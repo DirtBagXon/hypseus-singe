@@ -456,7 +456,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
             } else if (key == keydefs[SWITCH_SCREENSHOT][0]) {
 
                 printline("Screenshot requested!");
-                g_ldp->request_screenshot();
+                video::set_queue_screenshot(true);
 
             } else {
 
