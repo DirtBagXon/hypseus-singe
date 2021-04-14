@@ -292,8 +292,8 @@ void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
 
 void singe::JoystickMotion()
 {
-    Uint16 cur_w = g_ldp->get_discvideo_width();
-    Uint16 cur_h = g_ldp->get_discvideo_height();
+    Uint16 cur_w = g_SingeIn.get_video_width();
+    Uint16 cur_h = g_SingeIn.get_video_height();
     static bool s;
 
     if (!s) { xmov = cur_w/4; ymov = cur_h/4; s = true; }
