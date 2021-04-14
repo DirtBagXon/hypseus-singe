@@ -93,8 +93,6 @@ bool queue_take_screenshot = false;
 
 bool g_altosd = false;
 
-bool g_nolair2_overlay = false;
-
 bool g_fs_scale_nearest = false;
 
 bool g_singe_blend_sprite = false;
@@ -638,8 +636,6 @@ void set_blend_osd(bool value) { g_blendosd = value; }
 
 void set_alt_osd(bool value) { g_altosd = value; }
 
-void set_nolair2_overlay(bool value) { g_nolair2_overlay = value; }
-
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 int get_scalefactor() { return g_scalefactor; }
@@ -759,9 +755,6 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     static char *rank;
     int i, k = 0;
     char t[13];
-
-    if (g_nolair2_overlay)
-       return;
 
     if (reset) {
        rcount++;

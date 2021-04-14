@@ -13,7 +13,8 @@ Features:
 * SDL2 support
 * [cmake] build tool
 * Digital Leisure overlays
-* Singe support
+* Singe game support
+* Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
 * PNG screenshots
 * Bugs
@@ -40,7 +41,7 @@ Build:
 
 Ensure you have data in the following `daphne` folders:
 
-    pics, ram, roms, sound, vldp and vldp_dl
+    pics, ram, roms, sound, screenshots, vldp and vldp_dl
 
 **From the repo path:**
 
@@ -82,20 +83,28 @@ Hypseus Singe now has psuedo support for Singe 2 games.
 
 For current details see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
 
+## Singe joystick [mouse] support
+
+Singe now automatically interprets **joystick axis** change as mouse movement. (*Gun Games*)
+
+Adjust sensitivity via `-js_range <1-10>` in Singe arguments.
+
+Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
 
 ## Extended arguments and keys
 
 The following additional arguments have been added to Hypseus Singe:
 
-    -keymapfile                [Specify an alternate hypinput.ini file]
-    -nolair2_overlay           [Disable lair2 overlay]
-    -alt_osd                   [Use alternate lair/ace font overlay]
-    -blend_osd                 [Use TTF blending on alternate font overlay]
-    -blend_singe_sprites       [Restore BLENDMODE outline on singe sprites]
-    -fullscreen_scale_nearest  [Disable linear scaling in fullscreen]
+    -keymapfile                [ Specify an alternate hypinput.ini file        ]
+    -alt_osd                   [ Use alternate lair/ace font overlay           ]
+    -blend_osd                 [ Use TTF blending on alternate font overlay    ]
+    -fullscreen_scale_nearest  [ Disable linear scaling in fullscreen          ]
 
-    Alt-Enter                  [Toggle fullscreen]
-    Space                      [Toggle scoreboard display]
+    -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
+    -js_range <1-10>           [ Adjust Singe joystick sensitivity: (def:5)    ]
+
+    Alt-Enter                  [ Toggle fullscreen                             ]
+    Space [BUTTON 3]           [ Toggle scoreboard display in lair/ace         ]
 
 
 ## Support

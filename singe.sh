@@ -44,6 +44,8 @@ $HYPSEUS_BIN singe vldp \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
 -sound_buffer 2048 \
+-blend_sprites \
+-js_range 5 \
 -volume_nonvldp 5 \
 -volume_vldp 20
 

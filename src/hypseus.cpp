@@ -264,12 +264,8 @@ int main(int argc, char **argv)
 
     // if command line was bogus, quit
     else {
-        printerror("Bad command line or initialization problem (see "
-                   "hypseus_log.txt for details). \n"
-                   "To run, you must specify which game to run and "
-                   "which laserdisc player you are using. \n"
-                   "For example, try 'hypseus lair noldp' to run Dragon's Lair "
-                   "in testing mode.");
+        printerror("Bad command line or initialization problem.\n"
+                   "hypseus.log may provide further details of the error.");
     }
 
     // if our g_game class was allocated
@@ -315,9 +311,11 @@ void reset_logfile(int argc, char **argv)
 {
     int i = 0;
     string str;
+    char logname[64];
 
+    sprintf(logname, "logs%shypseus.log", PATH_SEPARATOR);
     static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
-    static plog::RollingFileAppender<plog::CsvFormatter> fileAppender("hypseus_log.csv", 8000, 3);
+    static plog::RollingFileAppender<plog::TxtFormatter> fileAppender(logname, 50000, 3);
     plog::init(LOGLEVEL, &consoleAppender).addAppender(&fileAppender);
 
     LOGI << "Version " << get_hypseus_version();

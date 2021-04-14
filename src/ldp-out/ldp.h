@@ -364,7 +364,7 @@ class ldp
   private:
     // set to true if pre_init has been called (used to error checking)
     bool m_bPreInitCalled;
-    bool m_bVerbose; // Control message displays on hypseus_log.txt -- rdg2010
+    bool m_bVerbose; // Control message displays on hypseus.log -- rdg2010
 };
 
 // same as regular ldp class but has no seek or skip delay (testing skipping

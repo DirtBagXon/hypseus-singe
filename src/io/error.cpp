@@ -39,9 +39,9 @@
 #include "../sound/sound.h"
 #include "../video/video.h"
 
-// const char *instr = "Please read the hypseus_log.txt file for more
+// const char *instr = "Please read the hypseus.log file for more
 // information";
-const char *instr = "Read hypseus_log.txt for help";
+const char *instr = "Read hypseus.log for help";
 
 // notifies the user of an error that has occurred
 void printerror(const char *s)
@@ -53,6 +53,11 @@ void printerror(const char *s)
     MessageBox(NULL, s, "Encountered an error", MB_OK | MB_ICONERROR);
 #else
     LOGE << s;
+#endif
+
+#ifdef  __linux__
+    if (!plog::get())
+        fprintf(stderr, "[ error ] \033[31;1m%s\033[0m\n", s);
 #endif
 }
 

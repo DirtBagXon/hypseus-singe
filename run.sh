@@ -8,7 +8,7 @@ function STDERR () {
 }
 
 if [ "$1" = "-fullscreen" ]; then
-    FULLSCREEN="-fullscreen -blend_osd"
+    FULLSCREEN="-fullscreen"
     shift
 fi
 

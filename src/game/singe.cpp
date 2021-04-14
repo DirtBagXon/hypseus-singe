@@ -51,6 +51,11 @@ const struct singe_out_info *g_pSingeOut = NULL;
 // info that we provide to the SINGE PROXY DLL
 struct singe_in_info g_SingeIn;
 
+// joystick
+static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
+static Uint16 js_sen = 5;
+static bool bjx, bjy;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // by RDG2010
@@ -202,6 +207,11 @@ void singe::start()
             if (intReturn == 1) {
                 m_video_overlay_needs_update = true;
             }
+
+            if (bjx||bjy) {
+                JoystickMotion();
+            }
+
             blit();
             SDL_check_input();
             samples::do_queued_callbacks(); // hack to ensure sound callbacks are
@@ -225,12 +235,50 @@ void singe::shutdown() {}
 
 void singe::input_enable(Uint8 input)
 {
+    switch (input) {
+    case SWITCH_UP:
+       ypos = -abs(js_sen);
+       jrely--;
+       bjy = true;
+       break;
+    case SWITCH_DOWN:
+       ypos = js_sen;
+       jrely++;
+       bjy = true;
+       break;
+    case SWITCH_LEFT:
+       xpos = -abs(js_sen);
+       jrelx--;
+       bjx = true;
+       break;
+    case SWITCH_RIGHT:
+       xpos = js_sen;
+       jrelx++;
+       bjx = true;
+       break;
+    }
+
     if (g_pSingeOut) // by RDG2010
         g_pSingeOut->sep_call_lua("onInputPressed", "i", input);
 }
 
 void singe::input_disable(Uint8 input)
 {
+    switch (input) {
+    case SWITCH_UP:
+    case SWITCH_DOWN:
+       ypos = 0;
+       jrely = 0;
+       bjy = false;
+       break;
+    case SWITCH_LEFT:
+    case SWITCH_RIGHT:
+       xpos = 0;
+       jrelx = 0;
+       bjx = false;
+       break;
+    }
+
     if (g_pSingeOut) // by RDG2010
         g_pSingeOut->sep_call_lua("onInputReleased", "i", input);
 }
@@ -242,6 +290,25 @@ void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
     }
 }
 
+void singe::JoystickMotion()
+{
+    Uint16 cur_w = g_ldp->get_discvideo_width();
+    Uint16 cur_h = g_ldp->get_discvideo_height();
+    static bool s;
+
+    if (!s) { xmov = cur_w/4; ymov = cur_h/4; s = true; }
+
+    xmov = xpos + xmov;
+    ymov = ypos + ymov;
+
+    if (xmov > cur_w) { xmov = cur_w; jrelx = 0; }
+    if (ymov > cur_h) { ymov = cur_h; jrely = 0; }
+    if (xmov < 0) { xmov = abs(xmov); jrelx = 0; }
+    if (ymov < 0) { ymov = abs(ymov); jrely = 0; }
+
+    g_pSingeOut->sep_do_mouse_move(xmov, ymov, jrelx, jrely);
+}
+
 // game-specific command line arguments handled here
 bool singe::handle_cmdline_arg(const char *arg)
 {
@@ -249,6 +316,7 @@ bool singe::handle_cmdline_arg(const char *arg)
     bool bResult             = false;
     static bool scriptLoaded = false;
     char s[81]               = {0};
+    int i;
 
     if (strcasecmp(arg, "-script") == 0) {
         get_next_word(s, sizeof(s));
@@ -258,17 +326,31 @@ bool singe::handle_cmdline_arg(const char *arg)
                 bResult = scriptLoaded = true;
                 m_strGameScript = s;
             } else {
-                printline("Only one game script may be loaded at a time!");
+                printerror("Only one game script may be loaded at a time!");
                 bResult = false;
             }
         } else {
             string strErrMsg = "Script ";
             strErrMsg += s;
             strErrMsg += " does not exist.";
-            printline(strErrMsg.c_str());
+            printerror(strErrMsg.c_str());
         }
     }
+    else if (strcasecmp(arg, "-blend_sprites") == 0) {
+        video::set_singe_blend_sprite(true);
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-js_range") == 0) {
+        get_next_word(s, sizeof(s));
+        i = atoi(s);
 
+        if ((i > 0) && (i < 11)) {
+           js_sen = i;
+           bResult = true;
+        } else {
+           printerror("SINGE: js_range out of scope: <1-10>");
+        }
+    }
     return bResult;
 }
 

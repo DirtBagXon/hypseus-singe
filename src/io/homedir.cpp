@@ -55,7 +55,10 @@ void homedir::set_homedir(const string &s)
     make_dir(m_homedir);
     make_dir(m_homedir + "/ram");
     make_dir(m_homedir + "/roms");
+    make_dir(m_homedir + "/logs");
+    make_dir(m_homedir + "/fonts");
     make_dir(m_homedir + "/framefile");
+    make_dir(m_homedir + "/screenshots");
 }
 
 string homedir::get_romfile(const string &s)

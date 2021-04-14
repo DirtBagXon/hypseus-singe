@@ -39,7 +39,7 @@ using namespace std;
 
 // by rdg2010
 #define SINGE_VERSION                                                          \
-    1.15 // Update this number whenever you issue a major change
+    1.20 // Update this number whenever you issue a major change
 enum { KEYBD_NORMAL, KEYBD_FULL };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,7 @@ class singe : public game
     bool init();
     void start();
     void shutdown();
+    void JoystickMotion();
     void input_enable(Uint8);
     void input_disable(Uint8);
     void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
@@ -107,7 +108,7 @@ class singe : public game
     // Lets give Singe the ability to query for this.
     static int get_status() { return g_ldp->get_status(); }
     static double get_singe_version(); // Returns version of the Singe engine
-    // Controls VLDP message displays on hypseus_log.txt
+    // Controls VLDP message displays on hypseus.log
     static void set_ldp_verbose(bool thisBol) { g_ldp->setVerbose(thisBol); }
 
     // These wrapper functions makes the function set_keyboard_mode and

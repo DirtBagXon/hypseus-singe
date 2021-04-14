@@ -94,6 +94,7 @@ bool parse_homedir()
 {
     bool result      = true;
     char s[81]       = {0};
+    char e[128];
     bool bHomeDirSet = false; // whether set_homedir was called
 
     for (;;) {
@@ -116,8 +117,8 @@ bool parse_homedir()
             } else {
                 g_homedir.set_homedir(s);
                 bHomeDirSet = true;
-                printline("Setting alternate home dir:");
-                printline(s);
+                sprintf(e, "Setting alternate home dir: %s", s);
+                printline(e);
                 break;
             }
         }
@@ -172,6 +173,7 @@ bool parse_game_type()
     // 2.0, or 2.1 version
     bool bSGNMatches = true;
     char s[81]       = {0};
+    char e[128];
 
     // first thing we need to get from the command line is the game type
     get_next_word(s, sizeof(s));
@@ -380,9 +382,13 @@ bool parse_game_type()
         g_game->set_version(3);
     } else if (strcasecmp(s, "uvt") == 0) {
         g_game = new uvt();
+    } else if (strcasecmp(s, "-v") == 0) {
+        printline(get_hypseus_version());
+        result = true;
+        exit(0);
     } else {
-        printline("ERROR: Unknown game type specified : ");
-        printline(s);
+        sprintf(e, "ERROR: Unknown game type specified : %s", s);
+        printline(e);
         result = false;
     }
 
@@ -513,10 +519,6 @@ bool parse_cmd_line(int argc, char **argv)
                               "laserdisc player!");
                     result = false;
                 }
-            }
-           else if (strcasecmp(s, "-nolair2_overlay")==0) {
-
-                    video::set_nolair2_overlay(true);
             }
 	    // Ignore some obsolete arguments (Rather than error)
             else if (strcasecmp(s, "-nohwaccel")==0 || strcasecmp(s, "-noserversend")==0) {
@@ -751,10 +753,6 @@ bool parse_cmd_line(int argc, char **argv)
             // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
             else if (strcasecmp(s, "-fullscreen_scale_nearest") == 0) {
                 video::set_fullscreen_scale_nearest(true);
-            }
-            // Enable singe game sprite outlines
-            else if (strcasecmp(s, "-blend_singe_sprites") == 0) {
-                video::set_singe_blend_sprite(true);
             }
             // Use alternate OSD font
             else if (strcasecmp(s, "-alt_osd") == 0) {

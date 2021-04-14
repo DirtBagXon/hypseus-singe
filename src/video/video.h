@@ -132,7 +132,6 @@ void set_fullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
 void set_blend_osd(bool value);
 void set_alt_osd(bool value);
-void set_nolair2_overlay(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);

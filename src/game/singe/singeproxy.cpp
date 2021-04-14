@@ -1459,7 +1459,7 @@ static int sep_singe_version(lua_State *L)
 static int sep_ldp_verbose(lua_State *L)
 {
 	/*
-	 * Enables/Disables writing of VLDP playback activity to hypseus_log.csv
+	 * Enables/Disables writing of VLDP playback activity to hypseus.log
 	 * Enabled by default.
 	 */
 

@@ -45,7 +45,7 @@
 
 using namespace std;
 
-// false = write log entries to g_lsPendingLog, true = write to hypseus_log.txt
+// false = write log entries to g_lsPendingLog, true = write to hypseus.log
 // This should be false until the command line has finished parsing.
 bool g_log_enabled = false;
 
@@ -96,10 +96,8 @@ void printline(const char *s_format, ...)
     va_end(args);
 
 #ifdef  __linux__
-    if (!plog::get()) {
-       if (s_format[0] == '\0') fprintf(stdout, "[console] <NULL>\n");
-       else fprintf(stdout, "[console] %s\n", s_format);
-    }
+    if (!plog::get())
+       fprintf(stdout, "[console] %s\n", s_format);
 #endif
 
 }

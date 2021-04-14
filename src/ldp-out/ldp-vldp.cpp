@@ -1043,7 +1043,7 @@ bool ldp_vldp::read_frame_conversions()
                         LOGW << fmt("Mpeg Path: %s", m_mpeg_path.c_str());
                         // print the entire contents of the framefile to make it
                         // easier to us to debug newbie problems using their
-                        // hypseus_log.txt
+                        // hypseus.log
                         LOGW << fmt("---BEGIN FRAMEFILE CONTENTS---\n%s---END "
                                     "FRAMEFILE CONTENTS---",
                                     ff_buf);
