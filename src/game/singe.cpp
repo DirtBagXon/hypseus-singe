@@ -344,11 +344,11 @@ bool singe::handle_cmdline_arg(const char *arg)
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
-        if ((i > 0) && (i < 11)) {
+        if ((i > 0) && (i < 21)) {
            js_sen = i;
            bResult = true;
         } else {
-           printerror("SINGE: js_range out of scope: <1-10>");
+           printerror("SINGE: js_range out of scope: <1-20>");
         }
     }
     return bResult;

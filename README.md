@@ -28,7 +28,7 @@ For **RetroPie** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further **RetroPie** Instructions [here](RETROPIE.md)
+Further **RetroPie** Instructions [here](src/3rdparty/retropie/RETROPIE.md)
 
 Build:
 
@@ -87,7 +87,7 @@ For current details see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hyp
 
 Singe now automatically interprets **joystick axis** change as mouse movement. (*Gun Games*)
 
-Adjust sensitivity via `-js_range <1-10>` in Singe arguments.
+Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
 Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
 
@@ -101,7 +101,7 @@ The following additional arguments have been added to Hypseus Singe:
     -fullscreen_scale_nearest  [ Disable linear scaling in fullscreen          ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
-    -js_range <1-10>           [ Adjust Singe joystick sensitivity: (def:5)    ]
+    -js_range <1-20>           [ Adjust Singe joystick sensitivity: (def:5)    ]
 
     Alt-Enter                  [ Toggle fullscreen                             ]
     Space [BUTTON 3]           [ Toggle scoreboard display in lair/ace         ]

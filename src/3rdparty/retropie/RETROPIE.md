@@ -39,7 +39,7 @@ For extending with ``Singe`` game support, continue below:
 Link ``singe`` within emulator path:
 
     cp /opt/retropie/emulators/daphne/daphne.sh /opt/retropie/emulators/daphne/daphne.sh.orig
-    cp retropie/daphne.sh /opt/retropie/emulators/daphne/daphne.sh
+    cp src/3rdparty/retropie/daphne.sh /opt/retropie/emulators/daphne/daphne.sh
 
     mkdir  /home/pi/RetroPie/roms/daphne/singe
     ln -s /home/pi/RetroPie/roms/daphne/singe /opt/retropie/emulators/daphne/singe
