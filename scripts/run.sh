@@ -12,6 +12,16 @@ if [ "$1" = "-fullscreen" ]; then
     shift
 fi
 
+if [ "$1" = "-blend" ]; then
+    BLEND="-alt_osd -blend_osd"
+    shift
+fi
+
+if [ "$1" = "-nolinear" ]; then
+    NEAREST="-fullscreen_scale_nearest"
+    shift
+fi
+
 if [[ $@ == *"-prototype"* ]]; then
     PROTOTYPE="on"
 fi
@@ -19,9 +29,9 @@ fi
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] <gamename> [-prototype]" | STDERR
+    echo  -e "$0 [-fullscreen] [-blend] [-nolinear] <gamename> [-prototype]" | STDERR
 
-    for game in ace astron badlands bega blazer cliff cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
+    for game in ace astron badlands bega blazer cliff cobra cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -73,6 +83,10 @@ case "$1" in
 	VLDP_DIR="vldp"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00000000 -bank 0 00000000 -cheat"
+	;;
+    cobra)
+	VLDP_DIR="vldp"
+	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     cobraab)
 	VLDP_DIR="vldp"
@@ -151,6 +165,8 @@ fi
 $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
+$NEAREST \
+$BLEND \
 $KEYINPUT \
 $BANKS \
 -framefile $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt \

@@ -12,10 +12,20 @@ if [ "$1" = "-fullscreen" ]; then
     shift
 fi
 
+if [ "$1" = "-blend" ]; then
+    BLEND="-blend_sprites"
+    shift
+fi
+
+if [ "$1" = "-nolinear" ]; then
+    NEAREST="-fullscreen_scale_nearest"
+    shift
+fi
+
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-blend] [-nolinear] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -43,9 +53,9 @@ $HYPSEUS_BIN singe vldp \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
+$NEAREST \
+$BLEND \
 -sound_buffer 2048 \
--blend_sprites \
--js_range 5 \
 -volume_nonvldp 5 \
 -volume_vldp 20
 

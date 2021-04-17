@@ -2,7 +2,7 @@
 
 Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
-A program to play laserdisc arcade games on a PC or RPi.
+A program to play laserdisc arcade games on a PC or Raspberry Pi.
 
 This version includes **Singe** support for Fan Made and [American Laser Games][ALG].
 
@@ -24,11 +24,11 @@ Features:
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 [libtool], [vorbis] and [ogg].
 
-For **RetroPie** clone the ``RetroPie`` branch via:
+For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further **RetroPie** Instructions [here](src/3rdparty/retropie/RETROPIE.md)
+Further **RetroPie** Instructions can be found [here](src/3rdparty/retropie/RETROPIE.md)
 
 Build:
 
@@ -41,22 +41,22 @@ Build:
 
 Ensure you have data in the following `daphne` folders:
 
-    pics, ram, roms, sound, screenshots, vldp and vldp_dl
+    pics, ram, roms, sound, singe, (vldp and vldp_dl)
 
 **From the repo path:**
 
     cp -R fonts ~/.daphne
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
-    sudo cp ./run.sh /usr/local/bin/hypseus
-    sudo cp ./singe.sh /usr/local/bin/singe
+    sudo cp ./scripts/run.sh /usr/local/bin/hypseus
+    sudo cp ./scripts/singe.sh /usr/local/bin/singe
     hypseus
     singe
 
 
-[![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
+[![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
-[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/singe2.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
+[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe2.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
 
 
