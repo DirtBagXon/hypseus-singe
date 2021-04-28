@@ -306,7 +306,9 @@ void singe::JoystickMotion()
     if (xmov < 0) { xmov = abs(xmov); jrelx = 0; }
     if (ymov < 0) { ymov = abs(ymov); jrely = 0; }
 
-    g_pSingeOut->sep_do_mouse_move(xmov, ymov, jrelx, jrely);
+    if (g_pSingeOut) {
+        g_pSingeOut->sep_do_mouse_move(xmov, ymov, jrelx, jrely);
+    }
 }
 
 // game-specific command line arguments handled here

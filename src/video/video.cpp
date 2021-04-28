@@ -93,6 +93,8 @@ bool queue_take_screenshot = false;
 
 bool g_altosd = false;
 
+bool g_nolair2_overlay = false;
+
 bool g_fs_scale_nearest = false;
 
 bool g_singe_blend_sprite = false;
@@ -636,6 +638,8 @@ void set_blend_osd(bool value) { g_blendosd = value; }
 
 void set_alt_osd(bool value) { g_altosd = value; }
 
+void set_nolair2_overlay(bool value) { g_nolair2_overlay = value; }
+
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 int get_scalefactor() { return g_scalefactor; }
@@ -748,7 +752,8 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     SDL_Renderer *renderer = get_renderer();
     FC_Font *fixfont = get_fixfont();
     float f = (get_draw_height()*0.004);
-    float x = ((get_draw_width()/255.5)*start_x);
+    float x = (double)g_game->get_video_overlay_width() /
+               g_game->get_video_overlay_height();
     static float x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
     static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9;
     static int rcount, cr;
@@ -756,19 +761,26 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     int i, k = 0;
     char t[13];
 
+    if (g_nolair2_overlay) return;
+    if (reset && !get_LDP1450_enabled()) return;
+
     if (reset) {
        rcount++;
        if (rcount > 1) {
-          y0 = false, y1 = y0, y2 = y0,
-             y3 = y0, y4 = y0, y5 = y0,
-             y6 = y0, y7 = y0, y8 = y0,
-             y9 = y0;
+          y0 = y1 = y2 = y3 = y4 = y5
+             = y6 = y7 = y8 = y9
+             = false;
           set_LDP1450_enabled(false);
           rcount = 0;
        }
+       return;
     }
 
     if (insert) {
+
+       if (x == 1.5) x = ((get_draw_width()/310.5) * start_x);
+       else x = ((get_draw_width()/255.5) * start_x);
+
        switch(y)
        {
           case 69:
@@ -790,7 +802,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
                if (*s != 32) k++;
              if (k==3) {
                 if (cr == 1) rank = strdup(LDP1450_104);
-                else if(rank) LDP1450_104 = strdup(rank);
+                else if (rank) LDP1450_104 = strdup(rank);
                 cr++;
                 if (cr>2) cr = 0;
              }

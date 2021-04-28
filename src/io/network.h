@@ -53,4 +53,7 @@ unsigned int get_sys_mem();
 char *get_video_description();
 char *get_cpu_name();
 char *get_os_description();
+char *get_sdl_compile();
+char *get_sdl_linked();
+char *get_build_time();
 void net_send_data_to_server();

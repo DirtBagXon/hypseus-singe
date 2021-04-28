@@ -488,6 +488,7 @@ void gpworld::repaint()
     // END modified Mame code
 
     Uint8 pixel[8];
+    Uint8 p = 5;
 
     // loop through video memory and draw characters
     for (int charx = 19; charx < 64; charx++) {
@@ -523,7 +524,7 @@ void gpworld::repaint()
                 for (int x = 0; x < 8; x++) {
                     if (pixel[x]) {
                         *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 7 + x)) =
+                          ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 7 + x + p)) =
                             tile_color_pointer[(pixel[x]) | ((m_cpumem[current_character]) & 0xfc)];
                     }
                 }
@@ -544,7 +545,7 @@ void gpworld::repaint()
     // draw low or high depending on the state of the shifter
     const char *t = "HIGH";
     if (banks[2]) t = "LOW";
-    video::draw_string(t, 1, 225, m_video_overlay[m_active_video_overlay]);
+    video::draw_string(t, 2, 222, m_video_overlay[m_active_video_overlay]);
 }
 
 // this gets called when the user presses a key or moves the joystick
@@ -685,7 +686,7 @@ void gpworld::draw_sprite(int spr_number)
 
         src = src2 = src + skip;
 
-        x = sx;
+        x = sx - 12;
         y = sy + row;
 
         while (1) {
@@ -737,7 +738,7 @@ void gpworld::draw_sprite(int spr_number)
                       (y * GPWORLD_OVERLAY_W) + x + 3) = pixel4 + (0x10 * sprite_color);
                 }
             }
-            x += 3;
+            x += 4;
 
             // stop drawing when the sprite data is 0xf
             if (((data_lo & 0x0f) == 0x0f) && (!(src & 0x8000))) {

@@ -54,7 +54,6 @@ using namespace std;
 const int JOY_AXIS_MID = (int)(32768 * (0.75)); // how far they have to move the
                                                 // joystick before it 'grabs'
 
-SDL_Joystick *G_joystick = NULL;  // pointer to joystick object
 bool g_use_joystick      = true;  // use a joystick by default
 bool g_alt_pressed       = false; // whether the ALT key is presssed (for ALT-Enter
                                   // combo)
@@ -93,49 +92,58 @@ int g_key_defs[SWITCH_COUNT][2] = {
     {SDLK_LEFT, SDLK_KP_4},   // left
     {SDLK_DOWN, SDLK_KP_2},   // down
     {SDLK_RIGHT, SDLK_KP_6},  // right
-    {SDLK_1, 0},                      // 1 player start
-    {SDLK_2, 0},                      // 2 player start
+    {SDLK_1, 0},              // 1 player start
+    {SDLK_2, 0},              // 2 player start
     {SDLK_SPACE, SDLK_LCTRL}, // action button 1
-    {SDLK_LALT, 0},                   // action button 2
-    {SDLK_LSHIFT, 0},                 // action button 3
+    {SDLK_LALT, 0},           // action button 2
+    {SDLK_LSHIFT, 0},         // action button 3
     {SDLK_5, SDLK_c},         // coin chute left
-    {SDLK_6, 0},                      // coin chute right
-    {SDLK_KP_DIVIDE, 0},              // skill easy
-    {SDLK_KP_MULTIPLY, 0},            // skill medium
-    {SDLK_KP_MINUS, 0},               // skill hard
-    {SDLK_9, 0},                      // service coin
-    {SDLK_F2, 0},                     // test mode
-    {SDLK_F3, 0},                     // reset cpu
+    {SDLK_6, 0},              // coin chute right
+    {SDLK_KP_DIVIDE, 0},      // skill easy
+    {SDLK_KP_MULTIPLY, 0},    // skill medium
+    {SDLK_KP_MINUS, 0},       // skill hard
+    {SDLK_9, 0},              // service coin
+    {SDLK_F2, 0},             // test mode
+    {SDLK_F3, 0},             // reset cpu
     {SDLK_F12, SDLK_F11},     // take screenshot
     {SDLK_ESCAPE, SDLK_q},    // Quit DAPHNE
-    {SDLK_p, 0},                      // pause game
-    {SDLK_BACKQUOTE, 0},                  // toggle console (TODO)
-    {SDLK_t, 0},                      // Tilt/Slam switch
+    {SDLK_p, 0},              // pause game
+    {SDLK_BACKQUOTE, 0},      // toggle console (TODO)
+    {SDLK_t, 0}               // Tilt/Slam switch
 };
 
 ////////////
 
-// added by Russ
-// global button mapping array. just hardcoded room for 10 buttons max
-int joystick_buttons_map[18] = {
-    -1, // button 0
-    -1, // button 1
-    -1, // button 2
-    -1, // button 3
-    -1, // button 4
-    -1, // button 5
-    -1, // button 6
-    -1, // button 7
-    -1, // button 8
-    -1, // button 9
-    -1, // button 10
-    -1, // button 11
-    -1, // button 12
-    -1, // button 13
-    -1, // button 14
-    -1, // button 15
-    -1, // button 16
-    -1  // button 17
+int joystick_buttons_map[SWITCH_COUNT][2] = {
+    {0, 0}, // up
+    {0, 0}, // left
+    {0, 0}, // down
+    {0, 0}, // right
+    {0, 0}, // 1 player start
+    {0, 0}, // 2 player start
+    {0, 0}, // action button 1
+    {0, 0}, // action button 2
+    {0, 0}, // action button 3
+    {0, 0}, // coin chute left
+    {0, 0}, // coin chute right
+    {0, 0}, // skill easy
+    {0, 0}, // skill medium
+    {0, 0}, // skill hard
+    {0, 0}, // service coin
+    {0, 0}, // test mode
+    {0, 0}, // reset cpu
+    {0, 0}, // take screenshot
+    {0, 0}, // Quit DAPHNE
+    {0, 0}, // pause game
+    {0, 0}, // toggle console
+    {0, 0}  // Tilt/Slam switch
+};
+
+int joystick_axis_map[SWITCH_START1][3] = {
+    {0, 2, -1}, // up
+    {0, 1, -1}, // left
+    {0, 2, 1},  // down
+    {0, 1, 1}   // right
 };
 
 // Mouse button to key mappings
@@ -154,8 +162,8 @@ void CFG_Keys()
 {
     struct mpo_io *io;
     string cur_line = "";
-    string key_name = "", sval1 = "", sval2 = "", sval3 = "", eq_sign = "";
-    int val1 = 0, val2 = 0, val3 = 0;
+    string key_name = "", sval1 = "", sval2 = "", sval3 = "", sval4 = "", eq_sign = "";
+    int val1 = 0, val2 = 0, val3 = 0, val4 = 0;
     //	bool done = false;
 
     if (m_altInputFileSet) {
@@ -166,7 +174,6 @@ void CFG_Keys()
 
     // find where the keymap ini file is (if the file doesn't exist, this string will be empty)
     string strDapInput = g_homedir.find_file(g_inputini_file.c_str(), true);
-    int max_buttons = (int) (sizeof(joystick_buttons_map) / sizeof(int));
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
         LOGD << "Remapping input ...";
@@ -204,6 +211,10 @@ void CFG_Keys()
                                     val1         = atoi(sval1.c_str());
                                     val2         = atoi(sval2.c_str());
                                     val3         = atoi(sval3.c_str());
+                                    val4         = 0;
+                                    if (find_word(cur_line.c_str(), sval4, cur_line)) {
+                                        val4     = atoi(sval4.c_str());
+                                    }
                                     corrupt_file = false; // looks like we're
                                                           // good
 
@@ -219,12 +230,19 @@ void CFG_Keys()
                                             // if zero then no mapping
                                             // necessary, just use default, if
                                             // any
-                                            if ( val3 -1  < max_buttons)
-                                            {
-                                               if (val3 > 0 ) joystick_buttons_map[val3 - 1] = i;
+                                           if (val3 > 0) {
+                                                // hundreds=joystick index, units=button index
+                                                joystick_buttons_map[i][0] = (val3 / 100);
+                                                joystick_buttons_map[i][1] = (val3 % 100);
                                             }
-                                               else printf("Support for only %d joystick buttons. Unable to map button %d, check hypinput.ini\n",
-							       max_buttons, val3 - 1 );
+                                            // joystick axis
+                                            if (val4 != 0) {
+                                                // hundreds=joystick index, units=axis index, sign=direction
+                                                joystick_axis_map[i][0] = abs(val4 / 100);
+                                                joystick_axis_map[i][1] = abs(val4 % 100);
+                                                joystick_axis_map[i][2] = (val4 == 0)?0:((val4 < 0)?-1:1);
+                                            }
+
                                             found_match = true;
                                             break;
                                         }
@@ -283,20 +301,17 @@ int SDL_input_init()
     if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) >= 0) {
         // if joystick usage is enabled
         if (g_use_joystick) {
-            // if there is at least 1 joystick and we are authorized to use the
-            // joystick for input
-            if (SDL_NumJoysticks() > 0) {
-                G_joystick = SDL_JoystickOpen(0); // FIXME: right now we
-                                                  // automatically choose the
-                                                  // first joystick
-                if (G_joystick != NULL) {
-                    LOGD << "Joystick #0 was successfully opened";
+            // open joysticks
+            for (int i=0; i < SDL_NumJoysticks(); i++) {
+                SDL_Joystick* joystick = SDL_JoystickOpen(i);
+                if (joystick != NULL) {
+                    LOGD << "Joystick #" << i << " was successfully opened";
                 } else {
-                    LOGW << "Error opening joystick!";
+                    LOGW << "Error opening joystick #" << i << "!";
                 }
-            } else {
-                LOGI << "No joysticks detected";
             }
+            if (SDL_NumJoysticks() == 0)
+                LOGI << "No joysticks detected";
         }
         // notify user that their attempt to disable the joystick is successful
         else {
@@ -479,11 +494,11 @@ void process_event(SDL_Event *event)
     case SDL_JOYBUTTONDOWN:
         reset_idle(); // added by JFA for -idleexit
 
-        // added by Russ
-        // loop through buttons and look for a press
-        for (i = 0; i < (sizeof(joystick_buttons_map) / sizeof(int)); i++) {
-            if (event->jbutton.button == i) {
-                input_enable((Uint8)joystick_buttons_map[i]);
+        // loop through map and find corresponding action
+        for (i = 0; i < SWITCH_COUNT; i++) {
+            if (event->jbutton.which == joystick_buttons_map[i][0]
+                            && event->jbutton.button == joystick_buttons_map[i][1]-1) {
+                input_enable(i);
                 break;
             }
         }
@@ -492,10 +507,11 @@ void process_event(SDL_Event *event)
     case SDL_JOYBUTTONUP:
         reset_idle(); // added by JFA for -idleexit
 
-        // added by Russ
-        for (i = 0; i < (sizeof(joystick_buttons_map) / sizeof(int)); i++) {
-            if (event->jbutton.button == i) {
-                input_disable((Uint8)joystick_buttons_map[i]);
+        // loop through map and find corresponding action
+        for (i = 0; i < SWITCH_COUNT; i++) {
+            if (event->jbutton.which == joystick_buttons_map[i][0]
+                           && event->jbutton.button == joystick_buttons_map[i][1]-1) {
+                input_disable(i);
                 break;
             }
         }
@@ -582,50 +598,39 @@ void process_keyup(SDL_Keycode key)
 // processes movements of the joystick
 void process_joystick_motion(SDL_Event *event)
 {
-
     static int x_axis_in_use = 0; // true if joystick is left or right
     static int y_axis_in_use = 0; // true if joystick is up or down
 
-    // if they are moving along the verticle axis
-    if (event->jaxis.axis == 1) {
-        // if they're moving up
-        if (event->jaxis.value < -JOY_AXIS_MID) {
-            input_enable(SWITCH_UP);
-            y_axis_in_use = 1;
+    // loop through map and find corresponding action
+    int key = -1;
+    for (int i = 0; i < SWITCH_START1; i++) {
+        if (event->jaxis.which == joystick_axis_map[i][0] && event->jaxis.axis == joystick_axis_map[i][1]-1
+			&& ((event->jaxis.value < 0)?-1:1) == joystick_axis_map[i][2]) {
+            key = i;
+            break;
         }
-        // if they're moving down
-        else if (event->jaxis.value > JOY_AXIS_MID) {
-            input_enable(SWITCH_DOWN);
-            y_axis_in_use = 1;
-        }
+    }
+    if (key == -1) return;
 
-        // if they just barely stopped moving up or down
-        else if (y_axis_in_use == 1) {
+    if (abs(event->jaxis.value) > JOY_AXIS_MID) {
+        input_enable(key);
+        if (key == SWITCH_UP || key == SWITCH_DOWN)
+            y_axis_in_use = 1;
+        else
+            x_axis_in_use = 1;
+    }
+    else {
+        if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use) {
             input_disable(SWITCH_UP);
             input_disable(SWITCH_DOWN);
             y_axis_in_use = 0;
-        }
-    } // end verticle axis
 
-    // horizontal axis
-    else if (event->jaxis.axis == 0) {
-        // if they're moving right
-        if (event->jaxis.value > JOY_AXIS_MID) {
-            input_enable(SWITCH_RIGHT);
-            x_axis_in_use = 1;
-        }
-        // if they're moving left
-        else if (event->jaxis.value < -JOY_AXIS_MID) {
-            input_enable(SWITCH_LEFT);
-            x_axis_in_use = 1;
-        }
-        // if they just barely stopped moving right or left
-        else if (x_axis_in_use == 1) {
-            input_disable(SWITCH_RIGHT);
+        } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use) {
             input_disable(SWITCH_LEFT);
+            input_disable(SWITCH_RIGHT);
             x_axis_in_use = 0;
         }
-    } // end horizontal axis
+    }
 }
 
 // processes movement of the joystick hat

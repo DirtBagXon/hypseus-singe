@@ -18,7 +18,7 @@ if [ "$1" = "-blend" ]; then
 fi
 
 if [ "$1" = "-nolinear" ]; then
-    NEAREST="-fullscreen_scale_nearest"
+    NEAREST="-nolinear_scale"
     shift
 fi
 

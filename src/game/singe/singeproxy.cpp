@@ -1174,7 +1174,7 @@ static int sep_sound_play(lua_State *L)
 static int sep_sprite_draw(lua_State *L)
 {
   int n = lua_gettop(L);
-  static bool redrawn;
+  static bool o;
 
   if (n == 3)
     if (lua_isnumber(L, 1))
@@ -1213,12 +1213,11 @@ static int sep_sprite_draw(lua_State *L)
 								else
 									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
 							}
+						}
 
-							if (!redrawn)
-							{
-								sep_print("Overlay redrawn to %d x %d", g_se_overlay_width, g_se_overlay_height);
-								redrawn = true;
-							}
+						if (!o) {
+							sep_print("Overlay drawn to %d x %d", g_se_overlay_width, g_se_overlay_height);
+							o = true;
 						}
 
 						if (dest.w == 137 && dest.h == 28) // SP

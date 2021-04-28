@@ -91,13 +91,19 @@ void outchr(const char ch)
 void printline(const char *s_format, ...)
 {
     va_list args;
+    static bool v;
     va_start(args, s_format);
     LOGI << fmt(s_format, args);
     va_end(args);
 
 #ifdef  __linux__
-    if (!plog::get())
+    if (!plog::get()) {
+       if (!v) {
+           fprintf(stdout, "[version] Hypseus Singe: %s\n", get_hypseus_version());
+           v = true;
+       }
        fprintf(stdout, "[console] %s\n", s_format);
+    }
 #endif
 
 }

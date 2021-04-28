@@ -383,7 +383,10 @@ bool parse_game_type()
     } else if (strcasecmp(s, "uvt") == 0) {
         g_game = new uvt();
     } else if (strcasecmp(s, "-v") == 0) {
-        printline(get_hypseus_version());
+        printline(get_os_description());
+        printline(get_sdl_compile());
+        printline(get_sdl_linked());
+        printline(get_build_time());
         result = true;
         exit(0);
     } else {
@@ -521,7 +524,8 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
 	    // Ignore some obsolete arguments (Rather than error)
-            else if (strcasecmp(s, "-nohwaccel")==0 || strcasecmp(s, "-noserversend")==0) {
+            else if (strcasecmp(s, "-nohwaccel")==0 || strcasecmp(s, "-noserversend")==0
+               || strcasecmp(s, "-opengl")==0) {
 
                  bool dummy = true;
 
@@ -751,7 +755,7 @@ bool parse_cmd_line(int argc, char **argv)
                 video::set_fullscreen(true);
             }
             // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
-            else if (strcasecmp(s, "-fullscreen_scale_nearest") == 0) {
+            else if (strcasecmp(s, "-nolinear_scale") == 0) {
                 video::set_fullscreen_scale_nearest(true);
             }
             // Use alternate OSD font
@@ -869,6 +873,11 @@ bool parse_cmd_line(int argc, char **argv)
             // exits
             else if (strcasecmp(s, "-stoponquit") == 0) {
                 g_ldp->set_stop_on_quit(true);
+            }
+            // disable lair2 font overlay - can cause flickering on slow
+            // display updates
+            else if (strcasecmp(s, "-nolair2_overlay") == 0) {
+                video::set_nolair2_overlay(true);
             }
             // this switch only supported by the ldp-vldp player class.
             else if (strcasecmp(s, "-useoverlaysb") == 0) {

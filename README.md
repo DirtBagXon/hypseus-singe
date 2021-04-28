@@ -16,6 +16,7 @@ Features:
 * Singe game support
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
+* Advanced multi joystick configuration
 * PNG screenshots
 * Bugs
 
@@ -48,8 +49,8 @@ Ensure you have data in the following `daphne` folders:
     cp -R fonts ~/.daphne
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
-    sudo cp ./scripts/run.sh /usr/local/bin/hypseus
-    sudo cp ./scripts/singe.sh /usr/local/bin/singe
+    sudo cp scripts/run.sh /usr/local/bin/hypseus
+    sudo cp scripts/singe.sh /usr/local/bin/singe
     hypseus
     singe
 
@@ -85,7 +86,7 @@ For current details see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hyp
 
 ## Singe joystick [mouse] support
 
-Singe now automatically interprets **joystick axis** change as mouse movement. (*Gun Games*)
+Singe now automatically interprets **joystick axis** change as mouse movement (*Gun Games*).
 
 Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
@@ -98,13 +99,14 @@ The following additional arguments have been added to Hypseus Singe:
     -keymapfile                [ Specify an alternate hypinput.ini file        ]
     -alt_osd                   [ Use alternate lair/ace font overlay           ]
     -blend_osd                 [ Use TTF blending on alternate font overlay    ]
-    -fullscreen_scale_nearest  [ Disable linear scaling in fullscreen          ]
+    -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
+    -nolair2_overlay           [ Disable lair2 text overlay                    ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
-    -js_range <1-20>           [ Adjust Singe joystick sensitivity: (def:5)    ]
+    -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
 
     Alt-Enter                  [ Toggle fullscreen                             ]
-    Space [BUTTON 3]           [ Toggle scoreboard display in lair/ace         ]
+    [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
 
 
 ## Support
@@ -121,12 +123,12 @@ Open development by the original author, [Matt Ownby][CUS], ceased years ago.
 Singe was created by [Scott Duensing][SD] as a plugin to Daphne to allow the
 playing of [American Laser Games][ALG].
 
-This repository was created to build upon the ``SDL2 Hypseus`` project created
+This repository was created to build upon the ``Hypseus`` project created
 by [Jeffrey Clark][JAC]. Many overlays were still unimplemented in the original
-repository, Singe had also been removed.
+repository. Singe had also been removed.
 
-The name was changed to _Hypseus_ by Jeffrey so the original authors of
-[Daphne] would not be burdened with requests for support.
+The name was changed to _Hypseus_ so the original authors of [Daphne] would not
+be burdened with requests for support.
 
 A big thanks goes out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
 [Manuel Corchete][MAC], [David Griffith][DG] and the many other developers

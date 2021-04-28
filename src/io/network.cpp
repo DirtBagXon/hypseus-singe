@@ -26,6 +26,7 @@
 #include <stdlib.h> // for lousy random number generation
 #include <sys/types.h>
 #include <string.h>
+#include <SDL.h>
 
 #ifdef MAC_OSX
 #include <mach/host_info.h>
@@ -62,26 +63,14 @@
 #include "../hypseus.h"
 #include "network.h"
 
-// arbitrary port I've chosen to send incoming data
-#define NET_PORT 7733
 
-// ip address to send data to
-// I changed this to 'stats' in case I ever want to change the IP address of the
-// stats
-// server without changing the location of the web server.
-#define NET_IP "stats.btolab.com"
-
-// which version of this simple protocol we are using (so the server can support
-// multiple versions)
-static const unsigned char PROTOCOL_VERSION = 1;
-
-bool g_send_data_to_server = true; // whether user allows us to send data to
+bool g_send_data_to_server = false; // whether user allows us to send data to
                                    // server
 
 ////////////////////
 
-// disable sending data to server for paranoid users
-void net_server_send() { g_send_data_to_server = true; }
+// this is not the server you are looking for
+void net_server_send() { g_send_data_to_server = false; }
 
 int g_sockfd = -1;          // our socket file descriptor
 struct net_packet g_packet; // what we're gonna send
@@ -348,6 +337,40 @@ char *get_os_description()
 #endif
 
     return result;
+}
+
+char *get_sdl_compile()
+{
+    static char result[NET_LONGSTRSIZE] = {0};
+
+    SDL_version compiled;
+    SDL_VERSION(&compiled);
+    snprintf(result, sizeof(result), "SDL(CC): %d.%d.%d", compiled.major,
+		    compiled.minor, compiled.patch);
+
+    return result;
+}
+
+char *get_sdl_linked()
+{
+    static char result[NET_LONGSTRSIZE] = {0};
+
+    SDL_version linked;
+    SDL_GetVersion(&linked);
+    snprintf(result, sizeof(result), "SDL(LD): %d.%d.%d", linked.major,
+		    linked.minor, linked.patch);
+
+    return result;
+}
+
+char *get_build_time()
+{
+   static char result[NET_LONGSTRSIZE] = {0};
+   static const char *built = __DATE__ " " __TIME__;
+
+   snprintf(result, sizeof(result), "Compiled: %s", built);
+
+   return result;
 }
 
 // DBX: Pretty certain MPO's server doesn't want these
