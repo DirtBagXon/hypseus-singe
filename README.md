@@ -18,7 +18,12 @@ Features:
 * Psuedo Singe 2 support (details below)
 * Advanced multi joystick configuration
 * PNG screenshots
+* Windows Port
 * Bugs
+
+## Windows
+
+**Windows** binaries can be found [here](win32/)
 
 ## Compile
 

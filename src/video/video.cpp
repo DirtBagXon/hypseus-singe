@@ -597,11 +597,10 @@ void clean_control_char(char *src, char *dst, int len)
     int i;
 
     for (i = 0; i < len; src++, i++) {
-        if (*src == 0x13 ) *dst = ' ';
+        if (*src == 0x13) *dst = ' ';
         else *dst = *src;
         dst++;
     }
-    *dst = '\0';
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -795,6 +794,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
              LDP1450_101 = strdup(s);
              y2 = true; x2 = x;
              break;
+          case 103:
           case 104:
              clean_control_char(s, t, sizeof(t));
              LDP1450_104 = strdup(t);
@@ -809,6 +809,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
              else cr = 0;
              y3 = true; x3 = x;
              break;
+          case 119:
           case 120:
              LDP1450_120 = strdup(s);
              y4 = true; x4 = x;
@@ -817,6 +818,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
              LDP1450_128 = strdup(s);
              y5 = true; x5 = x;
              break;
+          case 135:
           case 136:
              LDP1450_136 = strdup(s);
              y6 = true; x6 = x;
