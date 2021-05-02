@@ -37,8 +37,6 @@
 
 #include <inttypes.h>
 
-#include <mpeg2.h>
-
 // NOTICE : these variables should only be used by the private thread
 // !!!!!!!!!!!!
 
