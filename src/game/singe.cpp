@@ -217,11 +217,7 @@ void singe::start()
             samples::do_queued_callbacks(); // hack to ensure sound callbacks are
                                             // called at a time when lua can
                                             // accept them without crashing
-
-            if (sizeof(size_t) == 4)        // 32bit check
-               g_ldp->think_delay(30);
-            else
-               g_ldp->think_delay(15);      // don't hog cpu, and advance timer
+            g_ldp->think_delay(30);         // don't hog cpu, and advance timer
         }
 
         g_pSingeOut->sep_call_lua("onShutdown", "");

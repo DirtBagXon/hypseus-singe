@@ -72,10 +72,12 @@ static int os_getenv (lua_State *L) {
 
 
 static int os_clock (lua_State *L) {
-  if (sizeof(size_t) == 4)
-      lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC)*LUA_32BIT_CLOCK_SKEW);
-  else
+#ifndef __aarch64__
+  if (sizeof(size_t) == 8)
       lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC)*LUA_64BIT_CLOCK_SKEW);
+  else
+#endif
+      lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC)*LUA_32BIT_CLOCK_SKEW);
 
   return 1;
 }

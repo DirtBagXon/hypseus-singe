@@ -37,6 +37,7 @@
 #include <SDL_syswm.h> // rdg2010
 #include <SDL_image.h> // screenshot
 #include <plog/Log.h>
+#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -777,7 +778,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
 
     if (insert) {
 
-       if (x == 1.5) x = ((get_draw_width()/310.5) * start_x);
+       if (fabs(x - 1.5)<FLT_EPSILON) x = ((get_draw_width()/310.5) * start_x);
        else x = ((get_draw_width()/255.5) * start_x);
 
        switch(y)
