@@ -136,11 +136,14 @@ The name was changed to _Hypseus_ so the original authors of [Daphne] would not
 be burdened with requests for support.
 
 A big thanks goes out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
-[Manuel Corchete][MAC], [David Griffith][DG] and the many other developers
+[Manuel Alfayate][MAC], [David Griffith][DG] and the many other developers
 who made their work available for me to build upon. Without them this
 project would not be possible.
 
 ## License
+
+**Hypseus Singe**, Super Multiple Arcade Laserdisc Emulator  
+Copyright (C) 2021  [DirtBagXon][project]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]
@@ -166,9 +169,9 @@ The "Hypseus Singe" mark is used to uniquely identify this project as an Arcade
 Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 "Hypseus" is strictly prohibited without express permission.__
 
-[project]: https://github.com/btolab/hypseus
-[issues]: https://github.com/btolab/hypseus/issues
-[pull requests]: https://github.com/btolab/hypseus/pulls
+[project]: https://github.com/DirtBagXon/hypseus-singe
+[issues]: https://github.com/DirtBagXon/hypseus-singe/issues
+[pull requests]: https://github.com/DirtBagXon/hypseus-singe/pulls
 [Daphne]: http://www.daphne-emu.com
 [CUS]: http://www.daphne-emu.com/site3/statement.php
 [gcc]: https://gcc.gnu.org/

@@ -524,8 +524,7 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
 	    // Ignore some obsolete arguments (Rather than error)
-            else if (strcasecmp(s, "-nohwaccel")==0 || strcasecmp(s, "-noserversend")==0
-               || strcasecmp(s, "-opengl")==0) {
+            else if (strcasecmp(s, "-noserversend")==0 || strcasecmp(s, "-opengl")==0) {
 
                  bool dummy = true;
 
@@ -954,7 +953,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
 
             // check if we need to use the SDL software renderer
-            else if (strcasecmp(s, "-sdl_software_rendering") == 0) {
+            else if (strcasecmp(s, "-nohwaccel") == 0) {
                 g_game->m_sdl_software_rendering = true;
             }
             // check for any game-specific arguments ...

@@ -239,9 +239,7 @@ bool init_display()
         } else {
             if (g_game->m_sdl_software_rendering) {
                 g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_SOFTWARE |
-                                                              SDL_RENDERER_TARGETTEXTURE |
-                                                              SDL_RENDERER_PRESENTVSYNC
-                                                              );
+                                                              SDL_RENDERER_TARGETTEXTURE);
             } else {
                 g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED |
                                                               SDL_RENDERER_TARGETTEXTURE |
