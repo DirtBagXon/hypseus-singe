@@ -100,6 +100,8 @@ bool g_fs_scale_nearest = false;
 
 bool g_singe_blend_sprite = false;
 
+bool g_fakefullscreen = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
@@ -189,6 +191,7 @@ bool init_display()
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
 
         if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        else if (g_fakefullscreen) sdl_flags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS;
 
         g_draw_width  = g_vid_width;
         g_draw_height = g_vid_height;
@@ -256,7 +259,8 @@ bool init_display()
                 // MAC: If we start in fullscreen mode, we have to set the logical
                 // render size to get the desired aspect ratio.
                 // Also, we set bilinear filtering
-                if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+                if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0 ||
+                    (sdl_flags & SDL_WINDOW_MAXIMIZED) != 0) {
                     if(!g_fs_scale_nearest)
                         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
@@ -625,6 +629,8 @@ bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 // sets our g_fullscreen bool (determines whether will be in fullscreen mode or
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
+
+void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 
@@ -1097,7 +1103,7 @@ void take_screenshot()
         { LOGW << fmt("'%s' is not a directory.", dir); return; }
 
     int flags = SDL_GetWindowFlags(g_window);
-    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP)
+    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
         { LOGW << "Cannot screenshot in fullscreen render."; return; }
 
     SDL_Rect     screenshot;

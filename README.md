@@ -23,7 +23,7 @@ Features:
 
 ## Windows
 
-**Windows** binaries can be found [here](win32/)
+**Windows** files and documentation can be found [here](win32/)
 
 ## Compile
 

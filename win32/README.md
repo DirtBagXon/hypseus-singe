@@ -8,17 +8,17 @@ Unzip *Hypseus Singe* to its own directory. *e.g.*
 
 Place zipped *rom* files in the `roms` directory.
 
-Place *framefile* and *video* files in `vldp` or `singe` under the appropriate game name.
+Place *framefile* and *video* files in `vldp` or `singe` under the appropriate game directory name.
 
 ## Running games
 
-Example `.bat` files are provided in the repo. Run `hypseus.exe` with Daphne arguments:
+Example `.bat` files are provided in the repo. Run `hypseus.exe` with *Daphne* [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine):
 
-    hypseus.exe lair vldp -framefile "c:\Hypseus Singe\vldp\lair\lair.txt" -fullscreen
+    hypseus.exe lair vldp -framefile "vldp\lair\lair.txt" -fullscreen
 
-    hypseus.exe singe vldp -framefile "c:\Hypseus Singe\singe\timegal\timegal.txt" -script "c:\Hypseus Singe\singe\timegal\timegal.singe"
+    hypseus.exe singe vldp -blend_sprites -framefile "singe\timegal\timegal.txt" -script "singe\timegal\timegal.singe"
 
-See any additional new arguments on the main page.
+Refer to additional arguments on the [main page](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys).
 
 ## Configuration
 

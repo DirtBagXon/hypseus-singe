@@ -129,6 +129,7 @@ bool get_fullscreen();
 bool get_alt_osd();
 bool get_singe_blend_sprite();
 void set_fullscreen(bool value);
+void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
 void set_blend_osd(bool value);
 void set_alt_osd(bool value);

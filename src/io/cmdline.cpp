@@ -753,6 +753,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
             }
+            // run hypseus in borderless fullscreen window mode
+            else if (strcasecmp(s, "-fullscreen_window") == 0) {
+                video::set_fakefullscreen(true);
+            }
             // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
             else if (strcasecmp(s, "-nolinear_scale") == 0) {
                 video::set_fullscreen_scale_nearest(true);
