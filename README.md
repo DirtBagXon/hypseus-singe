@@ -17,6 +17,7 @@ Features:
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
 * Advanced multi joystick configuration
+* Software 'lair/ace' scoreboard in-game: [preview](screenshots/scoreboard.png)
 * PNG screenshots
 * Windows Port
 * Bugs
@@ -97,6 +98,12 @@ Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
 Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
 
+## Software Scoreboard
+
+Enable the original style external scoreboard panel in [lair/ace](screenshots/scoreboard.png): `-software_scoreboard`
+
+Works in conjunction with `-fullscreen_window` or normal windowed mode.
+
 ## Extended arguments and keys
 
 The following additional arguments have been added to Hypseus Singe:
@@ -106,6 +113,7 @@ The following additional arguments have been added to Hypseus Singe:
     -blend_osd                 [ Use TTF blending on alternate font overlay    ]
     -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
     -nolair2_overlay           [ Disable lair2 text overlay                    ]
+    -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]

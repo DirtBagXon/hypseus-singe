@@ -729,14 +729,13 @@ bool lair::init()
                                           m_bUseAnnunciator, get_scoreboard_port());
 
     if (pScoreboard) {
-        // if video overlay is enabled, it means we're using an overlay
-        // scoreboard
-        if (m_game_uses_video_overlay) {
-            ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::OVERLAY);
-        }
-        // else if we're not using VLDP, then display an image scoreboard
-        else if (!g_ldp->is_vldp()) {
+        // We want software scoreboard, display the image scoreboard
+        if (g_game->m_sdl_software_scoreboard) {
             ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+        }
+        // if video overlay is enabled, it means we're using an overlay scoreboard
+        else if (m_game_uses_video_overlay && g_ldp->is_vldp()) {
+            ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::OVERLAY);
         }
 
         // if user has also requested a hardware scoreboard, then enable that

@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include "overlay_scoreboard.h"
+#include "../hypseus.h"
 #include "../video/video.h"	// for draw_string
 
 #define OVERLAY_LED_WIDTH 8
@@ -18,6 +19,9 @@ void OverlayScoreboard::Invalidate()
 
 bool OverlayScoreboard::RepaintIfNeeded()
 {
+	if (get_scoreboard() & 0x01) m_bVisible = false;
+	if (get_scoreboard() & 0x02) m_bVisible = false;
+
 	bool bRepainted = false;
 	if (m_bNeedsRepaint)
 	{

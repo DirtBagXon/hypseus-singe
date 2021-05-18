@@ -251,6 +251,8 @@ class game
     // some platforms have problems with SDL acceleration.
     bool m_sdl_software_rendering;
 
+    bool m_sdl_software_scoreboard;
+
   protected:
     bool m_game_paused;          // whether the game is paused or not
     const char *m_shortgamename; // a one-word name for this game (ie "lair"
