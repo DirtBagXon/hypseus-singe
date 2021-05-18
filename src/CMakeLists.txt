@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.9)
 
-set(PKG_VERSION "v2.5.0")
+set(PKG_VERSION "v2.5.2")
 
 set(FILE_OFFSET_BITS "")
 
@@ -116,7 +116,7 @@ add_executable( hypseus hypseus.cpp globals.h )
 target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
 
 if(USB_SCOREBOARD)
-    add_library(ftdi1)
+    add_library(ftdi1 INTERFACE)
 endif()
 
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)

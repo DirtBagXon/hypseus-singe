@@ -132,6 +132,10 @@ game::game()
 
     // switch to SDL software rendering if hardware acceleration is troublesome
     m_sdl_software_rendering = false;
+
+    // Software scoreboard for lair/ace
+    m_sdl_software_scoreboard = false;
+
 }
 
 game::~game()

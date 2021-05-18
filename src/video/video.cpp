@@ -76,7 +76,10 @@ TTF_Font *g_tfont                  = NULL;
 SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
 SDL_Window *g_window               = NULL;
+SDL_Window *g_sb_window            = NULL;
 SDL_Renderer *g_renderer           = NULL;
+SDL_Renderer *g_sb_renderer        = NULL;
+SDL_Texture *g_sb_texture          = NULL;
 SDL_Texture *g_overlay_texture     = NULL; // The OVERLAY texture, excluding LEDs wich are a special case
 SDL_Texture *g_yuv_texture         = NULL; // The YUV video texture, registered from ldp-vldp.cpp
 SDL_Surface *g_screen_blitter      = NULL; // The main blitter surface
@@ -184,13 +187,16 @@ bool init_display()
 {
     bool result = false; // whether video initialization is successful or not
     Uint32 sdl_flags = 0;
+    Uint32 sdl_sb_flags = 0;
+    bool fs = false;
 
     sdl_flags = SDL_WINDOW_SHOWN;
+    sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP;
 
     // if we were able to initialize the video properly
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
 
-        if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        if (g_fullscreen) { sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP; fs = true; }
         else if (g_fakefullscreen) sdl_flags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS;
 
         g_draw_width  = g_vid_width;
@@ -228,7 +234,6 @@ bool init_display()
         // Step 2. Create a borderless SDL window.
         // If doing fullscreen window, make the window bordeless (no title
         // bar).
-        // This is achieved by adding the SDL_NOFRAME flag.
 
 	g_window =
             SDL_CreateWindow("HYPSEUS Singe: Multiple Arcade Laserdisc Emulator",
@@ -265,6 +270,34 @@ bool init_display()
                         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
+
+                if (g_game->m_sdl_software_scoreboard && !fs) {
+                    g_sb_window = SDL_CreateWindow(NULL, 4, 28, 340, 480, sdl_sb_flags);
+
+                    if (!g_sb_window) {
+                        LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
+                        deinit_display();
+                        shutdown_display();
+                        SDL_Quit();
+                    }
+
+                    if (g_game->m_sdl_software_rendering)
+                        g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, SDL_RENDERER_SOFTWARE |
+                                                                      SDL_RENDERER_TARGETTEXTURE);
+                    else
+                        g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, SDL_RENDERER_ACCELERATED |
+                                                                      SDL_RENDERER_TARGETTEXTURE);
+                   if (g_sb_renderer)
+                        g_sb_texture = SDL_CreateTexture(g_sb_renderer, SDL_GetWindowPixelFormat(g_sb_window),
+                                                        SDL_TEXTUREACCESS_TARGET, 320, 240);
+                   else {
+                        LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
+                        deinit_display();
+                        shutdown_display();
+                        SDL_Quit();
+                        exit(1);
+                   }
+		}
 
 		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
@@ -320,8 +353,7 @@ bool init_display()
 		    g_overlay_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
 						 SDL_TEXTUREACCESS_TARGET,
 						 g_overlay_width, g_overlay_height);
-		   
-		    
+
 		    SDL_SetTextureBlendMode(g_overlay_texture, SDL_BLENDMODE_BLEND);
 		    SDL_SetTextureAlphaMod(g_overlay_texture, 255);
                 }
@@ -364,8 +396,11 @@ bool deinit_display()
 {
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
-    SDL_DestroyTexture(g_overlay_texture);
 
+    SDL_DestroyTexture(g_overlay_texture);
+    SDL_DestroyTexture(g_sb_texture);
+
+    SDL_DestroyRenderer(g_sb_renderer);
     SDL_DestroyRenderer(g_renderer);
 
     return (true);
@@ -469,8 +504,6 @@ SDL_Surface *load_one_bmp(const char *filename)
     return (texture);
 }*/
 
-// MAC: This is for some kind of bitmap-based nice scoreboard.
-// Still not implemented. 7-segments scoreboard is good enough (and also bitmap based really).
 // Draw's one of our LED's to the screen
 // value contains the bitmap to draw (0-9 is valid)
 // x and y contain the coordinates on the screen
@@ -478,7 +511,18 @@ SDL_Surface *load_one_bmp(const char *filename)
 // 1 is returned on success, 0 on failure
 bool draw_led(int value, int x, int y)
 {
-    //vid_blit(g_led_bmps[value], x, y);
+    SDL_Surface *srf = g_led_bmps[value];
+    SDL_Texture *tx;
+
+    SDL_Rect dest;
+    dest.x = (short) x;
+    dest.y = (short) y;
+    dest.w = (unsigned short) srf->w;
+    dest.h = (unsigned short) srf->h;
+
+    tx = SDL_CreateTextureFromSurface(g_sb_renderer, srf);
+    SDL_RenderCopy(g_sb_renderer, tx, NULL, &dest);
+
     return true;
 }
 
@@ -554,22 +598,18 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 //  'which' corresponds to enumerated values
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
 {
-    // NOTE : this is drawn to g_screen_blitter, not to g_screen,
-    //  to be more friendly to our opengl implementation!
-    /*SDL_Texture *tx = g_other_bmps[which];
+    SDL_Surface *srf = g_other_bmps[which];
+    SDL_Texture *tx;
+
     SDL_Rect dest;
     dest.x = (short)x;
     dest.y = (short)y;
-    SDL_QueryTexture(tx, NULL, NULL, &dest.w, &dest.h);
+    dest.w = (unsigned short) srf->w;
+    dest.h = (unsigned short) srf->h;
 
-    // if we should blit this to the screen blitter for later use ...
-    if (bSendToScreenBlitter) {
-        SDL_RenderCopy(g_renderer, tx, NULL, &dest);
-    }
-    // else blit it now
-    else {
-        //vid_blit(g_other_bmps[which], x, y);
-    }*/
+    tx = SDL_CreateTextureFromSurface(g_sb_renderer, srf);
+    SDL_RenderCopy(g_sb_renderer, tx, NULL, &dest);
+
     return true;
 }
 
@@ -1064,6 +1104,8 @@ void vid_blit () {
         draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
     } else
         SDL_RenderPresent(g_renderer);
+
+    if (g_sb_renderer) SDL_RenderPresent(g_sb_renderer);
 
     if (queue_take_screenshot) {
         set_queue_screenshot(false);
