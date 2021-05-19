@@ -11,10 +11,10 @@
 
 const int player_title_x = 65;
 const int player_score_x = 45;
-const int player1_score_y = 73;
+const int player1_score_y = 75;
 const int player1_title_y = player1_score_y - 27;
 const int player1_lives_y = player1_score_y + LED_HEIGHT + 14;
-const int player_lives_x = 150 - LED_WIDTH + 15;
+const int player_lives_x = 166 - LED_WIDTH + 15;
 const int player1_lives_title_y = player1_lives_y + (LED_HEIGHT/2) - (TITLE_HEIGHT/2);	// centered with LED
 const int player_lives_title_x = player_lives_x + LED_WIDTH + 21;
 const int player2_score_y = player1_lives_y + LED_HEIGHT + 45;
