@@ -17,7 +17,7 @@ Features:
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
 * Advanced multi joystick configuration
-* Software 'lair/ace' scoreboard in-game: [preview](screenshots/scoreboard.png)
+* Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 * PNG screenshots
 * Windows Port
 * Bugs
@@ -100,7 +100,7 @@ Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/h
 
 ## Software Scoreboard
 
-Enable the original style external scoreboard panel in [lair/ace](screenshots/scoreboard.png): `-software_scoreboard`
+Enable the original style external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
 
 Works in conjunction with `-fullscreen_window` or normal windowed mode.
 

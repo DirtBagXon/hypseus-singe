@@ -1,5 +1,20 @@
 # Hypseus Singe for Windows
 
+## Download
+
+To avoid repository pollution with outdated zip files, distribution has been moved to **MEGA**:
+
+**Download latest version:** [here](https://mega.nz/file/59MFHaTa#0k6OLQblvy3uVR6yGsZOEsaz0MGRdFOIwEibRcwebfE)
+
+Latest build is:
+
+    hypseus.exe -v
+    [version] Hypseus Singe: v2.5.2
+    [console] SDL(CC): 2.0.14
+    [console] SDL(LD): 2.0.14
+    [console] Build: May 19 2021 16:56:10
+
+
 ## Install
 
 Unzip *Hypseus Singe* to its own directory. *e.g.*
