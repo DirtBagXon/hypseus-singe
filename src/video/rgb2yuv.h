@@ -23,9 +23,7 @@
 #ifndef RGB2YUV_H
 #define RGB2YUV_H
 
-#ifdef MAC_OSX
-#include "mmxdefs.h"
-#endif
+#include "config.h"
 
 #ifdef USE_MMX
 

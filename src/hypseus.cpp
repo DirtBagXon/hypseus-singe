@@ -46,7 +46,7 @@
 using namespace std;
 
 #ifdef MAC_OSX
-#include "mmxdefs.h"
+#include "config.h"
 #endif
 
 #include <SDL_main.h>
