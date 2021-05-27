@@ -31,6 +31,18 @@ Features:
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 [libtool], [vorbis] and [ogg].
 
+### MacOS X
+
+Use homebrew to install the following packages: cmake, autoconf, sdl2, sdl2_image, libvorbis, libogg, sdl2_ttf.
+
+    brew install cmake
+    brew install autoconf
+    brew install sdl2
+    brew install sdl2_image
+    brew install libvorbis
+    brew install libogg
+    brew install sdl2_ttf
+
 For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
