@@ -43,6 +43,8 @@ Use homebrew to install the following packages: cmake, autoconf, sdl2, sdl2_imag
     brew install libogg
     brew install sdl2_ttf
 
+### Raspberry Pi
+
 For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
