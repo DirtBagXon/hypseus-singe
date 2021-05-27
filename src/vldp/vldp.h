@@ -32,7 +32,8 @@ extern "C" {
 
 // by RDG2010
 // Ubuntu Linux complains with plain <SDL.h>
-#include <SDL2/SDL.h> // only used for threading
+// But CMake does the right thing here 
+#include <SDL.h> // only used for threading
 
 struct yuv_buf {
     uint8_t *Y;     // Y channel

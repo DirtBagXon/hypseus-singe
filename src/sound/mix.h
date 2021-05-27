@@ -26,7 +26,7 @@
 #define MIX_H
 
 #ifdef MAC_OSX
-#include "mmxdefs.h"
+#include "config.h"
 #endif
 
 #include <SDL.h> // for datatype defs

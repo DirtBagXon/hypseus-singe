@@ -53,7 +53,6 @@ use_cxx11( )
 
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
-PKG_SEARCH_MODULE(SDL2_IMAGE REQUIRED SDL2_image)
 build_libmpeg2( )
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
@@ -112,8 +111,13 @@ add_dependencies( ldp-out vldp )
 add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
+find_package(SDL2 REQUIRED)
+find_package(SDL2TTF REQUIRED)
+find_package(SDL2_IMAGE REQUIRED)
+find_package(Vorbis REQUIRED)
+
 add_executable( hypseus hypseus.cpp globals.h )
-target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
+target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY} )
 
 if(USB_SCOREBOARD)
     add_library(ftdi1 INTERFACE)
@@ -121,7 +125,7 @@ endif()
 
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
-target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
+target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2IMAGE_LIBRARY})
 
 if(BUILDBOT)
     add_custom_command( TARGET hypseus
