@@ -2,7 +2,7 @@
 
 Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
-A program to play laserdisc arcade games on a PC or Raspberry Pi.
+A program to play laserdisc arcade games on a PC, Mac or Raspberry Pi.
 
 This version includes **Singe** support for Fan Made and [American Laser Games][ALG].
 
@@ -19,7 +19,7 @@ Features:
 * Advanced multi joystick configuration
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 * PNG screenshots
-* Windows Port
+* Windows and MacOS X Ports
 * Bugs
 
 ## Windows
@@ -50,6 +50,8 @@ For **Raspberry Pi** clone the ``RetroPie`` branch via:
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
 Further **RetroPie** Instructions can be found [here](src/3rdparty/retropie/RETROPIE.md)
+
+### Compilation with CMake
 
 Build:
 
