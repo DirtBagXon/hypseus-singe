@@ -11,6 +11,11 @@ set( LIB_HEADERS
     ldp.h
     ldp-vldp.h
 )
+
+IF(NOT APPLE)
+    PKG_SEARCH_MODULE(VORBISFILE REQUIRED vorbisfile)
+ENDIF(NOT APPLE)
+
 find_package(Vorbis REQUIRED)
 find_package(Ogg REQUIRED)
 
