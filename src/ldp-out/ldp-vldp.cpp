@@ -1535,7 +1535,7 @@ void update_parse_meter(const string &strFilename)
                     percent_complete, remaining_s);
 
             FC_Draw(video::get_font(), renderer,
-			    ((video::get_draw_height()/2)-((video::get_draw_height()/200)*len)),
+			    ((video::get_draw_height()/2)-((video::get_draw_height()/125)*len)),
 			    (video::get_draw_width()*0.36), f);
             FC_Draw(video::get_font(), renderer,
 			    (video::get_draw_height()*0.20), (video::get_draw_width()*0.40), s);

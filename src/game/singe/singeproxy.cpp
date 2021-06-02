@@ -840,12 +840,13 @@ static int sep_mpeg_get_height(lua_State *L)
 
 static int sep_mpeg_get_pixel(lua_State *L)
 {
+        Uint32 format;
         int32_t  n                   = lua_gettop(L);
         bool     result              = false;
         SDL_Renderer *g_renderer     = video::get_renderer();
         SDL_Texture  *g_texture      = video::get_yuv_screen();
-        const Uint32 format          = SDL_PIXELFORMAT_YV12;
-        unsigned char pixel[SDL_BYTESPERPIXEL(format)*3];
+        SDL_QueryTexture(g_texture, &format, NULL, NULL, NULL);
+        unsigned char pixel[SDL_BYTESPERPIXEL(format)];
         unsigned char R;
         unsigned char G;
         unsigned char B;
@@ -858,10 +859,10 @@ static int sep_mpeg_get_pixel(lua_State *L)
                 if (lua_isnumber(L, 1)) {
                         if (lua_isnumber(L, 2)) {
 
-				rect.h = 1;
-				rect.w = 1;
-				rect.x = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w / (double)g_se_overlay_width));
-				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h / (double)g_se_overlay_height));
+				rect.h = sizeof(size_t)<<1;
+				rect.w = sizeof(size_t)<<1;
+				rect.x = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w / (double)g_se_overlay_width)-sizeof(size_t));
+				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h / (double)g_se_overlay_height)-sizeof(size_t));
 				if (g_renderer && g_texture) {
 					if (SDL_SetRenderTarget(g_renderer, g_texture) < 0) sep_die("Could not RenderTarget in get_pixel");
 					if (SDL_RenderReadPixels(g_renderer, &rect, format, pixel, SDL_BYTESPERPIXEL(format)) < 0)
