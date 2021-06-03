@@ -18,7 +18,7 @@
     mkdir build
     cd build
     cmake ../src
-    make -j 2
+    make -j
 
     cd ..
 
@@ -50,7 +50,7 @@ Link ``singe`` within emulator path:
 
 * Enabling games will depend on the filesystem you have your ``roms`` directory mounted upon:
 
-* See details for ``EXT`` (*Linux*) and ``FAT32`` (*Windows*) partition types below.
+* See details for ``EXT`` (*Linux*) and ``FAT/NTFS`` (*Windows*) partition types below.
 
 ### ``EXT`` (Linux filesystem)
 
@@ -82,7 +82,7 @@ The file structure is like so:
     |         +-- timegal  <<- link (ln -s ../timegal.daphne timegal)
 
 
-### Windows based ``FAT32`` filesystem
+### Windows based ``FAT/NTFS`` filesystems
 
 **You cannot created symlinks.**
 
@@ -91,11 +91,11 @@ You therefore need to copy peripheral data to the ``singe`` subdirectory:
     cd /home/pi/RetroPie/roms/daphne/singe
     mkdir timegal
     cd timegal
-    cp -R $(find ../../$(basename $(pwd)).daphne/* | egrep -v 'm2v|ogg') .    <- Note: Trailing period
+    tar -cf - --exclude='*.m2v' --exclude='*.ogg' --exclude='*.dat' -C ../../$(basename $(pwd)).daphne/ . | tar -xf -
 
 The file structure is like so:
 
-    roms          (FAT32 filesystem)
+    roms          (FAT/NTFS filesystem)
     |-- daphne
     |    |
     |    |-- timegal.daphne
