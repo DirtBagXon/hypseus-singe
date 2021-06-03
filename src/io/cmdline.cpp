@@ -573,6 +573,13 @@ bool parse_cmd_line(int argc, char **argv)
                           set_inputini_file(s);
                     }
                 }
+
+                if (!loadini) {
+                    char e[355];
+                    snprintf(e, sizeof(e), "Invalid -keymapfile file: %s", s);
+                    printerror(e);
+                    result = false;
+                }
            }
 
             // if they are defining an alternate soundtrack to be used by VLDP
