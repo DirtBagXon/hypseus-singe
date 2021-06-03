@@ -4,15 +4,15 @@
 
 To avoid repository pollution with outdated zip files, distribution has been moved to **MEGA**:
 
-**Download latest version:** [here](https://mega.nz/file/59MFHaTa#0k6OLQblvy3uVR6yGsZOEsaz0MGRdFOIwEibRcwebfE)
+**Download latest version:** [here](https://mega.nz/file/l50QlBZQ#8nZOw4jQ54n3UsYuJWIw_qcZceRG63rIqErYktjJ1pw)
 
 Latest build is:
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.5.2
+    [version] Hypseus Singe: v2.5.4
     [console] SDL(CC): 2.0.14
     [console] SDL(LD): 2.0.14
-    [console] Build: May 19 2021 16:56:10
+    [console] Build: Jun  3 2021 13:14:57
 
 
 ## Install

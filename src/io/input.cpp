@@ -278,7 +278,8 @@ void CFG_Keys()
         }     // end while not EOF
 
         mpo_close(io);
-    } // end if file was opened successfully
+    } else // end if file was opened successfully
+        LOGW << "keymapfile not found, using default";
 }
 
 int SDL_input_init()
