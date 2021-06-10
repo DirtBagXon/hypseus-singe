@@ -18,6 +18,7 @@ Features:
 * Psuedo Singe 2 support (details below)
 * Advanced multi joystick configuration
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
+* TTF support
 * PNG screenshots
 * Windows and MacOS X Ports
 * Bugs
@@ -63,11 +64,26 @@ Build:
 
 ## Install and Run
 
-Ensure you have data in the following `daphne` folders:
+Ensure you have data in the following `daphne` HOME folders:
 
     pics, ram, roms, sound, singe, (vldp and vldp_dl)
 
-**From the repo path:**
+Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
+
+    hypseus lair vldp -framefile "vldp_dl\lair\lair.txt" -fullscreen_window -software_scoreboard
+
+    hypseus singe vldp -framefile "singe\timegal\timegal.txt" -script "singe\timegal\timegal.singe"
+
+
+In **Windows** you are able to create `.bat` files with arguments for specific games.
+
+Example `.bat` files  are provided within the [Windows](win32/) zip file.
+
+Retro gaming systems will require adoption within the relevant emulation scripts. See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
+
+`bash` scripts are provided for systems that support this shell.
+
+**Install bash scripts:**
 
     cp -R fonts ~/.daphne
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
@@ -77,6 +93,11 @@ Ensure you have data in the following `daphne` folders:
     hypseus
     singe
 
+## Configuration
+
+Configuration of buttons and joysticks should be made within [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+
+## Screenshots
 
 [![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
@@ -84,9 +105,9 @@ Ensure you have data in the following `daphne` folders:
 
 
 
-## Altering Hypseus or Singe ROM locations
+## Altering Hypseus or Singe ROM locations in bash scripts
 
-Edit **run.sh** and **singe.sh** before copying, to reflect the location of your ROM folders:
+Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
     HYPSEUS_SHARE=~/.daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
@@ -94,6 +115,12 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
 **Note:** The default Hypseus home directory, *created* when run without arguments:
 
     ~/.hypseus
+
+## Software Scoreboard
+
+Enable the original style external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
+
+Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
 ## Singe
 
@@ -114,12 +141,6 @@ Singe now automatically interprets **joystick axis** change as mouse movement (*
 Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
 Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
-
-## Software Scoreboard
-
-Enable the original style external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
-
-Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
 ## Extended arguments and keys
 

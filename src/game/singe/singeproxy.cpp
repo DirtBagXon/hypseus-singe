@@ -1175,7 +1175,7 @@ static int sep_sound_play(lua_State *L)
 static int sep_sprite_draw(lua_State *L)
 {
   int n = lua_gettop(L);
-  static bool o;
+  static bool o = false;
 
   if (n == 3)
     if (lua_isnumber(L, 1))

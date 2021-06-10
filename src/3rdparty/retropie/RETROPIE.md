@@ -84,7 +84,7 @@ The file structure is like so:
 
 ### Windows based ``FAT/NTFS`` filesystems
 
-**You cannot created symlinks.**
+**You cannot create symlinks on Windows filesystems.**
 
 You therefore need to copy peripheral data to the ``singe`` subdirectory:
 
@@ -92,6 +92,8 @@ You therefore need to copy peripheral data to the ``singe`` subdirectory:
     mkdir timegal
     cd timegal
     tar -cf - --exclude='*.m2v' --exclude='*.ogg' --exclude='*.dat' -C ../../$(basename $(pwd)).daphne/ . | tar -xf -
+
+*This should duplicate less than 1Mb of data*
 
 The file structure is like so:
 
@@ -111,8 +113,6 @@ The file structure is like so:
                    |
                    |-- *.*  <<- All other files except .m2v & .ogg
 
-
-*This should duplicate less than 1Mb of data*
 
 ## Revert to original Daphne plugin
 

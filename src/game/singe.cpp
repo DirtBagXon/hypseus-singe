@@ -54,7 +54,7 @@ struct singe_in_info g_SingeIn;
 // joystick
 static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
 static Uint16 js_sen = 5;
-static bool bjx, bjy;
+static bool bjx, bjy = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -290,7 +290,7 @@ void singe::JoystickMotion()
 {
     Uint16 cur_w = g_SingeIn.get_video_width();
     Uint16 cur_h = g_SingeIn.get_video_height();
-    static bool s;
+    static bool s = false;
 
     if (!s) { xmov = cur_w/4; ymov = cur_h/4; s = true; }
 

@@ -799,7 +799,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     float x = (double)g_game->get_video_overlay_width() /
                g_game->get_video_overlay_height();
     static float x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
-    static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9;
+    static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9 = false;
     static int rcount, cr;
     static char *rank;
     int i, k = 0;
