@@ -1,10 +1,10 @@
+![Hypseus Singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/hypseus-minilogo.png)
+
 # Hypseus Singe for Windows
 
 ## Download
 
-To avoid repository pollution with outdated zip files, distribution has been moved to **MEGA**:
-
-**Download latest version:** [here](https://mega.nz/file/l50QlBZQ#8nZOw4jQ54n3UsYuJWIw_qcZceRG63rIqErYktjJ1pw)
+**Download latest version:** [here](https://github.com/DirtBagXon/hypseus-singe/releases)
 
 Latest build is:
 

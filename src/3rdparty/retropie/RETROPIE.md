@@ -1,3 +1,5 @@
+![Hypseus Singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/hypseus-minilogo.png)
+
 # RetroPie Install (Hypseus drop-in Daphne replacement)
 
 * Install Standard Daphne plugin via **RetroPie configuration script**.
