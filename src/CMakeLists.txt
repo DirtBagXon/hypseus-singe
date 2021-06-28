@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.9)
+cmake_minimum_required(VERSION 3.0)
 
-set(PKG_VERSION "v2.5.4")
+set(PKG_VERSION "v2.5.5")
 
 set(FILE_OFFSET_BITS "")
 
@@ -123,9 +123,11 @@ if(USB_SCOREBOARD)
     add_library(ftdi1 INTERFACE)
 endif()
 
+#[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
 target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2IMAGE_LIBRARY})
+]]
 
 if(BUILDBOT)
     add_custom_command( TARGET hypseus

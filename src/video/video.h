@@ -131,8 +131,10 @@ bool get_singe_blend_sprite();
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
+void set_scanlines(bool value);
 void set_blend_osd(bool value);
 void set_alt_osd(bool value);
+void set_yuv_video_blank(bool value);
 void set_nolair2_overlay(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
@@ -142,6 +144,7 @@ Uint16 get_video_width();
 void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
+void draw_scanlines();
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, SDL_Surface *, bool value);
 void draw_LDP1450_overlay(char *, int, int, bool ins, bool rst);

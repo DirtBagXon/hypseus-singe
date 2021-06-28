@@ -14,14 +14,12 @@ Features:
 * Working MPEG2 x86_64 hw accel (SSE2)
 * SDL2 support
 * [cmake] build tool
-* Digital Leisure overlays
 * Singe game support
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
 * Advanced multi joystick configuration
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
-* TTF support
-* PNG screenshots
+* Simulated scan lines: [preview](screenshots/scanlines.png)
 * Windows and MacOS X Ports
 * Bugs
 
@@ -36,7 +34,7 @@ Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 
 ### MacOS X
 
-Use homebrew to install the following packages: cmake, autoconf, sdl2, sdl2_image, libvorbis, libogg, sdl2_ttf.
+Use homebrew to install the following packages: cmake, autoconf, sdl2, sdl2_image, sdl2_ttf, libvorbis, libogg.
 
     brew install cmake
     brew install autoconf
@@ -62,7 +60,7 @@ Build:
     mkdir build
     cd build
     cmake ../src
-    make -j 4
+    make -j
 
 ## Install and Run
 
@@ -100,6 +98,8 @@ Retro gaming systems will require adoption within the relevant emulation scripts
 Configuration of buttons and joysticks should be made within [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
 
 ## Screenshots
+
+*(Click images for YouTube playlist)*
 
 [![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
@@ -151,9 +151,12 @@ The following additional arguments have been added to Hypseus Singe:
     -keymapfile                [ Specify an alternate hypinput.ini file        ]
     -alt_osd                   [ Use alternate lair/ace font overlay           ]
     -blend_osd                 [ Use TTF blending on alternate font overlay    ]
+    -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
     -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
     -nolair2_overlay           [ Disable lair2 text overlay                    ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
+    -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
+    -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]

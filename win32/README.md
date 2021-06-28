@@ -9,10 +9,10 @@
 Latest build is:
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.5.4
+    [version] Hypseus Singe: v2.5.5
     [console] SDL(CC): 2.0.14
     [console] SDL(LD): 2.0.14
-    [console] Build: Jun  3 2021 13:14:57
+    [console] Build: Jun 28 2021 19:58:41
 
 
 ## Install

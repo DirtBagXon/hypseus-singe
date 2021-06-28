@@ -198,6 +198,8 @@ void singe::start()
     g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
+    g_ldp->set_seek_frames_per_ms(0);
+    g_ldp->set_min_seek_delay(0);
 
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
