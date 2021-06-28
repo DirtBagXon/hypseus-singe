@@ -103,6 +103,8 @@ bool g_fs_scale_nearest = false;
 
 bool g_singe_blend_sprite = false;
 
+bool g_scanlines = false;
+
 bool g_fakefullscreen = false;
 
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
@@ -178,6 +180,7 @@ g_yuv_surface_t *g_yuv_surface;
 bool g_scoreboard_needs_update = false;
 bool g_overlay_needs_update    = false;
 bool g_yuv_video_needs_update  = false;
+bool g_yuv_video_needs_blank   = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -273,6 +276,8 @@ bool init_display()
 
                 if (g_game->m_sdl_software_scoreboard && !fs) {
                     g_sb_window = SDL_CreateWindow(NULL, 4, 28, 340, 480, sdl_sb_flags);
+                    g_ldp->set_seek_frames_per_ms(0);
+                    g_ldp->set_min_seek_delay(0);
 
                     if (!g_sb_window) {
                         LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
@@ -301,6 +306,9 @@ bool init_display()
 
 		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
+
+                if (g_scanlines)
+                    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
 
                 // Calculate font sizes
                 int fs = get_draw_width() / 36;
@@ -640,7 +648,7 @@ void clean_control_char(char *src, char *dst, int len)
     int i;
 
     for (i = 0; i < len; src++, i++) {
-        if (*src == 0x13) *dst = ' ';
+        if (*src == 0x13) *dst = 0x5F;
         else *dst = *src;
         dst++;
     }
@@ -672,6 +680,8 @@ void set_fullscreen(bool value) { g_fullscreen = value; }
 
 void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 
+void set_scanlines(bool value) { g_scanlines = value; }
+
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 
 void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
@@ -685,6 +695,8 @@ void set_alt_osd(bool value) { g_altosd = value; }
 void set_nolair2_overlay(bool value) { g_nolair2_overlay = value; }
 
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
+
+void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
 
 int get_scalefactor() { return g_scalefactor; }
 void set_scalefactor(int value)
@@ -799,7 +811,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     float x = (double)g_game->get_video_overlay_width() /
                g_game->get_video_overlay_height();
     static float x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
-    static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9;
+    static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9 = false;
     static int rcount, cr;
     static char *rank;
     int i, k = 0;
@@ -900,7 +912,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
        if (y9) FC_Draw(fixfont, renderer, x9, 200*f, LDP1450_200);
     }
 
-    SDL_RenderPresent(renderer);
+    if (y3 && (k==0x2||k==0x3)) SDL_RenderPresent(renderer);
 }
 
 // toggles fullscreen mode
@@ -961,8 +973,8 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
 }
 
 void vid_blank_yuv_texture () {
-    // "Y 0x00, U 0x00, V 0x00" is NOT black in YUV colorspace!
-    memset(g_yuv_surface->Yplane, 0x00, g_yuv_surface->Ysize);
+    // Black: YUV#108080, YUV(16,0,0)
+    memset(g_yuv_surface->Yplane, 0x10, g_yuv_surface->Ysize);
     memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
     memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
     
@@ -983,13 +995,21 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     // until the mutex is free and we can lock(=get) it here.
     SDL_LockMutex(g_yuv_surface->mutex);
 
-    memcpy (g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);	
-    memcpy (g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);	
-    memcpy (g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+    if (g_yuv_video_needs_blank) {
 
-    g_yuv_surface->Ypitch = Ypitch;
-    g_yuv_surface->Upitch = Upitch;
-    g_yuv_surface->Vpitch = Vpitch;
+        vid_blank_yuv_texture();
+        set_yuv_video_blank(false);
+
+    } else {
+
+        memcpy (g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
+        memcpy (g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);
+        memcpy (g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+
+        g_yuv_surface->Ypitch = Ypitch;
+        g_yuv_surface->Upitch = Upitch;
+        g_yuv_surface->Vpitch = Vpitch;
+    }
 
     g_yuv_video_needs_update = true;
 
@@ -1013,17 +1033,14 @@ void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
     g_overlay_size_rect.h = tx->h;
 
     // MAC: 8bpp to RGBA8888 conversion. Black pixels are considered totally transparent so they become 0x00000000;
-    for (int i = 0; i < (tx->w * tx->h); i++){
-        //if (     *(  ((uint8_t*)tx->pixels)+i ) != 0x00   ) {
-	    *((uint32_t*)(g_screen_blitter->pixels)+i) = //0xff0000ff;
+    for (int i = 0; i < (tx->w * tx->h); i++) {
+	    *((uint32_t*)(g_screen_blitter->pixels)+i) =
 	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].r) << 24|
 	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].g) << 16|
 	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].b) << 8|
 	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].a);
-	    //0x000000ff;
-        //}
-        //else *((uint32_t*)(g_screen_blitter->pixels)+i) = 0x00000000;
     }
+
     g_overlay_needs_update = true;
     // MAC: We update the overlay texture later, just when we are going to SDL_RenderCopy() it to the renderer.
     // SDL_UpdateTexture(g_overlay_texture, &g_overlay_size_rect, (void *)g_screen_blitter->pixels, g_screen_blitter->pitch);
@@ -1095,15 +1112,14 @@ void vid_blit () {
     }
 
     // If there's a subtitle overlay
-    if (g_bSubtitleShown) {
-        draw_subtitle(subchar, subscreen, 0);
-    }
+    if (g_bSubtitleShown) draw_subtitle(subchar, subscreen, 0);
 
-    // Write LDP1450 overlay (inc. SDL_RenderPresent)
-    if(get_LDP1450_enabled()) {
-        draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
-    } else
-        SDL_RenderPresent(g_renderer);
+    // LDP1450 overlay
+    if (get_LDP1450_enabled()) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
+
+    if (g_scanlines) draw_scanlines();
+
+    SDL_RenderPresent(g_renderer);
 
     if (g_sb_renderer) SDL_RenderPresent(g_sb_renderer);
 
@@ -1184,6 +1200,30 @@ void take_screenshot()
     }
 
     SDL_FreeSurface(surface);
+}
+
+void draw_scanlines() {
+    unsigned char c;
+    for (int i = 0; i < g_vid_height; i+=5) {
+         c = 0x40;
+         for (int j = 0; j < 4; j++) {
+             SDL_SetRenderDrawColor(g_renderer, c, c, c, SDL_ALPHA_OPAQUE);
+             SDL_RenderDrawLine(g_renderer, 0, i+j, g_vid_width, i+j);
+             switch(j)
+             {
+                case 0:
+                  c = 0x90;
+                  break;
+                case 1:
+                  c = 0xB0;
+                  break;
+                default:
+                  c = 0xD0;
+                  break;
+            }
+        }
+    }
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
 }

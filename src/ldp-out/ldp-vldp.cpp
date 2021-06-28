@@ -966,6 +966,7 @@ bool ldp_vldp::handle_cmdline_arg(const char *arg)
     if (strcasecmp(arg, "-blend") == 0) {
         g_filter_type |= FILTER_BLEND;
     } else if (strcasecmp(arg, "-scanlines") == 0) {
+        video::set_scanlines(true);
         g_filter_type |= FILTER_SCANLINES;
     }
     // should we run a few VLDP tests when the player is initialized?
@@ -1634,9 +1635,9 @@ void free_yuv_overlay()
 // makes the laserdisc video black while drawing game's video overlay on top
 void blank_overlay()
 {
-    // FIXME
     // only do this if the HW overlay has already been allocated
-    if (video::get_yuv_overlay_ready()) {
-        g_local_info.display_frame();
+    if (video::get_yuv_overlay_ready() &&
+           !g_game->m_sdl_software_scoreboard) {
+        video::set_yuv_video_blank(true);
     }
 }

@@ -54,7 +54,7 @@ struct singe_in_info g_SingeIn;
 // joystick
 static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
 static Uint16 js_sen = 5;
-static bool bjx, bjy;
+static bool bjx, bjy = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -198,6 +198,8 @@ void singe::start()
     g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
+    g_ldp->set_seek_frames_per_ms(0);
+    g_ldp->set_min_seek_delay(0);
 
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
@@ -290,7 +292,7 @@ void singe::JoystickMotion()
 {
     Uint16 cur_w = g_SingeIn.get_video_width();
     Uint16 cur_h = g_SingeIn.get_video_height();
-    static bool s;
+    static bool s = false;
 
     if (!s) { xmov = cur_w/4; ymov = cur_h/4; s = true; }
 
