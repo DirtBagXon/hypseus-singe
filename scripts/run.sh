@@ -7,29 +7,58 @@ function STDERR () {
 	/bin/cat - 1>&2
 }
 
-if [ "$1" = "-fullscreen" ]; then
-    FULLSCREEN="-fullscreen"
-    shift
-fi
+POSITIONAL=()
 
-if [ "$1" = "-blend" ]; then
-    BLEND="-alt_osd -blend_osd"
-    shift
-fi
+while [[ $# -gt 0 ]]; do
 
-if [ "$1" = "-nolinear" ]; then
-    NEAREST="-nolinear_scale"
-    shift
-fi
+    key="$1"
 
-if [[ $@ == *"-prototype"* ]]; then
-    PROTOTYPE="on"
-fi
+    case $key in
+      -blend)
+        BLEND="-alt_osd -blend_osd"
+        shift
+        ;;
+      -blanking)
+        BLANK="-blank_searches -blank_skips -min_seek_delay 1000"
+        shift
+        ;;
+      -fullscreen)
+        FULLSCREEN="-fullscreen"
+        shift
+        ;;
+      -nolinear)
+        NEAREST="-nolinear_scale"
+        shift
+        ;;
+      -prototype)
+        PROTOTYPE="on"
+        shift
+        ;;
+      -scanlines)
+        SCANLINES="-scanlines -x 1024 -y 768"
+        shift
+        ;;
+      -scoreboard)
+        if [ $FULLSCREEN ] ; then
+           FULLSCREEN="-fullscreen_window"
+        fi
+        SCOREBOARD="-software_scoreboard"
+        shift
+        ;;
+      *)
+        POSITIONAL+=("$1")
+        shift
+        ;;
+
+    esac
+done
+
+set -- "${POSITIONAL[@]}"
 
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] [-blend] [-nolinear] <gamename> [-prototype]" | STDERR
+    echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
     for game in ace astron badlands bega blazer cliff cobra cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
@@ -161,12 +190,14 @@ if [ ! -f $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt ]; then
         exit 1
 fi
 
-#strace -o strace.txt \
 $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
 $NEAREST \
 $BLEND \
+$BLANK \
+$SCANLINES \
+$SCOREBOARD \
 $KEYINPUT \
 $BANKS \
 -framefile $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt \
@@ -179,14 +210,5 @@ $BANKS \
 EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -ne "0" ] ; then
-	if [ "$EXIT_CODE" -eq "127" ]; then
-		echo ""
-		echo "Hypseus failed to start." | STDERR
-		echo "This is probably due to a library problem." | STDERR
-		echo "Run hypseus.bin directly to see which libraries are missing." | STDERR
-		echo ""
-	else
-		echo "HypseusLoader failed with an unknown exit code : $EXIT_CODE." | STDERR
-	fi
-	exit $EXIT_CODE
+	echo "HypseusLoader failed to start, returned: $EXIT_CODE." | STDERR
 fi

@@ -1636,8 +1636,7 @@ void free_yuv_overlay()
 void blank_overlay()
 {
     // only do this if the HW overlay has already been allocated
-    if (video::get_yuv_overlay_ready() &&
-               !g_game->m_sdl_software_scoreboard) {
+    if (video::get_yuv_overlay_ready()) {
         video::set_yuv_video_blank(true);
     }
 }

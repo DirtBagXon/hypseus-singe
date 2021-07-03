@@ -276,8 +276,6 @@ bool init_display()
 
                 if (g_game->m_sdl_software_scoreboard && !fs) {
                     g_sb_window = SDL_CreateWindow(NULL, 4, 28, 340, 480, sdl_sb_flags);
-                    g_ldp->set_seek_frames_per_ms(0);
-                    g_ldp->set_min_seek_delay(0);
 
                     if (!g_sb_window) {
                         LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
@@ -496,22 +494,6 @@ SDL_Surface *load_one_bmp(const char *filename)
     return (result);
 }
 
-/*SDL_Texture *load_one_bmp(const char *filename)
-{
-    SDL_Texture *texture = NULL;
-    SDL_Surface *result  = SDL_LoadBMP(filename);
-
-    if (result) texture = SDL_CreateTextureFromSurface(g_renderer, result);
-    
-    if (!texture) {
-        LOGW << fmt("Could not load bitmap: %s", SDL_GetError());
-    } else {
-        SDL_FreeSurface(result);
-    }
-    
-    return (texture);
-}*/
-
 // Draw's one of our LED's to the screen
 // value contains the bitmap to draw (0-9 is valid)
 // x and y contain the coordinates on the screen
@@ -645,9 +627,7 @@ void free_one_bmp(SDL_Surface *candidate) {
 
 void clean_control_char(char *src, char *dst, int len)
 {
-    int i;
-
-    for (i = 0; i < len; src++, i++) {
+    for (int i = 0; i < len; src++, i++) {
         if (*src == 0x13) *dst = 0x5F;
         else *dst = *src;
         dst++;
@@ -968,20 +948,21 @@ void vid_setup_yuv_overlay (int width, int height) {
 SDL_Texture *vid_create_yuv_texture (int width, int height) {
     g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
         SDL_TEXTUREACCESS_TARGET, width, height);
-    vid_blank_yuv_texture(); 
+    vid_blank_yuv_texture(true);
     return g_yuv_texture;
 }
 
-void vid_blank_yuv_texture () {
+void vid_blank_yuv_texture (bool s) {
+
     // Black: YUV#108080, YUV(16,0,0)
     memset(g_yuv_surface->Yplane, 0x10, g_yuv_surface->Ysize);
     memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
     memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
-    
-    SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-	g_yuv_surface->Yplane, g_yuv_surface->width,
-        g_yuv_surface->Uplane, g_yuv_surface->width/2,
-        g_yuv_surface->Vplane, g_yuv_surface->width/2);
+
+    if (s) SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+	    g_yuv_surface->Yplane, g_yuv_surface->width,
+            g_yuv_surface->Uplane, g_yuv_surface->width/2,
+            g_yuv_surface->Vplane, g_yuv_surface->width/2);
 }
 
 // REMEMBER it updates the YUV surface ONLY: the YUV texture is updated on vid_blit().
@@ -997,7 +978,7 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 
     if (g_yuv_video_needs_blank) {
 
-        vid_blank_yuv_texture();
+        vid_blank_yuv_texture(false);
         set_yuv_video_blank(false);
 
     } else {
