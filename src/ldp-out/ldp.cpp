@@ -48,6 +48,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_LDP_FRAMES 65535
+
 // generic ldp constructor
 ldp::ldp()
     : player_initialized(false),
@@ -847,7 +849,13 @@ void ldp::increment_current_frame()
 void ldp::think() {}
 
 // (see .h for description)
-unsigned int ldp::get_current_frame() { return m_uCurrentFrame; }
+unsigned int ldp::get_current_frame() {
+     if (g_game->get_game_type() == GAME_SINGE) {
+         if (m_uCurrentFrame > MAX_LDP_FRAMES)
+             m_uCurrentFrame = m_uCurrentFrame - MAX_LDP_FRAMES;
+     }
+     return m_uCurrentFrame;
+}
 
 unsigned int ldp::get_adjusted_current_frame()
 {

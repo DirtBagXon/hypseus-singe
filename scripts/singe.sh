@@ -7,25 +7,43 @@ function STDERR () {
 	/bin/cat - 1>&2
 }
 
-if [ "$1" = "-fullscreen" ]; then
-    FULLSCREEN="-fullscreen"
-    shift
-fi
+POSITIONAL=()
 
-if [ "$1" = "-blend" ]; then
-    BLEND="-blend_sprites"
-    shift
-fi
+while [[ $# -gt 0 ]]; do
 
-if [ "$1" = "-nolinear" ]; then
-    NEAREST="-nolinear_scale"
-    shift
-fi
+    key="$1"
+
+    case $key in
+      -blend)
+        BLEND="-blend_sprites"
+        shift
+        ;;
+      -fullscreen)
+        FULLSCREEN="-fullscreen"
+        shift
+        ;;
+      -nolinear)
+        NEAREST="-nolinear_scale"
+        shift
+        ;;
+      -scanlines)
+        SCANLINES="-scanlines -x 1024 -y 768"
+        shift
+        ;;
+      *)
+        POSITIONAL+=("$1")
+        shift
+        ;;
+
+    esac
+done
+
+set -- "${POSITIONAL[@]}"
 
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-blend] [-nolinear] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-blend] [-nolinear] [-scanlines] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -55,6 +73,7 @@ $HYPSEUS_BIN singe vldp \
 $FULLSCREEN \
 $NEAREST \
 $BLEND \
+$SCANLINES \
 -sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20
@@ -62,14 +81,5 @@ $BLEND \
 EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -ne "0" ] ; then
-	if [ "$EXIT_CODE" -eq "127" ]; then
-		echo ""
-		echo "Hypseus Singe failed to start." | STDERR
-		echo "This is probably due to a library problem." | STDERR
-		echo "Run hypseus.bin directly to see which libraries are missing." | STDERR
-		echo ""
-	else
-		echo "Loader failed with an unknown exit code : $EXIT_CODE." | STDERR
-	fi
-	exit $EXIT_CODE
+       echo "HypseusLoader failed to start, returned: $EXIT_CODE." | STDERR
 fi

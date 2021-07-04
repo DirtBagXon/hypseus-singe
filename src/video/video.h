@@ -85,7 +85,7 @@ void vid_setup_yuv_overlay (int width, int height);
 // MAC : REMEMBER, vid_update_yuv_overlay() ONLY updates the YUV surface. The YUV texture is updated on vid_blit()
 int vid_update_yuv_overlay (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
-void vid_blank_yuv_texture ();
+void vid_blank_yuv_texture (bool value);
 void vid_free_yuv_overlay ();
 
 void vid_update_overlay_surface(SDL_Surface *tx, int x, int y);
