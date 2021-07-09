@@ -56,6 +56,8 @@ static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
 static Uint16 js_sen = 5;
 static bool bjx, bjy = false;
 
+bool singe_alt_pressed = false;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // by RDG2010
@@ -509,6 +511,18 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
         } // endif
 
     } // endif
+
+    // check for ALT-COMMANDS here
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+        singe_alt_pressed = true;
+    }
+
+    if (singe_alt_pressed) {
+        if (key == SDLK_RETURN) video::vid_toggle_fullscreen();
+        else if (key == SDLK_BACKSPACE) video::vid_toggle_scanlines();
+    }
+    // end ALT-COMMAND checks
+
 }
 
 // this is called when the user releases a key
@@ -522,77 +536,79 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
      *
      * */
 
-    {                                        // check keyboard mode
-        if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
-        { // traverse the keydef array for mapped keys.
+    if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
+    { // traverse the keydef array for mapped keys.
 
-            // Handle pause and quit keypresses first.
-            if (key == keydefs[SWITCH_PAUSE][0] || key == keydefs[SWITCH_PAUSE][1]) {
-                toggle_game_pause();
-                input_disable(SWITCH_PAUSE);
+        // Handle pause and quit keypresses first.
+        if (key == keydefs[SWITCH_PAUSE][0] || key == keydefs[SWITCH_PAUSE][1]) {
+            toggle_game_pause();
+            input_disable(SWITCH_PAUSE);
 
-            } else if (key == keydefs[SWITCH_QUIT][0] || key == keydefs[SWITCH_QUIT][1]) {
+        } else if (key == keydefs[SWITCH_QUIT][0] || key == keydefs[SWITCH_QUIT][1]) {
 
-                set_quitflag();
+            set_quitflag();
 
-            } else if (key == keydefs[SWITCH_SCREENSHOT][0]) {
+        } else if (key == keydefs[SWITCH_SCREENSHOT][0]) {
 
-                printline("Screenshot requested!");
-                video::set_queue_screenshot(true);
+            printline("Screenshot requested!");
+            video::set_queue_screenshot(true);
 
-            } else {
+        } else {
 
-                for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-                    if ((key == keydefs[move][0]) || (key == keydefs[move][1])) {
-                        if (move != SWITCH_PAUSE) input_disable(move);
-                    }
+            for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
+                if ((key == keydefs[move][0]) || (key == keydefs[move][1])) {
+                    if (move != SWITCH_PAUSE) input_disable(move);
+                }
 
-                } // end for
-
-            } // endif
-
-        } else { // Using full keyboard access....
-
-            // Hardwire ESCAPE key to quit
-            if (key == SDLK_ESCAPE) set_quitflag();
-            // letter keys
-            else if (key >= SDLK_a && key <= SDLK_z)
-                input_disable(key);
-            // check to see if key is a number on the top row of the keyboard
-            // (not keypad)
-            else if (key >= SDLK_MINUS && key <= SDLK_9)
-                input_disable(key);
-            // numeric keypad keys
-            else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
-                input_disable(key);
-            // arrow keys and insert, delete, home, end, pgup, pgdown
-            else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
-                input_disable(key);
-            // function keys
-            else if (key >= SDLK_F1 && key <= SDLK_F15)
-                input_disable(key);
-            // Key state modifier keys (left and right ctrls, alts)
-            else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
-                input_disable(key);
-            else {
-                /*
-                * SDLK_BACKSPACE, SDLK_TAB, SDLK_RETURN, SDLK_PAUSE,
-                * SDLK_SPACE, SDLK_QUOTE, SDLK_COMMA, SDLK_SEMICOLON,
-                * SDLK_EQUALS, SDLK_LEFTBRACKET, SDLK_RIGHTBRACKET,
-                * SDLK_BACKSLASH, SDLK_SLASH, SDLK_DELETE, SDLK_PERIOD };
-                */
-
-                for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
-                    if (key == i_full_keybd_defs[k]) {
-                        input_disable(key);
-                        break;
-                    } // end if
-
-                } // end for
-
-            } // endif
+            } // end for
 
         } // endif
 
-    } // endif
+    } else { // Using full keyboard access....
+
+        // Hardwire ESCAPE key to quit
+        if (key == SDLK_ESCAPE) set_quitflag();
+        // letter keys
+        else if (key >= SDLK_a && key <= SDLK_z)
+            input_disable(key);
+        // check to see if key is a number on the top row of the keyboard
+        // (not keypad)
+        else if (key >= SDLK_MINUS && key <= SDLK_9)
+            input_disable(key);
+        // numeric keypad keys
+        else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
+            input_disable(key);
+        // arrow keys and insert, delete, home, end, pgup, pgdown
+        else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
+            input_disable(key);
+        // function keys
+        else if (key >= SDLK_F1 && key <= SDLK_F15)
+            input_disable(key);
+        // Key state modifier keys (left and right ctrls, alts)
+        else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
+            input_disable(key);
+        else {
+            /*
+            * SDLK_BACKSPACE, SDLK_TAB, SDLK_RETURN, SDLK_PAUSE,
+            * SDLK_SPACE, SDLK_QUOTE, SDLK_COMMA, SDLK_SEMICOLON,
+            * SDLK_EQUALS, SDLK_LEFTBRACKET, SDLK_RIGHTBRACKET,
+            * SDLK_BACKSLASH, SDLK_SLASH, SDLK_DELETE, SDLK_PERIOD };
+            */
+
+            for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
+                if (key == i_full_keybd_defs[k]) {
+                    input_disable(key);
+                    break;
+                } // end if
+
+            } // end for
+
+        } // endif
+    }
+
+    // if they are releasing an ALT key
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+        singe_alt_pressed = false;
+    }
+
 }

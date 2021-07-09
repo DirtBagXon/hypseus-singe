@@ -26,6 +26,10 @@ while [[ $# -gt 0 ]]; do
         NEAREST="-nolinear_scale"
         shift
         ;;
+      -scale)
+        SCALE="-scalefactor 50"
+        shift
+        ;;
       -scanlines)
         SCANLINES="-scanlines -x 1024 -y 768"
         shift
@@ -43,7 +47,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-blend] [-nolinear] [-scanlines] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-blend] [-nolinear] [-scanlines] [-scale] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -74,6 +78,7 @@ $FULLSCREEN \
 $NEAREST \
 $BLEND \
 $SCANLINES \
+$SCALE \
 -sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20
@@ -83,3 +88,4 @@ EXIT_CODE=$?
 if [ "$EXIT_CODE" -ne "0" ] ; then
        echo "HypseusLoader failed to start, returned: $EXIT_CODE." | STDERR
 fi
+exit $EXIT_CODE

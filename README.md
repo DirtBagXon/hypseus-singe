@@ -1,8 +1,10 @@
+![Hypseus Singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/hypseus-logo.png)
+
 # Hypseus Singe
 
 Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
-A program to play laserdisc arcade games on a PC or Raspberry Pi.
+A program to play laserdisc arcade games on a PC, Mac or Raspberry Pi.
 
 This version includes **Singe** support for Fan Made and [American Laser Games][ALG].
 
@@ -12,24 +14,23 @@ Features:
 * Working MPEG2 x86_64 hw accel (SSE2)
 * SDL2 support
 * [cmake] build tool
-* Digital Leisure overlays
 * Singe game support
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
+* Respect video aspect ratios
+* Alternate overlay choice
 * Advanced multi joystick configuration
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
-* PNG screenshots
-* Windows Port
+* Simulated scan lines
+* Windows and MacOS X Ports
 * Bugs
-
-## Windows
-
-**Windows** binaries can be found [here](win32/)
 
 ## Compile
 
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
 [libtool], [vorbis] and [ogg].
+
+### Raspberry Pi
 
 For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
@@ -37,20 +38,28 @@ For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
 Further **RetroPie** Instructions can be found [here](src/3rdparty/retropie/RETROPIE.md)
 
+### Compilation with CMake
+
 Build:
 
     mkdir build
     cd build
     cmake ../src
-    make -j 4
+    make -j
 
 ## Install and Run
 
-Ensure you have data in the following `daphne` folders:
+Ensure you have data in the following `daphne` HOME folders:
 
     pics, ram, roms, sound, singe, (vldp and vldp_dl)
 
-**From the repo path:**
+Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
+
+Retro gaming systems will require adoption within the relevant emulation scripts. See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
+
+`bash` scripts are provided for systems that support this shell.
+
+**Install bash scripts:**
 
     cp -R fonts ~/.daphne
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
@@ -60,6 +69,13 @@ Ensure you have data in the following `daphne` folders:
     hypseus
     singe
 
+## Configuration
+
+Configuration of buttons and joysticks should be made within [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+
+## Screenshots
+
+*(Click images for YouTube playlist)*
 
 [![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
 
@@ -67,9 +83,9 @@ Ensure you have data in the following `daphne` folders:
 
 
 
-## Altering Hypseus or Singe ROM locations
+## Altering Hypseus or Singe ROM locations in bash scripts
 
-Edit **run.sh** and **singe.sh** before copying, to reflect the location of your ROM folders:
+Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
     HYPSEUS_SHARE=~/.daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
@@ -77,6 +93,12 @@ Edit **run.sh** and **singe.sh** before copying, to reflect the location of your
 **Note:** The default Hypseus home directory, *created* when run without arguments:
 
     ~/.hypseus
+
+## Software Scoreboard
+
+Enable the original style external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
+
+Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
 ## Singe
 
@@ -98,27 +120,25 @@ Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
 Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
 
-## Software Scoreboard
-
-Enable the original style external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
-
-Works in conjunction with `-fullscreen_window` or normal windowed mode.
-
 ## Extended arguments and keys
 
 The following additional arguments have been added to Hypseus Singe:
 
     -keymapfile                [ Specify an alternate hypinput.ini file        ]
-    -alt_osd                   [ Use alternate lair/ace font overlay           ]
-    -blend_osd                 [ Use TTF blending on alternate font overlay    ]
+    -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
     -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
-    -nolair2_overlay           [ Disable lair2 text overlay                    ]
+    -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
+    -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
+    -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
+    -scalefactor               [ Scale video image [50-100]%                   ]
+    -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
 
     Alt-Enter                  [ Toggle fullscreen                             ]
+    Alt-Backspace              [ Toggle scanlines                              ]
     [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
 
 

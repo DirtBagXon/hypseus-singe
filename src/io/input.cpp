@@ -568,13 +568,16 @@ void process_keydown(SDL_Keycode key)
         }
     }
 
-    // check for ALT-ENTER here
+    // check for ALT-COMMANDS here
     if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
         g_alt_pressed = true;
-    } else if ((key == SDLK_RETURN) && (g_alt_pressed)) {
-        video::vid_toggle_fullscreen();
     }
-    // end ALT-ENTER check
+
+    if (g_alt_pressed) {
+        if (key == SDLK_RETURN) video::vid_toggle_fullscreen();
+        else if (key == SDLK_BACKSPACE) video::vid_toggle_scanlines();
+    }
+    // end ALT-COMMAND checks
 }
 
 // if a key is released, we go here

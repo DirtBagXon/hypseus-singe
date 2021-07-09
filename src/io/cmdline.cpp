@@ -67,6 +67,8 @@
 #include "../game/timetrav.h"
 #ifdef BUILD_SINGE
 #include "../game/singe.h"
+#else
+#include "error.h"
 #endif // BUILD_SINGE
 #include "../game/test_sb.h"
 #include "../ldp-out/ldp.h"
@@ -524,7 +526,9 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
 	    // Ignore some obsolete arguments (Rather than error)
-            else if (strcasecmp(s, "-noserversend")==0 || strcasecmp(s, "-opengl")==0) {
+            else if (strcasecmp(s, "-ignore_aspect_ratio")==0
+                     || strcasecmp(s, "-noserversend")==0
+                     || strcasecmp(s, "-opengl")==0) {
 
                  bool dummy = true;
 
@@ -751,12 +755,10 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-
-            // don't force 4:3 aspect ratio regardless of window size
-            else if (strcasecmp(s, "-ignore_aspect_ratio") == 0) {
-                video::set_force_aspect_ratio(false);
+            else if (strcasecmp(s, "-force_aspect_ratio") == 0) {
+                printline("Forcing 4:3 aspect ratio.");
+                video::set_force_aspect_ratio(true);
             }
-
             // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
@@ -768,14 +770,6 @@ bool parse_cmd_line(int argc, char **argv)
             // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
             else if (strcasecmp(s, "-nolinear_scale") == 0) {
                 video::set_fullscreen_scale_nearest(true);
-            }
-            // Use alternate OSD font
-            else if (strcasecmp(s, "-alt_osd") == 0) {
-                video::set_alt_osd(true);
-            }
-            // enable TTF_RenderText_Blended on OSD
-            else if (strcasecmp(s, "-blend_osd") == 0) {
-                video::set_blend_osd(true);
             }
             // disable log file
             else if (strcasecmp(s, "-nolog") == 0) {
@@ -885,10 +879,9 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-stoponquit") == 0) {
                 g_ldp->set_stop_on_quit(true);
             }
-            // disable lair2 font overlay - can cause flickering on slow
-            // display updates
-            else if (strcasecmp(s, "-nolair2_overlay") == 0) {
-                video::set_nolair2_overlay(true);
+            // Use old style overlays (lair, ace, lair2 & tq)
+            else if (strcasecmp(s, "-original_overlay") == 0) {
+                g_game->m_use_old_overlay = true;
             }
             // this switch only supported by the ldp-vldp player class.
             else if (strcasecmp(s, "-useoverlaysb") == 0) {
