@@ -30,8 +30,16 @@ while [[ $# -gt 0 ]]; do
         NEAREST="-nolinear_scale"
         shift
         ;;
+      -overlay)
+        OVERLAY="-original_overlay"
+        shift
+        ;;
       -prototype)
         PROTOTYPE="on"
+        shift
+        ;;
+      -scale)
+        SCALE="-scalefactor 50"
         shift
         ;;
       -scanlines)
@@ -125,9 +133,9 @@ case "$1" in
 	VLDP_DIR="vldp_dl"
 
 	if [ "$PROTOTYPE" ]; then
-		BANKS="-bank 1 10110111 -bank 0 11011000"
+		BANKS="-bank 1 10110111 -bank 0 11011001"
 	else
-		BANKS="-bank 1 00110111 -bank 0 11011000"
+		BANKS="-bank 1 00110111 -bank 0 11011001"
 	fi
 	;;
     esh)
@@ -154,7 +162,7 @@ case "$1" in
     lair)
 	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
-	BANKS="-bank 1 00110111 -bank 0 10011000"
+	BANKS="-bank 1 00110111 -bank 0 10011001"
 	;;
     lair2)
 	VLDP_DIR="vldp_dl"
@@ -196,7 +204,9 @@ $FULLSCREEN \
 $NEAREST \
 $BLEND \
 $BLANK \
+$OVERLAY \
 $SCANLINES \
+$SCALE \
 $SCOREBOARD \
 $KEYINPUT \
 $BANKS \
@@ -210,5 +220,6 @@ $BANKS \
 EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -ne "0" ] ; then
-	echo "HypseusLoader failed to start, returned: $EXIT_CODE." | STDERR
+       echo "HypseusLoader failed to start, returned: $EXIT_CODE." | STDERR
 fi
+exit $EXIT_CODE

@@ -37,7 +37,6 @@
 #include <SDL_syswm.h> // rdg2010
 #include <SDL_image.h> // screenshot
 #include <plog/Log.h>
-#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,6 +53,8 @@ using namespace std;
 namespace video
 {
 int g_vid_width = 640, g_vid_height = 480; // default video dimensions
+unsigned int g_draw_width, g_probe_width = g_vid_width;
+unsigned int g_draw_height, g_probe_height = g_vid_height;
 
 #ifdef DEBUG
 const Uint16 cg_normalwidths[]  = {320, 640, 800, 1024, 1280, 1280, 1600};
@@ -62,10 +63,6 @@ const Uint16 cg_normalheights[] = {240, 480, 600, 768, 960, 1024, 1200};
 const Uint16 cg_normalwidths[]  = {640, 800, 1024, 1280, 1280, 1600};
 const Uint16 cg_normalheights[] = {480, 600, 768, 960, 1024, 1200};
 #endif // DEBUG
-
-// the dimensions that we draw (may differ from g_vid_width/height if aspect
-// ratio is enforced)
-unsigned int g_draw_width = 640, g_draw_height = 480;
 
 // the current game overlay dimensions
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
@@ -91,13 +88,7 @@ SDL_Rect g_leds_size_rect = {0, 0, 320, 240};
 
 bool g_LDP1450_overlay = false;
 
-bool g_blendosd = false;
-
 bool queue_take_screenshot = false;
-
-bool g_altosd = false;
-
-bool g_nolair2_overlay = false;
 
 bool g_fs_scale_nearest = false;
 
@@ -107,15 +98,18 @@ bool g_scanlines = false;
 
 bool g_fakefullscreen = false;
 
+bool g_vid_resized = false;
+
+bool g_bForceAspectRatio = false;
+
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
                            // mode or not
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
                            // value (for CRT TVs with overscan problems).
 int sboverlay_characterset = 2;
 
-// whether we will try to force a 4:3 aspect ratio regardless of window size
-// (this is probably a good idea as a default option)
-bool g_bForceAspectRatio = true;
+int g_aspect_ratio;
+
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
@@ -181,6 +175,7 @@ bool g_scoreboard_needs_update = false;
 bool g_overlay_needs_update    = false;
 bool g_yuv_video_needs_update  = false;
 bool g_yuv_video_needs_blank   = false;
+bool g_ldp1450_old_overlay     = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -192,6 +187,8 @@ bool init_display()
     Uint32 sdl_flags = 0;
     Uint32 sdl_sb_flags = 0;
     bool fs = false;
+    char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
+
 
     sdl_flags = SDL_WINDOW_SHOWN;
     sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP;
@@ -202,27 +199,28 @@ bool init_display()
         if (g_fullscreen) { sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP; fs = true; }
         else if (g_fakefullscreen) sdl_flags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS;
 
-        g_draw_width  = g_vid_width;
-        g_draw_height = g_vid_height;
-
         g_overlay_width = g_game->get_video_overlay_width();
         g_overlay_height = g_game->get_video_overlay_height();
 
-        // if we're supposed to enforce the aspect ratio ...
+        if (g_vid_resized) {
+            g_draw_width  = g_vid_width;
+            g_draw_height = g_vid_height;
+        } else {
+            g_draw_width  = g_probe_width;
+            g_draw_height = g_probe_height;
+        }
+
+        // Enforce 4:3 aspect ratio
         if (g_bForceAspectRatio) {
-            double dCurAspectRatio = (double)g_vid_width / g_vid_height;
+            double dCurAspectRatio = (double)g_draw_width / g_draw_height;
             const double dTARGET_ASPECT_RATIO = 4.0 / 3.0;
 
-            // if current aspect ratio is less than 1.3333
             if (dCurAspectRatio < dTARGET_ASPECT_RATIO) {
                 g_draw_height = (g_draw_width * 3) / 4;
             }
-            // else if current aspect ratio is greater than 1.3333
             else if (dCurAspectRatio > dTARGET_ASPECT_RATIO) {
                 g_draw_width = (g_draw_height * 4) / 3;
             }
-            // else the aspect ratio is already correct, so don't change
-            // anything
         }
 
         // if we're supposed to scale the image...
@@ -231,17 +229,19 @@ bool init_display()
             g_draw_height = g_draw_height * g_scalefactor / 100;
         }
 
+        if (g_draw_width < 500) {
+            char target[14];
+            memcpy(target, title, sizeof(target));
+            target[13] = 0;
+            memcpy(title, target, sizeof(target));
+        }
+
         if (g_window) SDL_HideWindow(g_window);
 
-        // by RDG2010
-        // Step 2. Create a borderless SDL window.
-        // If doing fullscreen window, make the window bordeless (no title
-        // bar).
-
 	g_window =
-            SDL_CreateWindow("HYPSEUS Singe: Multiple Arcade Laserdisc Emulator",
-                             SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             g_vid_width, g_vid_height, sdl_flags);
+            SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+                             g_draw_width, g_draw_height, sdl_flags);
+
         if (!g_window) {
             LOGE << fmt("Could not initialize window: %s", SDL_GetError());
             deinit_display();
@@ -309,15 +309,17 @@ bool init_display()
                     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
 
                 // Calculate font sizes
+                int ffs;
                 int fs = get_draw_width() / 36;
-                int ffs = get_draw_width() / 18;
+                if (g_aspect_ratio == 0xB1) ffs = get_draw_width() / 24;
+                else ffs = get_draw_width() / 18;
 
                 char font[32]="fonts/default.ttf";
                 char fixfont[32] = "fonts/timewarp.ttf";
                 char ttfont[32];
 
-		if (get_alt_osd()) strncpy(ttfont, "fonts/pixel.ttf", sizeof(ttfont));
-		else strncpy(ttfont, "fonts/digital.ttf", sizeof(ttfont));
+                if (g_game->get_use_old_overlay()) strncpy(ttfont, "fonts/daphne.ttf", sizeof(ttfont));
+                else strncpy(ttfont, "fonts/digital.ttf", sizeof(ttfont));
 
                 g_font = FC_CreateFont();
                 FC_LoadFont(g_font, g_renderer, font, fs,
@@ -328,7 +330,11 @@ bool init_display()
                             FC_MakeColor(255,255,255,255), TTF_STYLE_NORMAL);
 
                 TTF_Init();
-                g_tfont = TTF_OpenFont(ttfont, 14);
+                if (g_game->get_use_old_overlay())
+                    g_tfont = TTF_OpenFont(ttfont, 12);
+                else
+                    g_tfont = TTF_OpenFont(ttfont, 14);
+
                 if (g_tfont == NULL) {
                         LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
                         shutdown_display();
@@ -350,8 +356,16 @@ bool init_display()
                 // Convert the LEDs surface to the destination surface format for faster blitting,
                 // and set it's color key to NOT copy 0x000000ff pixels.
                 // We couldn't do it earlier in load_bmps() because we need the g_screen_blitter format.
-	        g_other_bmps[B_OVERLAY_LEDS] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LEDS], g_screen_blitter->format, 0);
+                g_other_bmps[B_OVERLAY_LEDS] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LEDS],
+                                    g_screen_blitter->format, 0);
                 SDL_SetColorKey (g_other_bmps[B_OVERLAY_LEDS], 1, 0x000000ff);
+
+                if (g_game->get_use_old_overlay()) {
+                    g_other_bmps[B_OVERLAY_LDP1450] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LDP1450],
+                                    g_screen_blitter->format, 0);
+                    SDL_SetColorKey (g_other_bmps[B_OVERLAY_LDP1450], 1, 0x000000ff);
+
+                }
 
                 // MAC: If the game uses an overlay, create a texture for it.
                 // The g_screen_blitter surface is used from game.cpp anyway, so we always create it, used or not.
@@ -556,7 +570,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 }
 
 // Draw LDP1450 overlay characters to the screen - rewrite for SDL2 (DBX)
-void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
+void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
 {
     int i, j = 0;
     int LDP1450_strlen;
@@ -582,6 +596,60 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 
     if (j == 12) draw_LDP1450_overlay(LDP1450_String, 0, 0, 0, 1);
     else draw_LDP1450_overlay(LDP1450_String, start_x, y, 1, 0);
+}
+
+void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
+{
+    SDL_Rect src, dest;
+
+    int i = 0;
+    int value = 0;
+    int LDP1450_strlen;
+    g_ldp1450_old_overlay = true;
+
+    if (g_aspect_ratio == 0x96) start_x = (start_x - (start_x/4));
+
+    dest.x = start_x;
+    dest.y = y;
+    dest.w = OVERLAY_LDP1450_WIDTH;
+    dest.h = OVERLAY_LDP1450_HEIGHT;
+
+    src.y = 0;
+    src.w = OVERLAY_LDP1450_WIDTH;
+    src.h = OVERLAY_LDP1450_WIDTH;
+
+    LDP1450_strlen = strlen(LDP1450_String);
+
+    if (!LDP1450_strlen)
+    {
+        strcpy(LDP1450_String,"           ");
+        LDP1450_strlen = strlen(LDP1450_String);
+    }
+    else
+    {
+        if (LDP1450_strlen <= 11)
+        {
+            for (i=LDP1450_strlen; i<=11; i++)
+                 LDP1450_String[i] = 32;
+
+            LDP1450_strlen = strlen(LDP1450_String);
+        }
+    }
+
+    for (i=0; i<LDP1450_strlen; i++)
+    {
+         value = LDP1450_String[i];
+
+         if (value >= 0x26 && value <= 0x39) value -= 0x25;
+         else if (value >= 0x41 && value <= 0x5a) value -= 0x2a;
+         else if (value == 0x13) value = 0x32;
+         else value = 0x31;
+
+         src.x = value * OVERLAY_LDP1450_WIDTH;
+         SDL_FillRect(g_leds_surface, &dest, 0x00000000);
+         SDL_BlitSurface(g_other_bmps[B_OVERLAY_LDP1450], &src, g_leds_surface, &dest);
+         dest.x += OVERLAY_LDP1450_CHARACTER_SPACING;
+    }
 }
 
 //  used to draw non LED stuff like scoreboard text
@@ -648,9 +716,11 @@ SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
 bool get_fullscreen() { return g_fullscreen; }
 
+bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
+
 bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
 
-bool get_alt_osd() { return g_altosd; }
+bool get_use_old_osd() { return g_game->get_use_old_overlay(); }
 
 bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 
@@ -668,12 +738,6 @@ void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
 
 void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
 
-void set_blend_osd(bool value) { g_blendosd = value; }
-
-void set_alt_osd(bool value) { g_altosd = value; }
-
-void set_nolair2_overlay(bool value) { g_nolair2_overlay = value; }
-
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
@@ -684,7 +748,7 @@ void set_scalefactor(int value)
     if (value > 100 || value < 50) // Validating in case user inputs crazy
                                    // values.
     {
-        LOGW << "Invalid scale value. Ignoring -scalefactor parameter.";
+        printline("Invalid scale value. Ignoring -scalefactor parameter.");
         g_scalefactor = 100;
 
     } else {
@@ -707,6 +771,7 @@ void set_video_width(Uint16 width)
     // We need to support arbitrary resolution to accomodate stuff like screen
     // rotation
     g_vid_width = width;
+    g_vid_resized = true;
 }
 
 // returns video height
@@ -720,6 +785,7 @@ void set_video_height(Uint16 height)
     // We need to support arbitrary resolution to accomodate stuff like screen
     // rotation
     g_vid_height = height;
+    g_vid_resized = true;
 }
 
 FC_Font *get_font() { return g_font; }
@@ -728,33 +794,20 @@ TTF_Font *get_tfont() { return g_tfont; }
 
 void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 {
-    SDL_Rect dest, clear;
+    SDL_Rect dest;
     dest.y = (short)(row);
     dest.w = (unsigned short)(6 * strlen(t));
     dest.h = 14;
 
     SDL_Surface *text_surface;
 
-    if (g_altosd) dest.x = (short)((col * 5.9));
+    if (g_game->get_use_old_overlay()) dest.x = (short)((col * 6));
     else dest.x = (short)((col * 5));
 
-    if (g_blendosd && g_altosd)
-    {
-        clear.x = dest.x;
-        clear.y = dest.y;
-        clear.w = (unsigned short)(7 * strlen(t));
-        clear.h = dest.h + 2;
+    SDL_FillRect(surface, &dest, 0x00000000);
+    SDL_Color color={225, 225, 225};
+    text_surface=TTF_RenderText_Solid(g_tfont, t, color);
 
-        SDL_FillRect(surface, &clear, 0x00000000);
-        SDL_Color color={255, 255, 255, 200};
-        text_surface=TTF_RenderText_Blended(g_tfont, t, color);
-    }
-    else
-    {
-        SDL_FillRect(surface, &dest, 0x00000000);
-        SDL_Color color={205, 205, 205};
-        text_surface=TTF_RenderText_Solid(g_tfont, t, color);
-    }
     SDL_BlitSurface(text_surface, NULL, surface, &dest);
     SDL_FreeSurface(text_surface);
 }
@@ -797,7 +850,6 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
     int i, k = 0;
     char t[13];
 
-    if (g_nolair2_overlay) return;
     if (reset && !get_LDP1450_enabled()) return;
 
     if (reset) {
@@ -814,8 +866,9 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
 
     if (insert) {
 
-       if (fabs(x - 1.5)<FLT_EPSILON) x = ((get_draw_width()/310.5) * start_x);
-       else x = ((get_draw_width()/255.5) * start_x);
+       if (g_aspect_ratio == 0x96) x = (((double)get_draw_width()/320) * start_x);
+       else if (g_aspect_ratio == 0xB1) x = (((double)get_draw_width()/225) * start_x);
+       else x = (((double)get_draw_width()/256) * start_x);
 
        switch(y)
        {
@@ -904,17 +957,31 @@ void vid_toggle_fullscreen()
         return;
     }
     if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
-        if(!g_fs_scale_nearest)
-           SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
         SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
         return;
     }
     SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
+    SDL_SetWindowPosition(g_window, SDL_WINDOWPOS_CENTERED,
+                          SDL_WINDOWPOS_CENTERED);
+}
+
+void vid_toggle_scanlines()
+{
+    SDL_BlendMode mode;
+    SDL_GetRenderDrawBlendMode(g_renderer, &mode);
+    if (mode != SDL_BLENDMODE_MOD)
+        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
+
+    if (g_scanlines) g_scanlines = false;
+    else g_scanlines = true;
 }
 
 void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
 void set_subtitle_display(char *s, SDL_Surface *surface) { subchar = strdup(s); subscreen = surface; }
-void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
+void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
+void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
+void set_detected_height(int pHeight) { g_probe_height = pHeight; }
+void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 unsigned int get_draw_width() { return g_draw_width; }
 unsigned int get_draw_height() { return g_draw_height; }
 
@@ -1002,7 +1069,7 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
     // We have got here from game::blit(), which is also called when scoreboard is updated,
     // so in that case we simply return and don't do any overlay surface update. 
-    if (g_scoreboard_needs_update) {
+    if (g_scoreboard_needs_update || g_ldp1450_old_overlay) {
         return;
     }
     
@@ -1095,8 +1162,10 @@ void vid_blit () {
     // If there's a subtitle overlay
     if (g_bSubtitleShown) draw_subtitle(subchar, subscreen, 0);
 
-    // LDP1450 overlay
-    if (get_LDP1450_enabled()) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
+    // LDP1450 overlays
+    if (g_ldp1450_old_overlay) SDL_UpdateTexture(g_overlay_texture, &g_leds_size_rect,
+                 (void *)g_leds_surface->pixels, g_leds_surface->pitch);
+    else if (get_LDP1450_enabled()) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
 
     if (g_scanlines) draw_scanlines();
 
@@ -1185,11 +1254,11 @@ void take_screenshot()
 
 void draw_scanlines() {
     unsigned char c;
-    for (int i = 0; i < g_vid_height; i+=5) {
+    for (unsigned int i = 0; i < g_draw_height; i+=5) {
          c = 0x40;
          for (int j = 0; j < 4; j++) {
              SDL_SetRenderDrawColor(g_renderer, c, c, c, SDL_ALPHA_OPAQUE);
-             SDL_RenderDrawLine(g_renderer, 0, i+j, g_vid_width, i+j);
+             SDL_RenderDrawLine(g_renderer, 0, i+j, g_draw_width, i+j);
              switch(j)
              {
                 case 0:

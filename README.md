@@ -17,6 +17,8 @@ Features:
 * Singe game support
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
+* Respect video aspect ratios
+* Alternate overlay choice
 * Advanced multi joystick configuration
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 * Simulated scan lines: [preview](screenshots/scanlines.png)
@@ -149,19 +151,20 @@ Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/h
 The following additional arguments have been added to Hypseus Singe:
 
     -keymapfile                [ Specify an alternate hypinput.ini file        ]
-    -alt_osd                   [ Use alternate lair/ace font overlay           ]
-    -blend_osd                 [ Use TTF blending on alternate font overlay    ]
     -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
     -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
-    -nolair2_overlay           [ Disable lair2 text overlay                    ]
+    -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
+    -scalefactor               [ Scale video image [50-100]%                   ]
+    -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
 
     Alt-Enter                  [ Toggle fullscreen                             ]
+    Alt-Backspace              [ Toggle scanlines                              ]
     [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
 
 

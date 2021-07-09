@@ -136,6 +136,9 @@ game::game()
     // Software scoreboard for lair/ace
     m_sdl_software_scoreboard = false;
 
+    // old style overlays
+    m_use_old_overlay = false;
+
 }
 
 game::~game()
@@ -543,6 +546,8 @@ void game::set_video_overlay_needs_update(bool value)
 unsigned int game::get_video_overlay_height() { return m_video_overlay_height; }
 
 unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
+
+bool game::get_use_old_overlay() { return m_use_old_overlay; }
 
 void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
 

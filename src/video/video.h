@@ -110,6 +110,7 @@ bool draw_led(int, int, int);
 void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y,
                        SDL_Surface *overlay);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
+void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
 void free_bmps();
 SDL_Surface *load_one_bmp(const char *);
@@ -126,14 +127,14 @@ FC_Font *get_font();
 FC_Font *get_fixfont();
 TTF_Font *get_tfont();
 bool get_fullscreen();
-bool get_alt_osd();
+bool get_use_old_osd();
+bool get_force_aspect_ratio();
 bool get_singe_blend_sprite();
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
+void set_force_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
-void set_blend_osd(bool value);
-void set_alt_osd(bool value);
 void set_yuv_video_blank(bool value);
 void set_nolair2_overlay(bool value);
 int get_scalefactor();           // by RDG2010
@@ -149,13 +150,14 @@ void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, SDL_Surface *, bool value);
 void draw_LDP1450_overlay(char *, int, int, bool ins, bool rst);
 void vid_toggle_fullscreen();
-void set_force_aspect_ratio(bool bEnabled);
+void vid_toggle_scanlines();
+void set_aspect_ratio(int fRatio);
+void set_detected_height(int pHeight);
+void set_detected_width(int pWidth);
 void set_subtitle_enabled(bool bEnabled);
 void set_subtitle_display(char *, SDL_Surface *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
-
-bool get_force_aspect_ratio();
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);

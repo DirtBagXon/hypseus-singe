@@ -34,6 +34,7 @@
 #include "vldp_internal.h"
 #include "vldp_common.h"
 #include "mpegscan.h"
+#include "../video/video.h"
 
 #include <inttypes.h>
 
@@ -535,6 +536,12 @@ void idle_handler_open()
             g_out_info.h =
                 ((small_buf[5] & 0x0F) << 8) | small_buf[6]; // get mpeg height
             ivldp_set_framerate(small_buf[7] & 0xF); // set the framerate
+
+            // Send media info to video::
+            int dCurAspectRatio = (int)(((double)g_out_info.w / g_out_info.h) * 100);
+            video::set_aspect_ratio(dCurAspectRatio);
+            video::set_detected_height((int)g_out_info.h);
+            video::set_detected_width((int)g_out_info.w);
 
             io_seek(0); // go back to beginning for parser's benefit
 

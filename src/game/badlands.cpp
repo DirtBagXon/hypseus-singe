@@ -450,7 +450,7 @@ void badlands::repaint()
         const char *t = "SHOOT!";
         Uint8 x = 24;
 
-        if (video::get_alt_osd()) x = 20;
+        if (video::get_use_old_osd()) x = 20;
         video::draw_string(t, x, 220, m_video_overlay[m_active_video_overlay]);
     }
 }
