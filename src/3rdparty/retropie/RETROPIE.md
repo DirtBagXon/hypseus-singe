@@ -25,11 +25,11 @@
     cd ..
 
     mv /opt/retropie/emulators/daphne/daphne.bin /opt/retropie/emulators/daphne/daphne.bin.orig
-    cp build/hypseus /opt/retropie/emulators/daphne/daphne.bin
+    cp hypseus /opt/retropie/emulators/daphne/daphne.bin
 
-    cp -R fonts/ /opt/retropie/emulators/daphne/
+    cp -R ../fonts/ /opt/retropie/emulators/daphne/
 
-    cp doc/hypinput.ini /opt/retropie/configs/daphne/
+    cp ../doc/hypinput.ini /opt/retropie/configs/daphne/
     ln -s /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini
 
 If you only want ``Daphne`` games, **stop here**.
