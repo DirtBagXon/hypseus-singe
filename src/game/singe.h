@@ -102,6 +102,11 @@ class singe : public game
     static void pre_step_forward() { g_ldp->pre_step_forward(); }
     static void pre_step_backward() { g_ldp->pre_step_backward(); }
 
+    static bool get_retro_path()
+    {
+        return g_ldp->get_console_status();
+    }
+
     // by RDG2010
     // Sometimes it's useful to know the status of the vldp.
     // Lets give Singe the ability to query for this.

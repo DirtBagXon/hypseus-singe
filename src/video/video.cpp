@@ -26,6 +26,7 @@
 // Part of the DAPHNE emulator
 // This code started by Matt Ownby, May 2000
 
+#include "../hypseus.h"
 #include "../game/game.h"
 #include "../io/conout.h"
 #include "../io/error.h"
@@ -127,7 +128,9 @@ char *LDP1450_168;
 char *LDP1450_184;
 char *LDP1450_200;
 
-// the # of degrees to rotate counter-clockwise in opengl mode
+// degrees in clockwise rotation
+SDL_RendererFlip g_flipState = SDL_FLIP_NONE;
+int sdl_max_rotate_width = 720;
 float g_fRotateDegrees = 0.0;
 
 // SDL sdl_video_run thread variables
@@ -237,6 +240,22 @@ bool init_display()
         }
 
         if (g_window) SDL_HideWindow(g_window);
+
+        if (g_fRotateDegrees != 0) {
+            if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
+                if (g_fRotateDegrees != 180.0) {
+                    LOGW << "Screen rotation enabled, aspect ratios will be ignored";
+                    g_draw_width = g_vid_width;
+                    g_draw_height = g_vid_width;
+                }
+                if (g_game->get_game_type() != 10)
+                    g_yuv_video_needs_update = true;
+
+            } else {
+                LOGE << "Screen rotation not supported at this resolution";
+                set_quitflag();
+            }
+	}
 
 	g_window =
             SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -607,7 +626,8 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
     int LDP1450_strlen;
     g_ldp1450_old_overlay = true;
 
-    if (g_aspect_ratio == 0x96) start_x = (start_x - (start_x/4));
+    if (g_aspect_ratio == 0x96 && g_fRotateDegrees == 0)
+        start_x = (start_x - (start_x/4));
 
     dest.x = start_x;
     dest.y = y;
@@ -1168,6 +1188,15 @@ void vid_blit () {
     else if (get_LDP1450_enabled()) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
 
     if (g_scanlines) draw_scanlines();
+
+    if (g_fRotateDegrees != 0) {
+	if (g_yuv_texture)
+            SDL_RenderCopyEx(g_renderer, g_yuv_texture, NULL, NULL,
+                      g_fRotateDegrees, NULL, g_flipState);
+	if (g_overlay_texture)
+            SDL_RenderCopyEx(g_renderer, g_overlay_texture, NULL, NULL,
+                      g_fRotateDegrees, NULL, g_flipState);
+    }
 
     SDL_RenderPresent(g_renderer);
 

@@ -26,6 +26,10 @@
 #include "../../video/video.h"
 #include "../../sound/sound.h"
 
+extern "C" {
+    #include "luretro.h"
+}
+
 #include <vector>
 
 using namespace std;
@@ -730,12 +734,19 @@ static int sep_font_load(lua_State *L)
       if (lua_isnumber(L, 2))
       {
         font = lua_tostring(L, 1);
+        int len = strlen(font) + RETRO_PAD;
+        char filepath[RETRO_MAXPATH];
+        if (g_pSingeIn->get_retro_path()) {
+            lua_retropath(font, filepath, len);
+        } else
+            memcpy(filepath, font, len);
+
         points = lua_tonumber(L, 2);
 				TTF_Font *temp = NULL;
         // Load this font.
-				temp = TTF_OpenFont(font, points);
+				temp = TTF_OpenFont(filepath, points);
 				if (temp == NULL)
-          sep_die("Unable to load font.");
+          sep_die("Unable to load font: %s", filepath);
         // Make it the current font and mark it as loaded.
 				g_fontList.push_back(temp);
         g_fontCurrent = g_fontList.size() - 1;
@@ -1135,16 +1146,24 @@ static int sep_skip_to_frame(lua_State *L)
 static int sep_sound_load(lua_State *L)
 {
   int n = lua_gettop(L);
-	int result = -1;
+  int result = -1;
 
   if (n == 1)
     if (lua_isstring(L, 1))
 		{
 			const char *file = lua_tostring(L, 1);
+			int len = strlen(file) + RETRO_PAD;
+			char filepath[RETRO_MAXPATH] ;
+
+			if (g_pSingeIn->get_retro_path()) {
+                            lua_retropath(file, filepath, len);
+			} else
+                            memcpy(filepath, file, len);
+
 			g_soundT temp;
-			if (SDL_LoadWAV(file, &temp.audioSpec, &temp.buffer, &temp.length) == NULL)
+			if (SDL_LoadWAV(filepath, &temp.audioSpec, &temp.buffer, &temp.length) == NULL)
 			{
-				sep_die("Could not open %s: %s", file, SDL_GetError());
+				sep_die("Could not open %s: %s", filepath, SDL_GetError());
 			} else {
 				g_soundList.push_back(temp);
 				result = g_soundList.size() - 1;
@@ -1257,20 +1276,28 @@ static int sep_sprite_height(lua_State *L)
 static int sep_sprite_load(lua_State *L)
 {
   int n = lua_gettop(L);
-	int result = -1;
+  int result = -1;
 	
   if (n == 1)
     if (lua_isstring(L, 1))
 		{
 			const char *sprite = lua_tostring(L, 1);
-			SDL_Surface *temp = IMG_Load(sprite);
+			int len = strlen(sprite) + RETRO_PAD;
+			char filepath[RETRO_MAXPATH];
+
+			if (g_pSingeIn->get_retro_path()) {
+                            lua_retropath(sprite, filepath, len);
+			} else
+                            memcpy(filepath, sprite, len);
+
+			SDL_Surface *temp = IMG_Load(filepath);
 			if (temp != NULL)
 			{
 				SDL_SetColorKey(temp, SDL_TRUE|SDL_RLEACCEL, 0);
 				g_spriteList.push_back(temp);
 				result = g_spriteList.size() - 1;
 			} else
-				sep_die("Unable to load sprite %s!", sprite);
+				sep_die("Unable to load sprite %s!", filepath);
 		}
 	
 	lua_pushnumber(L, result);

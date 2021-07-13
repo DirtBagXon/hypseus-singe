@@ -57,6 +57,8 @@ struct singe_in_info
 	double (*get_singe_version)(void);
 	void (*set_ldp_verbose)(bool);	
 
+	bool (*get_retro_path)();
+
 	// VARIABLES:
 	
 	// VLDP Interface

@@ -17,6 +17,7 @@
 
 #include "lauxlib.h"
 #include "lualib.h"
+#include "luretro.h"
 
 
 
@@ -203,8 +204,17 @@ static int g_iofile (lua_State *L, int f, const char *mode) {
     if (filename) {
       FILE **pf = newfile(L);
       *pf = fopen(filename, mode);
-      if (*pf == NULL)
-        fileerror(L, 1, filename);
+
+      if (*pf == NULL) {
+          int len = strlen(filename) + RETRO_PAD;
+          char retroname[RETRO_MAXPATH];
+          lua_retropath(filename, retroname, len);
+          *pf = fopen(retroname, mode);
+
+          if (*pf == NULL)
+              fileerror(L, 1, filename);
+      }
+
     }
     else {
       tofile(L);  /* check that it's a valid file handle */

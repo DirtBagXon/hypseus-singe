@@ -182,6 +182,10 @@ class game
 
     bool get_use_old_overlay();
 
+    bool get_console_flag();
+
+    virtual void set_console_flag(bool);
+
     virtual void set_prefer_samples(bool);
     virtual void set_fastboot(bool);
     virtual void set_preset(int);  // set up dip switches/rom names, etc with
@@ -256,6 +260,8 @@ class game
     bool m_sdl_software_scoreboard;
 
     bool m_use_old_overlay;
+
+    bool m_run_on_console;
 
   protected:
     bool m_game_paused;          // whether the game is paused or not

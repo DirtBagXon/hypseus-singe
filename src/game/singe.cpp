@@ -126,6 +126,7 @@ bool singe::init()
         g_SingeIn.draw_string         = video::draw_string;
         g_SingeIn.samples_play_sample = samples::play;
         g_SingeIn.set_last_error      = set_last_error;
+        g_SingeIn.get_retro_path      = get_retro_path;
 
         // by RDG2010
         g_SingeIn.get_status        = get_status;
@@ -340,6 +341,10 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-blend_sprites") == 0) {
         video::set_singe_blend_sprite(true);
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-retropath") == 0) {
+        game::set_console_flag(true);
         bResult = true;
     }
     else if (strcasecmp(arg, "-js_range") == 0) {
