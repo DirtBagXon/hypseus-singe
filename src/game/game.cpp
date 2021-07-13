@@ -139,6 +139,9 @@ game::game()
     // old style overlays
     m_use_old_overlay = false;
 
+    // running on retro console
+    m_run_on_console = false;
+
 }
 
 game::~game()
@@ -547,11 +550,15 @@ unsigned int game::get_video_overlay_height() { return m_video_overlay_height; }
 
 unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
 
+bool game::get_console_flag() { return m_run_on_console; }
+
 bool game::get_use_old_overlay() { return m_use_old_overlay; }
 
 void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
 
 void game::set_fastboot(bool value) { m_fastboot = value; }
+
+void game::set_console_flag(bool value) { m_run_on_console = value; }
 
 // generic preset function, does nothing
 void game::set_preset(int preset)

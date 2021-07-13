@@ -150,18 +150,19 @@ Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/h
 
 The following additional arguments have been added to Hypseus Singe:
 
-    -keymapfile                [ Specify an alternate hypinput.ini file        ]
-    -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
-    -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
-    -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
-    -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
-    -scalefactor               [ Scale video image [50-100]%                   ]
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
+    -keymapfile                [ Specify an alternate hypinput.ini file        ]
+    -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
+    -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
+    -scalefactor               [ Scale video image [50-100]%                   ]
+    -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
+    -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
+    -retropath                 [ Singe data path rewrites [libretro]           ]
 
     Alt-Enter                  [ Toggle fullscreen                             ]
     Alt-Backspace              [ Toggle scanlines                              ]

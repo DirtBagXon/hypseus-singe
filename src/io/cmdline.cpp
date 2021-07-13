@@ -822,6 +822,7 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-rotate") == 0) {
                 get_next_word(s, sizeof(s));
                 float f = (float)numstr::ToDouble(s);
+                if (f < 0 || f >= 360) f = 0;
                 video::set_rotate_degrees(f);
             }
 

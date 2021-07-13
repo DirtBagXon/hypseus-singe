@@ -32,43 +32,31 @@
     cp doc/hypinput.ini /opt/retropie/configs/daphne/
     ln -s /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini
 
+You **may** need to remove the ``-nohwaccel`` argument from your ``/opt/retropie/emulators/daphne/daphne.sh``
+
 If you only want ``Daphne`` games, **stop here**.
 
 For extending with ``Singe`` game support, continue below:
 
-## To enable Singe extension
+## To enable Singe extensions
 
-Link ``singe`` within emulator path:
+Link ``singe`` with emulator path - this requires a custom ``daphne.sh``:
 
     cp /opt/retropie/emulators/daphne/daphne.sh /opt/retropie/emulators/daphne/daphne.sh.orig
     cp src/3rdparty/retropie/daphne.sh /opt/retropie/emulators/daphne/daphne.sh
 
-    mkdir  /home/pi/RetroPie/roms/daphne/singe
+    mkdir /home/pi/RetroPie/roms/daphne/singe
+    touch /home/pi/RetroPie/roms/daphne/singe/.do_not_delete
     ln -s /home/pi/RetroPie/roms/daphne/singe /opt/retropie/emulators/daphne/singe
 
-### Enable games within Singe subdirectory
+### Install Singe games
 
 * Place ``timegal.daphne`` within ``/home/pi/RetroPie/roms/daphne/`` as normal.
-
-* Enabling games will depend on the filesystem you have your ``roms`` directory mounted upon:
-
-* See details for ``EXT`` (*Linux*) and ``FAT/NTFS`` (*Windows*) partition types below.
-
-### ``EXT`` (Linux filesystem)
-
-``symlink`` each Singe game path within the ``roms/daphne/singe`` directory as needed:
-
-    cd /home/pi/RetroPie/roms/daphne/singe
-
-    ln -s ../timegal.daphne timegal
-    ln -s ../maddog.daphne maddog
-    ...
-
+* Ensure the main ``.singe`` file matches the game directory name: *i.e.* ``timegal.singe``.
 
 The file structure is like so:
 
-
-    roms          (EXT linux filesystem)
+    roms
     |-- daphne
     |    |
     |    |-- timegal.daphne
@@ -80,41 +68,24 @@ The file structure is like so:
     |    |    |-- timegal.singe
     |    |    |-- *.*
     |    |
-    |    +-- singe
-    |         +-- timegal  <<- link (ln -s ../timegal.daphne timegal)
+    |    +-- singe (Required but empty)
+    |
 
+**Note:** From version **2.6.1** there is no need to link peripheral data in the ``singe`` subdirectory.
 
-### Windows based ``FAT/NTFS`` filesystems
+## The -retropath singe argument
 
-**You cannot create symlinks on Windows filesystems.**
+The Singe specific ``-retropath`` argument, performs an on-the-fly rewrite of the LUA data path:
 
-You therefore need to copy peripheral data to the ``singe`` subdirectory:
+    singe/timegal/
 
-    cd /home/pi/RetroPie/roms/daphne/singe
-    mkdir timegal
-    cd timegal
-    tar -cf - --exclude='*.m2v' --exclude='*.ogg' --exclude='*.dat' -C ../../$(basename $(pwd)).daphne/ . | tar -xf -
+...is rewritten to:
 
-*This should duplicate less than 1Mb of data*
+    singe/../timegal.daphne/
 
-The file structure is like so:
+**Note:** The ``singe`` subdirectory is still required but can remain empty.
 
-    roms          (FAT/NTFS filesystem)
-    |-- daphne
-    |    |
-    |    |-- timegal.daphne
-    |    |    |
-    |    |    |-- timegal.commands  (Optional)
-    |    |    |-- timegal.txt
-    |    |    |-- timegal.m2v
-    |    |    |-- timegal.ogg
-    |    |    |-- timegal.singe
-    |    |
-    |    +-- singe
-    |         |-- timegal
-                   |
-                   |-- *.*  <<- All other files except .m2v & .ogg
-
+This should enable easier integration into Retro gaming systems when used in scripts.
 
 ## Revert to original Daphne plugin
 

@@ -14,10 +14,6 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-      -blend)
-        BLEND="-alt_osd -blend_osd"
-        shift
-        ;;
       -blanking)
         BLANK="-blank_searches -blank_skips -min_seek_delay 1000"
         shift
@@ -36,6 +32,10 @@ while [[ $# -gt 0 ]]; do
         ;;
       -prototype)
         PROTOTYPE="on"
+        shift
+        ;;
+      -rotate)
+        ROTATE="-rotate 90"
         shift
         ;;
       -scale)
@@ -66,7 +66,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
+    echo  -e "$0 [-fullscreen] [-blanking] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
     for game in ace astron badlands bega blazer cliff cobra cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
@@ -202,9 +202,9 @@ $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
 $NEAREST \
-$BLEND \
 $BLANK \
 $OVERLAY \
+$ROTATE \
 $SCANLINES \
 $SCALE \
 $SCOREBOARD \
