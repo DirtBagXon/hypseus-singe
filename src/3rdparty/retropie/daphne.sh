@@ -8,7 +8,7 @@ if [[ -f "$dir/$name.commands" ]]; then
 fi
 
 if [[ -f "$dir/$name.singe" ]]; then
-    "/opt/retropie/emulators/daphne/daphne.bin" singe vldp -framefile "$dir/$name.txt" -script "$dir/$name.singe" -homedir "/opt/retropie/emulators/daphne" -retropath -fullscreen $params
+    "/opt/retropie/emulators/daphne/daphne.bin" singe vldp -retropath -framefile "$dir/$name.txt" -script "$dir/$name.singe" -homedir "/opt/retropie/emulators/daphne" -fullscreen $params
 else
     "/opt/retropie/emulators/daphne/daphne.bin" "$name" vldp -framefile "$dir/$name.txt" -homedir "/opt/retropie/emulators/daphne" -fullscreen $params
 fi

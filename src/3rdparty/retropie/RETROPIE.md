@@ -4,6 +4,8 @@
 
 * Install Standard Daphne plugin via **RetroPie configuration script**.
 
+* Or follow manual installation instructions from the [forum](https://retropie.org.uk/forum/post/263036) for unsupported platforms.
+
 * Place ROMS as per standard configuration: https://retropie.org.uk/docs/Daphne/
 
 * SSH into the retropie and perform the following to switch `daphne` to `hypseus-singe`.
@@ -32,7 +34,7 @@
     cp doc/hypinput.ini /opt/retropie/configs/daphne/
     ln -s /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini
 
-You **may** need to remove the ``-nohwaccel`` argument from your ``/opt/retropie/emulators/daphne/daphne.sh``
+You **will** need to remove the ``-nohwaccel`` argument from your ``/opt/retropie/emulators/daphne/daphne.sh``
 
 If you only want ``Daphne`` games, **stop here**.
 
@@ -40,14 +42,14 @@ For extending with ``Singe`` game support, continue below:
 
 ## To enable Singe extensions
 
-Link ``singe`` with emulator path - this requires a custom ``daphne.sh``:
+Link ``singe`` with the emulator path - this requires a custom ``daphne.sh`` which detects singe games:
 
     cp /opt/retropie/emulators/daphne/daphne.sh /opt/retropie/emulators/daphne/daphne.sh.orig
     cp src/3rdparty/retropie/daphne.sh /opt/retropie/emulators/daphne/daphne.sh
 
-    mkdir /home/pi/RetroPie/roms/daphne/singe
-    touch /home/pi/RetroPie/roms/daphne/singe/.do_not_delete
-    ln -s /home/pi/RetroPie/roms/daphne/singe /opt/retropie/emulators/daphne/singe
+Link a ``singe`` subdirectory to the ``roms`` folder in ``-datadir`` for use as a traversal directory.
+
+    ln -s /home/pi/RetroPie/roms/daphne/roms /opt/retropie/emulators/daphne/singe
 
 ### Install Singe games
 
@@ -68,14 +70,37 @@ The file structure is like so:
     |    |    |-- timegal.singe
     |    |    |-- *.*
     |    |
-    |    +-- singe (Required but empty)
+    |    +-- roms
     |
 
-**Note:** From version **2.6.1** there is no need to link peripheral data in the ``singe`` subdirectory.
+**Note:** From version **2.6.1** there is no need to link peripheral data in a ``singe`` subdirectory.
 
-## The -retropath singe argument
+This should **complete** the installation.
 
-The Singe specific ``-retropath`` argument, performs an on-the-fly rewrite of the LUA data path:
+## Revert to the original Daphne plugin
+
+     mv /opt/retropie/emulators/daphne/daphne.bin.orig /opt/retropie/emulators/daphne/daphne.bin
+     rm /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini
+     rm -rf /opt/retropie/emulators/daphne/fonts
+
+     mv /opt/retropie/emulators/daphne/daphne.sh.orig /opt/retropie/emulators/daphne/daphne.sh
+     rm /opt/retropie/emulators/daphne/singe
+
+Re-add ``-nohwaccel`` to  ``/opt/retropie/emulators/daphne/daphne.sh`` if required.
+
+## Configuration
+
+Follow standard plugin documentation at: https://retropie.org.uk/docs/Daphne/
+
+* However, key and joystick control configuration should be within `hypinput.ini`
+
+## Extended argument summary
+
+#### The '-retropath' singe argument explained:
+
+    hypseus singe vldp -retropath -framefile ... -script ...
+
+The Singe specific ``-retropath`` argument, performs an *on-the-fly* rewrite of the data path passed by the game LUA:
 
     singe/timegal/
 
@@ -83,23 +108,25 @@ The Singe specific ``-retropath`` argument, performs an on-the-fly rewrite of th
 
     singe/../timegal.daphne/
 
-**Note:** The ``singe`` subdirectory is still required but can remain empty.
+The ``singe`` subdirectory is now purely traversed so we can symlink from ``-homedir`` to any existing folder in the daphne ``-datadir``.
 
-This should enable easier integration into Retro gaming systems when used in scripts.
+``roms`` is the obvious choice:
 
-## Revert to original Daphne plugin
+    ls -al /opt/retropie/emulators/daphne/
 
-     mv /opt/retropie/emulators/daphne/daphne.bin.orig /opt/retropie/emulators/daphne/daphne.bin
-     rm /opt/retropie/configs/daphne/hypinput.ini /opt/retropie/emulators/daphne/hypinput.ini
-     rm -rf /opt/retropie/emulators/daphne/fonts
+    drwxr-xr-x 9 pi pi    4096 Jul 12 12:24 .
+    -rwxr-xr-x 1 pi pi 2485652 Jul 13 13:00 daphne.bin
+    -rwxr-xr-x 1 pi pi     522 Jul 12 12:24 daphne.sh
+    drwxr-xr-x 2 pi pi    4096 Jul  9 22:28 fonts
+    drwxr-xr-x 2 pi pi    4096 Apr 29 20:23 framefile
+    lrwxrwxrwx 1 pi pi      41 Apr 29 20:01 hypinput.ini -> /opt/retropie/configs/daphne/hypinput.ini
+    drwxr-xr-x 2 pi pi    4096 Jul 12 12:26 logs
+    drwxr-xr-x 3 pi pi    4096 Apr 29 20:00 pics
+    drwxr-xr-x 2 pi pi    4096 Jun 28 19:39 ram
+    lrwxrwxrwx 1 pi pi      38 Apr 29 20:01 roms -> /home/pi/RetroPie/roms/daphne/roms
+    drwxr-xr-x 2 pi pi    4096 Apr 29 20:23 screenshots
+    lrwxrwxrwx 1 pi pi      39 Jul 12 00:07 singe -> /home/pi/RetroPie/roms/daphne/roms
+    drwxr-xr-x 2 pi pi    4096 Apr 29 20:00 sound
 
-     mv /opt/retropie/emulators/daphne/daphne.sh.orig /opt/retropie/emulators/daphne/daphne.sh
-     rm -rf /home/pi/RetroPie/roms/daphne/singe
-     rm /opt/retropie/emulators/daphne/singe
+This should allow easier integration within Retro gaming systems.
 
-
-## Configuration
-
-Follow standard plugin documentation at: https://retropie.org.uk/docs/Daphne/
-
-* However, key and joystick control configuration should be within `hypinput.ini`

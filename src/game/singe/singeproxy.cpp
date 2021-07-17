@@ -26,10 +26,6 @@
 #include "../../video/video.h"
 #include "../../sound/sound.h"
 
-extern "C" {
-    #include "luretro.h"
-}
-
 #include <vector>
 
 using namespace std;

@@ -15,6 +15,7 @@ Features:
 * SDL2 support
 * [cmake] build tool
 * Singe game support
+* Singe libretro integration
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
 * Respect video aspect ratios
@@ -81,7 +82,9 @@ In **Windows** you are able to create `.bat` files with arguments for specific g
 
 Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
-Retro gaming systems will require adoption within the relevant emulation scripts. See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
+**Retro gaming** systems will require adoption within the relevant emulation scripts.  
+The singe `-retropath` argument can ease integration into libretro style systems.  
+See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
 
 `bash` scripts are provided for systems that support this shell.
 

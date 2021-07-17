@@ -26,6 +26,10 @@ while [[ $# -gt 0 ]]; do
         NEAREST="-nolinear_scale"
         shift
         ;;
+      -nolog)
+        LOG="-nolog"
+        shift
+        ;;
       -scale)
         SCALE="-scalefactor 50"
         shift
@@ -77,6 +81,7 @@ $HYPSEUS_BIN singe vldp \
 $FULLSCREEN \
 $NEAREST \
 $BLEND \
+$LOG \
 $SCANLINES \
 $SCALE \
 -sound_buffer 2048 \

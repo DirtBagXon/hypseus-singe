@@ -26,6 +26,10 @@ while [[ $# -gt 0 ]]; do
         NEAREST="-nolinear_scale"
         shift
         ;;
+      -nolog)
+        LOG="-nolog"
+        shift
+        ;;
       -overlay)
         OVERLAY="-original_overlay"
         shift
@@ -204,6 +208,7 @@ $FULLSCREEN \
 $NEAREST \
 $BLANK \
 $OVERLAY \
+$LOG \
 $ROTATE \
 $SCANLINES \
 $SCALE \
