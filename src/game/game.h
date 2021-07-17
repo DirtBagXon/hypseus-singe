@@ -180,11 +180,15 @@ class game
     // returns m_video_overlay_height
     unsigned int get_video_overlay_height();
 
+    unsigned int get_sinden_border();
+
     bool get_use_old_overlay();
 
     bool get_console_flag();
 
     virtual void set_console_flag(bool);
+
+    virtual void set_sinden_border(int border);
 
     virtual void set_prefer_samples(bool);
     virtual void set_fastboot(bool);
@@ -262,6 +266,8 @@ class game
     bool m_use_old_overlay;
 
     bool m_run_on_console;
+
+    int m_sinden_border;
 
   protected:
     bool m_game_paused;          // whether the game is paused or not
