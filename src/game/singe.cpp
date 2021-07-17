@@ -347,6 +347,17 @@ bool singe::handle_cmdline_arg(const char *arg)
         game::set_console_flag(true);
         bResult = true;
     }
+    else if (strcasecmp(arg, "-sinden") == 0) {
+        get_next_word(s, sizeof(s));
+        i = atoi(s);
+
+        if ((i > 0) && (i < 11)) {
+           game::set_sinden_border(i);
+           bResult = true;
+        } else {
+           printerror("SINGE: border out of scope: <1-10>");
+        }
+    }
     else if (strcasecmp(arg, "-js_range") == 0) {
         get_next_word(s, sizeof(s));
         i = atoi(s);
