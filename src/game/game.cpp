@@ -144,6 +144,7 @@ game::game()
 
     // Set a sinden border
     m_sinden_border = 0;
+    m_sinden_border_color = 0;
 
 }
 
@@ -554,6 +555,7 @@ unsigned int game::get_video_overlay_height() { return m_video_overlay_height; }
 unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
 
 unsigned int game::get_sinden_border() { return m_sinden_border; }
+unsigned int game::get_sinden_border_color() { return m_sinden_border_color; }
 
 bool game::get_console_flag() { return m_run_on_console; }
 
@@ -566,6 +568,7 @@ void game::set_fastboot(bool value) { m_fastboot = value; }
 void game::set_console_flag(bool value) { m_run_on_console = value; }
 
 void game::set_sinden_border(int value) { m_sinden_border = value; }
+void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
 
 // generic preset function, does nothing
 void game::set_preset(int preset)

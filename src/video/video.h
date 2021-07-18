@@ -146,7 +146,7 @@ void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
 void draw_scanlines();
-void draw_border(int s);
+void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, SDL_Surface *, bool value);
 void draw_LDP1450_overlay(char *, int, int, bool ins, bool rst);
