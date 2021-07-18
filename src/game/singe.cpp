@@ -357,6 +357,16 @@ bool singe::handle_cmdline_arg(const char *arg)
         } else {
            printerror("SINGE: border out of scope: <1-15>");
         }
+
+        get_next_word(s, sizeof(s));
+        int j = *((int*)(&s));
+
+        if (j != 0x62 && j != 0x67 && j != 0x72 && j != 0x77 && j != 0x78) {
+           printerror("SINGE: invalid border color: w, r, g, b or x");
+           bResult = false;
+        } else {
+           game::set_sinden_border_color(j);
+        }
     }
     else if (strcasecmp(arg, "-js_range") == 0) {
         get_next_word(s, sizeof(s));

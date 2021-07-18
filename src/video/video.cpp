@@ -1197,7 +1197,8 @@ void vid_blit () {
             SDL_RenderCopyEx(g_renderer, g_overlay_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
     } else if (g_game->get_sinden_border())
-            draw_border(g_game->get_sinden_border());
+            draw_border(g_game->get_sinden_border(),
+                      g_game->get_sinden_border_color());
 
     SDL_RenderPresent(g_renderer);
 
@@ -1306,24 +1307,41 @@ void draw_scanlines() {
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
-void draw_border(int s) {
+void draw_border(int s, int c) {
 
-    SDL_Rect t, l, r, b;
-    unsigned char c = 0xFF;
-    SDL_SetRenderDrawColor(g_renderer, c, c, c, SDL_ALPHA_OPAQUE);
+    SDL_Rect tb, lb, rb, bb;
+    unsigned char r = 0xff, g = 0xff, b = 0xff;
 
-    t.x = l.x = b.x = 0;
-    t.y = l.y = r.y = 0;
-    r.x = g_draw_width - s;
-    b.y = g_draw_height - s;
-    t.w = b.w = g_draw_width;
-    t.h = b.h = l.w = r.w = s;
-    l.h = r.h = g_draw_height;
+    switch(c)
+    {
+       case 0x62:
+          r = 0x00; g = 0x66; b = 0xff;
+          break;
+       case 0x67:
+          r = 0x66; g = 0xff; b = 0x40;
+          break;
+       case 0x72:
+          r = 0xff; g = 0x1a; b = 0x1a;
+          break;
+       case 0x78:
+          r = 0x00; g = 0x00; b = 0x00;
+          break;
+    }
 
-    SDL_RenderFillRect(g_renderer, &t);
-    SDL_RenderFillRect(g_renderer, &l);
-    SDL_RenderFillRect(g_renderer, &r);
-    SDL_RenderFillRect(g_renderer, &b);
+    SDL_SetRenderDrawColor(g_renderer, r, g, b, SDL_ALPHA_OPAQUE);
+
+    tb.x = lb.x = bb.x = 0;
+    tb.y = lb.y = rb.y = 0;
+    rb.x = g_draw_width - s;
+    bb.y = g_draw_height - s;
+    tb.w = bb.w = g_draw_width;
+    tb.h = bb.h = lb.w = rb.w = s;
+    lb.h = rb.h = g_draw_height;
+
+    SDL_RenderFillRect(g_renderer, &tb);
+    SDL_RenderFillRect(g_renderer, &lb);
+    SDL_RenderFillRect(g_renderer, &rb);
+    SDL_RenderFillRect(g_renderer, &bb);
 
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
