@@ -167,7 +167,7 @@ The following additional arguments have been added to Hypseus Singe:
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
     -retropath                 [ Singe data path rewrites [libretro]           ]
-    -sinden <1-10>             [ Enable software border for lightguns          ]
+    -sinden <1-15>             [ Enable software border for lightguns          ]
 
     Alt-Enter                  [ Toggle fullscreen                             ]
     Alt-Backspace              [ Toggle scanlines                              ]
