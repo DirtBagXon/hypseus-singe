@@ -220,6 +220,7 @@ void sep_die(const char *fmt, ...)
 		sound::play_saveme();
 		SDL_Delay(1000);
 		g_se_saveme = false;
+		g_pSingeIn->set_singe_errors(SINGE_ERROR_RUNTIME);
 	}
 
 	// tell hypseus what our last error was ...

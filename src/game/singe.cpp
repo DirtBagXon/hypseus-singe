@@ -102,6 +102,7 @@ bool singe::init()
         g_SingeIn.uVersion            = SINGE_INTERFACE_API_VERSION;
         g_SingeIn.printline           = printline;
         g_SingeIn.set_quitflag        = set_quitflag;
+        g_SingeIn.set_singe_errors    = set_singe_errors;
         g_SingeIn.disable_audio1      = disable_audio1;
         g_SingeIn.disable_audio2      = disable_audio2;
         g_SingeIn.enable_audio1       = enable_audio1;
@@ -351,11 +352,11 @@ bool singe::handle_cmdline_arg(const char *arg)
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
-        if ((i > 0) && (i < 16)) {
-           game::set_sinden_border(i);
+        if ((i > 0) && (i < 11)) {
+           game::set_sinden_border(i<<1);
            bResult = true;
         } else {
-           printerror("SINGE: border out of scope: <1-15>");
+           printerror("SINGE: border out of scope: <1-10>");
         }
 
         get_next_word(s, sizeof(s));
@@ -428,6 +429,7 @@ void singe::repaint()
             if (!init_video()) {
                 printline(
                     "Fatal Error, trying to re-create the surface failed!");
+                game::set_game_errors(SINGE_ERROR_INIT);
                 set_quitflag();
             }
             g_ldp->unlock_overlay(1000); // unblock game video overlay

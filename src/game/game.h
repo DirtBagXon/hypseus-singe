@@ -183,11 +183,15 @@ class game
     unsigned int get_sinden_border();
     unsigned int get_sinden_border_color();
 
+    short get_game_errors();
+
     bool get_use_old_overlay();
 
     bool get_console_flag();
 
     virtual void set_console_flag(bool);
+
+    virtual void set_game_errors(short);
 
     virtual void set_sinden_border(int);
     virtual void set_sinden_border_color(int);
@@ -268,6 +272,8 @@ class game
     bool m_use_old_overlay;
 
     bool m_run_on_console;
+
+    short m_game_error;
 
     int m_sinden_border;
     int m_sinden_border_color;

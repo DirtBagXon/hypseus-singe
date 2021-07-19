@@ -25,6 +25,14 @@
 #ifndef DAPHNE_H
 #define DAPHNE_H
 
+#define SDL_ERROR_INIT           0x96
+#define SDL_ERROR_MAINRENDERER   0x97
+#define SDL_ERROR_SCOREWINDOW    0x98
+#define SDL_ERROR_SCORERENDERER  0x99
+#define SDL_ERROR_FONT           0x9A
+#define SDL_ERROR_SCREENSHOT     0x9B
+#define SDL_ERROR_ROTATION       0x9C
+
 // global definitions ...
 
 // The current version of DAPHNE will now be returned by this function alone.

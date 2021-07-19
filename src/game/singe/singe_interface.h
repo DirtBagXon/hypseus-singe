@@ -4,6 +4,9 @@
 // increase this number every time you change something in this file!!!
 #define SINGE_INTERFACE_API_VERSION 5
 
+#define SINGE_ERROR_INIT      0xA0
+#define SINGE_ERROR_RUNTIME   0xA1
+
 // info provided to Singe from Hypseus
 struct singe_in_info
 {
@@ -58,6 +61,7 @@ struct singe_in_info
 	void (*set_ldp_verbose)(bool);	
 
 	bool (*get_retro_path)();
+	void (*set_singe_errors)(short);
 
 	// VARIABLES:
 	

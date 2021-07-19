@@ -253,6 +253,7 @@ bool init_display()
 
             } else {
                 LOGE << "Screen rotation not supported at this resolution";
+                g_game->set_game_errors(SDL_ERROR_ROTATION);
                 set_quitflag();
             }
 	}
@@ -263,9 +264,7 @@ bool init_display()
 
         if (!g_window) {
             LOGE << fmt("Could not initialize window: %s", SDL_GetError());
-            deinit_display();
-            shutdown_display();
-            SDL_Quit();
+            exit(SDL_ERROR_INIT);
         } else {
             if (g_game->m_sdl_software_rendering) {
                 g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_SOFTWARE |
@@ -278,10 +277,7 @@ bool init_display()
 
             if (!g_renderer) {
                 LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
-                deinit_display();
-                shutdown_display();
-                SDL_Quit();
-                exit(1);
+                exit(SDL_ERROR_MAINRENDERER);
             } else {
                 // MAC: If we start in fullscreen mode, we have to set the logical
                 // render size to get the desired aspect ratio.
@@ -298,9 +294,8 @@ bool init_display()
 
                     if (!g_sb_window) {
                         LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
-                        deinit_display();
-                        shutdown_display();
-                        SDL_Quit();
+                        g_game->set_game_errors(SDL_ERROR_SCOREWINDOW);
+                        set_quitflag();
                     }
 
                     if (g_game->m_sdl_software_rendering)
@@ -314,10 +309,8 @@ bool init_display()
                                                         SDL_TEXTUREACCESS_TARGET, 320, 240);
                    else {
                         LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
-                        deinit_display();
-                        shutdown_display();
-                        SDL_Quit();
-                        exit(1);
+                        g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
+                        set_quitflag();
                    }
 		}
 
@@ -355,9 +348,10 @@ bool init_display()
                     g_tfont = TTF_OpenFont(ttfont, 14);
 
                 if (g_tfont == NULL) {
-                        LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
-                        shutdown_display();
-                        exit(1);
+                    LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
+                    deinit_display();
+                    shutdown_display();
+                    exit(SDL_ERROR_FONT);
                 }
 
                 // Create a 32-bit surface with alpha component. As big as an overlay can possibly be...
@@ -406,10 +400,7 @@ bool init_display()
         }
     } else {
         LOGE << fmt("Could not initialize SDL: %s", SDL_GetError());
-        deinit_display();
-        shutdown_display();
-        SDL_Quit();
-        exit(1);
+        exit(SDL_ERROR_INIT);
     }
 
     return (result);
@@ -989,11 +980,13 @@ void vid_toggle_scanlines()
 {
     SDL_BlendMode mode;
     SDL_GetRenderDrawBlendMode(g_renderer, &mode);
-    if (mode != SDL_BLENDMODE_MOD)
+    if (mode != SDL_BLENDMODE_MOD && !g_scanlines)
         SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
 
-    if (g_scanlines) g_scanlines = false;
-    else g_scanlines = true;
+    if (g_scanlines) {
+        g_scanlines = false;
+        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
+    } else g_scanlines = true;
 }
 
 void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
@@ -1256,10 +1249,8 @@ void take_screenshot()
         if (SDL_RenderReadPixels(g_renderer, NULL, surface->format->format,
             surface->pixels, surface->pitch) != 0)
             { LOGE << fmt("Cannot ReadPixels - Something bad happened: %s", SDL_GetError());
-                 deinit_display();
-                 shutdown_display();
-                 SDL_Quit();
-                 exit(1); }
+                 g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
+                 set_quitflag(); }
     } else {
         LOGE << "Could not allocate renderer";
         return;

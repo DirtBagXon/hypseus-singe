@@ -937,6 +937,8 @@ void ldp::set_search_latency(Uint32 value) { search_latency = value; }
 
 void ldp::set_stop_on_quit(bool value) { m_stop_on_quit = value; }
 
+void ldp::set_runtime_error(short value) { g_game->set_game_errors(value); }
+
 // causes LDP to blank video while searching
 void ldp::set_search_blanking(bool enabled)
 {
