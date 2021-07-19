@@ -223,8 +223,9 @@ int main(int argc, char **argv)
                                     // without internet connection.
                                     // net_send_data_to_server();
 
-                                    result_code = 0; // hypseus will exit without
-                                                     // any errors
+                                    result_code = g_game->get_game_errors();
+                                                          // hypseus will exit with
+                                                          // error codes
                                 } else {
                                     // exit if returns an error but don't print
                                     // error message to avoid repetition

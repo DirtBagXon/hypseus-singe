@@ -107,6 +107,11 @@ class singe : public game
         return g_ldp->get_console_status();
     }
 
+    static void set_singe_errors(short value)
+    {
+        g_ldp->set_runtime_error(value);
+    }
+
     // by RDG2010
     // Sometimes it's useful to know the status of the vldp.
     // Lets give Singe the ability to query for this.

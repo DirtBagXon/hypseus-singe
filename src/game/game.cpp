@@ -146,6 +146,8 @@ game::game()
     m_sinden_border = 0;
     m_sinden_border_color = 0;
 
+    // Did the game encounter any errors
+    m_game_error = 0;
 }
 
 game::~game()
@@ -557,6 +559,8 @@ unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
 unsigned int game::get_sinden_border() { return m_sinden_border; }
 unsigned int game::get_sinden_border_color() { return m_sinden_border_color; }
 
+short game::get_game_errors() { return m_game_error; }
+
 bool game::get_console_flag() { return m_run_on_console; }
 
 bool game::get_use_old_overlay() { return m_use_old_overlay; }
@@ -566,6 +570,8 @@ void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
 void game::set_fastboot(bool value) { m_fastboot = value; }
 
 void game::set_console_flag(bool value) { m_run_on_console = value; }
+
+void game::set_game_errors(short value) { m_game_error = value; }
 
 void game::set_sinden_border(int value) { m_sinden_border = value; }
 void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
