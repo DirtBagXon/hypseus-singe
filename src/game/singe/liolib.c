@@ -206,13 +206,14 @@ static int g_iofile (lua_State *L, int f, const char *mode) {
       *pf = fopen(filename, mode);
 
       if (*pf == NULL) {
-          int len = strlen(filename) + RETRO_PAD;
-          char retroname[RETRO_MAXPATH];
-          lua_retropath(filename, retroname, len);
-          *pf = fopen(retroname, mode);
-
-          if (*pf == NULL)
-              fileerror(L, 1, filename);
+          if (get_retropath()) {
+              int len = strlen(filename) + RETRO_PAD;
+              char retroname[RETRO_MAXPATH];
+              lua_retropath(filename, retroname, len);
+              *pf = fopen(retroname, mode);
+              if (*pf == NULL) fileerror(L, 1, retroname);
+          }
+          else fileerror(L, 1, filename);
       }
 
     }

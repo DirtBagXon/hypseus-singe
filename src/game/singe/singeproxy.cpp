@@ -113,6 +113,11 @@ unsigned char sep_byte_clip(int value)
 	return (unsigned char)result;
 }
 
+void sep_set_retropath()
+{
+       lua_set_retropath(0x1);
+}
+
 void sep_call_lua(const char *func, const char *sig, ...)
 {
 	va_list vl;
@@ -159,8 +164,10 @@ void sep_call_lua(const char *func, const char *sig, ...)
     
 	/* do the call */
 	popCount = nres = strlen(sig);  /* number of expected results */
-	if (lua_pcall(g_se_lua_context, narg, nres, 0) != 0)  /* do the call */
+	if (lua_pcall(g_se_lua_context, narg, nres, 0) != 0) { /* do the call */
 		sep_error("error running function '%s': %s", func, lua_tostring(g_se_lua_context, -1));
+		exit(SINGE_ERROR_RUNTIME);
+	}
 	
 	/* retrieve results */
 	nres = -nres;  /* stack index of first result */
@@ -565,9 +572,12 @@ void sep_startup(const char *script)
 
 	g_bLuaInitialized = true;
 
+  if (g_pSingeIn->get_retro_path()) sep_set_retropath();
+
   if (luaL_dofile(g_se_lua_context, script) != 0)
   {
 	sep_error("error compiling script: %s", lua_tostring(g_se_lua_context, -1));
+	sep_die("Cannot continue, quitting...");
 	g_bLuaInitialized = false;
   }
 }

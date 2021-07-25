@@ -68,6 +68,7 @@ void          sep_startup(const char *script);
 void          sep_unload_fonts(void);
 void          sep_unload_sounds(void);
 void          sep_unload_sprites(void);
+void          sep_set_retropath(void);
 
 ////////////////////////////////////////////////////////////////////////////////
 
