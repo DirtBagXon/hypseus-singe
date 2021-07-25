@@ -4,6 +4,12 @@
 ** See Copyright Notice in lua.h
 */
 
+static unsigned char g_retropath = 0;
+
+unsigned char get_retropath() { return g_retropath; }
+
+void lua_set_retropath(unsigned char value) { g_retropath = value; }
+
 void lua_retropath(const char *src, char *dst, int len)
 {
     unsigned char r = 0;

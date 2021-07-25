@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(PKG_VERSION "v2.6.4")
+set(PKG_VERSION "v2.6.5")
 
 set(FILE_OFFSET_BITS "")
 
