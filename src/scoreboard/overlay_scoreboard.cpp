@@ -44,7 +44,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
                                 else {
                                    video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3) + 5, 1, pSurface);
                                    video::draw_string("Player 1: ", 2, 1, pSurface);
-                                   video::draw_string("Player 2: ", (pSurface->w / 6 - 19)+7, 1, pSurface);
+                                   video::draw_string("Player 2: ", (pSurface->w / 6 - 19) + 7, 1, pSurface);
                                    video::draw_string("Lives: ", 2, 15, pSurface);
                                    video::draw_string("Lives: ", (pSurface->w / 6 - 10) + 10, 15, pSurface);
                                 }

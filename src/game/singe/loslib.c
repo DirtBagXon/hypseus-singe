@@ -19,6 +19,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
+static int clocker = 0x04;
 
 static int os_pushresult (lua_State *L, int i, const char *filename) {
   int en = errno;  /* calls to Lua API may change this value */
@@ -72,16 +73,13 @@ static int os_getenv (lua_State *L) {
 
 
 static int os_clock (lua_State *L) {
-#ifndef __aarch64__
-  if (sizeof(size_t) == 8)
-      lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC)*LUA_64BIT_CLOCK_SKEW);
-  else
-#endif
-      lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC)*LUA_32BIT_CLOCK_SKEW);
-
+  lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC) * clocker);
   return 1;
 }
 
+void os_alter_clocker (lua_State *L) {
+  clocker = 0x08;
+}
 
 /*
 ** {======================================================

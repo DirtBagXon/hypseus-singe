@@ -54,8 +54,8 @@ using namespace std;
 namespace video
 {
 int g_vid_width = 640, g_vid_height = 480; // default video dimensions
-unsigned int g_draw_width, g_probe_width = g_vid_width;
-unsigned int g_draw_height, g_probe_height = g_vid_height;
+unsigned int g_draw_width = g_vid_width, g_probe_width = g_vid_width;
+unsigned int g_draw_height = g_vid_height, g_probe_height = g_vid_height;
 
 #ifdef DEBUG
 const Uint16 cg_normalwidths[]  = {320, 640, 800, 1024, 1280, 1280, 1600};
@@ -115,7 +115,6 @@ int g_aspect_ratio;
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
 char *subchar;
-SDL_Surface *subscreen;
 
 char *LDP1450_069;
 char *LDP1450_085;
@@ -823,28 +822,24 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
     SDL_FreeSurface(text_surface);
 }
 
-void draw_subtitle(char *s, SDL_Surface *surface, bool insert)
+void draw_subtitle(char *s, bool insert)
 {
     int x = (int)(get_draw_width() - (get_draw_width() * 0.97));
     int y = (int)(get_draw_height() * 0.92);
     SDL_Renderer *renderer = get_renderer();
-    static int count;
-    int delay = 100;
+    static int m_message_timer;
+    const int timeout = 200;
 
     if (insert) {
-       count = 0;
+       m_message_timer = 0;
        set_subtitle_enabled(true);
-       set_subtitle_display(s, surface);
+       set_subtitle_display(s);
+    } else if (m_message_timer > timeout) {
+       set_subtitle_enabled(false);
     }
 
-    if ((!insert) && (count > delay)) {
-        set_subtitle_enabled(false);
-    }
-
-    if (count > 2)
-       FC_Draw(get_font(), renderer, x, y, s);
-
-    count++;
+    FC_Draw(get_font(), renderer, x, y, s);
+    m_message_timer++;
 }
 
 void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
@@ -990,7 +985,7 @@ void vid_toggle_scanlines()
 }
 
 void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
-void set_subtitle_display(char *s, SDL_Surface *surface) { subchar = strdup(s); subscreen = surface; }
+void set_subtitle_display(char *s) { subchar = strdup(s); }
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
 void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
@@ -1173,7 +1168,7 @@ void vid_blit () {
     }
 
     // If there's a subtitle overlay
-    if (g_bSubtitleShown) draw_subtitle(subchar, subscreen, 0);
+    if (g_bSubtitleShown) draw_subtitle(subchar, false);
 
     // LDP1450 overlays
     if (g_ldp1450_old_overlay) SDL_UpdateTexture(g_overlay_texture, &g_leds_size_rect,
@@ -1335,6 +1330,27 @@ void draw_border(int s, int c) {
     SDL_RenderFillRect(g_renderer, &bb);
 
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+
+    if (s < 0x0f) {
+
+        unsigned char i = 0x01;
+        if (s <= 0x02) i = 0x04;
+        else if (s <= 0x08) i = 0x02;
+
+        SDL_Rect tib, lib, rib, bib;
+        tib.x = lib.x = bib.x = s;
+        tib.y = lib.y = rib.y = s;
+        rib.x = ((g_draw_width - s) - i);
+        bib.y = ((g_draw_height - s) - i);
+        tib.h = bib.h = lib.w = rib.w = i;
+        tib.w = bib.w = g_draw_width - (s<<1);
+        lib.h = rib.h = g_draw_height - (s<<1);
+
+        SDL_RenderFillRect(g_renderer, &tib);
+        SDL_RenderFillRect(g_renderer, &lib);
+        SDL_RenderFillRect(g_renderer, &rib);
+        SDL_RenderFillRect(g_renderer, &bib);
+    }
 }
 
 }

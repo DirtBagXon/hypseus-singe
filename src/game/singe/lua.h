@@ -22,14 +22,6 @@
 #define LUA_COPYRIGHT	"Copyright (C) 1994-2008 Lua.org, PUC-Rio"
 #define LUA_AUTHORS 	"R. Ierusalimschy, L. H. de Figueiredo & W. Celes"
 
-/*
-** There is a weird bug in 64bit land, where Lua os.clock() is off
-**    by a factor of 6 - we kludge here on 64bit systems......
-*/
-#define LUA_32BIT_CLOCK_SKEW	3
-#define LUA_64BIT_CLOCK_SKEW	6
-
-
 /* mark for precompiled code (`<esc>Lua') */
 #define	LUA_SIGNATURE	"\033Lua"
 

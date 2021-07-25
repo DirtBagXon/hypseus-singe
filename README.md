@@ -10,22 +10,18 @@ This version includes **Singe** support for Fan Made and [American Laser Games][
 
 Features:
 
-* Updated MPEG2 decoder
-* Working MPEG2 x86_64 hw accel (SSE2)
 * SDL2 support
+* Updated MPEG2 decoder
 * [cmake] build tool
-* Singe game support
-* Singe libretro integration
-* Sinden borders in Singe
+* Singe libretro path integration
 * Singe joystick [mouse] support
 * Psuedo Singe 2 support (details below)
-* Respect video aspect ratios
-* Alternate overlay choice
+* Sinden borders for Singe games
+* Alternate overlay choices
 * Advanced multi joystick configuration
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 * Simulated scan lines: [preview](screenshots/scanlines.png)
 * Windows and MacOS X Ports
-* Bugs
 
 ## Windows
 
@@ -101,7 +97,9 @@ See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
 
 ## Configuration
 
-Configuration of buttons and joysticks should be made within [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+Configuration of keycodes and joysticks should be made within [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+
+Refer to [keylist.txt](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/keylist.txt) for **SDL2** keycode values.
 
 ## Screenshots
 
@@ -120,13 +118,13 @@ Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
     HYPSEUS_SHARE=~/.daphne
     HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
 
-**Note:** The default Hypseus home directory, *created* when run without arguments:
+**Note:** The default Hypseus home directory, *created* when run without ``-homedir``:
 
     ~/.hypseus
 
 ## Software Scoreboard
 
-Enable the original style external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
+Enable the software external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
 
 Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
@@ -134,13 +132,15 @@ Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
 For Singe, provide the following arguments to *hypseus*:
 
-    hypseus.bin singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
+    hypseus singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
+
+Check for Singe anomalies and replacement files [here](https://github.com/DirtBagXon/hypseus_singetwo_data).
 
 ## Singe 2
 
 Hypseus Singe now has psuedo support for Singe 2 games.
 
-For current details see: [Hypseus Singe2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
+For current details see: [Hypseus Singe 2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
 
 ## Singe joystick [mouse] support
 
@@ -148,11 +148,11 @@ Singe now automatically interprets **joystick axis** change as mouse movement (*
 
 Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
-Configure **joystick buttons** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+Configure **joystick controls** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
 
 ## Extended arguments and keys
 
-The following additional arguments have been added to Hypseus Singe:
+The following additional, and reimplemented, arguments have been added to Hypseus Singe:
 
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
@@ -204,7 +204,7 @@ project would not be possible.
 ## License
 
 **Hypseus Singe**, Super Multiple Arcade Laserdisc Emulator  
-Copyright (C) 2021  [DirtBagXon][project]
+Copyright (C) 2021  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]
@@ -230,6 +230,7 @@ The "Hypseus Singe" mark is used to uniquely identify this project as an Arcade
 Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 "Hypseus" is strictly prohibited without express permission.__
 
+[owner]: https://github.com/DirtBagXon
 [project]: https://github.com/DirtBagXon/hypseus-singe
 [issues]: https://github.com/DirtBagXon/hypseus-singe/issues
 [pull requests]: https://github.com/DirtBagXon/hypseus-singe/pulls
