@@ -537,6 +537,8 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_two_pseudo_call_false);
 
+  lua_register(g_se_lua_context, "luaChangeSpeed",         sep_alter_lua_clock);
+
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
   lua_register(g_se_lua_context, "keyboardSetMode",    sep_keyboard_set_mode);
@@ -913,6 +915,13 @@ static int sep_singe_two_pseudo_call_false(lua_State *L)
    return 1;
 }
 
+static int sep_alter_lua_clock(lua_State *L)
+{
+   static bool c = false;
+   if (!c) { os_alter_clocker(L); c = true; }
+   return 1;
+}
+
 static int sep_mpeg_get_width(lua_State *L)
 {
   lua_pushnumber(L, g_pSingeIn->g_vldp_info->w);
@@ -957,6 +966,7 @@ static int sep_say(lua_State *L)
 static int sep_say_font(lua_State *L)
 {
   int n = lua_gettop(L);
+  const int ow = 0x140;
 	  
   if (n == 3)
     if (lua_isnumber(L, 1))
@@ -990,12 +1000,19 @@ static int sep_say_font(lua_State *L)
 							dest.w = textsurface->w;
 							dest.h = textsurface->h;
 
-							if (dest.h == 22) // JR
-								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112)-15;
-							else if (dest.x == 5 && dest.y == 5 && dest.h == 23) // AM
-								dest.x = dest.x + 8;
-							else if (g_se_overlay_width == 360)
-								dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
+							if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
+								dest.x+=20;
+
+							if (g_se_overlay_width > ow) {
+								if (dest.h == 0x16 && dest.y == 0xcf) { // JR SCOREBOARD
+                                                                    dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 22);
+                                                                    if (dest.x <(ow>>2)) dest.x-=4;
+                                                                    if (dest.x >(ow>>1)) dest.x+=4;
+								}
+								else
+								    dest.x = dest.x - (double)(((g_se_overlay_width) + (dest.x * 32)
+                                                                           + (dest.w * 26)) / ow);
+							}
 
 							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
 							if (!video::get_singe_blend_sprite())
@@ -1191,7 +1208,7 @@ static int sep_sound_play(lua_State *L)
 static int sep_sprite_draw(lua_State *L)
 {
   int n = lua_gettop(L);
-  static bool o = false;
+  const int ow = 0x140;
 
   if (n == 3)
     if (lua_isnumber(L, 1))
@@ -1207,41 +1224,21 @@ static int sep_sprite_draw(lua_State *L)
 						dest.w = g_spriteList[sprite]->w;
 						dest.h = g_spriteList[sprite]->h;
 
-						if (g_se_overlay_width == 360)
-						{
-							// Mouse sprites
-							if ((dest.w == 13 && dest.h == 13) || (dest.w == 23 && dest.h == 25) ||
-									(dest.w == 27 && dest.h == 14))
-							{
-								if (dest.w == 23) // MD
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.75))/30);
-								else
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/32);
-							} else {
-
-								if (dest.w == 6 && dest.h == 11) // MD / MD2
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112);
-								else if (dest.w == 204 && dest.h == 21) // JR
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/22);
-								else if (dest.x < 250 && dest.y >= 195) // CP / DW / LBH
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/56);
-								else if (dest.x == 300 && dest.y == 215) // TT
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/112);
-								else
-									dest.x = dest.x - ((g_se_overlay_width + (dest.x * 1.5))/28);
-							}
+						if (g_se_overlay_width > ow) {
+						    if (dest.y > 0xbe && dest.y <= 0xde)
+							dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
+						    else
+						        dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
+									    + (dest.w * 26)) / ow);
 						}
 
-						if (!o) {
-							sep_print("Overlay drawn to %d x %d", g_se_overlay_width, g_se_overlay_height);
-							o = true;
+						if (dest.w == 0x89 && dest.h == 0x1c) { // SP
+							SDL_SetColorKey(g_spriteList[sprite], SDL_TRUE|SDL_RLEACCEL, 0x000000ff);
+							dest.x+=3;
 						}
-
-						if (dest.w == 137 && dest.h == 28) // SP
-							SDL_SetColorKey(g_spriteList[sprite], SDL_FALSE|SDL_RLEACCEL, 0x000000ff);
 
 						if ((!video::get_singe_blend_sprite()) &&
-								(dest.w != 204 && dest.h != 21) && (dest.w != 11 && dest.h != 11)) // JR / AM
+								(dest.w != 0xcc && dest.h != 0x15) && (dest.w != 0x0b && dest.h != 0x0b)) // JR / AM
 							SDL_SetSurfaceBlendMode(g_spriteList[sprite], SDL_BLENDMODE_NONE);
 
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);

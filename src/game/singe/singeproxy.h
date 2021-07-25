@@ -78,6 +78,7 @@ static int sep_change_speed(lua_State *L);
 static int sep_color_set_backcolor(lua_State *L);
 static int sep_color_set_forecolor(lua_State *L);
 static int sep_hypseus_get_height(lua_State *L);
+static int sep_alter_lua_clock(lua_State *L);
 static int sep_hypseus_get_width(lua_State *L);
 static int sep_debug_say(lua_State *L);
 static int sep_font_load(lua_State *L);

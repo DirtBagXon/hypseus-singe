@@ -133,14 +133,13 @@ bool thayers::init()
                                               get_scoreboard_port());
 
         if (pScoreboard) {
-            // if video overlay is enabled, it means we're using an overlay
-            // scoreboard
-            if (m_game_uses_video_overlay) {
-                ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::OVERLAY);
-            }
-            // else if we're not using VLDP, then display an image scoreboard
-            else if (!g_ldp->is_vldp()) {
+            // We want software scoreboard, display the image scoreboard
+            if (g_game->m_sdl_software_scoreboard) {
                 ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+            }
+            // if video overlay is enabled, it means we're using an overlay scoreboard
+            else if (m_game_uses_video_overlay && g_ldp->is_vldp()) {
+                ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::OVERLAY);
             }
 
             // if user has also requested a hardware scoreboard, then enable
@@ -270,10 +269,9 @@ void thayers::do_nmi()
         char t[60] = {0};
 
         memset(t, 0x20, 59); // set the string to a bunch of blanks
-        speech_buffer_cleanup((char *)&m_cpumem[0xa500], t, sizeof(t));
 
         if (m_game_uses_video_overlay) {
-		video::draw_subtitle(t, video::get_screen_leds(), 1);
+		video::draw_subtitle(t, true);
         }
 
     }
@@ -444,7 +442,7 @@ void thayers::show_speech_subtitle()
             speech_buffer_cleanup((char *)&m_cpumem[0xa500], text, sizeof(text));
 
             if (m_game_uses_video_overlay) {
-		    video::draw_subtitle(text, video::get_screen_leds(), 1);
+		    video::draw_subtitle(text, true);
             }
         }
 
@@ -462,7 +460,7 @@ void thayers::show_speech_subtitle()
 
         // Make sure m_video_overlay pointer array is not NULL
         if (m_game_uses_video_overlay) {
-		video::draw_subtitle(text, video::get_screen_leds(), 1);
+		video::draw_subtitle(text, true);
         }
 
 #ifdef SSI_DEBUG

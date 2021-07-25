@@ -148,7 +148,7 @@ void set_video_height(Uint16);
 void draw_scanlines();
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
-void draw_subtitle(char *, SDL_Surface *, bool value);
+void draw_subtitle(char *, bool ins);
 void draw_LDP1450_overlay(char *, int, int, bool ins, bool rst);
 void vid_toggle_fullscreen();
 void vid_toggle_scanlines();
@@ -156,7 +156,7 @@ void set_aspect_ratio(int fRatio);
 void set_detected_height(int pHeight);
 void set_detected_width(int pWidth);
 void set_subtitle_enabled(bool bEnabled);
-void set_subtitle_display(char *, SDL_Surface *);
+void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 

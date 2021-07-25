@@ -692,8 +692,9 @@ bool parse_cmd_line(int argc, char **argv)
 		printline("Enabling USB scoreboard...");
             } else if (strcasecmp(s, "-software_scoreboard")==0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
+                thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
-                if (game_lair_or_sa) {
+                if (game_lair_or_sa || game_thayers) {
                     g_game->m_sdl_software_scoreboard = true;
                     printline("Enabling Software scoreboard...");
                 } else {

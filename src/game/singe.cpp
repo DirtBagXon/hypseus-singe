@@ -57,6 +57,7 @@ static Uint16 js_sen = 5;
 static bool bjx, bjy = false;
 
 bool singe_alt_pressed = false;
+bool oc = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -205,6 +206,8 @@ void singe::start()
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
+    if (oc) g_pSingeOut->sep_call_lua("luaChangeSpeed", "i", 1);
+
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
 
@@ -346,6 +349,10 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-retropath") == 0) {
         game::set_console_flag(true);
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-overclock") == 0) {
+        oc = true;
         bResult = true;
     }
     else if (strcasecmp(arg, "-sinden") == 0) {
