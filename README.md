@@ -134,13 +134,13 @@ For Singe, provide the following arguments to *hypseus*:
 
     hypseus singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
 
-Check for Singe anomalies and replacement files [here](https://github.com/DirtBagXon/hypseus_singetwo_data).
+Check for Singe anomalies and replacement files [here](https://github.com/DirtBagXon/hypseus_singe_data).
 
 ## Singe 2
 
 Hypseus Singe now has psuedo support for Singe 2 games.
 
-For current details see: [Hypseus Singe 2 Data](https://github.com/DirtBagXon/hypseus_singetwo_data)
+For current details see: [Hypseus Singe 2 Data](https://github.com/DirtBagXon/hypseus_singe_data)
 
 ## Singe joystick [mouse] support
 

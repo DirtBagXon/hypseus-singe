@@ -124,6 +124,7 @@ void sep_call_lua(const char *func, const char *sig, ...)
 	int narg, nres;  /* number of arguments and results */
 	int popCount;
 	const int top = lua_gettop(g_se_lua_context);
+	static unsigned char e;
 	
 	va_start(vl, sig);
 	
@@ -165,8 +166,10 @@ void sep_call_lua(const char *func, const char *sig, ...)
 	/* do the call */
 	popCount = nres = strlen(sig);  /* number of expected results */
 	if (lua_pcall(g_se_lua_context, narg, nres, 0) != 0) { /* do the call */
-		sep_error("error running function '%s': %s", func, lua_tostring(g_se_lua_context, -1));
-		exit(SINGE_ERROR_RUNTIME);
+		sep_print("error running function '%s': %s", func, lua_tostring(g_se_lua_context, -1));
+		if (e>1) sep_die("Multiple errors, cannot contine...");
+		e++;
+		return;
 	}
 	
 	/* retrieve results */
@@ -198,6 +201,7 @@ void sep_call_lua(const char *func, const char *sig, ...)
 		nres++;
 	}
 	va_end(vl);
+	e = 0;
 	
 	if (popCount > 0)
 		lua_pop(g_se_lua_context, popCount);
