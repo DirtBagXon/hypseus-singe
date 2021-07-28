@@ -659,6 +659,12 @@ void ldp::think_delay(unsigned int uMsDelay)
         if (uElapsedMs < m_uElapsedMsSinceStart) {
             MAKE_DELAY(1);
         }
+
+        if (g_game->get_game_type() == GAME_SINGE) {
+            if (uElapsedMs > m_uElapsedMsSinceStart)
+                pre_think();
+        }
+
         // otherwise we're caught up or behind, so just loop so we can make sure
         // we're caught up
     }
