@@ -167,7 +167,7 @@ void sep_call_lua(const char *func, const char *sig, ...)
 	popCount = nres = strlen(sig);  /* number of expected results */
 	if (lua_pcall(g_se_lua_context, narg, nres, 0) != 0) { /* do the call */
 		sep_print("error running function '%s': %s", func, lua_tostring(g_se_lua_context, -1));
-		if (e>1) sep_die("Multiple errors, cannot contine...");
+		if (e) { sep_die("Multiple errors, cannot continue..."); exit(SINGE_ERROR_RUNTIME); }
 		e++;
 		return;
 	}
