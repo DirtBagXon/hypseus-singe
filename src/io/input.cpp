@@ -231,17 +231,20 @@ void CFG_Keys()
                                             // necessary, just use default, if
                                             // any
                                            if (val3 > 0) {
-                                                // hundreds=joystick index, units=button index
-                                                joystick_buttons_map[i][0] = (val3 / 100);
-                                                joystick_buttons_map[i][1] = (val3 % 100);
+                                                // first digit=joystick index, remaining digits=button index
+						int divider = (sval3.length() == 4) ? 1000 : 100;
+                                                joystick_buttons_map[i][0] = (val3 / divider);
+                                                joystick_buttons_map[i][1] = (val3 % divider);
                                             }
                                             // joystick axis
                                             if (val4 != 0) {
-                                                // hundreds=joystick index, units=axis index, sign=direction
-                                                joystick_axis_map[i][0] = abs(val4 / 100);
-                                                joystick_axis_map[i][1] = abs(val4 % 100);
+                                                // first digit=joystick index, remaining digits=axis index, sign=direction
+						int divider = (sval4.length() == 4) ? 1000 : 100;
+                                                joystick_axis_map[i][0] = abs(val4 / divider);
+                                                joystick_axis_map[i][1] = abs(val4 % divider);
                                                 joystick_axis_map[i][2] = (val4 == 0)?0:((val4 < 0)?-1:1);
                                             }
+
 
                                             found_match = true;
                                             break;
