@@ -239,7 +239,7 @@ void CFG_Keys()
                                             // joystick axis
                                             if (val4 != 0) {
                                                 // first digit=joystick index, remaining digits=axis index, sign=direction
-                                                int divider = (sval4.length() == 4) ? 1000 : 100;
+                                                int divider = (sval4.length() > 4) ? 1000 : 100;
                                                 joystick_axis_map[i][0] = abs(val4 / divider);
                                                 joystick_axis_map[i][1] = abs(val4 % divider);
                                                 joystick_axis_map[i][2] = (val4 == 0)?0:((val4 < 0)?-1:1);
