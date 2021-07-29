@@ -239,6 +239,7 @@ bool init_display()
         }
 
         if (g_window) SDL_HideWindow(g_window);
+        if (g_sb_window) SDL_HideWindow(g_sb_window);
 
         if (g_fRotateDegrees != 0) {
             if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
