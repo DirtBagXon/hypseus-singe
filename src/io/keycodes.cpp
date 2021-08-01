@@ -49,6 +49,7 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_7") == 0) return SDLK_7;
 	else if (strcmp(str, "SDLK_8") == 0) return SDLK_8;
 	else if (strcmp(str, "SDLK_9") == 0) return SDLK_9;
+	else if (strcmp(str, "SDLK_EQUALS") == 0) return SDLK_EQUALS;
 	else if (strcmp(str, "SDLK_BACKSLASH") == 0) return SDLK_BACKSLASH;
 	else if (strcmp(str, "SDLK_BACKQUOTE") == 0) return SDLK_BACKQUOTE;
 	else if (strcmp(str, "SDLK_a") == 0) return SDLK_a;
@@ -94,6 +95,8 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_LEFT") == 0) return SDLK_LEFT;
 	else if (strcmp(str, "SDLK_DOWN") == 0) return SDLK_DOWN;
 	else if (strcmp(str, "SDLK_UP") == 0) return SDLK_UP;
+	else if (strcmp(str, "SDLK_KP_DIVIDE") == 0) return SDLK_KP_DIVIDE;
+	else if (strcmp(str, "SDLK_KP_MULTIPLY") == 0) return SDLK_KP_MULTIPLY;
 	else if (strcmp(str, "SDLK_KP_MINUS") == 0) return SDLK_KP_MINUS;
 	else if (strcmp(str, "SDLK_KP_PLUS") == 0) return SDLK_KP_PLUS;
 	else if (strcmp(str, "SDLK_KP_ENTER") == 0) return SDLK_KP_ENTER;
