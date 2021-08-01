@@ -1,7 +1,7 @@
 set( LIB_SOURCES
     cmdline.cpp conout.cpp error.cpp fileparse.cpp homedir.cpp input.cpp
     mpo_fileio.cpp
-    parallel.cpp
+    parallel.cpp keycodes.cpp
     network.cpp numstr.cpp sram.cpp unzip.cpp
     
 )
@@ -9,7 +9,7 @@ set( LIB_SOURCES
 set( LIB_HEADERS
     cmdline.h conout.h error.h fileparse.h homedir.h input.h
     mpo_fileio.h
-    mpo_mem.h my_stdio.h
+    mpo_mem.h my_stdio.h keycodes.h
     network.h numstr.h parallel.h sram.h unzip.h
 )
 

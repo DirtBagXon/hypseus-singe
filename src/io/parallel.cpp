@@ -34,8 +34,8 @@
 // Code to control the parallel port
 
 unsigned int par::m_uPortIdx = 0;
-short par::m_base0[3]        = {0x378, 0x278, 0};
-short par::m_base2[3]        = {0x37A, 0x27A, 0};
+unsigned short par::m_base0[3]        = {0x378, 0x278, 0};
+unsigned short par::m_base2[3]        = {0x37A, 0x27A, 0};
 
 #include <stdio.h>
 #include "conout.h"

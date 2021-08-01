@@ -35,8 +35,8 @@ class par
     static unsigned int m_uPortIdx;
 
     // base port address (last value reserved for custom address)
-    static short m_base0[3];
+    static unsigned short m_base0[3];
 
     // base+2 port address (last value reserved for custom address)
-    static short m_base2[3];
+    static unsigned short m_base2[3];
 };

@@ -28,6 +28,7 @@
 #include <plog/Log.h>
 #include "input.h"
 #include "conout.h"
+#include "keycodes.h"
 #include "homedir.h"
 #include "../video/video.h"
 #include "../hypseus.h"
@@ -164,7 +165,6 @@ void CFG_Keys()
     string cur_line = "";
     string key_name = "", sval1 = "", sval2 = "", sval3 = "", sval4 = "", eq_sign = "";
     int val1 = 0, val2 = 0, val3 = 0, val4 = 0;
-    //	bool done = false;
 
     if (m_altInputFileSet) {
        string keyinput_notice = "Loading alternate keymap file: ";
@@ -208,8 +208,10 @@ void CFG_Keys()
                         if (find_word(cur_line.c_str(), sval1, cur_line)) {
                             if (find_word(cur_line.c_str(), sval2, cur_line)) {
                                 if (find_word(cur_line.c_str(), sval3, cur_line)) {
-                                    val1         = atoi(sval1.c_str());
-                                    val2         = atoi(sval2.c_str());
+                                    if (isdigit(sval1[0])) val1 = atoi(sval1.c_str());
+                                    else val1 = sdl2_keycode(sval1.c_str());
+                                    if (isdigit(sval2[0])) val2 = atoi(sval2.c_str());
+                                    else val2 = sdl2_keycode(sval2.c_str());
                                     val3         = atoi(sval3.c_str());
                                     val4         = 0;
                                     if (find_word(cur_line.c_str(), sval4, cur_line)) {
