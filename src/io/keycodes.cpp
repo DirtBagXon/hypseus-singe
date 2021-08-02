@@ -21,6 +21,8 @@
  */
 
 #include "input.h"
+#include "conout.h"
+#include <plog/Log.h>
 
 // Win32 doesn't use strcmp
 #ifdef WIN32
@@ -117,5 +119,9 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_RCTRL") == 0) return SDLK_RCTRL;
 	else if (strcmp(str, "SDLK_RSHIFT") == 0) return SDLK_RSHIFT;
 	else if (strcmp(str, "SDLK_RALT") == 0) return SDLK_RALT;
-	else return SDLK_UNKNOWN;
+	else {
+		LOGW << fmt("Unrecognized key macro %s", str);
+		LOGW << "Use decimal values for extended keycodes.";
+		return SDLK_UNKNOWN;
+	}
 }
