@@ -7,6 +7,9 @@ hypseus
 *.so
 *.a
 *.res
+*.zip
+*.orig
+*.rej
 roms
 build
 src/Makefile.vars

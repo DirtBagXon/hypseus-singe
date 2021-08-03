@@ -188,9 +188,8 @@ bool init_display()
     bool result = false; // whether video initialization is successful or not
     Uint32 sdl_flags = 0;
     Uint32 sdl_sb_flags = 0;
-    bool fs = false;
+    static bool sb = false;
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
-
 
     sdl_flags = SDL_WINDOW_SHOWN;
     sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP;
@@ -198,7 +197,7 @@ bool init_display()
     // if we were able to initialize the video properly
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
 
-        if (g_fullscreen) { sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP; fs = true; }
+        if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         else if (g_fakefullscreen) sdl_flags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS;
 
         g_overlay_width = g_game->get_video_overlay_width();
@@ -239,7 +238,10 @@ bool init_display()
         }
 
         if (g_window) SDL_HideWindow(g_window);
-        if (g_sb_window) SDL_HideWindow(g_sb_window);
+
+        if (sdl_flags & SDL_WINDOW_MAXIMIZED)
+            if (g_sb_window) SDL_HideWindow(g_sb_window);
+
 
         if (g_fRotateDegrees != 0) {
             if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
@@ -289,7 +291,7 @@ bool init_display()
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
                 }
 
-                if (g_game->m_sdl_software_scoreboard && !fs) {
+                if (g_game->m_sdl_software_scoreboard && !(sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) && !sb) {
                     g_sb_window = SDL_CreateWindow(NULL, 4, 28, 340, 480, sdl_sb_flags);
 
                     if (!g_sb_window) {
@@ -312,6 +314,11 @@ bool init_display()
                         g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
                         set_quitflag();
                    }
+                   SDL_SetRenderDrawColor(g_sb_renderer, 0, 0, 0, 255);
+                   SDL_RenderClear(g_sb_renderer);
+                   SDL_RenderPresent(g_sb_renderer);
+                   if (!(sdl_flags & SDL_WINDOW_MAXIMIZED))
+                       sb = true;
 		}
 
 		// Always hide the mouse cursor

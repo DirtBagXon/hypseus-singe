@@ -120,7 +120,7 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_RSHIFT") == 0) return SDLK_RSHIFT;
 	else if (strcmp(str, "SDLK_RALT") == 0) return SDLK_RALT;
 	else {
-		LOGW << fmt("Unrecognized key macro %s", str);
+		LOGW << fmt("Unrecognized key macro in config: %s", str);
 		LOGW << "Use decimal values for extended keycodes.";
 		return SDLK_UNKNOWN;
 	}
