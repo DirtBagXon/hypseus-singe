@@ -31,14 +31,14 @@
 /* limit for table tag-method chains (to avoid loops) */
 #define MAXTAGLOOP	100
 
-const TValue *luaV_tofloat (const TValue *obj, TValue *n) {
+const TValue *luaV_torealnumber (const TValue *obj, TValue *n) {
   lua_Number num;
   if (ttisnumber(obj)) return obj;
   if (ttisstring(obj) && luaO_str2d(svalue(obj), &num)) {
     setnvalue(n, num);
   }
-  else
-    setnvalue(n, 0);
+  else setnvalue(n, 0);
+
   return n;
 }
 

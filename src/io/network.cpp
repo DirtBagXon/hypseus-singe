@@ -121,7 +121,19 @@ char *get_video_description()
     static char result[NET_LONGSTRSIZE] = {"Unknown video"};
 
 #ifdef LINUX
-#ifdef NATIVE_CPU_X86
+#if defined(__arm__) || defined(__aarch64__)
+     FILE *F;
+     char video[64];
+     const char *s = "cat /proc/cpuinfo | grep Hardware | sed -e 's/^.*: //' | head -1";
+     F = popen(s, "r");
+     if (F)
+     {
+            if (fscanf(F, "%s", video) == 1)
+                strcpy(result, video);
+
+            pclose(F);
+     }
+#elif defined(NATIVE_CPU_X86)
     FILE *F;
     // PCI query fix by Arnaud G. Gibert
     const char *s = "lspci | grep -i \"VGA compatible controller\" | awk -F ': "
@@ -132,10 +144,7 @@ char *get_video_description()
         if (len > 1) result[len - 1] = 0; // make sure string is null terminated
         pclose(F);
     }
-#endif // NATIVE_CPU_X86
-#ifdef NATIVE_CPU_MIPS
-    strcpy(result, "Playstation2"); // assume PS2 for now hehe
-#endif                              // MIPS
+#endif
 #endif
 
 #ifdef WIN32
@@ -251,6 +260,20 @@ char *get_cpu_name()
 #endif
 #endif
 
+#ifdef LINUX
+    FILE *F;
+    char cpu[64];
+    const char *s = "cat /proc/cpuinfo | grep 'model name' | sed -e 's/^.*: //' | head -1";
+    F = popen(s, "r");
+    if (F)
+    {
+            if (fscanf(F, "%s", cpu) == 1)
+                strcpy(result, cpu);
+
+            pclose(F);
+    }
+#endif
+
     return result;
 }
 
@@ -314,12 +337,15 @@ char *get_os_description()
         }
         break;
     case VER_PLATFORM_WIN32_NT:
-        switch (info.dwMinorVersion) {
-        case 0:
-            strcpy(result, "Windows NT/2000");
+        switch (info.dwMajorVersion) {
+        case 10:
+            strcpy(result, "Windows 10");
             break;
-        case 1:
-            strcpy(result, "Windows XP/.NET");
+        case 6:
+            strcpy(result, "Windows 7/8");
+            break;
+        case 5:
+            strcpy(result, "Windows XP/2000");
             break;
         default:
             strcpy(result, "Windows NT Derivative");
