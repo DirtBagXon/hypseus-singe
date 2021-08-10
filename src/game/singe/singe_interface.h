@@ -6,6 +6,7 @@
 
 #define SINGE_ERROR_INIT      0xA0
 #define SINGE_ERROR_RUNTIME   0xA1
+#define SINGE_OW              0x140
 
 // info provided to Singe from Hypseus
 struct singe_in_info

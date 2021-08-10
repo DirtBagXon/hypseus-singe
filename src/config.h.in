@@ -45,3 +45,7 @@
 #if defined(TARGET_MIPS)
 #define NATIVE_CPU_MIPS
 #endif
+
+#if defined(__arm__) || defined(__aarch64__)
+#define NATIVE_ARM
+#endif

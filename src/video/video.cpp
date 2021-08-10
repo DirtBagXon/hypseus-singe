@@ -314,7 +314,7 @@ bool init_display()
                         g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
                         set_quitflag();
                    }
-                   SDL_SetRenderDrawColor(g_sb_renderer, 0, 0, 0, 255);
+                   SDL_SetRenderDrawColor(g_sb_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
                    SDL_RenderClear(g_sb_renderer);
                    SDL_RenderPresent(g_sb_renderer);
                    if (!(sdl_flags & SDL_WINDOW_MAXIMIZED))
@@ -398,7 +398,7 @@ bool init_display()
 		    SDL_SetTextureAlphaMod(g_overlay_texture, 255);
                 }
 
-                SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+                SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
                 SDL_RenderClear(g_renderer);
                 SDL_RenderPresent(g_renderer);
                 // NOTE: SDL Console was initialized here.
@@ -457,7 +457,7 @@ void shutdown_display()
 // Clear the renderer. Good for avoiding texture mess (YUV, LEDs, Overlay...)
 void vid_blank()
 {
-    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(g_renderer);
 }
 
