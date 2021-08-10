@@ -131,7 +131,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
     -keymapfile                [ Specify an alternate hypinput.ini file        ]
-    -nolinear_scale            [ Disable linear scaling [fullscreen]           ]
+    -nolinear_scale            [ Disable bilinear scaling [fullscreen]         ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -scalefactor               [ Scale video image [50-100]%                   ]
     -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]

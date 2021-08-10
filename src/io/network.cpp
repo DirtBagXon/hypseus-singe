@@ -121,7 +121,7 @@ char *get_video_description()
     static char result[NET_LONGSTRSIZE] = {"Unknown video"};
 
 #ifdef LINUX
-#if defined(__arm__) || defined(__aarch64__)
+#if defined(NATIVE_ARM)
      FILE *F;
      char video[64];
      const char *s = "cat /proc/cpuinfo | grep Hardware | sed -e 's/^.*: //' | head -1";

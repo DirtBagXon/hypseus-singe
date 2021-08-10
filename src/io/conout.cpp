@@ -96,7 +96,7 @@ void printline(const char *s_format, ...)
     LOGI << fmt(s_format, args);
     va_end(args);
 
-#ifdef  __linux__
+#ifdef LINUX
     if (!plog::get()) {
        if (!v) {
            fprintf(stdout, "[version] Hypseus Singe: %s\n", get_hypseus_version());

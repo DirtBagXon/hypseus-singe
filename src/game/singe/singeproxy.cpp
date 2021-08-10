@@ -980,7 +980,6 @@ static int sep_say(lua_State *L)
 static int sep_say_font(lua_State *L)
 {
   int n = lua_gettop(L);
-  const int ow = 0x140;
 	  
   if (n == 3)
     if (lua_isnumber(L, 1))
@@ -1017,15 +1016,15 @@ static int sep_say_font(lua_State *L)
 							if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
 								dest.x+=20;
 
-							if (g_se_overlay_width > ow) {
+							if (g_se_overlay_width > SINGE_OW) {
 								if (dest.h == 0x16 && dest.y == 0xcf) { // JR SCOREBOARD
                                                                     dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 22);
-                                                                    if (dest.x <(ow>>2)) dest.x-=4;
-                                                                    if (dest.x >(ow>>1)) dest.x+=4;
+                                                                    if (dest.x <(SINGE_OW>>2)) dest.x-=4;
+                                                                    if (dest.x >(SINGE_OW>>1)) dest.x+=4;
 								}
 								else
 								    dest.x = dest.x - (double)(((g_se_overlay_width) + (dest.x * 32)
-                                                                           + (dest.w * 26)) / ow);
+                                                                           + (dest.w * 26)) / SINGE_OW);
 							}
 
 							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
@@ -1222,7 +1221,6 @@ static int sep_sound_play(lua_State *L)
 static int sep_sprite_draw(lua_State *L)
 {
   int n = lua_gettop(L);
-  const int ow = 0x140;
 
   if (n == 3)
     if (lua_isnumber(L, 1))
@@ -1238,12 +1236,12 @@ static int sep_sprite_draw(lua_State *L)
 						dest.w = g_spriteList[sprite]->w;
 						dest.h = g_spriteList[sprite]->h;
 
-						if (g_se_overlay_width > ow) {
+						if (g_se_overlay_width > SINGE_OW) {
 						    if (dest.y > 0xbe && dest.y <= 0xde)
 							dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
 						    else
 						        dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
-									    + (dest.w * 26)) / ow);
+									    + (dest.w * 26)) / SINGE_OW);
 						}
 
 						if (dest.w == 0x89 && dest.h == 0x1c) { // SP

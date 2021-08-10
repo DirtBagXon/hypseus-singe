@@ -136,7 +136,6 @@ void set_fullscreen_scale_nearest(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
 void set_yuv_video_blank(bool value);
-void set_nolair2_overlay(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);
