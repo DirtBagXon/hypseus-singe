@@ -168,6 +168,7 @@ class game
     // (does not blit),
     // this function is called by video_blit
     virtual void repaint();
+    virtual void resize();
 
     // a way for external functions to indicate that video needs update
     // (currently the tms9128nl routines need to use this because they aren't

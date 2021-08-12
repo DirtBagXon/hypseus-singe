@@ -157,6 +157,7 @@ class cobraab : public astronh
     void input_enable(Uint8);
     void input_disable(Uint8);
     void patch_roms();
+    void repaint();
 };
 
 #endif

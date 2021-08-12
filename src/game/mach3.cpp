@@ -1096,6 +1096,16 @@ void mach3::palette_calculate()
     palette::finalize();
 }
 
+void cobram3::repaint()
+{
+    if (m_video_overlay[m_active_video_overlay]) {
+        game::resize();
+        mach3::repaint();
+    }
+    m_ldvideo_enabled = ((13 & 8) == 8);
+    palette::set_transparency(0, m_ldvideo_enabled);
+}
+
 void mach3::repaint()
 {
 

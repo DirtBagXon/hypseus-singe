@@ -740,6 +740,14 @@ void astron::recalc_palette()
     palette_modified = false;
 }
 
+void cobraab::repaint()
+{
+    if (m_video_overlay[m_active_video_overlay]) {
+        game::resize();
+        astron::repaint();
+    }
+}
+
 // updates astron's video
 void astron::repaint()
 {
