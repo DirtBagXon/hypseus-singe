@@ -203,6 +203,10 @@ bool init_display()
         g_overlay_width = g_game->get_video_overlay_width();
         g_overlay_height = g_game->get_video_overlay_height();
 
+        // Enforce a minimum window size
+        if ((int)g_probe_width < g_vid_width) g_probe_width = g_vid_width;
+        if ((int)g_probe_height < g_vid_height) g_probe_height = g_vid_height;
+
         if (g_vid_resized) {
             g_draw_width  = g_vid_width;
             g_draw_height = g_vid_height;

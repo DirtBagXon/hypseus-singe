@@ -547,6 +547,32 @@ void game::palette_calculate()
 // This is a game-specific function
 void game::repaint() {}
 
+// allows us to force a resize (game specific) of the main window for HD content
+void game::resize()
+{
+    static bool rs = false;
+
+    if (rs) return;
+
+    if (g_ldp->lock_overlay(1000)) {
+
+        shutdown_video();
+
+        if (!init_video()) {
+            LOGW <<
+                "Fatal Error trying to re-allocate overlay surface!";
+            set_quitflag();
+        }
+
+        g_ldp->unlock_overlay(1000);
+
+    } else {
+        LOGW << fmt("%s : Timed out trying to get a lock on the yuv "
+                   "overlay", m_shortgamename);
+    }
+    rs =true;
+}
+
 void game::set_video_overlay_needs_update(bool value)
 {
     m_video_overlay_needs_update = value;

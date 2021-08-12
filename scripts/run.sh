@@ -64,7 +64,7 @@ if [ -z "$1" ] ; then
     echo
     echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
-    for game in ace astron badlands bega blazer cliff cobra cobraab dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
+    for game in ace astron badlands bega blazer cliff cobra cobraab cobram3 dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -122,6 +122,10 @@ case "$1" in
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     cobraab)
+	VLDP_DIR="vldp"
+	KEYINPUT="-keymapfile flightkey.ini"
+	;;
+    cobram3)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;

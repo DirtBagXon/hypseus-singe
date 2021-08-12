@@ -128,6 +128,7 @@ class cobram3 : public mach3
   public:
     cobram3();
     void patch_roms();
+    void repaint();
 };
 
 #endif

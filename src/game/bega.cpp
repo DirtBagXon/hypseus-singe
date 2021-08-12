@@ -569,6 +569,22 @@ void bega::palette_calculate()
     palette::set_transparency(BEGA_TRANSPARENT_COLOR, true);
 }
 
+void cobra::repaint()
+{
+    if (m_video_overlay[m_active_video_overlay]) {
+        game::resize();
+        bega::repaint();
+    }
+}
+
+void roadblaster::repaint()
+{
+    if (m_video_overlay[m_active_video_overlay]) {
+        game::resize();
+        bega::repaint();
+    }
+}
+
 // updates bega's video
 void bega::repaint()
 {

@@ -93,6 +93,7 @@ class cobra : public bega
   public:
     cobra();
     void set_version(int);
+    void repaint();
 };
 
 // Roadblaster, using Bega's Battle PCB
@@ -101,4 +102,5 @@ class roadblaster : public bega
   public:
     roadblaster();
     void patch_roms();
+    void repaint();
 };
