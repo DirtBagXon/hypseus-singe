@@ -101,7 +101,7 @@ cobraconv::cobraconv()
     m_nvram_size  = 0xFFFF;
 
     // the catch-all!
-    m_game_issues = "This game doesn't work.";
+    m_game_issues = "This game has major issues.";
 
     // NOTE : this must be static
     const static struct rom_def roms[] =
@@ -400,6 +400,9 @@ void cobraconv::repaint()
     palette_updated = false;
     }  */
 
+    bool c = false;
+    game::resize();
+
     // fast screen clear
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, 0);
 
@@ -417,10 +420,11 @@ void cobraconv::repaint()
                      (m_cpumem[0x1001] >> 4) & 3); // this is a decent guess
                                                    // about the color selection
 
+            if (current_character == 0x200) c = true;
             // draw 8x8 tiles from tile/sprite generator 1
             current_character = m_cpumem[chary * 32 + charx + 0x2000] +
                                 256 * (m_cpumem[chary * 32 + charx + 0x2400] & 0x03);
-            draw_8x8(current_character, character2,
+            if (c) draw_8x8(current_character, character2,
                      // charx*8, chary*8,  // x/y swapped vs Bega's Battle
                      // hardware
                      chary * 8, charx * 8, 0, 0,

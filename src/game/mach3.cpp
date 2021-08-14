@@ -1102,8 +1102,7 @@ void cobram3::repaint()
         game::resize();
         mach3::repaint();
     }
-    m_ldvideo_enabled = ((13 & 8) == 8);
-    palette::set_transparency(0, m_ldvideo_enabled);
+    m_ldvideo_enabled = true;
 }
 
 void mach3::repaint()
