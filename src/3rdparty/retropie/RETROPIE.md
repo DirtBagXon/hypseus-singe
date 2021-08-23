@@ -2,13 +2,15 @@
 
 # RetroPie Install (Hypseus drop-in Daphne replacement)
 
-* Install Standard Daphne plugin via **RetroPie configuration script**.
+* **Firstly** check if the 'hypseus' package has been accepted in **RetroPie-Setup** packages.
+
+* Or install the standard 'daphne' plugin via **RetroPie configuration script** and continue below.
 
 * Or follow manual installation instructions from the [forum](https://retropie.org.uk/forum/post/263036) for unsupported platforms.
 
 * Place ROMS as per standard configuration: https://retropie.org.uk/docs/Daphne/
 
-* SSH into the retropie and perform the following to switch `daphne` to `hypseus-singe`.
+* SSH into the retropie and perform the following to switch `daphne` to `hypseus-singe` manually.
 
 
 ## Install hypseus-singe
@@ -93,6 +95,10 @@ Re-add ``-nohwaccel`` to  ``/opt/retropie/emulators/daphne/daphne.sh`` if requir
 Follow standard plugin documentation at: https://retropie.org.uk/docs/Daphne/
 
 * However, key and joystick control configuration should be within `hypinput.ini`
+
+## Lightguns
+
+Lightguns may require the ``-manymouse`` argument passed to Singe games to enable absolute mouse inputs.
 
 ## Extended argument summary
 

@@ -38,8 +38,11 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION                                                          \
-    1.25 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.25 // Update this number whenever you issue a major change
+
+#define SDL_MOUSE 100
+#define MANY_MOUSE 200
+
 enum { KEYBD_NORMAL, KEYBD_FULL };
 
 ////////////////////////////////////////////////////////////////////////////////

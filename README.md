@@ -14,7 +14,7 @@ Features:
 * Updated MPEG2 decoder
 * [cmake] build tool
 * Singe libretro path integration
-* Singe joystick [mouse] support
+* Singe Joystick/Lightgun [mouse] support
 * Psuedo Singe 2 support (details below)
 * Sinden borders for Singe games
 * Alternate overlay choices
@@ -166,6 +166,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
+    -manymouse                 [ Enable absolute mouse input [lightguns]       ]
     -retropath                 [ Singe data path rewrites [libretro]           ]
     -sinden <1-10> <color>     [ Enable software border for lightguns          ]
                                [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]

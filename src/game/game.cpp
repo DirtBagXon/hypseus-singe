@@ -130,6 +130,8 @@ game::game()
     m_prefer_samples = false; // default to emulated sound
     m_fastboot       = false;
 
+    m_manymouse      = false;
+
     // switch to SDL software rendering if hardware acceleration is troublesome
     m_sdl_software_rendering = false;
 
@@ -591,6 +593,8 @@ bool game::get_console_flag() { return m_run_on_console; }
 
 bool game::get_use_old_overlay() { return m_use_old_overlay; }
 
+bool game::get_manymouse() { return m_manymouse; }
+
 void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
 
 void game::set_fastboot(bool value) { m_fastboot = value; }
@@ -601,6 +605,8 @@ void game::set_game_errors(short value) { m_game_error = value; }
 
 void game::set_sinden_border(int value) { m_sinden_border = value; }
 void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
+
+void game::set_manymouse(bool value) { m_manymouse = value; }
 
 // generic preset function, does nothing
 void game::set_preset(int preset)
@@ -1081,7 +1087,7 @@ const char *game::get_address_name(unsigned int addr)
 
 #endif //cpu::type::DEBUG
 
-bool game::getMouseEnabled() { return m_bMouseEnabled; }
+bool game::get_mouse_enabled() { return m_bMouseEnabled; }
 
 bool game::getGameNeedsOverlayUpdate() { return m_video_overlay_needs_update; }
 

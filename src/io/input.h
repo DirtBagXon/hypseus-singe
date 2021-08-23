@@ -46,6 +46,9 @@ enum {
     SWITCH_PAUSE,
     SWITCH_CONSOLE,
     SWITCH_TILT,
+    SWITCH_MOUSE_SCROLL_UP,
+    SWITCH_MOUSE_SCROLL_DOWN,
+    SWITCH_MOUSE_DISCONNECT,
     SWITCH_COUNT,
 }; // hypseus inputs for arcade and additional controls, leave SWITCH_COUNT at
    // the end
@@ -63,6 +66,25 @@ struct coin_input {
 };
 
 ////////////////////////
+
+#define MAX_MICE 32
+
+typedef struct
+{
+    int connected;
+    int x;
+    int y;
+    int relx;
+    int rely;
+    SDL_Color color;
+    char name[64];
+    Uint32 buttons;
+    Uint32 scrolluptick;
+    Uint32 scrolldowntick;
+    Uint32 scrolllefttick;
+    Uint32 scrollrighttick;
+} Mouse;
+
 
 int SDL_input_init();
 int SDL_input_shutdown();
@@ -86,5 +108,6 @@ inline void add_coin_to_queue(bool enabled, Uint8 val);
 void reset_idle(void); // added by JFA
 void set_use_joystick(bool val);
 void set_inputini_file(const char *inputFile);
+bool set_mouse_mode(int);
 
 #endif // INPUT_H

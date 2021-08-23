@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(PKG_VERSION "v2.6.12")
+set(PKG_VERSION "v2.6.14")
 
 set(FILE_OFFSET_BITS "")
 
@@ -97,6 +97,7 @@ add_subdirectory(3rdparty)
 
 add_subdirectory(cpu)
 add_subdirectory(game)
+add_subdirectory(manymouse)
 add_subdirectory(io)
 add_subdirectory(ldp-in)
 add_subdirectory(ldp-out)
