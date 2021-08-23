@@ -726,6 +726,8 @@ void clean_control_char(char *src, char *dst, int len)
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
+SDL_Window *get_window() { return g_window; }
+
 SDL_Renderer *get_renderer() { return g_renderer; }
 
 SDL_Texture *get_screen() { return g_overlay_texture; }

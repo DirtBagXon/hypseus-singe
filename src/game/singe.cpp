@@ -291,9 +291,6 @@ void singe::input_disable(Uint8 input)
 void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
 {
     if (g_pSingeOut) {
-        if (m_video_overlay_width > SINGE_OW)
-            x = x - (double)((m_video_overlay_width + (x * 36)) / SINGE_OW);
-
         g_pSingeOut->sep_do_mouse_move(x, y, xrel, yrel);
     }
 }
@@ -356,6 +353,10 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-overclock") == 0) {
         oc = true;
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-manymouse") == 0) {
+        game::set_manymouse(true);
         bResult = true;
     }
     else if (strcasecmp(arg, "-sinden") == 0) {

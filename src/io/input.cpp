@@ -38,6 +38,7 @@
 #include "../game/singe.h" // by RDG2010
 #include "../ldp-out/ldp.h"
 #include "fileparse.h"
+#include "../manymouse/manymouse.h"
 
 #ifdef UNIX
 #include <fcntl.h> // for non-blocking i/o
@@ -73,6 +74,11 @@ queue<struct coin_input> g_coin_queue; // keeps track of coin input to guarantee
                                        // is busy (during seeks for example)
 Uint64 g_last_coin_cycle_used = 0; // the cycle value that our last coin press
                                    // used
+
+static int available_mice = 0;
+static ManyMouseEvent mm_event;
+
+static int g_mouse_mode = SDL_MOUSE;
 
 // the ASCII key words that the parser looks at for the key values
 // NOTE : these are in a specific order, corresponding to the enum in hypseus.h
@@ -149,12 +155,13 @@ int joystick_axis_map[SWITCH_START1][3] = {
 
 // Mouse button to key mappings
 // Added by ScottD for Singe
-int mouse_buttons_map[5] = {
+int mouse_buttons_map[6] = {
     SWITCH_BUTTON1, // 0 (Left Button)
     SWITCH_BUTTON3, // 1 (Middle Button)
     SWITCH_BUTTON2, // 2 (Right Button)
     SWITCH_BUTTON1, // 3 (Wheel Up)
-    SWITCH_BUTTON2  // 4 (Wheel Down)
+    SWITCH_BUTTON2, // 4 (Wheel Down)
+    SWITCH_MOUSE_DISCONNECT
 };
 
 ////////////
@@ -287,6 +294,121 @@ void CFG_Keys()
        LOGW << "keymapfile not found";
 }
 
+static void manymouse_init_mice(void)
+{
+    LOGI << "Using ManyMouse for mice input.";
+    available_mice = ManyMouse_Init();
+    static Mouse mice[MAX_MICE];
+
+    if (available_mice > MAX_MICE)
+        available_mice = MAX_MICE;
+
+    if (available_mice <= 0) {
+        LOGW << "No mice detected!";
+    }
+    else
+    {
+        int i;
+        if (available_mice == 1) {
+            LOGI << "Only 1 mouse found.";
+        }
+        else
+        {
+            LOGI << fmt("Found %d mice devices:", available_mice);
+        }
+
+        for (i = 0; i < available_mice; i++)
+        {
+            const char *name = ManyMouse_DeviceName(i);
+            strncpy(mice[i].name, name, sizeof (mice[i].name));
+            mice[i].name[sizeof (mice[i].name) - 1] = '\0';
+            mice[i].connected = 1;
+            LOGI << fmt("#%d: %s", i, mice[i].name);
+        }
+        SDL_SetWindowGrab(video::get_window(), SDL_TRUE);
+    }
+}
+
+static void manymouse_update_mice()
+{
+    while (ManyMouse_PollEvent(&mm_event))
+    {
+        Mouse *mouse;
+        if (mm_event.device >= (unsigned int) available_mice)
+            continue;
+
+        static Mouse mice[MAX_MICE];
+        mouse = &mice[mm_event.device];
+        float val, maxval;
+
+        switch(mm_event.type)
+        {
+            case MANYMOUSE_EVENT_RELMOTION:
+                if (mm_event.item == 0)
+                    mouse->x += mm_event.value;
+                else if (mm_event.item == 1)
+                    mouse->y += mm_event.value;
+
+                if (mouse->x < 0) mouse->x = 0;
+                else if (mouse->x >= video::get_video_width()) mouse->x = video::get_video_width();
+
+                if (mouse->y < 0) mouse->y = 0;
+                else if (mouse->y >= video::get_video_height()) mouse->y = video::get_video_height();
+
+                g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
+                break;
+
+	    case MANYMOUSE_EVENT_ABSMOTION:
+                val = (float) (mm_event.value - mm_event.minval);
+                maxval = (float) (mm_event.maxval - mm_event.minval);
+
+                if (mm_event.item == 0)
+                    mouse->x = (val / maxval) * video::get_video_width();
+                else if (mm_event.item == 1)
+                    mouse->y = (val / maxval) * video::get_video_height();
+
+                g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
+                break;
+
+	    case MANYMOUSE_EVENT_BUTTON:
+                if (mm_event.item < 32)
+                {
+                    if (mm_event.value == 1)
+                    {
+                         input_enable((Uint8)mouse_buttons_map[mm_event.item]);
+                         mouse->buttons |= (1 << mm_event.item);
+
+                    }
+                    else
+                    {
+                         input_disable((Uint8)mouse_buttons_map[mm_event.item]);
+                         mouse->buttons &= ~(1 << mm_event.item);
+
+                    }
+                }
+                break;
+
+	    case MANYMOUSE_EVENT_SCROLL:
+                if (mm_event.item == 0)
+                {
+                    if (mm_event.value > 0)
+                        input_disable(SWITCH_MOUSE_SCROLL_UP);
+                    else
+                        input_disable(SWITCH_MOUSE_SCROLL_DOWN);
+                }
+                break;
+
+	    case MANYMOUSE_EVENT_DISCONNECT:
+                mice[mm_event.device].connected = 0;
+                input_disable(SWITCH_MOUSE_DISCONNECT);
+                break;
+
+	    default:
+                break;
+         }
+    }
+}
+
 int SDL_input_init()
 // initializes the keyboard (and joystick if one is present)
 // returns 1 if successful, 0 on error
@@ -334,8 +456,21 @@ int SDL_input_init()
     idle_timer = refresh_ms_time(); // added by JFA for -idleexit
 
     // if the mouse is disabled, then filter mouse events out ...
-    if (!g_game->getMouseEnabled()) {
-        FilterMouseEvents(true);
+    if (!g_game->get_mouse_enabled())
+    {
+         FilterMouseEvents(true);
+    }
+    else
+    {
+         FilterMouseEvents(false);
+
+         if (g_game->get_manymouse())
+             g_mouse_mode = MANY_MOUSE;
+
+         if (!set_mouse_mode(g_mouse_mode)) {
+             LOGE << "Mouse initialization failed";
+             set_quitflag();
+         }
     }
 
     return (result);
@@ -523,36 +658,44 @@ void process_event(SDL_Event *event)
         }
 
         break;
-    case SDL_MOUSEBUTTONDOWN:
-        // added by ScottD
-        // loop through buttons and look for a press
-        for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
-            if (event->button.button == i) {
-                input_enable((Uint8)mouse_buttons_map[i]);
-                break;
-            }
-        }
-        break;
-    case SDL_MOUSEBUTTONUP:
-        // added by ScottD
-        for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
-            if (event->button.button == i) {
-                input_disable((Uint8)mouse_buttons_map[i]);
-                break;
-            }
-        }
-        break;
-    case SDL_MOUSEMOTION:
-        // added by ScottD
-        g_game->OnMouseMotion(event->motion.x, event->motion.y,
-                              event->motion.xrel, event->motion.yrel);
-        break;
     case SDL_QUIT:
         // if they are trying to close the window
         set_quitflag();
         break;
     default:
         break;
+    }
+
+    if (g_game->get_mouse_enabled())
+    {
+        if (g_mouse_mode == MANY_MOUSE) {
+            manymouse_update_mice();
+        } else {
+
+           switch (event->type)
+           {
+           case SDL_MOUSEBUTTONDOWN:
+               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
+                    if (event->button.button == i) {
+                        g_game->input_enable((Uint8)mouse_buttons_map[i]);
+                        break;
+                    }
+               }
+               break;
+           case SDL_MOUSEBUTTONUP:
+               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
+                    if (event->button.button == i) {
+                        g_game->input_disable((Uint8)mouse_buttons_map[i]);
+                        break;
+                    }
+               }
+               break;
+           case SDL_MOUSEMOTION:
+               g_game->OnMouseMotion(event->motion.x, event->motion.y,
+                       event->motion.xrel, event->motion.yrel);
+               break;
+          }
+       }
     }
 
     // added by JFA for -idleexit
@@ -786,4 +929,41 @@ void set_use_joystick(bool val) { g_use_joystick = val; }
 void set_inputini_file(const char *inputFile) {
     m_altInputFileSet = true;
     g_inputini_file = inputFile;
+}
+
+bool set_mouse_mode(int thisMode)
+{
+   bool result = false;
+
+   if (g_game->get_mouse_enabled())
+   {
+       if (g_mouse_mode == MANY_MOUSE) ManyMouse_Quit();
+
+       memset(mouse_buttons_map, 0, sizeof(mouse_buttons_map));
+
+       if (thisMode == SDL_MOUSE) {
+
+           mouse_buttons_map[0] = SWITCH_BUTTON1;  // 0 (Left Button)
+           mouse_buttons_map[1] = SWITCH_BUTTON3;  // 1 (Middle Button)
+           mouse_buttons_map[2] = SWITCH_BUTTON2;  // 2 (Right Button)
+           mouse_buttons_map[3] = SWITCH_BUTTON1;  // 3 (Wheel Up)
+           mouse_buttons_map[4] = SWITCH_BUTTON2;  // 4 (Wheel Down)
+           mouse_buttons_map[5] = SWITCH_MOUSE_DISCONNECT;
+           result = true;
+       }
+       else if (thisMode == MANY_MOUSE)
+       {
+           mouse_buttons_map[0] = SWITCH_BUTTON3;  // 0 (Left Button)
+           mouse_buttons_map[1] = SWITCH_BUTTON1;  // 1 (Middle Button)
+           mouse_buttons_map[2] = SWITCH_BUTTON2;  // 2 (Right Button)
+           mouse_buttons_map[3] = SWITCH_MOUSE_SCROLL_UP;  // 3 (Wheel Up)
+           mouse_buttons_map[4] = SWITCH_MOUSE_SCROLL_DOWN;  // 4 (Wheel Down)
+           mouse_buttons_map[5] = SWITCH_MOUSE_DISCONNECT;
+
+           manymouse_init_mice();
+           result = true;
+
+       }
+   }
+   return result;
 }

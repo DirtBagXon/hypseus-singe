@@ -118,6 +118,7 @@ void free_one_bmp(SDL_Surface *);
 void clean_control_char(char *, char *, int len);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
+SDL_Window *get_window();
 SDL_Renderer *get_renderer();
 SDL_Texture *get_screen();
 SDL_Texture *get_yuv_screen();

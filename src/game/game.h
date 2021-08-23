@@ -190,6 +190,10 @@ class game
 
     bool get_console_flag();
 
+    bool get_manymouse();
+
+    virtual void set_manymouse(bool);
+
     virtual void set_console_flag(bool);
 
     virtual void set_game_errors(short);
@@ -259,7 +263,7 @@ class game
 #endif
 
     // returns m_bMouseEnabled
-    bool getMouseEnabled();
+    bool get_mouse_enabled();
     
     bool getGameNeedsOverlayUpdate();
     
@@ -278,6 +282,8 @@ class game
 
     int m_sinden_border;
     int m_sinden_border_color;
+
+    bool m_manymouse;
 
   protected:
     bool m_game_paused;          // whether the game is paused or not

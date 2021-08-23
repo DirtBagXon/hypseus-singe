@@ -77,6 +77,7 @@ using namespace std;
 #include "video/led.h"
 #include "ldp-out/ldp.h"
 #include "io/error.h"
+#include "manymouse/manymouse.h"
 #include "cpu/cpu-debug.h"
 #include "cpu/cpu.h"
 #include "game/game.h"
@@ -267,6 +268,10 @@ int main(int argc, char **argv)
     else {
         printerror("Bad command line or initialization problem.\n"
                    "hypseus.log may provide further details of the error.");
+    }
+
+    if (g_game->get_mouse_enabled()) {
+        ManyMouse_Quit();
     }
 
     // if our g_game class was allocated
