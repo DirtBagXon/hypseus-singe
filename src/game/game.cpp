@@ -191,6 +191,9 @@ bool game::init()
 {
     bool result = true;
 
+    if(get_game_type() == GAME_BADLANDS)
+       g_ldp->set_min_seek_delay(200);
+
     cpu::init();
     return result;
 }

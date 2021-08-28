@@ -365,6 +365,7 @@ bool singe::handle_cmdline_arg(const char *arg)
 
         if ((i > 0) && (i < 11)) {
            game::set_sinden_border(i<<1);
+           game::set_manymouse(true);
            bResult = true;
         } else {
            printerror("SINGE: border out of scope: <1-10>");

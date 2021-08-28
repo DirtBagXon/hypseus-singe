@@ -115,7 +115,7 @@ unsigned char sep_byte_clip(int value)
 
 void sep_set_retropath()
 {
-       lua_set_retropath(0x1);
+       lua_set_retropath(1);
 }
 
 void sep_call_lua(const char *func, const char *sig, ...)
@@ -867,6 +867,7 @@ static int sep_mpeg_get_pixel(lua_State *L)
         Uint32 format;
         int32_t  n                   = lua_gettop(L);
         bool     result              = false;
+        static bool ex               = false;
         SDL_Renderer *g_renderer     = video::get_renderer();
         SDL_Texture  *g_texture      = video::get_yuv_screen();
         SDL_QueryTexture(g_texture, &format, NULL, NULL, NULL);
@@ -883,14 +884,31 @@ static int sep_mpeg_get_pixel(lua_State *L)
                 if (lua_isnumber(L, 1)) {
                         if (lua_isnumber(L, 2)) {
 
-				rect.h = sizeof(size_t)<<1;
-				rect.w = sizeof(size_t)<<1;
-				rect.x = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w / (double)g_se_overlay_width)-sizeof(size_t));
-				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h / (double)g_se_overlay_height)-sizeof(size_t));
+				rect.h = 1;
+				rect.w = 1;
+				if (!ex) sep_print("ActionMax support is experimental");
+				rect.x = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w
+                                              / (double)g_se_overlay_width));
+				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h
+                                              / (double)g_se_overlay_height));
 				if (g_renderer && g_texture) {
-					if (SDL_SetRenderTarget(g_renderer, g_texture) < 0) sep_die("Could not RenderTarget in get_pixel");
-					if (SDL_RenderReadPixels(g_renderer, &rect, format, pixel, SDL_BYTESPERPIXEL(format)) < 0)
-						sep_die("Could not ReadPixel in get_pixel");
+					if (SDL_SetRenderTarget(g_renderer, g_texture) < 0) {
+#if defined(__arm__) || defined(__aarch64__)
+                                            if (!ex) sep_print("get_pixel unsupported platform: Targets disabled");
+                                            lua_State* X = luaL_newstate();
+                                            lua_pushinteger(X, 70);
+                                            lua_pushinteger(X, 10);
+                                            lua_pushstring(X, "Targets disabled");
+                                            sep_say_font(X);
+#else
+                                            sep_print("Could not RenderTarget in get_pixel: %s", SDL_GetError());
+                                            sep_die("Try '-nohwaccel'");
+#endif
+					} else {
+                                            if (SDL_RenderReadPixels(g_renderer, &rect, format,
+                                                              pixel, SDL_BYTESPERPIXEL(format)) < 0)
+						  sep_die("Could not ReadPixel in get_pixel: %s", SDL_GetError());
+					}
 					SDL_SetRenderTarget(g_renderer, NULL);
 				} else {
 					sep_die("Could not initialize get_pixel");
@@ -915,6 +933,7 @@ static int sep_mpeg_get_pixel(lua_State *L)
 		lua_pushnumber(L, -1);
 		lua_pushnumber(L, -1);
 	}
+	ex = true;
 	return 3;
 }
 

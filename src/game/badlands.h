@@ -64,6 +64,7 @@ class badlands : public game
     bool firq_on;
     bool irq_on;
     bool nmi_on;
+    bool transparent;
     Uint8 character[0x2000];
     Uint8 color_prom[0x20];
     Uint8 banks[3]; // badlands's banks

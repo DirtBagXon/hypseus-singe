@@ -75,6 +75,7 @@ badlands::badlands()
     firq_on = false;
     irq_on  = false;
     nmi_on  = false;
+    transparent = true;
 
     m_num_sounds            = 1;
     m_sound_name[S_BL_SHOT] = "bl_shot.wav";
@@ -154,6 +155,7 @@ void badlands::do_nmi()
         mc6809_nmi = 1;
     }
 
+    if (!transparent) video::set_yuv_video_blank(true);
     blit(); // the NMI runs at the same period as the monitor vsync
 }
 
@@ -217,9 +219,9 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
     // DSP On
     else if (addr == 0x1003) {
         if (value) {
-            palette::set_transparency(0, false); // disable laserdisc video
+            transparent = false;
         } else {
-            palette::set_transparency(0, true); // enable laserdisc video
+            transparent = true;
         }
     }
 
@@ -424,6 +426,7 @@ void badlands::palette_calculate()
 // updates badlands's video
 void badlands::repaint()
 {
+    game::resize();
     for (int charx = charx_offset; charx < 40 + charx_offset; charx++) {
         for (int chary = chary_offset; chary < 30 + chary_offset; chary++) {
             for (int x = 0; x < 4; x++) {
