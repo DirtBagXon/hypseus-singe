@@ -93,6 +93,8 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_F10") == 0) return SDLK_F10;
 	else if (strcmp(str, "SDLK_F11") == 0) return SDLK_F11;
 	else if (strcmp(str, "SDLK_F12") == 0) return SDLK_F12;
+	else if (strcmp(str, "SDLK_PAGEUP") == 0) return SDLK_PAGEUP;
+	else if (strcmp(str, "SDLK_PAGEDOWN") == 0) return SDLK_PAGEDOWN;
 	else if (strcmp(str, "SDLK_RIGHT") == 0) return SDLK_RIGHT;
 	else if (strcmp(str, "SDLK_LEFT") == 0) return SDLK_LEFT;
 	else if (strcmp(str, "SDLK_DOWN") == 0) return SDLK_DOWN;
@@ -113,6 +115,8 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_KP_9") == 0) return SDLK_KP_9;
 	else if (strcmp(str, "SDLK_KP_0") == 0) return SDLK_KP_0;
 	else if (strcmp(str, "SDLK_KP_PERIOD") == 0) return SDLK_KP_PERIOD;
+	else if (strcmp(str, "SDLK_VOLUMEUP") == 0) return SDLK_VOLUMEUP;
+	else if (strcmp(str, "SDLK_VOLUMEDOWN") == 0) return SDLK_VOLUMEDOWN;
 	else if (strcmp(str, "SDLK_LCTRL") == 0) return SDLK_LCTRL;
 	else if (strcmp(str, "SDLK_LSHIFT") == 0) return SDLK_LSHIFT;
 	else if (strcmp(str, "SDLK_LALT") == 0) return SDLK_LALT;

@@ -341,71 +341,63 @@ static void manymouse_update_mice()
         mouse = &mice[mm_event.device];
         float val, maxval;
 
-        switch(mm_event.type)
-        {
-            case MANYMOUSE_EVENT_RELMOTION:
-                if (mm_event.item == 0)
-                    mouse->x += mm_event.value;
-                else if (mm_event.item == 1)
-                    mouse->y += mm_event.value;
+        switch(mm_event.type) {
+        case MANYMOUSE_EVENT_RELMOTION:
+            if (mm_event.item == 0)
+                mouse->x += mm_event.value;
+            else if (mm_event.item == 1)
+                mouse->y += mm_event.value;
 
-                if (mouse->x < 0) mouse->x = 0;
-                else if (mouse->x >= video::get_video_width()) mouse->x = video::get_video_width();
+            if (mouse->x < 0) mouse->x = 0;
+            else if (mouse->x >= video::get_video_width()) mouse->x = video::get_video_width();
 
-                if (mouse->y < 0) mouse->y = 0;
-                else if (mouse->y >= video::get_video_height()) mouse->y = video::get_video_height();
+            if (mouse->y < 0) mouse->y = 0;
+            else if (mouse->y >= video::get_video_height()) mouse->y = video::get_video_height();
 
-                g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
-                break;
+            g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
+            break;
+        case MANYMOUSE_EVENT_ABSMOTION:
+            val = (float) (mm_event.value - mm_event.minval);
+            maxval = (float) (mm_event.maxval - mm_event.minval);
 
-	    case MANYMOUSE_EVENT_ABSMOTION:
-                val = (float) (mm_event.value - mm_event.minval);
-                maxval = (float) (mm_event.maxval - mm_event.minval);
+            if (mm_event.item == 0)
+                mouse->x = (val / maxval) * video::get_video_width();
+            else if (mm_event.item == 1)
+                mouse->y = (val / maxval) * video::get_video_height();
 
-                if (mm_event.item == 0)
-                    mouse->x = (val / maxval) * video::get_video_width();
-                else if (mm_event.item == 1)
-                    mouse->y = (val / maxval) * video::get_video_height();
-
-                g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
-                break;
-
-	    case MANYMOUSE_EVENT_BUTTON:
-                if (mm_event.item < 32)
+            g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
+            break;
+        case MANYMOUSE_EVENT_BUTTON:
+            if (mm_event.item < 32)
+            {
+                if (mm_event.value == 1)
                 {
-                    if (mm_event.value == 1)
-                    {
-                         input_enable((Uint8)mouse_buttons_map[mm_event.item]);
-                         mouse->buttons |= (1 << mm_event.item);
-
-                    }
-                    else
-                    {
-                         input_disable((Uint8)mouse_buttons_map[mm_event.item]);
-                         mouse->buttons &= ~(1 << mm_event.item);
-
-                    }
+                    input_enable((Uint8)mouse_buttons_map[mm_event.item]);
+                    mouse->buttons |= (1 << mm_event.item);
                 }
-                break;
-
-	    case MANYMOUSE_EVENT_SCROLL:
-                if (mm_event.item == 0)
+                else
                 {
-                    if (mm_event.value > 0)
-                        input_disable(SWITCH_MOUSE_SCROLL_UP);
-                    else
-                        input_disable(SWITCH_MOUSE_SCROLL_DOWN);
+                    input_disable((Uint8)mouse_buttons_map[mm_event.item]);
+                    mouse->buttons &= ~(1 << mm_event.item);
                 }
-                break;
-
-	    case MANYMOUSE_EVENT_DISCONNECT:
-                mice[mm_event.device].connected = 0;
-                input_disable(SWITCH_MOUSE_DISCONNECT);
-                break;
-
-	    default:
-                break;
-         }
+            }
+            break;
+        case MANYMOUSE_EVENT_SCROLL:
+            if (mm_event.item == 0)
+            {
+                if (mm_event.value > 0)
+                    input_disable(SWITCH_MOUSE_SCROLL_UP);
+                else
+                    input_disable(SWITCH_MOUSE_SCROLL_DOWN);
+            }
+            break;
+        case MANYMOUSE_EVENT_DISCONNECT:
+            mice[mm_event.device].connected = 0;
+            input_disable(SWITCH_MOUSE_DISCONNECT);
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -668,8 +660,10 @@ void process_event(SDL_Event *event)
 
     if (g_game->get_mouse_enabled())
     {
-        if (g_mouse_mode == MANY_MOUSE) {
+        if (g_mouse_mode == MANY_MOUSE)
+        {
             manymouse_update_mice();
+
         } else {
 
            switch (event->type)
