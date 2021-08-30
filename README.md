@@ -135,7 +135,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -scalefactor               [ Scale video image [50-100]%                   ]
     -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
-    -software_scoreboard       [ Enable software scoreboard in lair/ace        ]
+    -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]

@@ -666,8 +666,7 @@ void process_event(SDL_Event *event)
 
         } else {
 
-           switch (event->type)
-           {
+           switch (event->type) {
            case SDL_MOUSEBUTTONDOWN:
                for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
                     if (event->button.button == i) {

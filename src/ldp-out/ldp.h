@@ -208,6 +208,7 @@ class ldp
     virtual void set_skip_blanking(bool enabled);
     virtual void set_seek_frames_per_ms(double value);
     virtual void set_min_seek_delay(unsigned int value);
+    virtual unsigned int get_min_seek_delay();
 
     // END LDP-SPECIFIC SECTION
 
