@@ -190,9 +190,10 @@ bool game::pre_init()
 bool game::init()
 {
     bool result = true;
+    const int min = 200;
 
-    if(get_game_type() == GAME_BADLANDS)
-       g_ldp->set_min_seek_delay(200);
+    if (get_game_type() == GAME_BADLANDS && g_ldp->get_min_seek_delay() < min)
+        g_ldp->set_min_seek_delay(min);
 
     cpu::init();
     return result;

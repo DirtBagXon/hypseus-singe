@@ -973,6 +973,14 @@ void ldp::set_min_seek_delay(unsigned int value)
         LOGI << "Seek delay is not supported with this laserdisc player!";
 }
 
+unsigned int ldp::get_min_seek_delay()
+{
+    if (m_bVerbose)
+        LOGI << "Seek delay is not supported with this laserdisc player!";
+
+    return 0;
+}
+
 // causes sram to be saved after every seek
 void ldp::set_sram_continuous_update(bool value)
 {

@@ -154,8 +154,9 @@ void badlands::do_nmi()
     {
         mc6809_nmi = 1;
     }
-
+#ifdef LINUX
     if (!transparent) video::set_yuv_video_blank(true);
+#endif
     blit(); // the NMI runs at the same period as the monitor vsync
 }
 
@@ -219,8 +220,10 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
     // DSP On
     else if (addr == 0x1003) {
         if (value) {
+            palette::set_transparency(0, false);
             transparent = false;
         } else {
+            palette::set_transparency(0, true);
             transparent = true;
         }
     }

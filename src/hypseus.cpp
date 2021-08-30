@@ -270,12 +270,9 @@ int main(int argc, char **argv)
                    "hypseus.log may provide further details of the error.");
     }
 
-    if (g_game->get_mouse_enabled()) {
-        ManyMouse_Quit();
-    }
-
     // if our g_game class was allocated
     if (g_game) {
+        if (g_game->get_manymouse()) ManyMouse_Quit();
         delete (g_game);
     }
 

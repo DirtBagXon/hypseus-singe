@@ -760,6 +760,11 @@ void ldp_vldp::set_min_seek_delay(unsigned int value)
     m_min_seek_delay = value;
 }
 
+unsigned int ldp_vldp::get_min_seek_delay()
+{
+    return m_min_seek_delay;
+}
+
 // sets the name of the frame file
 void ldp_vldp::set_framefile(const char *filename)
 {

@@ -92,6 +92,8 @@ class ldp_vldp : public ldp
     bool lock_overlay(Uint32);
     bool unlock_overlay(Uint32);
 
+    unsigned int get_min_seek_delay();
+
     // parses framefile (contained in pszInBuf) and returns the
     // absolute/relative path to the mpegs in 'sMpegPath',
     //  and populates 'pFrames' until it runs out of data, or hits the
