@@ -405,6 +405,7 @@ void esh::repaint()
 {
     m_needcharblink = false;
     m_needlineblink = false;
+    game::resize();
 
     for (int charx = 0; charx < 32; charx++) {
         for (int chary = 0; chary < 32; chary++) {

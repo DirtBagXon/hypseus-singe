@@ -56,9 +56,6 @@ static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
 static Uint16 js_sen = 5;
 static bool bjx, bjy = false;
 
-bool singe_alt_pressed = false;
-bool oc = false;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // by RDG2010
@@ -379,7 +376,6 @@ bool singe::handle_cmdline_arg(const char *arg)
            bResult = false;
         } else {
            game::set_sinden_border_color(j);
-           bResult = true;
         }
     }
     else if (strcasecmp(arg, "-js_range") == 0) {

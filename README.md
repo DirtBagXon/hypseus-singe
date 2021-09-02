@@ -115,6 +115,14 @@ Hypseus Singe now has psuedo support for Singe 2 games.
 
 For current details see: [Hypseus Singe 2 Data](https://github.com/DirtBagXon/hypseus_singe_data)
 
+## Lightguns
+
+Singe supports Sinden and DolphinBar based lightguns with the `-manymouse` argument.
+
+This argument enables *absolute* (``EV_ABS``) mouse input event codes.
+
+**Note:** `-sinden` automatically enables `-manymouse`
+
 ## Singe joystick [mouse] support
 
 Singe now automatically interprets **joystick axis** change as mouse movement (*Gun Games*).

@@ -62,6 +62,9 @@ class singe : public game
     void palette_calculate();
     void repaint();
 
+    bool singe_alt_pressed = false;
+    bool oc = false;
+
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }
     static void enable_audio2() { g_ldp->enable_audio2(); }
