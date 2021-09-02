@@ -351,8 +351,10 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
     else if (addr == 0x0803) {
         if (value) {
             palette::set_transparency(0, false); // disable laserdisc video
+            transparent = false;
         } else {
             palette::set_transparency(0, true); // enable laserdisc video
+            transparent = true;
         }
     }
     // ?
