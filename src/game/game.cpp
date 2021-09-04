@@ -581,7 +581,7 @@ void game::resize()
         LOGW << fmt("%s : Timed out trying to get a lock on the yuv "
                    "overlay", m_shortgamename);
     }
-    rs =true;
+    rs = true;
 }
 
 void game::set_video_overlay_needs_update(bool value)
