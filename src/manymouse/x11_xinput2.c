@@ -14,8 +14,11 @@
 #define SUPPORT_XINPUT2 0
 #elif ( (defined(__MACH__)) && (defined(__APPLE__)) )
 #define SUPPORT_XINPUT2 0
-#else
+#elif __has_include(<X11/extensions/XInput2.h>)
+#include <X11/extensions/XInput2.h>
 #define SUPPORT_XINPUT2 1
+#else
+#define SUPPORT_XINPUT2 0
 #endif
 #endif
 
@@ -25,7 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
-#include <X11/extensions/XInput2.h>
 
 /* 32 is good enough for now. */
 #define MAX_MICE 32

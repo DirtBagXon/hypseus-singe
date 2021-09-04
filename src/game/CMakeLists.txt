@@ -64,6 +64,8 @@ if( BUILD_SINGE )
     add_subdirectory( singe )
     list( APPEND LIB_SOURCES singe.cpp )
     list( APPEND LIB_HEADERS singe.h )
+
+set_source_files_properties( singe.cpp PROPERTIES COMPILE_FLAGS -Wno-strict-aliasing)
 endif( BUILD_SINGE )
 
 # ignore gcc: warning: promoted ~unsigned is always non-zero [-Wsign-compare] (do_nmi coin check)
