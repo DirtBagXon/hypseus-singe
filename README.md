@@ -39,9 +39,11 @@ Use homebrew to install the following packages: cmake, autoconf, sdl2, sdl2_imag
     brew install cmake
     brew install autoconf
     brew install automake
+    brew install pkg-config
     brew install sdl2
     brew install sdl2_ttf
     brew install sdl2_image
+    brew install libtool
     brew install libvorbis
     brew install libogg
 

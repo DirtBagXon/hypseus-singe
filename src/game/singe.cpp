@@ -53,7 +53,7 @@ struct singe_in_info g_SingeIn;
 
 // joystick
 static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
-static Uint16 js_sen = 5;
+static Sint16 js_sen = 5;
 static bool bjx, bjy = false;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -137,7 +137,7 @@ IF(SDL2TTF_LIBRARY_TEMP)
 	# So I use a temporary variable until the end so I can set the
 	# "real" variable in one-shot.
 	IF(APPLE)
-		SET(SDL2TTF_LIBRARY_TEMP ${SDL2TTF_LIBRARY_TEMP} "-framework Cocoa")
+		SET(SDL2TTF_LIBRARY_TEMP ${SDL2TTF_LIBRARY_TEMP} "-framework Cocoa -framework IOKit")
 	ENDIF(APPLE)
 
 	# For threads, as mentioned Apple doesn't need this.
