@@ -96,7 +96,6 @@ void printline(const char *s_format, ...)
     LOGI << fmt(s_format, args);
     va_end(args);
 
-#ifdef LINUX
     if (!plog::get()) {
        if (!v) {
            fprintf(stdout, "[version] Hypseus Singe: %s\n", get_hypseus_version());
@@ -104,8 +103,6 @@ void printline(const char *s_format, ...)
        }
        fprintf(stdout, "[console] %s\n", s_format);
     }
-#endif
-
 }
 
 // flood-safe printline
