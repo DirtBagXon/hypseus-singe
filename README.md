@@ -35,7 +35,7 @@ For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further **RetroPie** Instructions can be found [here](src/3rdparty/retropie/RETROPIE.md)
+Further **RetroPie** and **Raspberry Pi** requirements can be found [here](src/3rdparty/retropie/RETROPIE.md)
 
 ### Compilation with CMake
 

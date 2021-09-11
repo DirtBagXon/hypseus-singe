@@ -628,7 +628,11 @@ bool cliff::set_bank(unsigned char which_bank, unsigned char value)
 
 void cliff::palette_calculate() { tms9128nl_palette_calculate(); }
 
-void cliff::repaint() { tms9128nl_video_repaint(); }
+void cliff::repaint()
+{
+    game::resize();
+    tms9128nl_video_repaint();
+}
 
 // post-rom loading adjustment
 void cliff::patch_roms()

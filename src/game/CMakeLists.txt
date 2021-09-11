@@ -65,6 +65,7 @@ if( BUILD_SINGE )
     list( APPEND LIB_SOURCES singe.cpp )
     list( APPEND LIB_HEADERS singe.h )
 
+# ignore gcc: warning: j = *((int*)(&s)); ASCII char*=>int (handle_cmdline_arg)
 set_source_files_properties( singe.cpp PROPERTIES COMPILE_FLAGS -Wno-strict-aliasing)
 endif( BUILD_SINGE )
 

@@ -254,7 +254,6 @@ void CFG_Keys()
                                                 joystick_axis_map[i][2] = (val4 == 0)?0:((val4 < 0)?-1:1);
                                             }
 
-
                                             found_match = true;
                                             break;
                                         }
@@ -291,7 +290,7 @@ void CFG_Keys()
 
         mpo_close(io);
     } else // end if file was opened successfully
-       LOGW << "keymapfile not found";
+        LOGW << "keymapfile not found, using default";
 }
 
 static void manymouse_init_mice(void)
