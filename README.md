@@ -184,6 +184,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     Alt-Enter                  [ Toggle fullscreen                             ]
     Alt-Backspace              [ Toggle scanlines                              ]
     [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
+    [KEY_COIN1]=|[KEY_START1]  [ Joystick hotkey combination for [KEY_QUIT]    ]
 
 
 ## Support

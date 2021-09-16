@@ -53,6 +53,8 @@ using namespace std;
 #define strcasecmp stricmp
 #endif
 
+static bool hotkey = false;
+
 const int JOY_AXIS_MID = (int)(32768 * (0.75)); // how far they have to move the
                                                 // joystick before it 'grabs'
 
@@ -630,6 +632,7 @@ void process_event(SDL_Event *event)
         for (i = 0; i < SWITCH_COUNT; i++) {
             if (event->jbutton.which == joystick_buttons_map[i][0]
                             && event->jbutton.button == joystick_buttons_map[i][1]-1) {
+                if (i == SWITCH_COIN1) hotkey = true;
                 input_enable(i);
                 break;
             }
@@ -638,6 +641,7 @@ void process_event(SDL_Event *event)
         break;
     case SDL_JOYBUTTONUP:
         reset_idle(); // added by JFA for -idleexit
+        hotkey = false;
 
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
@@ -839,6 +843,12 @@ void input_enable(Uint8 move)
         break;
     case SWITCH_QUIT:
         set_quitflag();
+        break;
+    case SWITCH_START1:
+        if (hotkey)
+            set_quitflag();
+        else
+            g_game->input_enable(move);
         break;
     case SWITCH_COIN1:
     case SWITCH_COIN2:
