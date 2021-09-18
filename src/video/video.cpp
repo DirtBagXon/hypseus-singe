@@ -1248,7 +1248,6 @@ void take_screenshot()
         { LOGW << "Cannot screenshot in fullscreen render."; return; }
 
     SDL_Rect     screenshot;
-    SDL_Renderer *g_renderer   = get_renderer();
     SDL_Surface  *surface      = NULL;
 
     if (g_renderer) {
@@ -1285,9 +1284,12 @@ void take_screenshot()
 
 void draw_scanlines() {
     unsigned char c;
+    int d = g_draw_width >> 4;
     for (unsigned int i = 0; i < g_draw_height; i+=5) {
          c = 0x40;
          for (int j = 0; j < 4; j++) {
+             if (d > c) c = 0x0;
+             else c = (c - d);
              SDL_SetRenderDrawColor(g_renderer, c, c, c, SDL_ALPHA_OPAQUE);
              SDL_RenderDrawLine(g_renderer, 0, i+j, g_draw_width, i+j);
              switch(j)
@@ -1296,10 +1298,10 @@ void draw_scanlines() {
                   c = 0x90;
                   break;
                 case 1:
-                  c = 0xB0;
+                  c = 0xC0;
                   break;
                 default:
-                  c = 0xD0;
+                  c = 0xE0;
                   break;
             }
         }
