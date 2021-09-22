@@ -152,6 +152,7 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       if (!ttisnil(oldval) ||  /* result is no nil? */
           (tm = fasttm(L, h->metatable, TM_NEWINDEX)) == NULL) { /* or no TM? */
         setobj2t(L, oldval, val);
+        h->flags = 0;
         luaC_barriert(L, h, val);
         return;
       }

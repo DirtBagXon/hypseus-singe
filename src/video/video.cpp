@@ -1248,7 +1248,6 @@ void take_screenshot()
         { LOGW << "Cannot screenshot in fullscreen render."; return; }
 
     SDL_Rect     screenshot;
-    SDL_Renderer *g_renderer   = get_renderer();
     SDL_Surface  *surface      = NULL;
 
     if (g_renderer) {
