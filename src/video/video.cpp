@@ -189,6 +189,7 @@ bool init_display()
     Uint32 sdl_flags = 0;
     Uint32 sdl_sb_flags = 0;
     static bool sb = false;
+    static bool rz = false;
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
     sdl_flags = SDL_WINDOW_SHOWN;
@@ -240,6 +241,9 @@ bool init_display()
             target[13] = 0;
             memcpy(title, target, sizeof(target));
         }
+
+        if (rz && (int)g_draw_width != g_vid_width)
+            LOGI << fmt("Repaint dimensions: %dx%d", g_draw_width, g_draw_height);
 
         if (g_window) SDL_HideWindow(g_window);
 
@@ -414,6 +418,7 @@ bool init_display()
         exit(SDL_ERROR_INIT);
     }
 
+    rz = true;
     return (result);
 }
 
