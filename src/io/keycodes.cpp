@@ -120,9 +120,11 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_LCTRL") == 0) return SDLK_LCTRL;
 	else if (strcmp(str, "SDLK_LSHIFT") == 0) return SDLK_LSHIFT;
 	else if (strcmp(str, "SDLK_LALT") == 0) return SDLK_LALT;
+	else if (strcmp(str, "SDLK_LGUI") == 0) return SDLK_LGUI;
 	else if (strcmp(str, "SDLK_RCTRL") == 0) return SDLK_RCTRL;
 	else if (strcmp(str, "SDLK_RSHIFT") == 0) return SDLK_RSHIFT;
 	else if (strcmp(str, "SDLK_RALT") == 0) return SDLK_RALT;
+	else if (strcmp(str, "SDLK_RGUI") == 0) return SDLK_RGUI;
 	else {
 		LOGW << fmt("Unrecognized key macro in config: %s", str);
 		LOGW << "Use decimal values for extended keycodes.";
