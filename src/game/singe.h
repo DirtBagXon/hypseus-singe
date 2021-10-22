@@ -43,6 +43,9 @@ using namespace std;
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
 
+#define SINGE_ABS_OVERLAY_W 0x168
+#define SINGE_ABS_OVERLAY_H 0x0f0
+
 enum { KEYBD_NORMAL, KEYBD_FULL };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +66,7 @@ class singe : public game
     void repaint();
 
     bool singe_alt_pressed = false;
+    bool oversize_overlay = false;
     bool oc = false;
 
     // g_ldp function wrappers (to make function pointers out of them)

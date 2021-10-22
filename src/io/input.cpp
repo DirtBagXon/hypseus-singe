@@ -59,6 +59,7 @@ const int JOY_AXIS_MID = (int)(32768 * (0.75)); // how far they have to move the
                                                 // joystick before it 'grabs'
 
 bool g_use_joystick      = true;  // use a joystick by default
+bool g_invert_hat        = false; // invert joystick hat up/down
 bool g_alt_pressed       = false; // whether the ALT key is presssed (for ALT-Enter
                                   // combo)
 unsigned int idle_timer;          // added by JFA for -idleexit
@@ -340,7 +341,10 @@ static void manymouse_update_mice()
 
         static Mouse mice[MAX_MICE];
         mouse = &mice[mm_event.device];
+
+#ifndef WIN32
         float val, maxval;
+#endif
 
         switch(mm_event.type) {
         case MANYMOUSE_EVENT_RELMOTION:
@@ -358,6 +362,11 @@ static void manymouse_update_mice()
             g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
             break;
         case MANYMOUSE_EVENT_ABSMOTION:
+
+#ifdef WIN32
+            mouse->x = int((mm_event.minval / 65535.0f) * video::get_video_width());
+            mouse->y = int((mm_event.maxval / 65535.0f) * video::get_video_height());
+#else
             val = (float) (mm_event.value - mm_event.minval);
             maxval = (float) (mm_event.maxval - mm_event.minval);
 
@@ -365,6 +374,7 @@ static void manymouse_update_mice()
                 mouse->x = (val / maxval) * video::get_video_width();
             else if (mm_event.item == 1)
                 mouse->y = (val / maxval) * video::get_video_height();
+#endif
 
             g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
             break;
@@ -789,10 +799,12 @@ void process_joystick_hat_motion(SDL_Event *event)
 
     if ((event->jhat.value & SDL_HAT_UP) && !(prev_hat_position & SDL_HAT_UP)) {
         // hat moved to the up position
-        input_enable(SWITCH_UP);
+        if (g_invert_hat) input_enable(SWITCH_DOWN);
+        else input_enable(SWITCH_UP);
     } else if (!(event->jhat.value & SDL_HAT_UP) && (prev_hat_position & SDL_HAT_UP)) {
         // up hat released
-        input_disable(SWITCH_UP);
+        if (g_invert_hat) input_disable(SWITCH_DOWN);
+        else input_disable(SWITCH_UP);
     }
 
     if ((event->jhat.value & SDL_HAT_RIGHT) && !(prev_hat_position & SDL_HAT_RIGHT)) {
@@ -805,10 +817,12 @@ void process_joystick_hat_motion(SDL_Event *event)
 
     if ((event->jhat.value & SDL_HAT_DOWN) && !(prev_hat_position & SDL_HAT_DOWN)) {
         // hat moved to the down position
-        input_enable(SWITCH_DOWN);
+        if (g_invert_hat) input_enable(SWITCH_UP);
+        else input_enable(SWITCH_DOWN);
     } else if (!(event->jhat.value & SDL_HAT_DOWN) && (prev_hat_position & SDL_HAT_DOWN)) {
         // down hat released
-        input_disable(SWITCH_DOWN);
+        if (g_invert_hat) input_disable(SWITCH_UP);
+        else input_disable(SWITCH_DOWN);
     }
 
     if ((event->jhat.value & SDL_HAT_LEFT) && !(prev_hat_position & SDL_HAT_LEFT)) {
@@ -926,6 +940,7 @@ void reset_idle(void)
 
 // primarily to disable joystick use if user wishes not to use one
 void set_use_joystick(bool val) { g_use_joystick = val; }
+void set_invert_hat(bool val) { g_invert_hat = val; }
 
 // Allow us to specify an alternate keymap.ini file
 void set_inputini_file(const char *inputFile) {

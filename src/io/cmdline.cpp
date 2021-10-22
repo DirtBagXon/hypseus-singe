@@ -654,7 +654,9 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-nojoystick") == 0) {
                 set_use_joystick(false);
             }
-
+            else if (strcasecmp(s, "-tiphat") == 0) {
+                set_invert_hat(true);
+            }
             // if want data sent to the server
             else if (strcasecmp(s, "-serversend") == 0) {
                 net_server_send();

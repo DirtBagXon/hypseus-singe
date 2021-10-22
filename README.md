@@ -144,10 +144,11 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -scalefactor               [ Scale video image [50-100]%                   ]
     -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
+    -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
-    -manymouse                 [ Enable absolute mouse input [lightguns]       ]
+    -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
     -retropath                 [ Singe data path rewrites [libretro]           ]
     -sinden <1-10> <color>     [ Enable software border for lightguns          ]
                                [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]
