@@ -54,7 +54,7 @@ struct singe_in_info g_SingeIn;
 // joystick
 static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
 static Sint16 js_sen = 5;
-static bool bjx, bjy = false;
+static bool bjx = false, bjy = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -354,6 +354,7 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-manymouse") == 0) {
         game::set_manymouse(true);
+        oversize_overlay = true;
         bResult = true;
     }
     else if (strcasecmp(arg, "-sinden") == 0) {
@@ -363,6 +364,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         if ((i > 0) && (i < 11)) {
            game::set_sinden_border(i<<1);
            game::set_manymouse(true);
+           oversize_overlay = true;
            bResult = true;
         } else {
            printerror("SINGE: border out of scope: <1-10>");
@@ -423,6 +425,11 @@ void singe::repaint()
 {
     Uint32 cur_w = g_ldp->get_discvideo_width() >> 1; // width overlay should be
     Uint32 cur_h = g_ldp->get_discvideo_height() >> 1; // height overlay should be
+
+    if (oversize_overlay) {
+        cur_w = SINGE_ABS_OVERLAY_W;
+        cur_h = SINGE_ABS_OVERLAY_H;
+    }
 
     // if the width or height of the mpeg video has changed since we last were
     // here (ie, opening a new mpeg)

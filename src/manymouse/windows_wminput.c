@@ -249,10 +249,10 @@ static void queue_from_rawinput(const RAWINPUT *raw)
         /* !!! FIXME: How do we get the min and max values for absmotion? */
         event.type = MANYMOUSE_EVENT_ABSMOTION;
         event.item = 0;
-        event.value = mouse->lLastX;
+        event.minval = mouse->lLastX;
         queue_event(&event);
         event.item = 1;
-        event.value = mouse->lLastY;
+        event.maxval = mouse->lLastY;
         queue_event(&event);
     } /* if */
 
