@@ -443,10 +443,13 @@ bool deinit_display()
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
 
-    SDL_DestroyTexture(g_overlay_texture);
-    SDL_DestroyTexture(g_sb_texture);
+    if (g_sb_texture)
+        SDL_DestroyTexture(g_sb_texture);
 
-    SDL_DestroyRenderer(g_sb_renderer);
+    if (g_sb_renderer)
+        SDL_DestroyRenderer(g_sb_renderer);
+
+    SDL_DestroyTexture(g_overlay_texture);
     SDL_DestroyRenderer(g_renderer);
 
     return (true);
