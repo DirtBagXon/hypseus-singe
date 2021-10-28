@@ -443,6 +443,10 @@ bool deinit_display()
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
 
+    TTF_Quit();
+    FC_FreeFont(g_font);
+    FC_FreeFont(g_fixfont);
+
     if (g_sb_texture)
         SDL_DestroyTexture(g_sb_texture);
 
@@ -460,9 +464,6 @@ void shutdown_display()
 {
     LOGD << "Shutting down video display...";
 
-    TTF_Quit();
-    FC_FreeFont(g_font);
-    FC_FreeFont(g_fixfont);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
