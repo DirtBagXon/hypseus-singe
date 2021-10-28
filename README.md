@@ -178,6 +178,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
+    -oversize_overlay          [ Use with HD gungame m2v video sources         ]
     -retropath                 [ Singe data path rewrites [libretro]           ]
     -sinden <1-10> <color>     [ Enable software border for lightguns          ]
                                [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]
