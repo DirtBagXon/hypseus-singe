@@ -177,6 +177,7 @@ bool g_scoreboard_needs_update = false;
 bool g_overlay_needs_update    = false;
 bool g_yuv_video_needs_update  = false;
 bool g_yuv_video_needs_blank   = false;
+bool g_yuv_video_timer_blank   = false;
 bool g_ldp1450_old_overlay     = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -757,6 +758,8 @@ bool get_use_old_osd() { return g_game->get_use_old_overlay(); }
 
 bool get_LDP1450_enabled() { return g_LDP1450_overlay; }
 
+bool get_video_timer_blank() { return g_yuv_video_timer_blank; }
+
 // sets our g_fullscreen bool (determines whether will be in fullscreen mode or
 // not)
 void set_fullscreen(bool value) { g_fullscreen = value; }
@@ -774,6 +777,8 @@ void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
 void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 
 void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
+
+void set_video_timer_blank(bool value) { g_yuv_video_timer_blank = value; }
 
 int get_scalefactor() { return g_scalefactor; }
 void set_scalefactor(int value)
@@ -1074,7 +1079,11 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     // until the mutex is free and we can lock(=get) it here.
     SDL_LockMutex(g_yuv_surface->mutex);
 
-    if (g_yuv_video_needs_blank) {
+    if (g_yuv_video_timer_blank) {
+
+        vid_blank_yuv_texture(false);
+
+    } else if (g_yuv_video_needs_blank) {
 
         vid_blank_yuv_texture(false);
         set_yuv_video_blank(false);
@@ -1201,10 +1210,10 @@ void vid_blit () {
     if (g_scanlines) draw_scanlines();
 
     if (g_fRotateDegrees != 0) {
-	if (g_yuv_texture)
+        if (g_yuv_texture)
             SDL_RenderCopyEx(g_renderer, g_yuv_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
-	if (g_overlay_texture)
+        if (g_overlay_texture)
             SDL_RenderCopyEx(g_renderer, g_overlay_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
     } else if (g_game->get_sinden_border())

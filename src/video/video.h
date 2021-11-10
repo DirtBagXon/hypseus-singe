@@ -131,12 +131,14 @@ bool get_fullscreen();
 bool get_use_old_osd();
 bool get_force_aspect_ratio();
 bool get_singe_blend_sprite();
+bool get_video_timer_blank();
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
 void set_yuv_video_blank(bool value);
+void set_video_timer_blank(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);

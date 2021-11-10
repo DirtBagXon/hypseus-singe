@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(PKG_VERSION "v2.6.17-RPi")
-
-set(FILE_OFFSET_BITS "")
+set(PKG_VERSION "v2.6.18-RPi")
 
 project(hypseus)
 
@@ -21,17 +19,13 @@ endif()
 if ( UNIX )
   if ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
       message(STATUS "Detected 32bit: Compiling with -D_FILE_OFFSET_BITS=64")
-      set(FILE_OFFSET_BITS "-D_FILE_OFFSET_BITS=64")
+      add_definitions(-D_FILE_OFFSET_BITS=64)
   endif()
 endif()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${FILE_OFFSET_BITS} -Wall")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${FILE_OFFSET_BITS} -Wall")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${FILE_OFFSET_BITS} -Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${FILE_OFFSET_BITS} -Wall")
+add_compile_options(-Wall)
 
-
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 include(TargetArch)
 target_architecture(CMAKE_TARGET_ARCHITECTURES)

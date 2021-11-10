@@ -193,13 +193,16 @@ bool singe::init()
 
 void singe::start()
 {
-    int intReturn = 0;
     char s1[100];
+    int intTimer = 0;
+    int intReturn = 0;
     sprintf(s1, "Starting Singe version %.2f", get_singe_version());
     printline(s1);
     g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
+    bool blanking = g_local_info.blank_during_searches;
+    int delay = g_ldp->get_min_seek_delay() >> 6;
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
@@ -216,6 +219,14 @@ void singe::start()
 
             if (bjx||bjy) {
                 JoystickMotion();
+            }
+
+            if (blanking) {
+                if (video::get_video_timer_blank()) {
+                    if (intTimer > delay)
+                        video::set_video_timer_blank(false);
+                    intTimer++;
+                } else intTimer = 0;
             }
 
             blit();

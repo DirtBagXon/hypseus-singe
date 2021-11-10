@@ -1072,14 +1072,21 @@ static int sep_screenshot(lua_State *L)
 
 static int sep_search(lua_State *L)
 {
+  static bool debounced = false;
   char s[6] = { 0 };
   int n = lua_gettop(L);
-  
+
   if (n == 1)
     if (lua_isnumber(L, 1))
     {
       g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
       g_pSingeIn->pre_search(s, true);
+
+      if (g_pSingeIn->g_local_info->blank_during_searches)
+          if (debounced) {
+              video::set_video_timer_blank(true);
+      }
+      debounced = true;
     }
 
   return 0;
@@ -1120,7 +1127,9 @@ static int sep_skip_backward(lua_State *L)
   if (n == 1)
     if (lua_isnumber(L, 1))
 	{
-      g_pSingeIn->pre_skip_backward(lua_tonumber(L, 1));
+          if (g_pSingeIn->g_local_info->blank_during_skips)
+              video::set_video_timer_blank(true);
+          g_pSingeIn->pre_skip_backward(lua_tonumber(L, 1));
 	}
       
   return 0;
@@ -1146,32 +1155,18 @@ static int sep_skip_forward(lua_State *L)
   if (n == 1)
     if (lua_isnumber(L, 1))
 	{
-      g_pSingeIn->pre_skip_forward(lua_tonumber(L, 1));
+          if (g_pSingeIn->g_local_info->blank_during_skips)
+              video::set_video_timer_blank(true);
+          g_pSingeIn->pre_skip_forward(lua_tonumber(L, 1));
 	}
       
   return 0;
 }
 
-/*
-static int sep_search(lua_State *L)
-{
-  char s[6] = { 0 };
-  int n = lua_gettop(L);
-  
-  if (n == 1)
-    if (lua_isnumber(L, 1))
-    {
-      g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
-      g_pSingeIn->pre_search(s, true);
-    }
-
-  return 0;
-}
-*/
-
 static int sep_skip_to_frame(lua_State *L)
 {
 	int n = lua_gettop(L);
+	static bool debounced = false;
 
 	if (n == 1)
 	{
@@ -1179,10 +1174,16 @@ static int sep_skip_to_frame(lua_State *L)
 		{
 			// TODO : implement this for real on the hypseus side of things instead of having to do a search/play hack
 			char s[6] = { 0 };
+
+			if (g_pSingeIn->g_local_info->blank_during_skips)
+			    if (debounced)
+			        video::set_video_timer_blank(true);
+
 			g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
 			g_pSingeIn->pre_search(s, true);
 			g_pSingeIn->pre_play();
 			g_pause_state = false; // BY RDG2010
+			debounced = true;
 		}
 	}
 
