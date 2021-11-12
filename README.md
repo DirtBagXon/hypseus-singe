@@ -12,16 +12,16 @@ Features:
 
 * SDL2 support
 * Updated MPEG2 decoder
-* [cmake] build tool
-* Singe libretro path integration
-* Singe Joystick/Lightgun [mouse] support
+* Daphne and Singe 4k M2V support
+* Singe libretro emulation path integration
+* Singe Joystick, Lightgun _EV_ABS_ [mouse] support
 * Psuedo Singe 2 support (details below)
-* Sinden borders for Singe games
-* Alternate overlay choices
-* Advanced multi joystick configuration
+* Sinden support in Singe games
+* Daphne alternate overlay choices
+* Advanced configuration and multi-joystick support
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 * Simulated scan lines: [preview](screenshots/scanlines.png)
-* Windows and MacOS X Ports
+* 64bit Windows and MacOS X Ports
 
 ## Windows
 
@@ -68,7 +68,7 @@ Build:
 
 Ensure you have data in the following `daphne` HOME folders:
 
-    pics, ram, roms, sound, singe, (vldp and vldp_dl)
+    pics, fonts, ram, roms, sound, singe, (vldp and vldp_dl)
 
 Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
 
@@ -81,9 +81,9 @@ In **Windows** you are able to create `.bat` files with arguments for specific g
 
 Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
-**Retro gaming** systems will require adoption within the relevant emulation scripts.  
-The singe `-retropath` argument can ease integration into libretro style systems.  
-See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
+**Retro gaming** systems will require adoption within the relevant emulation scripts.
+
+The singe `-retropath` argument can ease integration into libretro style systems. See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
 
 `bash` scripts are provided for systems that support this shell.
 
@@ -118,7 +118,6 @@ Refer to [keylist.txt](https://github.com/DirtBagXon/hypseus-singe/blob/master/d
 Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
     HYPSEUS_SHARE=~/.daphne
-    HYPSEUS_SHARE=/home/pi/RetroPie/roms/daphne
 
 **Note:** The default Hypseus home directory, *created* when run without ``-homedir``:
 
@@ -203,21 +202,21 @@ Open development by the original author, [Matt Ownby][CUS], ceased years ago.
 Singe was created by [Scott Duensing][SD] as a plugin to Daphne to allow the
 playing of [American Laser Games][ALG].
 
-This repository was created to build upon the ``Hypseus`` project created
-by [Jeffrey Clark][JAC]. Many overlays were still unimplemented in the original
+This repository was created to expand the ``Hypseus`` project started
+by [Jeffrey Clark][JAC]. Many overlays were unimplemented in the original
 repository. Singe had also been removed.
 
-The name was changed to _Hypseus_ so the original authors of [Daphne] would not
-be burdened with requests for support.
+The name of this application was changed to _Hypseus_ (_[sibling to Daphne][peneus]_)
+so the original authors of [Daphne] would not be burdened with requests for support.
 
-A big thanks goes out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
+A massive thanks goes out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
 [Manuel Alfayate][MAC], [David Griffith][DG] and the many other developers
 who made their work available for me to build upon. Without them this
 project would not be possible.
 
 ## License
 
-**Hypseus Singe**, Super Multiple Arcade Laserdisc Emulator  
+**Hypseus Singe**, Being Retro Orientated This Humble Emulator Regenerates  
 Copyright (C) 2021  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
@@ -263,6 +262,7 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [cmake]: https://cmake.org
 [autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
 [libtool]: https://www.gnu.org/software/libtool/manual/libtool.html
+[peneus]: https://en.wikipedia.org/wiki/Peneus
 [GNU General Public License]: http://www.gnu.org/licenses/gpl-3.0.en.html
 [JAC]: https://github.com/h0tw1r3
 [MAC]: https://github.com/vanfanel

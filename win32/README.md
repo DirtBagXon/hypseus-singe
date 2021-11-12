@@ -6,13 +6,13 @@
 
 **Download latest version:** [here](https://github.com/DirtBagXon/hypseus-singe/releases)
 
-Latest build is:
+Latest build is: (_32bit_ and _64bit_ versions are available.)
 
     hypseus.exe -v
     [version] Hypseus Singe: v2.6.18
     [console] Windows 10
     [console] SDL(CC): 2.0.14
-    [console] SDL(LD): 2.0.14
+    [console] SDL(LD): 2.0.16
     [console] Build: Nov 10 2021 00:30:00
 
 

@@ -14,6 +14,10 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
+      -blanking)
+        BLANK="-blank_searches -blank_skips -min_seek_delay 200"
+        shift
+        ;;
       -blend)
         BLEND="-blend_sprites"
         shift
@@ -51,7 +55,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-blend] [-nolinear] [-scanlines] [-scale] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-scanlines] [-scale] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -80,6 +84,7 @@ $HYPSEUS_BIN singe vldp \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
 $NEAREST \
+$BLANK \
 $BLEND \
 $LOG \
 $SCANLINES \
