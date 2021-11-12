@@ -1083,9 +1083,9 @@ static int sep_search(lua_State *L)
       g_pSingeIn->pre_search(s, true);
 
       if (g_pSingeIn->g_local_info->blank_during_searches)
-          if (debounced) {
+          if (debounced)
               video::set_video_timer_blank(true);
-      }
+
       debounced = true;
     }
 

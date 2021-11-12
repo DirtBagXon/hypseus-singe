@@ -14,10 +14,6 @@ while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-      -blend)
-        BLEND="-alt_osd -blend_osd"
-        shift
-        ;;
       -blanking)
         BLANK="-blank_searches -blank_skips -min_seek_delay 1000"
         shift
@@ -30,8 +26,20 @@ while [[ $# -gt 0 ]]; do
         NEAREST="-nolinear_scale"
         shift
         ;;
+      -nolog)
+        LOG="-nolog"
+        shift
+        ;;
+      -overlay)
+        OVERLAY="-original_overlay"
+        shift
+        ;;
       -prototype)
         PROTOTYPE="on"
+        shift
+        ;;
+      -rotate)
+        ROTATE="-rotate 90"
         shift
         ;;
       -scale)
@@ -62,9 +70,9 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
+    echo  -e "$0 [-fullscreen] [-blanking] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
-    for game in ace astron badlands bega blazer cliff cobra cobraab cobram3 dle21 esh galaxy gpworld interstellar lair lair2 mach3 roadblaster sae sdq tq uvt; do
+    for game in ace astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld interstellar lair lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -101,7 +109,7 @@ case "$1" in
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
-    badlands)
+    badlands|badlandp)
 	VLDP_DIR="vldp"
 	BANKS="-bank 1 10000001 -bank 0 00000000"
 	;;
@@ -112,7 +120,7 @@ case "$1" in
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
-    cliff)
+    cliff|cliffalt|cliffalt2)
 	VLDP_DIR="vldp"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00000000 -bank 0 00000000 -cheat"
@@ -125,9 +133,15 @@ case "$1" in
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
+    cobraconv)
+	VLDP_DIR="vldp"
+	KEYINPUT="-keymapfile flightkey.ini"
+	BANKS="-bank 1 01000001"
+	;;
     cobram3)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
+	FASTBOOT="-nocrc"
 	;;
     dle21)
 	VLDP_DIR="vldp_dl"
@@ -138,12 +152,12 @@ case "$1" in
 		BANKS="-bank 1 00110111 -bank 0 11011001"
 	fi
 	;;
-    esh)
+    esh|eshalt|eshalt2)
 	# Run a fixed ROM so disable CRC
 	VLDP_DIR="vldp"
 	FASTBOOT="-nocrc"
 	;;
-    galaxy)
+    galaxy|galaxyp)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
@@ -174,11 +188,11 @@ case "$1" in
 	VLDP_DIR="vldp_dl"
 	BANKS="-bank 1 01100111 -bank 0 10011000"
 	;;
-    sdq)
+    sdq|sdqshort|sdqshortalt)
 	VLDP_DIR="vldp"
 	BANKS="-bank 1 00000000 -bank 0 00000000"
 	;;
-    tq)
+    tq|tq_alt|tq_swear)
 	VLDP_DIR="vldp_dl"
 	BANKS=" -bank 0 00010000"
 	;;
@@ -202,8 +216,10 @@ $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
 $NEAREST \
-$BLEND \
 $BLANK \
+$OVERLAY \
+$LOG \
+$ROTATE \
 $SCANLINES \
 $SCALE \
 $SCOREBOARD \
