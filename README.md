@@ -20,7 +20,6 @@ Features:
 * Daphne alternate overlay choices
 * Advanced configuration and multi-joystick support
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
-* Simulated scan lines: [preview](screenshots/scanlines.png)
 
 ## Compile
 
@@ -230,6 +229,7 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [GLEW]: http://glew.sourceforge.net/
 [ogg]: https://en.wikipedia.org/wiki/Ogg
 [vorbis]: https://en.wikipedia.org/wiki/Vorbis
+[cmake]: https://cmake.org
 [autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
 [libtool]: https://www.gnu.org/software/libtool/manual/libtool.html
 [peneus]: https://en.wikipedia.org/wiki/Peneus

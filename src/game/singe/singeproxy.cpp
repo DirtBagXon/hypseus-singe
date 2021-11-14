@@ -886,7 +886,7 @@ static int sep_mpeg_get_pixel(lua_State *L)
 
 				rect.h = 1;
 				rect.w = 1;
-				if (!ex) sep_print("ActionMax support is experimental");
+				if (!ex) sep_print("sep_mpeg_get_pixel()");
 				rect.x = (int)((double)lua_tonumber(L, 1) * ((double)g_pSingeIn->g_vldp_info->w
                                               / (double)g_se_overlay_width));
 				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h

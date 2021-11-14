@@ -330,7 +330,7 @@ bool singe::handle_cmdline_arg(const char *arg)
 
     bool bResult             = false;
     static bool scriptLoaded = false;
-    char s[81]               = {0};
+    char s[256]              = {0};
     int i;
 
     if (strcasecmp(arg, "-script") == 0) {

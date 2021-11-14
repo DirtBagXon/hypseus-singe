@@ -527,8 +527,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
 	    // Ignore some obsolete arguments (Rather than error)
             else if (strcasecmp(s, "-ignore_aspect_ratio")==0
-                     || strcasecmp(s, "-noserversend")==0
-                     || strcasecmp(s, "-opengl")==0) {
+                     || strcasecmp(s, "-noserversend")==0) {
 
                  bool dummy = true;
 
@@ -757,6 +756,16 @@ bool parse_cmd_line(int argc, char **argv)
                     printline("Vertical stretch only works with VLDP.");
                     result = false;
                 }
+            }
+            else if (strcasecmp(s, "-opengl") == 0) {
+                video::set_opengl(true);
+                printline("Enabling SDL_OPENGL");
+                if (video::get_vulkan()) result = false;
+            }
+            else if (strcasecmp(s, "-vulkan") == 0) {
+                video::set_vulkan(true);
+                printline("Enabling SDL_VULKAN");
+                if (video::get_opengl()) result = false;
             }
             else if (strcasecmp(s, "-force_aspect_ratio") == 0) {
                 printline("Forcing 4:3 aspect ratio.");
