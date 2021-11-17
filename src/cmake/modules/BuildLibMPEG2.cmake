@@ -1,6 +1,6 @@
 macro( build_libmpeg2 )
 
-if( CMAKE_CROSS_COMPILING )
+if( CMAKE_CROSSCOMPILING )
     string( REGEX MATCH "([-A-Za-z0-9\\._]+)-(gcc|cc)$" RESULT ${CMAKE_C_COMPILER} )
     string( REGEX REPLACE "-(gcc|cc)$" "" RESULT ${RESULT} )
     set( CONFIGURE_ARGS "--host=${RESULT}" )

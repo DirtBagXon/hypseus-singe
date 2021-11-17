@@ -99,6 +99,10 @@ bool g_scanlines = false;
 
 bool g_fakefullscreen = false;
 
+bool g_opengl = false;
+
+bool g_vulkan = false;
+
 bool g_vid_resized = false;
 
 bool g_bForceAspectRatio = false;
@@ -201,6 +205,14 @@ bool init_display()
 
         if (g_fullscreen) sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         else if (g_fakefullscreen) sdl_flags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS;
+
+        if (g_opengl) {
+            sdl_flags |= SDL_WINDOW_OPENGL;
+            sdl_sb_flags |= SDL_WINDOW_OPENGL;
+        } else if (g_vulkan) {
+            sdl_flags |= SDL_WINDOW_VULKAN;
+            sdl_sb_flags |= SDL_WINDOW_VULKAN;
+        }
 
         g_overlay_width = g_game->get_video_overlay_width();
         g_overlay_height = g_game->get_video_overlay_height();
@@ -748,6 +760,10 @@ SDL_Texture *get_yuv_screen() { return g_yuv_texture; }
 
 SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
+bool get_opengl() { return g_opengl; }
+
+bool get_vulkan() { return g_vulkan; }
+
 bool get_fullscreen() { return g_fullscreen; }
 
 bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
@@ -765,6 +781,10 @@ bool get_video_timer_blank() { return g_yuv_video_timer_blank; }
 void set_fullscreen(bool value) { g_fullscreen = value; }
 
 void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
+
+void set_opengl(bool value) { g_opengl = value; }
+
+void set_vulkan(bool value) { g_vulkan = value; }
 
 void set_scanlines(bool value) { g_scanlines = value; }
 
