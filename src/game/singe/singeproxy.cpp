@@ -746,24 +746,27 @@ static int sep_font_load(lua_State *L)
     if (lua_isstring(L, 1))
       if (lua_isnumber(L, 2))
       {
-        font = lua_tostring(L, 1);
-        int len = strlen(font) + RETRO_PAD;
-        char filepath[RETRO_MAXPATH];
-        if (g_pSingeIn->get_retro_path()) {
-            lua_retropath(font, filepath, len);
-        } else
-            memcpy(filepath, font, len);
+          font = lua_tostring(L, 1);
+          int len = strlen(font) + RETRO_PAD;
+          char filepath[RETRO_MAXPATH];
 
-        points = lua_tonumber(L, 2);
-				TTF_Font *temp = NULL;
-        // Load this font.
-				temp = TTF_OpenFont(filepath, points);
-				if (temp == NULL)
-          sep_die("Unable to load font: %s", filepath);
-        // Make it the current font and mark it as loaded.
-				g_fontList.push_back(temp);
-        g_fontCurrent = g_fontList.size() - 1;
-				result = g_fontCurrent;
+          if (g_pSingeIn->get_retro_path())
+              lua_retropath(font, filepath, len);
+          else
+              memcpy(filepath, font, len);
+
+          points = lua_tonumber(L, 2);
+          TTF_Font *temp = NULL;
+
+          // Load this font.
+          temp = TTF_OpenFont(filepath, points);
+          if (temp != NULL) {
+             // Make it the current font and mark it as loaded.
+             g_fontList.push_back(temp);
+             g_fontCurrent = g_fontList.size() - 1;
+             result = g_fontCurrent;
+          } else
+              sep_die("Unable to load font: %s", filepath);
       }
 
   lua_pushnumber(L, result);

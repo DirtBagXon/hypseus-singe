@@ -24,7 +24,7 @@
     mkdir build
     cd build
     cmake ../src
-    make -j
+    make
 
     cd ..
 
