@@ -255,8 +255,9 @@ bool init_display()
             memcpy(title, target, sizeof(target));
         }
 
-        if (rz && (int)g_draw_width != g_vid_width)
+        if (rz && (int)g_draw_width != g_vid_width) {
             LOGI << fmt("Repaint dimensions: %dx%d", g_draw_width, g_draw_height);
+        }
 
         if (g_window) SDL_HideWindow(g_window);
 
@@ -545,8 +546,9 @@ SDL_Surface *load_one_bmp(const char *filename)
 {
     SDL_Surface *result  = SDL_LoadBMP(filename);
 
-    if (!result)
+    if (!result) {
         LOGW << fmt("Could not load bitmap: %s", SDL_GetError());
+    }
  
     return (result);
 }
@@ -1322,12 +1324,9 @@ void take_screenshot()
 
 void draw_scanlines() {
     unsigned char c;
-    int d = g_draw_width >> 4;
     for (unsigned int i = 0; i < g_draw_height; i+=5) {
          c = 0x40;
          for (int j = 0; j < 4; j++) {
-             if (d > c) c = 0x0;
-             else c = (c - d);
              SDL_SetRenderDrawColor(g_renderer, c, c, c, SDL_ALPHA_OPAQUE);
              SDL_RenderDrawLine(g_renderer, 0, i+j, g_draw_width, i+j);
              switch(j)
@@ -1336,10 +1335,10 @@ void draw_scanlines() {
                   c = 0x90;
                   break;
                 case 1:
-                  c = 0xC0;
+                  c = 0xB0;
                   break;
                 default:
-                  c = 0xE0;
+                  c = 0xD0;
                   break;
             }
         }

@@ -65,6 +65,10 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+IF(APPLE)
+  return()
+ENDIF(APPLE)
+
 SET(SDL2_SEARCH_PATHS
  ~/Library/Frameworks
  /Library/Frameworks
@@ -129,16 +133,6 @@ IF(SDL2_LIBRARY_TEMP)
    SET(SDL2_LIBRARY_TEMP ${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY_TEMP})
   ENDIF(SDL2MAIN_LIBRARY)
  ENDIF(NOT SDL2_BUILDING_LIBRARY)
-
- # For OS X, SDL2 uses Cocoa as a backend so it must link to Cocoa.
- # CMake doesn't display the -framework Cocoa string in the UI even
- # though it actually is there if I modify a pre-used variable.
- # I think it has something to do with the CACHE STRING.
- # So I use a temporary variable until the end so I can set the
- # "real" variable in one-shot.
- IF(APPLE)
-  SET(SDL2_LIBRARY_TEMP ${SDL2_LIBRARY_TEMP} "-framework Cocoa -framework IOKit")
- ENDIF(APPLE)
 
  # For threads, as mentioned Apple doesn't need this.
  # In fact, there seems to be a problem if I used the Threads package

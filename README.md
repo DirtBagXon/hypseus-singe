@@ -18,7 +18,7 @@ Features:
 * Psuedo Singe 2 support (details below)
 * Sinden support in Singe games
 * Daphne alternate overlay choices
-* Advanced configuration and multi-joystick support
+* Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 * Simulated scan lines: [preview](screenshots/scanlines.png)
 * 64bit Windows and MacOS X Ports
@@ -173,6 +173,9 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
+
+    -opengl                    [ Enable OpenGL SDL Window context              ]
+    -vulkan                    [ Enable Vulkan SDL Window instance             ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]

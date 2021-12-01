@@ -441,8 +441,9 @@ int SDL_input_init()
                     LOGW << "Error opening joystick #" << i << "!";
                 }
             }
-            if (SDL_NumJoysticks() == 0)
+            if (SDL_NumJoysticks() == 0) {
                 LOGI << "No joysticks detected";
+            }
         }
         // notify user that their attempt to disable the joystick is successful
         else {
