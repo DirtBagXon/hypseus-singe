@@ -18,7 +18,7 @@ Features:
 * Psuedo Singe 2 support (details below)
 * Sinden support in Singe games
 * Daphne alternate overlay choices
-* Advanced configuration and multi-joystick support
+* Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
 
 ## Compile
@@ -157,6 +157,11 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
     [KEY_COIN1]=|[KEY_START1]  [ Joystick hotkey combination for [KEY_QUIT]    ]
 
+
+Enforce SDL Window context when Renderer auto-detection fails (_no further extensions enabled_):
+
+    -opengl                    [ Enable OpenGL SDL Window context              ]
+    -vulkan                    [ Enable Vulkan SDL Window instance             ]
 
 ## Support
 

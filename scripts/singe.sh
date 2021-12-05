@@ -34,6 +34,10 @@ while [[ $# -gt 0 ]]; do
         LOG="-nolog"
         shift
         ;;
+      -oversize)
+        OVERSIZE="-oversize_overlay -manymouse"
+        shift
+        ;;
       -scale)
         SCALE="-scalefactor 50"
         shift
@@ -55,7 +59,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-scanlines] [-scale] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-blanking] [-blend] [-nolinear] [-oversize] [-scanlines] [-scale] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -87,6 +91,7 @@ $NEAREST \
 $BLANK \
 $BLEND \
 $LOG \
+$OVERSIZE \
 $SCANLINES \
 $SCALE \
 -sound_buffer 2048 \

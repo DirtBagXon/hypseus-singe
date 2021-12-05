@@ -761,10 +761,10 @@ static int sep_font_load(lua_State *L)
           // Load this font.
           temp = TTF_OpenFont(filepath, points);
           if (temp != NULL) {
-             // Make it the current font and mark it as loaded.
-             g_fontList.push_back(temp);
-             g_fontCurrent = g_fontList.size() - 1;
-             result = g_fontCurrent;
+               // Make it the current font and mark it as loaded.
+               g_fontList.push_back(temp);
+               g_fontCurrent = g_fontList.size() - 1;
+               result = g_fontCurrent;
           } else
               sep_die("Unable to load font: %s", filepath);
       }
