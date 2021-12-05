@@ -47,7 +47,7 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
       -scanlines)
-        SCANLINES="-scanlines -x 1024 -y 768"
+        SCANLINES="-scanlines"
         shift
         ;;
       -scoreboard)

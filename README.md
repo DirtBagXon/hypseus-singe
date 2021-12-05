@@ -174,9 +174,6 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
 
-    -opengl                    [ Enable OpenGL SDL Window context              ]
-    -vulkan                    [ Enable Vulkan SDL Window instance             ]
-
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
@@ -190,6 +187,11 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
     [KEY_COIN1]=|[KEY_START1]  [ Joystick hotkey combination for [KEY_QUIT]    ]
 
+
+Enforce SDL Window context when Renderer auto-detection fails (_no further extensions enabled_):
+
+    -opengl                    [ Enable OpenGL SDL Window context              ]
+    -vulkan                    [ Enable Vulkan SDL Window instance             ]
 
 ## Support
 
