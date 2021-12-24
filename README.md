@@ -19,8 +19,8 @@ Features:
 * Sinden support in Singe games
 * Daphne alternate overlay choices
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
-* Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png)
-* Simulated scan lines: [preview](screenshots/scanlines.png)
+* Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png?raw=true)
+* Simulated scan lines: [preview](screenshots/scanlines.png?raw=true)
 * 64bit Windows and MacOS X Ports
 
 ## Windows
@@ -83,7 +83,7 @@ Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
 **Retro gaming** systems will require adoption within the relevant emulation scripts.
 
-The singe `-retropath` argument can ease integration into libretro style systems. See [RetroPie](src/3rdparty/retropie/RETROPIE.md) as an example.
+The singe `-retropath` argument can ease integration into libretro style systems. See [RetroPie](src/3rdparty/retropie/RETROPIE.md#extended-argument-summary) as an example.
 
 `bash` scripts are provided for systems that support this shell.
 
@@ -125,7 +125,7 @@ Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
 ## Software Scoreboard
 
-Enable the software external [scoreboard panel](screenshots/scoreboard.png) in lair/ace: `-software_scoreboard`
+Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-software_scoreboard`
 
 Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
@@ -168,6 +168,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
     -keymapfile                [ Specify an alternate hypinput.ini file        ]
     -nolinear_scale            [ Disable bilinear scaling [fullscreen]         ]
+    -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -scalefactor               [ Scale video image [50-100]%                   ]
     -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]

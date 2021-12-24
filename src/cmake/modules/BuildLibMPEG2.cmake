@@ -9,7 +9,7 @@ endif()
 externalproject_add( libmpeg2
 	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty
 	URL ../../../src/3rdparty/libmpeg2/libmpeg2-master.tgz
-	URL_HASH SHA256=381e5cb6fcd98d9260679cf045f84d8a645b2850a44bf90454e35c583004c819
+	URL_HASH SHA256=e42d18a28480a426af8e4bf764c11a1c2efa3c5d21db878fb22c6cb1090c1245
 	CONFIGURE_COMMAND autoreconf -f -i && <SOURCE_DIR>/configure ${CONFIGURE_ARGS} --prefix=${CMAKE_CURRENT_BINARY_DIR}/3rdparty --disable-shared --enable-static --disable-sdl
 	BUILD_IN_SOURCE 1
 	BUILD_COMMAND make V=0

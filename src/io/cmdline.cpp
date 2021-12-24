@@ -767,6 +767,9 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("Enabling SDL_VULKAN");
                 if (video::get_opengl()) result = false;
             }
+            else if (strcasecmp(s, "-novsync") == 0) {
+                video::set_vsync(false);
+            }
             else if (strcasecmp(s, "-force_aspect_ratio") == 0) {
                 printline("Forcing 4:3 aspect ratio.");
                 video::set_force_aspect_ratio(true);
