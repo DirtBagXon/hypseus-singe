@@ -39,6 +39,9 @@ LUALIB_API int (luaopen_debug) (lua_State *L);
 #define LUA_LOADLIBNAME	"package"
 LUALIB_API int (luaopen_package) (lua_State *L);
 
+#define LUA_LOADLFSNAME        "lfs"
+LUALIB_API int (luaopen_lfs) (lua_State *L);
+
 // by RDG2010
 #define LUA_RNDLIBNAME "random"
 LUALIB_API int (luaopen_random) (lua_State *L);

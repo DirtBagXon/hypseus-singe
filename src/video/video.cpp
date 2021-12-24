@@ -103,6 +103,8 @@ bool g_opengl = false;
 
 bool g_vulkan = false;
 
+bool g_vsync = true;
+
 bool g_vid_resized = false;
 
 bool g_bForceAspectRatio = false;
@@ -193,12 +195,15 @@ bool init_display()
     bool result = false; // whether video initialization is successful or not
     Uint32 sdl_flags = 0;
     Uint32 sdl_sb_flags = 0;
+    Uint8  sdl_render_flags = 0;
+    Uint8  sdl_sb_render_flags = 0;
     static bool sb = false;
     static bool rz = false;
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
     sdl_flags = SDL_WINDOW_SHOWN;
     sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP;
+    sdl_render_flags = SDL_RENDERER_TARGETTEXTURE;
 
     // if we were able to initialize the video properly
     if (SDL_InitSubSystem(SDL_INIT_VIDEO) >= 0) {
@@ -290,13 +295,17 @@ bool init_display()
             exit(SDL_ERROR_INIT);
         } else {
             if (g_game->m_sdl_software_rendering) {
-                g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_SOFTWARE |
-                                                              SDL_RENDERER_TARGETTEXTURE);
+                sdl_render_flags |= SDL_RENDERER_SOFTWARE;
             } else {
-                g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED |
-                                                              SDL_RENDERER_TARGETTEXTURE |
-                                                              SDL_RENDERER_PRESENTVSYNC);
+                sdl_render_flags |= SDL_RENDERER_ACCELERATED;
             }
+
+            sdl_sb_render_flags = sdl_render_flags;
+
+            if (g_vsync && (sdl_render_flags & SDL_RENDERER_ACCELERATED))
+                sdl_render_flags |= SDL_RENDERER_PRESENTVSYNC;
+
+            g_renderer = SDL_CreateRenderer(g_window, -1, sdl_render_flags);
 
             if (!g_renderer) {
                 LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
@@ -321,16 +330,12 @@ bool init_display()
                         set_quitflag();
                     }
 
-                    if (g_game->m_sdl_software_rendering)
-                        g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, SDL_RENDERER_SOFTWARE |
-                                                                      SDL_RENDERER_TARGETTEXTURE);
-                    else
-                        g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, SDL_RENDERER_ACCELERATED |
-                                                                      SDL_RENDERER_TARGETTEXTURE);
-                   if (g_sb_renderer)
+                    g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, sdl_sb_render_flags);
+
+                    if (g_sb_renderer)
                         g_sb_texture = SDL_CreateTexture(g_sb_renderer, SDL_GetWindowPixelFormat(g_sb_window),
                                                         SDL_TEXTUREACCESS_TARGET, 320, 240);
-                   else {
+                    else {
                         LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
                         g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
                         set_quitflag();
@@ -785,6 +790,8 @@ void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 void set_opengl(bool value) { g_opengl = value; }
 
 void set_vulkan(bool value) { g_vulkan = value; }
+
+void set_vsync(bool value) { g_vsync = value; }
 
 void set_scanlines(bool value) { g_scanlines = value; }
 

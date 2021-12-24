@@ -136,6 +136,7 @@ bool get_singe_blend_sprite();
 bool get_video_timer_blank();
 void set_opengl(bool value);
 void set_vulkan(bool value);
+void set_vsync(bool value);
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
