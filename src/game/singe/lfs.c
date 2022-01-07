@@ -60,6 +60,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lfs.h"
+#include "luretro.h"
 
 /* Define 'strerror' for systems that do not implement it */
 #ifdef NO_STRERROR
@@ -111,11 +112,19 @@ typedef struct dir_data {
 ** This function changes the working (current) directory
 */
 static int change_dir (lua_State *L) {
+
 	const char *path = luaL_checkstring(L, 1);
-	if (chdir(path)) {
+	char filepath[RETRO_MAXPATH];
+	int len = strlen(path) + RETRO_PAD;
+
+	if (get_retropath()) {
+	    lua_retropath(path, filepath, len);
+	} else memcpy(filepath, path, len);
+
+	if (chdir(filepath)) {
 		lua_pushnil (L);
 		lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n",
-				path, chdir_error);
+				filepath, chdir_error);
 		return 2;
 	} else {
 		lua_pushboolean (L, 1);
@@ -364,6 +373,11 @@ static int file_unlock (lua_State *L) {
 
 
 static int make_dir (lua_State *L) {
+
+	// We really shouldn't allow this in-game so just return
+	lua_pushboolean (L, 1);
+	return 1;
+
 	const char *path = luaL_checkstring (L, 1);
 	int fail;
 #ifdef _WIN32
@@ -389,6 +403,11 @@ static int make_dir (lua_State *L) {
 ** @param #1 Directory path.
 */
 static int remove_dir (lua_State *L) {
+
+	// We really shouldn't allow this in-game so just return
+	lua_pushboolean (L, 1);
+	return 1;
+
 	const char *path = luaL_checkstring (L, 1);
 	int fail;
 
@@ -474,6 +493,13 @@ static int dir_close (lua_State *L) {
 */
 static int dir_iter_factory (lua_State *L) {
 	const char *path = luaL_checkstring (L, 1);
+	char dirpath[RETRO_MAXPATH];
+	int len = strlen(path) + RETRO_PAD;
+
+	if (get_retropath()) {
+	    lua_retropath(path, dirpath, len);
+	} else memcpy(dirpath, path, len);
+
 	dir_data *d;
 	lua_pushcfunction (L, dir_iter);
 	d = (dir_data *) lua_newuserdata (L, sizeof(dir_data));
@@ -482,16 +508,16 @@ static int dir_iter_factory (lua_State *L) {
 	d->hFile = 0L;
 	luaL_getmetatable (L, DIR_METATABLE);
 	lua_setmetatable (L, -2);
-	if (strlen(path) > MAX_DIR_LENGTH)
-		luaL_error (L, "path too long: %s", path);
+	if (strlen(dirpath) > MAX_DIR_LENGTH)
+		luaL_error (L, "path too long: %s", dirpath);
 	else
-		sprintf (d->pattern, "%s/*", path);
+		sprintf (d->pattern, "%s/*", dirpath);
 #else
 	luaL_getmetatable (L, DIR_METATABLE);
 	lua_setmetatable (L, -2);
-	d->dir = opendir (path);
+	d->dir = opendir (dirpath);
 	if (d->dir == NULL)
-		luaL_error (L, "cannot open %s: %s", path, strerror (errno));
+		luaL_error (L, "cannot open %s: %s", dirpath, strerror (errno));
 #endif
 	return 2;
 }
@@ -588,6 +614,11 @@ static const char *mode2string (mode_t mode) {
 ** Set access time and modification values for file
 */
 static int file_utime (lua_State *L) {
+
+	// We really shouldn't allow this in-game so just return
+	lua_pushboolean (L, 1);
+	return 1;
+
 	const char *file = luaL_checkstring (L, 1);
 	struct utimbuf utb, *buf;
 
@@ -702,10 +733,16 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 	int i;
 	STAT_STRUCT info;
 	const char *file = luaL_checkstring (L, 1);
+	char retrofile[RETRO_MAXPATH];
+	int len = strlen(file) + RETRO_PAD;
 
-	if (st(file, &info)) {
+	if (get_retropath()) {
+	    lua_retropath(file, retrofile, len);
+	} else memcpy(retrofile, file, len);
+
+	if (st(retrofile, &info)) {
 		lua_pushnil (L);
-		lua_pushfstring (L, "cannot obtain information from file `%s'", file);
+		lua_pushfstring (L, "cannot obtain information from file `%s'", retrofile);
 		return 2;
 	}
 	if (lua_isstring (L, 2)) {
