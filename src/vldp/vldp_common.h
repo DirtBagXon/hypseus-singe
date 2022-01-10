@@ -53,11 +53,11 @@
 // (needs to be able to accomodate huge paths)
 #define STRSIZE 320
 
-extern Uint16 g_req_frame;       // which frame to seek to
+extern Uint32 g_req_frame;       // which frame to seek to
 extern Uint32 g_req_min_seek_ms; // minimum # of milliseconds that this seek can
                                  // take
 extern Uint32 g_req_timer;
-extern unsigned int g_req_idx; // multipurpose index
+extern unsigned long g_req_idx; // multipurpose index
 extern VLDP_BOOL g_req_precache;
 extern char g_req_file[];        // which file to open
 extern Uint8 g_req_cmdORcount;   // the current command count OR'd with the

@@ -100,8 +100,8 @@ class ldp
     // it returns one of the SEARCH_* enumerations ...
     virtual int get_search_result();
 
-    bool pre_skip_forward(Uint16);
-    bool pre_skip_backward(Uint16);
+    bool pre_skip_forward(Uint32);
+    bool pre_skip_backward(Uint32);
 
     // steps 1 frame forward
     void pre_step_forward();
@@ -109,13 +109,13 @@ class ldp
     // steps 1 frame backward
     void pre_step_backward();
 
-    virtual bool skip_forward(Uint16 frames_to_skip, Uint16 target_frame);
+    virtual bool skip_forward(Uint32 frames_to_skip, Uint32 target_frame);
     // NOTE : frames_to_skip and target_frame are both included for your
     // convenience
     // use frames_to_skip only if you cannot use target_frame (which is more
     // accurate)
 
-    virtual bool skip_backward(Uint16 frames_to_skip, Uint16 target_frame);
+    virtual bool skip_backward(Uint32 frames_to_skip, Uint32 target_frame);
     // NOTE : frames_to_skip and target_frame are both included for your
     // convenience
     // use frames_to_skip only if you cannot use target_frame (which is more
@@ -184,12 +184,12 @@ class ldp
     // to return its status (ie the PR-8210) then either blocking seeking must
     // be used
     // or each game driver which uses this player must call get_status().
-    virtual unsigned int get_current_frame();
+    virtual unsigned long get_current_frame();
 
     // returns m_uCurrentFrame or m_uCurrentFrame+1 if the disc is playing and
     // we've already displayed the 2nd field of the frame
     // (this is in an effort to fix overrun problems on super don)
-    unsigned int get_adjusted_current_frame();
+    unsigned long get_adjusted_current_frame();
 
     // returns 0 if this is the first vblank of the frame (assuming vblanks and
     // frames line up),
@@ -216,9 +216,10 @@ class ldp
     bool is_blitting_allowed(); // returns value of blitting_allowed
     void set_blitting_allowed(bool bVal);
     int get_status(); // returns status of laserdisc player
-    void framenum_to_frame(Uint16, char *); // converts int to 5-digit string
+    void framenum_to_frame(Uint32, char *); // converts int to 5-digit string
+    void framenum_to_maxframe(Uint32, char *); // converts long to 6-digit string for singe
     Uint32 get_search_latency();
-    void set_search_latency(unsigned int);
+    void set_search_latency(Uint32);
     void set_stop_on_quit(bool); // enables the stop_on_quit bool flag
 
     void set_runtime_error(short);
@@ -265,10 +266,10 @@ class ldp
     bool skipping_supported; // whether the laserdisc player supports skipping
     bool skip_instead_of_search; // whether we should skip instead of search if
                                  // searching forward a short distance
-    Uint16 max_skippable_frames; // maximum # of frames that player can skip (if
+    Uint32 max_skippable_frames; // maximum # of frames that player can skip (if
                                  // skipping is supported)
-    Uint16 m_last_try_frame;     // the last frame we _tried_ to seek to
-    Uint16 m_last_seeked_frame;  // the last frame we successfully seeked to
+    Uint32 m_last_try_frame;     // the last frame we _tried_ to seek to
+    Uint32 m_last_seeked_frame;  // the last frame we successfully seeked to
                                  // (used with m_play_time to calculate current
                                  // frame)
     // UPDATE : we aren't using cycles anymore (see pre_think())
@@ -301,13 +302,13 @@ class ldp
     // used by 'releasetest' to do automatic self-testing
     list<string> m_bug_log;
 
-    unsigned int m_uCurrentFrame; // the current frame, as calculated by
+    unsigned long m_uCurrentFrame; // the current frame, as calculated by
                                   // pre_think(), returned by
                                   // get_current_frame()
 
     // current frame - m_last_seeked_frame (for VLDP's usage)
     // For example, the first frame displayed after playing is 0.
-    unsigned int m_uCurrentOffsetFrame;
+    unsigned long m_uCurrentOffsetFrame;
 
     // How many milliseconds have elapsed since we started playing the disc.
     // This value is changed by pre_think(), which must get called every 1 ms by
@@ -380,8 +381,8 @@ class fast_noldp : public ldp
     // see ldp.h for comments on how to use these functions
     bool nonblocking_search(char *);
     int get_search_result();
-    bool skip_forward(Uint16 frames_to_skip, Uint16 target_frame);
-    bool skip_backward(Uint16 frames_to_skip, Uint16 target_frame);
+    bool skip_forward(Uint32 frames_to_skip, Uint32 target_frame);
+    bool skip_backward(Uint32 frames_to_skip, Uint32 target_frame);
 };
 
 extern ldp *g_ldp; // our global ldp class.  Defined here so that every .cpp

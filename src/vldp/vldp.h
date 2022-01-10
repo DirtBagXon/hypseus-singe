@@ -129,7 +129,7 @@ struct vldp_out_info {
     // to
     //  by its precache index instead of a filename.  Behavior is similar to
     //  'open'.
-    VLDP_BOOL (*open_precached)(unsigned int uIdx, const char *filename);
+    VLDP_BOOL (*open_precached)(unsigned long uIdx, const char *filename);
 
     // plays the mpeg that has been previously open.  'timer' is the value
     // relative to uMsTimer that
@@ -145,7 +145,7 @@ struct vldp_out_info {
     // STAT_PAUSED
     // returns 1 if command was acknowledged, or 0 if we timed out w/o getting
     // acknowlegement
-    int (*search)(Uint16 frame, Uint32 min_seek_ms);
+    int (*search)(Uint32 frame, Uint32 min_seek_ms);
 
     // like search except it blocks until the search is complete
     // 'min_seek_ms' is the minimum # of milliseconds that this seek must take
@@ -153,12 +153,12 @@ struct vldp_out_info {
     // returns 1 if search succeeded, 2 if search is still going, 0 if search
     // failed
     // (so does not do true blocking, we could change this later)
-    int (*search_and_block)(Uint16 frame, Uint32 min_seek_ms);
+    int (*search_and_block)(Uint32 frame, Uint32 min_seek_ms);
 
     // skips to 'frame' and immediately begins playing.
     // the mpeg is required to be playing before skip is called, because we
     // accept no new timer as reference
-    int (*skip)(Uint16 frame);
+    int (*skip)(Uint32 frame);
 
     // pauses mpeg playback
     int (*pause)();
@@ -194,7 +194,7 @@ struct vldp_out_info {
     Uint32 w;                  // width of the mpeg video
     Uint32 h;                  // height of the mpeg video
     int status; // the current status of the VLDP (see STAT_ enum's)
-    unsigned int current_frame; // the current frame of the opened mpeg that we
+    unsigned long current_frame; // the current frame of the opened mpeg that we
                                 // are on
     unsigned int uLastCachedIndex; // the index of the file that was last
                                    // precached (if any)

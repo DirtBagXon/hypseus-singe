@@ -66,12 +66,12 @@ class ldp_vldp : public ldp
     bool nonblocking_search(char *);
     int get_search_result();
     unsigned int play();
-    bool skip_forward(Uint16 frames_to_skip, Uint16 target_frame);
+    bool skip_forward(Uint32 frames_to_skip, Uint32 target_frame);
     void pause();
     bool change_speed(unsigned int uNumerator, unsigned int uDenominator);
     void think();
 #ifdef DEBUG
-    unsigned int get_current_frame(); // enable for accuracy testing only
+    unsigned long get_current_frame(); // enable for accuracy testing only
 #endif
     void request_screenshot();
     void set_search_blanking(bool);
@@ -108,7 +108,7 @@ class ldp_vldp : public ldp
     // framefile parse tests.
     bool parse_framefile(const char *pszInBuf, const char *pszFramefileFullPath,
                          string &sMpegPath, struct fileframes *pFrames,
-                         unsigned int &frame_index, unsigned int max_frames,
+                         Uint32 &frame_index, unsigned long max_frames,
                          string &err_msg);
 
   private:
@@ -127,10 +127,10 @@ class ldp_vldp : public ldp
     //  target mpeg frame as input.  (The target mpeg frame is relative to the
     //  beginning
     //  of the mpeg, which is not necessarily the same as the laserdisc frame)
-    Uint64 get_audio_sample_position(unsigned int uTargetMpegFrame);
+    Uint64 get_audio_sample_position(unsigned long uTargetMpegFrame);
 
     // NOTE : 'filename' does not include the prefix path
-    Uint16 mpeg_info(string &filename, Uint16 ld_frame);
+    Uint32 mpeg_info(string &filename, Sint32 ld_frame);
 
     Sint32 m_target_mpegframe;   // mpeg frame # we are seeking to
     Sint32 m_cur_ldframe_offset; // which laserdisc frame corresponds to the

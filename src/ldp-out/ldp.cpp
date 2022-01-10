@@ -48,7 +48,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LDP_FRAMES 65535
 
 // generic ldp constructor
 ldp::ldp()
@@ -135,10 +134,13 @@ void ldp::shutdown_player() {}
 // see .h file for usage
 bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
 {
-    char frame[FRAME_ARRAY_SIZE] = {0};
-    Uint16 frame_number          = 0; // frame to search to
+    char frame[FRAME_ARRAY_SIZE + 1] = {0};
+    Uint32 frame_number          = 0; // frame to search to
     bool result                  = false;
+    Uint8 fs                     = 5;
     string s1;
+
+    if (strlen(pszFrame) == 6) fs = 6;
 
     // safety check, if they try to search without checking the search result
     // ...
@@ -162,9 +164,9 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     m_last_seeked_frame = m_uCurrentFrame;
 
     // we copy here so that we can safely null-terminate
-    strncpy(frame, pszFrame, 5);
-    frame[5]     = 0; // terminate the string ...
-    frame_number = (Uint16)atoi(frame);
+    strncpy(frame, pszFrame, fs);
+    frame[fs]     = 0; // terminate the string ...
+    frame_number = (Uint32)atoi(frame);
 
     // If we're seeking to the frame we're already on, then don't seek
     // This optimizes performance for many games and especially improves the
@@ -181,8 +183,8 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
 
     // If we need to alter the frame # before searching
     if (need_frame_conversion()) {
-        Uint16 unadjusted_frame = frame_number;
-        frame_number            = (Uint16)do_frame_conversion(frame_number);
+        Uint32 unadjusted_frame = frame_number;
+        frame_number            = (Uint32)do_frame_conversion(frame_number);
         framenum_to_frame(frame_number, frame);
         s1 = "Search to " + numstr::ToStr(frame_number) + " (formerly " +
              numstr::ToStr(unadjusted_frame) + ") received";
@@ -216,12 +218,12 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
                     "currently disabled";
     }
 
-    m_last_try_frame = (Uint16)atoi(frame); // the last frame we tried to seek
+    m_last_try_frame = (Uint32)atoi(frame); // the last frame we tried to seek
                                             // to becomes this current one
 
     // HERE IS WHERE THE SEARCH ACTUALLY TAKES PLACE
 
-    int difference = frame_number - m_uCurrentFrame; // how many frames we'd
+    Uint32 difference = frame_number - m_uCurrentFrame; // how many frames we'd
                                                      // have to skip
 
     // if the player supports skipping AND user has requested the we skip
@@ -229,7 +231,7 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
     // AND if we can skip forward instead of seeking ...
     if (skipping_supported && skip_instead_of_search &&
         ((difference <= max_skippable_frames) && (difference > 1))) {
-        result = pre_skip_forward((Uint16)difference);
+        result = pre_skip_forward((Uint32)difference);
     }
 
     // otherwise do a regular search
@@ -328,14 +330,14 @@ int ldp::get_search_result()
 
 // prepare to skip forward a certain # of frames and continue playing
 // Call this function, do not call skip_forward directly
-bool ldp::pre_skip_forward(Uint16 frames_to_skip)
+bool ldp::pre_skip_forward(Uint32 frames_to_skip)
 {
     bool result = false;
 
     // only skip if the LDP is playing
     if (m_status == LDP_PLAYING) {
-        Uint16 target_frame = (Uint16)(m_uCurrentFrame + frames_to_skip);
-        unsigned int uOldCurrentFrame = m_uCurrentFrame;
+        Uint32 target_frame = (Uint32)(m_uCurrentFrame + frames_to_skip);
+        unsigned long uOldCurrentFrame = m_uCurrentFrame;
 
         m_iSkipOffsetSincePlay += frames_to_skip;
 
@@ -357,14 +359,14 @@ bool ldp::pre_skip_forward(Uint16 frames_to_skip)
 // prepare to skip forward a certain # of frames backward and continue playing
 // forward
 // do not call skip_backward directly
-bool ldp::pre_skip_backward(Uint16 frames_to_skip)
+bool ldp::pre_skip_backward(Uint32 frames_to_skip)
 {
     bool result = false;
 
     // only skip if the LDP is playing
     if (m_status == LDP_PLAYING) {
-        Uint16 target_frame = (Uint16)(m_uCurrentFrame - frames_to_skip);
-        unsigned int uOldCurrentFrame = m_uCurrentFrame;
+        Uint32 target_frame = (Uint32)(m_uCurrentFrame - frames_to_skip);
+        unsigned long uOldCurrentFrame = m_uCurrentFrame;
 
         m_iSkipOffsetSincePlay -= frames_to_skip;
 
@@ -389,10 +391,10 @@ void ldp::pre_step_forward()
     // NOTE : right now we don't have LDP-specific implementations of this
     // function since it is rarely used
     char frame[6];
-    Uint16 new_frame = m_uCurrentFrame;
+    Uint32 new_frame = m_uCurrentFrame;
 
     // bounds check (if we haven't overflowed)
-    if (new_frame < ((Uint16)-1)) {
+    if (new_frame < ((Uint32)-1)) {
         framenum_to_frame(m_uCurrentFrame + 1, frame);
         if (m_bVerbose) LOGD << "Stepping forward one frame";
         g_ldp->pre_search(frame, true);
@@ -407,7 +409,7 @@ void ldp::pre_step_backward()
     // NOTE : right now we don't have LDP-specific implementations of this
     // function since it is rarely used
     char frame[6];
-    Uint16 new_frame = m_uCurrentFrame;
+    Uint32 new_frame = m_uCurrentFrame;
 
     // don't step backward before the first frame on the disc
     if (new_frame > 0) {
@@ -423,7 +425,7 @@ void ldp::pre_step_backward()
 // Do not call this function directly!  Call pre_skip_forward instead
 // NOTE : this function handles skipping for real laserdisc players that don't
 // support it
-bool ldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
+bool ldp::skip_forward(Uint32 frames_to_skip, Uint32 target_frame)
 {
     bool result = false;
 
@@ -440,7 +442,7 @@ bool ldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
 // call pre_skip_backward instead
 // NOTE : this function handles skipping for real laserdisc players that don't
 // support it
-bool ldp::skip_backward(Uint16 frames_to_skip, Uint16 target_frame)
+bool ldp::skip_backward(Uint32 frames_to_skip, Uint32 target_frame)
 {
     bool result = false;
 
@@ -734,7 +736,7 @@ void ldp::pre_think()
     // get_status()!!!
     // Be very careful about changing this 'm_status' to a get_status()
     if (m_status == LDP_PLAYING) {
-        unsigned int uDiscFPKS = g_game->get_disc_fpks();
+        unsigned long uDiscFPKS = g_game->get_disc_fpks();
 
         // if our frame counter is in sync with vblank, then just increment
         // frame every 2 vblanks ...
@@ -775,13 +777,13 @@ void ldp::pre_think()
             unsigned int time_result =
                 m_last_seeked_frame + m_iSkipOffsetSincePlay +
                 (unsigned int)((((Uint64)uElapsedMS) * g_game->get_disc_fpks()) / 1000000);
-            Uint16 diff = 0;
+            Uint32 diff = 0;
 
             // this isn't necessarily the same as m_uCurrentFrame due to
             // potential skips that can occur
             // (this is updated immediately, m_uCurrentFrame is updated on a
             // time boundary)
-            unsigned int uCurrentFrame =
+            unsigned long uCurrentFrame =
                 m_last_seeked_frame + m_iSkipOffsetSincePlay + m_uCurrentOffsetFrame;
 
             if (uCurrentFrame > time_result)
@@ -855,15 +857,12 @@ void ldp::increment_current_frame()
 void ldp::think() {}
 
 // (see .h for description)
-unsigned int ldp::get_current_frame() {
-     if (g_game->get_game_type() == GAME_SINGE) {
-         if (m_uCurrentFrame > MAX_LDP_FRAMES)
-             m_uCurrentFrame = m_uCurrentFrame - MAX_LDP_FRAMES;
-     }
+unsigned long ldp::get_current_frame() {
+
      return m_uCurrentFrame;
 }
 
-unsigned int ldp::get_adjusted_current_frame()
+unsigned long ldp::get_adjusted_current_frame()
 {
 #ifdef DEBUG
     // this function assumes that the disc's FPS is in line with vblank
@@ -871,7 +870,7 @@ unsigned int ldp::get_adjusted_current_frame()
 #endif // DEBUG
 
     // because get_current_frame() is a virtual function
-    unsigned int uResult = get_current_frame();
+    unsigned long uResult = get_current_frame();
 
     // if the disc is playing and we've already displayed the 2nd field of the
     // frame, then advance the current frame
@@ -935,7 +934,9 @@ int ldp::get_status()
 // converts an integer frame number into ASCII (with leading zeroes)
 // NOTE : 'f' should be an array of 6 characters (5 numbers plus null
 // terminator)
-void ldp::framenum_to_frame(Uint16 num, char *f) { sprintf(f, "%05d", num); }
+void ldp::framenum_to_frame(Uint32 num, char *f) { sprintf(f, "%05d", num); }
+
+void ldp::framenum_to_maxframe(Uint32 num, char *f) { sprintf(f, "%06d", num); }
 
 Uint32 ldp::get_search_latency() { return (search_latency); }
 
@@ -1060,7 +1061,7 @@ void ldp::get_bug_log(list<string> &log)
 void ldp::print_frame_info()
 {
     if (m_bVerbose) {
-        unsigned int u = m_uMsVblankBoundary - m_uElapsedMsSinceStart;
+        unsigned long u = m_uMsVblankBoundary - m_uElapsedMsSinceStart;
         LOGD << fmt("Current frame is %d, ms to next vblank: %d, vlbank since "
                     "frame change: %d",
                     m_uCurrentFrame, u, m_uVblankMiniCount);
@@ -1075,12 +1076,12 @@ bool fast_noldp::nonblocking_search(char *new_frame) { return (true); }
 
 int fast_noldp::get_search_result() { return SEARCH_SUCCESS; }
 
-bool fast_noldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
+bool fast_noldp::skip_forward(Uint32 frames_to_skip, Uint32 target_frame)
 {
     return true;
 }
 
-bool fast_noldp::skip_backward(Uint16 frames_to_skip, Uint16 target_frame)
+bool fast_noldp::skip_backward(Uint32 frames_to_skip, Uint32 target_frame)
 {
     return true;
 }

@@ -67,6 +67,7 @@ class singe : public game
 
     bool singe_alt_pressed = false;
     bool oversize_overlay = false;
+    bool muteinit = false;
     bool oc = false;
 
     // g_ldp function wrappers (to make function pointers out of them)
@@ -86,7 +87,7 @@ class singe : public game
     {
         return g_ldp->pre_change_speed(uNumerator, uDenominator);
     }
-    static unsigned int get_current_frame()
+    static unsigned long get_current_frame()
     {
         return g_ldp->get_current_frame();
     }
@@ -97,17 +98,17 @@ class singe : public game
     {
         return g_ldp->pre_search(cpszFrame, block_until_search_finished);
     }
-    static void framenum_to_frame(Uint16 u16Frame, char *pszFrame)
+    static void framenum_to_frame(Uint32 u32Frame, char *pszFrame)
     {
-        g_ldp->framenum_to_frame(u16Frame, pszFrame);
+        g_ldp->framenum_to_maxframe(u32Frame, pszFrame);
     }
-    static bool pre_skip_forward(Uint16 u16Frames)
+    static bool pre_skip_forward(Uint32 u32Frames)
     {
-        return g_ldp->pre_skip_forward(u16Frames);
+        return g_ldp->pre_skip_forward(u32Frames);
     }
-    static bool pre_skip_backward(Uint16 u16Frames)
+    static bool pre_skip_backward(Uint32 u32Frames)
     {
-        return g_ldp->pre_skip_backward(u16Frames);
+        return g_ldp->pre_skip_backward(u32Frames);
     }
     static void pre_step_forward() { g_ldp->pre_step_forward(); }
     static void pre_step_backward() { g_ldp->pre_step_backward(); }

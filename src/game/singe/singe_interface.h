@@ -42,14 +42,14 @@ struct singe_in_info
 	void (*set_search_blanking)(bool enabled);
 	void (*set_skip_blanking)(bool enabled);
 	bool (*pre_change_speed)(unsigned int uNumerator, unsigned int uDenominator);
-	unsigned int (*get_current_frame)();
+	unsigned long (*get_current_frame)();
 	void (*pre_play)();
 	void (*pre_pause)();
 	void (*pre_stop)();
 	bool (*pre_search)(const char *, bool block_until_search_finished);
-	void (*framenum_to_frame)(Uint16, char *);
-	bool (*pre_skip_forward)(Uint16);
-	bool (*pre_skip_backward)(Uint16);
+	void (*framenum_to_frame)(Uint32, char *);
+	bool (*pre_skip_forward)(Uint32);
+	bool (*pre_skip_backward)(Uint32);
 	void (*pre_step_forward)();
 	void (*pre_step_backward)();
 

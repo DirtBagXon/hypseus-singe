@@ -327,6 +327,7 @@ static int luaB_dofile (lua_State *L) {
       if (get_retropath()) {
           int len = strlen(fname) + RETRO_PAD;
           char retroname[RETRO_MAXPATH];
+          if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
           lua_retropath(fname, retroname, len);
           if (luaL_loadfile(L, retroname) != 0) lua_error(L);
       }
