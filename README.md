@@ -12,6 +12,7 @@ Features:
 
 * SDL2 support
 * Updated MPEG2 decoder
+* Daphne VLDP 32bit upgrade
 * Daphne and Singe 4k M2V support
 * Singe libretro emulation path integration
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
@@ -53,7 +54,7 @@ For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further **RetroPie** and **Raspberry Pi** requirements can be found [here](src/3rdparty/retropie/RETROPIE.md)
+Further **RetroPie** and **Raspberry Pi** information can be found [here](src/3rdparty/retropie/RETROPIE.md)
 
 ### Compilation with CMake
 
@@ -223,7 +224,7 @@ project would not be possible.
 ## License
 
 **Hypseus Singe**, Being Retro Orientated This Humble Emulator Regenerates  
-Copyright (C) 2021  [DirtBagXon][owner]
+Copyright (C) 2021-2022  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]

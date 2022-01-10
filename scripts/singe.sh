@@ -22,6 +22,10 @@ while [[ $# -gt 0 ]]; do
         BLEND="-blend_sprites"
         shift
         ;;
+      -bootsilent)
+        SILENTBOOT="-bootsilent"
+        shift
+        ;;
       -fullscreen)
         FULLSCREEN="-fullscreen"
         shift
@@ -94,6 +98,7 @@ $LOG \
 $OVERSIZE \
 $SCANLINES \
 $SCALE \
+$SILENTBOOT \
 -sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20

@@ -9,11 +9,11 @@
 Latest build is: (_32bit_ and _64bit_ versions are available.)
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.6.21
+    [version] Hypseus Singe: v2.8.0
     [console] Windows 10
     [console] SDL(CC): 2.0.14
     [console] SDL(LD): 2.0.16
-    [console] Build: Dec 24 2021 00:30:00
+    [console] Build: Jan 10 2022 04:00:00
 
 
 ## Install
