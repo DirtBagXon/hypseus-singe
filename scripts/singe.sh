@@ -15,11 +15,15 @@ while [[ $# -gt 0 ]]; do
 
     case $key in
       -blanking)
-        BLANK="-blank_searches -blank_skips -min_seek_delay 400"
+        BLANK="-blank_searches -blank_skips -min_seek_delay 200"
         shift
         ;;
       -blend)
         BLEND="-blend_sprites"
+        shift
+        ;;
+      -bootsilent)
+        SILENTBOOT="-bootsilent"
         shift
         ;;
       -fullscreen)
@@ -94,6 +98,7 @@ $LOG \
 $OVERSIZE \
 $SCANLINES \
 $SCALE \
+$SILENTBOOT \
 -sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20
