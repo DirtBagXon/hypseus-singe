@@ -67,7 +67,8 @@ int                   g_fontCurrent         = -1;
 int                   g_fontQuality         =  1;
 double                g_sep_overlay_scale_x =  1;
 double                g_sep_overlay_scale_y =  1;
-bool				  g_pause_state		    = false; // by RDG2010
+bool                  g_pause_state         = false; // by RDG2010
+bool                  g_init_mute           = false;
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                int Ypitch, int Upitch, int Vpitch);
@@ -549,6 +550,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_two_pseudo_call_false);
 
   lua_register(g_se_lua_context, "luaChangeSpeed",         sep_alter_lua_clock);
+  lua_register(g_se_lua_context, "mutevldpInit",           sep_mute_vldp_init);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -749,6 +751,8 @@ static int sep_font_load(lua_State *L)
           font = lua_tostring(L, 1);
           int len = strlen(font) + RETRO_PAD;
           char filepath[RETRO_MAXPATH];
+
+          if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
           if (g_pSingeIn->get_retro_path())
               lua_retropath(font, filepath, len);
@@ -958,6 +962,17 @@ static int sep_alter_lua_clock(lua_State *L)
    return 1;
 }
 
+static int sep_mute_vldp_init(lua_State *L)
+{
+   static bool m = false;
+   if (!m) {
+       g_init_mute = true;
+       sep_print("Booting initVLDP() silently");
+       m = true;
+   }
+   return 1;
+}
+
 static int sep_mpeg_get_width(lua_State *L)
 {
   lua_pushnumber(L, g_pSingeIn->g_vldp_info->w);
@@ -1076,7 +1091,7 @@ static int sep_screenshot(lua_State *L)
 static int sep_search(lua_State *L)
 {
   static bool debounced = false;
-  char s[6] = { 0 };
+  char s[7] = { 0 };
   int n = lua_gettop(L);
 
   if (n == 1)
@@ -1111,6 +1126,11 @@ static int sep_search_blanking(lua_State *L)
 static int sep_set_disc_fps(lua_State *L)
 {
   int n = lua_gettop(L);
+
+  if (g_init_mute) {
+      g_pSingeIn->disable_audio1();
+      g_pSingeIn->disable_audio2();
+  }
 
   if (n == 1)
     if (lua_isnumber(L, 1))
@@ -1171,12 +1191,18 @@ static int sep_skip_to_frame(lua_State *L)
 	int n = lua_gettop(L);
 	static bool debounced = false;
 
+	if (g_init_mute && debounced) {
+            g_pSingeIn->enable_audio1();
+            g_pSingeIn->enable_audio2();
+            g_init_mute = false;
+	}
+
 	if (n == 1)
 	{
 		if (lua_isnumber(L, 1))
 		{
 			// TODO : implement this for real on the hypseus side of things instead of having to do a search/play hack
-			char s[6] = { 0 };
+			char s[7] = { 0 };
 
 			if (g_pSingeIn->g_local_info->blank_during_skips)
 			    if (debounced)
@@ -1204,6 +1230,8 @@ static int sep_sound_load(lua_State *L)
 			const char *file = lua_tostring(L, 1);
 			int len = strlen(file) + RETRO_PAD;
 			char filepath[RETRO_MAXPATH] ;
+
+			if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
 			if (g_pSingeIn->get_retro_path())
                             lua_retropath(file, filepath, len);
@@ -1313,6 +1341,8 @@ static int sep_sprite_load(lua_State *L)
 			const char *sprite = lua_tostring(L, 1);
 			int len = strlen(sprite) + RETRO_PAD;
 			char filepath[RETRO_MAXPATH];
+
+			if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
 			if (g_pSingeIn->get_retro_path())
                             lua_retropath(sprite, filepath, len);

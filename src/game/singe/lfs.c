@@ -117,6 +117,8 @@ static int change_dir (lua_State *L) {
 	char filepath[RETRO_MAXPATH];
 	int len = strlen(path) + RETRO_PAD;
 
+	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+
 	if (get_retropath()) {
 	    lua_retropath(path, filepath, len);
 	} else memcpy(filepath, path, len);
@@ -496,6 +498,8 @@ static int dir_iter_factory (lua_State *L) {
 	char dirpath[RETRO_MAXPATH];
 	int len = strlen(path) + RETRO_PAD;
 
+	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+
 	if (get_retropath()) {
 	    lua_retropath(path, dirpath, len);
 	} else memcpy(dirpath, path, len);
@@ -735,6 +739,8 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 	const char *file = luaL_checkstring (L, 1);
 	char retrofile[RETRO_MAXPATH];
 	int len = strlen(file) + RETRO_PAD;
+
+	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
 	if (get_retropath()) {
 	    lua_retropath(file, retrofile, len);

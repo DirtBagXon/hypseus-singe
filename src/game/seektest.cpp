@@ -110,11 +110,11 @@ void seektest::start()
 }
 
 // do the search, adjusting by the frame offset
-void seektest::go(Uint16 target_frame)
+void seektest::go(Uint32 target_frame)
 {
     char s[81] = {0};
 
-    target_frame = (Uint16)(target_frame + m_frame_offset);
+    target_frame = (Uint32)(target_frame + m_frame_offset);
     sprintf(s, "%05u", target_frame);
 
     g_ldp->pre_search(s, true);
@@ -127,13 +127,13 @@ void seektest::input_enable(Uint8 input)
         // if we're currently looking at early1, then seek to early2
         if ((g_ldp->get_current_frame() + m_frame_offset) == m_early1) {
             if (m_locked) {
-                go((Uint16)(m_early2 - (m_frame_offset << 1)));
+                go((Uint32)(m_early2 - (m_frame_offset << 1)));
             } else {
                 m_frame_offset = m_early2 - g_ldp->get_current_frame();
             }
         } else {
             if (m_locked) {
-                go((Uint16)(m_early1 - (m_frame_offset << 1)));
+                go((Uint32)(m_early1 - (m_frame_offset << 1)));
             } else {
                 m_frame_offset = m_early1 - g_ldp->get_current_frame();
             }
@@ -143,13 +143,13 @@ void seektest::input_enable(Uint8 input)
         // if we're currently looking at late1, then seek to late2
         if ((g_ldp->get_current_frame() + m_frame_offset) == m_late1) {
             if (m_locked) {
-                go((Uint16)(m_late2 - (m_frame_offset << 1)));
+                go((Uint32)(m_late2 - (m_frame_offset << 1)));
             } else {
                 m_frame_offset = m_late2 - g_ldp->get_current_frame();
             }
         } else {
             if (m_locked) {
-                go((Uint16)(m_late1 - (m_frame_offset << 1)));
+                go((Uint32)(m_late1 - (m_frame_offset << 1)));
             } else {
                 m_frame_offset = m_late1 - g_ldp->get_current_frame();
             }
@@ -157,14 +157,14 @@ void seektest::input_enable(Uint8 input)
         break;
     case SWITCH_LEFT:
         if (m_locked) {
-            go((Uint16)(g_ldp->get_current_frame() - 1 - m_frame_offset));
+            go((Uint32)(g_ldp->get_current_frame() - 1 - m_frame_offset));
         } else {
             m_frame_offset--;
         }
         break;
     case SWITCH_RIGHT:
         if (m_locked) {
-            go((Uint16)(g_ldp->get_current_frame() + 1 - m_frame_offset));
+            go((Uint32)(g_ldp->get_current_frame() + 1 - m_frame_offset));
         } else {
             m_frame_offset++;
         }
@@ -526,7 +526,7 @@ void seektest::repaint()
 
         // only present the additional options if this isn't a multimpeg test
         if (!m_multimpeg) {
-            sprintf(s, "Current frame : %d", g_ldp->get_current_frame() + m_frame_offset);
+            sprintf(s, "Current frame : %lu", g_ldp->get_current_frame() + m_frame_offset);
             if (m_locked) {
                 strcat(s, " (LOCKED)");
             } else {

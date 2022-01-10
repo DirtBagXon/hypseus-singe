@@ -30,7 +30,7 @@ class seektest : public game
   public:
     seektest();
     void start();
-    void go(Uint16 target_frame);
+    void go(Uint32 target_frame);
     void input_enable(Uint8);
     void input_disable(Uint8);
     void set_preset(int);

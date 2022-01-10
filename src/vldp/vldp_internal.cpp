@@ -58,7 +58,7 @@ int s_skip_all = 0; // if we are to skip any frame to be displayed (to avoid
 
 // How many frames we've skipped when s_skip_all is enabled.
 // (for performance tuning, we want to minimize this number)
-unsigned int s_uSkipAllCount = 0;
+unsigned long s_uSkipAllCount = 0;
 
 Uint32 s_timer = 0; // FPS timer used by the blitting code to run at the right
                     // speed
@@ -73,7 +73,7 @@ Uint32 s_extra_delay_ms = 0;
 Uint32 s_uFramesShownSinceTimer = 0;
 
 // which frame we've skipped to (0 if there is nothing pending)
-unsigned int s_uPendingSkipFrame = 0;
+unsigned long s_uPendingSkipFrame = 0;
 
 // multi-speed variables ...
 unsigned int s_skip_per_frame = 0;  // how many frames to skip per frame (for
@@ -92,13 +92,13 @@ struct precache_entry_s s_sPreCacheEntries[MAX_PRECACHE_FILES]; // struct array
                                                                 // holding
                                                                 // precache data
 
-#define MAX_LDP_FRAMES 65535 // rdg2010: increase frames cap limit to 16-bit max
+#define MAX_LDP_FRAMES 512000
 
 static FILE *g_mpeg_handle     = NULL; // mpeg file we currently have open
 static mpeg2dec_t *g_mpeg_data = NULL; // structure for libmpeg2's state
 static Uint32 g_frame_position[MAX_LDP_FRAMES] = {0}; // the file position of
                                                       // each I frame
-static Uint16 g_totalframes = 0; // total # of frames in the current mpeg
+static Uint32 g_totalframes = 0; // total # of frames in the current mpeg
 
 #define BUFFER_SIZE 262144
 static Uint8 g_buffer[BUFFER_SIZE]; // buffer to hold mpeg2 file as we read it
@@ -106,7 +106,7 @@ static Uint8 g_buffer[BUFFER_SIZE]; // buffer to hold mpeg2 file as we read it
 
 #define HEADER_BUF_SIZE 200
 static Uint8 g_header_buf[HEADER_BUF_SIZE];
-static unsigned int g_header_buf_size = 0; // size of the header buffer
+static unsigned long g_header_buf_size = 0; // size of the header buffer
 
 // how many frames we will stall after beginning playback (should be 1, because
 // presumably before we start playing, the disc has been paused showing the same
@@ -445,7 +445,7 @@ static void decode_mpeg2(uint8_t *current, uint8_t *end)
 void vldp_cache_sequence_header()
 {
     Uint32 val         = 0;
-    unsigned int index = 0;
+    unsigned long index = 0;
 
     io_seek(0);                             // start at beginning
     io_read(g_header_buf, HEADER_BUF_SIZE); // assume that we must find the
@@ -486,7 +486,7 @@ void vldp_process_sequence_header()
 void idle_handler_open()
 {
     char req_file[STRSIZE] = {0};
-    unsigned int req_idx   = g_req_idx;
+    unsigned long req_idx  = g_req_idx;
     VLDP_BOOL req_precache = g_req_precache;
     VLDP_BOOL bSuccess     = VLDP_FALSE;
 
@@ -754,11 +754,11 @@ void ivldp_render()
 
 #ifdef VLDP_BENCHMARK
     Uint32 render_start_time  = SDL_GetTicks(); // keep track of when we started
-    Sint16 render_start_frame = g_out_info.current_frame; // keep track of the
+    Sint32 render_start_frame = g_out_info.current_frame; // keep track of the
                                                           // frame we started
                                                           // timing stuff on
     double total_seconds = 0.0; // used to calculate FPS
-    Sint16 total_frames  = 0;   // used to calculate FPS
+    Sint32 total_frames  = 0;   // used to calculate FPS
     FILE *F              = fopen("benchmark.txt", "wt"); // create a little logfile for
                                                          // benchmark results
 #endif
@@ -849,17 +849,17 @@ void ivldp_render()
 void idle_handler_search(int skip)
 {
     Uint32 proposed_pos = 0;
-    Uint16 req_frame    = g_req_frame; // after we acknowledge the command,
+    Uint32 req_frame    = g_req_frame; // after we acknowledge the command,
                                        // g_req_frame could become clobbered
     Uint32 min_seek_ms = g_req_min_seek_ms; // g_req_min_seek_ms can be
                                             // clobbered at any time after we
                                             // acknowledge command
 
     // adjusted req frame is the requested frame with fields taken into account
-    unsigned int uAdjustedReqFrame = 0;
+    unsigned long uAdjustedReqFrame = 0;
 
-    unsigned int actual_frame = 0;
-    int skipped_I             = 0;
+    unsigned long actual_frame = 0;
+    int skipped_I              = 0;
 
     // status must be changed before acknowledging command, because previous
     // status could be STAT_ERROR, which causes problems with *_and_block vldp
@@ -881,8 +881,8 @@ void idle_handler_search(int skip)
          *       'infinite timer' is enabled (it doesn't do any searches, just
          *       skips)
          */
-        unsigned int uNewFramesShownSinceTimer =
-            (unsigned int)((((Uint64)(g_in_info->uMsTimer - s_timer)) * g_out_info.uFpks) / 1000000);
+        unsigned long uNewFramesShownSinceTimer =
+            (unsigned long)((((Uint64)(g_in_info->uMsTimer - s_timer)) * g_out_info.uFpks) / 1000000);
 
         // take into account the extra frame we did when playback started
         uNewFramesShownSinceTimer += PLAY_FRAME_STALL;
@@ -1130,9 +1130,9 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
             // (in fact I did this, and it caused a lot of problems in the debug
             // stages hehe)
             if (g_totalframes >= MAX_LDP_FRAMES) {
-                fprintf(stderr, "ERROR : current mpeg has too many frames, "
-                                "VLDP will ignore any frames above %u\n",
-                        MAX_LDP_FRAMES);
+                fprintf(stderr, "ERROR : Current mpeg has a huge number of frames, "
+                                "VLDP will ignore any frame above %u\n",
+                                MAX_LDP_FRAMES);
                 break;
             }
         }
@@ -1251,7 +1251,7 @@ VLDP_BOOL io_open(const char *cpszFilename)
     return bResult;
 }
 
-VLDP_BOOL io_open_precached(unsigned int uIdx)
+VLDP_BOOL io_open_precached(unsigned long uIdx)
 {
     VLDP_BOOL bResult = VLDP_FALSE;
 
@@ -1296,12 +1296,18 @@ unsigned int io_read(void *buf, unsigned int uBytesToRead)
     return uBytesRead;
 }
 
-VLDP_BOOL io_seek(unsigned int uPos)
+VLDP_BOOL io_seek(unsigned long uPos)
 {
     VLDP_BOOL bResult = VLDP_FALSE;
 
     if (g_mpeg_handle) {
+#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64
+        if (fseeko64(g_mpeg_handle, uPos, SEEK_SET) == 0) {
+#elif defined(__WIN32)
+        if (_fseeki64(g_mpeg_handle, uPos, SEEK_SET) == 0) {
+#else
         if (fseek(g_mpeg_handle, uPos, SEEK_SET) == 0) {
+#endif
             bResult = VLDP_TRUE;
         }
     } else {
@@ -1336,9 +1342,9 @@ VLDP_BOOL io_is_open()
     return bResult;
 }
 
-unsigned int io_length()
+unsigned long io_length()
 {
-    unsigned int uResult = 0;
+    unsigned long uResult = 0;
 
     if (g_mpeg_handle) {
         struct stat the_stat;

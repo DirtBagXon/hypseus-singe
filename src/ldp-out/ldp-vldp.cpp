@@ -381,7 +381,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
     bool result                = false;
     string filename            = "";
     string oggname             = "";
-    Uint16 target_ld_frame     = (Uint16)atoi(frame);
+    Uint32 target_ld_frame     = (Uint32)atoi(frame);
     Uint64 u64AudioTargetPos   = 0; // position in audio to seek to (in samples)
     unsigned int seek_delay_ms = 0; // how many ms this seek must be delayed (to
                                     // simulate laserdisc lag)
@@ -394,8 +394,8 @@ bool ldp_vldp::nonblocking_search(char *frame)
     if (m_seek_frames_per_ms > 0) {
         // this value should be approximately the last frame we displayed
         // it doesn't get changed to the new frame until the seek is complete
-        Uint16 cur_frame         = get_current_frame();
-        unsigned int frame_delta = 0; // how many frames we're skipping
+        Uint32 cur_frame          = get_current_frame();
+        unsigned long frame_delta = 0; // how many frames we're skipping
 
         // if we're seeking forward
         if (target_ld_frame > cur_frame) {
@@ -452,7 +452,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
             // IMPORTANT : 'uFPKS' _must_ be queried AFTER a new mpeg has been
             // opened, because sometimes a framefile can include mpegs that have
             // different framerates from each other.
-            unsigned int uFPKS = g_vldp_info->uFpks;
+            unsigned long uFPKS = g_vldp_info->uFpks;
 
             m_discvideo_width  = g_vldp_info->w;
             m_discvideo_height = g_vldp_info->h;
@@ -476,7 +476,7 @@ bool ldp_vldp::nonblocking_search(char *frame)
             }
 
             // try to search to the requested frame
-            if (g_vldp_info->search((Uint16)m_target_mpegframe, seek_delay_ms)) {
+            if (g_vldp_info->search((Uint32)m_target_mpegframe, seek_delay_ms)) {
                 // if we have an audio file opened, do an audio seek also
                 if (m_audio_file_opened) {
                     result = seek_audio(u64AudioTargetPos);
@@ -570,17 +570,17 @@ unsigned int ldp_vldp::play()
 // Caveats: Does not work with an mpeg of the wrong framerate, does not work
 // with an mpeg that uses fields, and does not skip across file boundaries.
 // Returns true if skip was successful
-bool ldp_vldp::skip_forward(Uint16 frames_to_skip, Uint16 target_frame)
+bool ldp_vldp::skip_forward(Uint32 frames_to_skip, Uint32 target_frame)
 {
     bool result = false;
 
-    target_frame = (Uint16)(target_frame - m_cur_ldframe_offset); // take offset
+    target_frame = (Uint32)(target_frame - m_cur_ldframe_offset); // take offset
                                                                   // into
                                                                   // account
     // this is ok (and possible) because we don't support skipping across files
 
-    unsigned int uFPKS     = g_vldp_info->uFpks;
-    unsigned int uDiscFPKS = g_game->get_disc_fpks();
+    unsigned long  uFPKS     = g_vldp_info->uFpks;
+    unsigned long uDiscFPKS  = g_game->get_disc_fpks();
 
     // We don't support skipping on mpegs that differ from the disc framerate
     if (uDiscFPKS == uFPKS) {
@@ -647,7 +647,7 @@ bool ldp_vldp::change_speed(unsigned int uNumerator, unsigned int uDenominator)
         string filename; // dummy, not used
 
         // calculate where our audio position should be
-        unsigned int target_mpegframe = mpeg_info(filename, get_current_frame());
+        unsigned long target_mpegframe = mpeg_info(filename, get_current_frame());
         Uint64 u64AudioTargetPos = get_audio_sample_position(target_mpegframe);
 
         // try to get the audio playing again
@@ -675,19 +675,19 @@ void ldp_vldp::think()
 #ifdef DEBUG
 // This function tests to make sure VLDP's current frame is the same as our
 // internal current frame.
-unsigned int ldp_vldp::get_current_frame()
+unsigned long ldp_vldp::get_current_frame()
 {
     Sint32 result = 0;
 
     // safety check
     if (!g_vldp_info) return 0;
 
-    unsigned int uFPKS = g_vldp_info->uFpks;
+    unsigned long uFPKS = g_vldp_info->uFpks;
 
     // the # of frames that have advanced since our search
-    unsigned int uOffset = g_vldp_info->current_frame - m_target_mpegframe;
+    unsigned long uOffset = g_vldp_info->current_frame - m_target_mpegframe;
 
-    unsigned int uStartMpegFrame = m_target_mpegframe;
+    unsigned long uStartMpegFrame = m_target_mpegframe;
 
     // since the mpeg's beginning does not correspond to the laserdisc's
     // beginning, we add the offset
@@ -711,9 +711,9 @@ unsigned int ldp_vldp::get_current_frame()
     }
 
     // if there's even a slight mismatch, report it ...
-    if ((unsigned int)result != m_uCurrentFrame) {
+    if ((unsigned long)result != m_uCurrentFrame) {
         // if VLDP is ahead, that is especially disturbing
-        if ((unsigned int)result > m_uCurrentFrame) {
+        if ((unsigned long)result > m_uCurrentFrame) {
             LOGD << fmt("ldp-vldp::get_current_frame() [vldp ahead]: internal "
                         "frame is %d, "
                         "vldp's current frame is %d",
@@ -1222,7 +1222,7 @@ bool ldp_vldp::precache_all_video()
     return bResult;
 }
 
-Uint64 ldp_vldp::get_audio_sample_position(unsigned int uTargetMpegFrame)
+Uint64 ldp_vldp::get_audio_sample_position(unsigned long uTargetMpegFrame)
 {
     Uint64 u64AudioTargetPos = 0;
 
@@ -1249,10 +1249,10 @@ Uint64 ldp_vldp::get_audio_sample_position(unsigned int uTargetMpegFrame)
 // The reason I don't return time here instead of frames is because it is more
 // accurate to
 //  return frames if they are at the same FPS (which hopefully they are hehe)
-Uint16 ldp_vldp::mpeg_info(string &filename, Uint16 ld_frame)
+Uint32 ldp_vldp::mpeg_info(string &filename, Sint32 ld_frame)
 {
-    unsigned int index = 0;
-    Uint16 mpeg_frame  = 0; // which mpeg frame to seek (assuming mpeg and disc
+    unsigned long index = 0;
+    Uint32 mpeg_frame   = 0; // which mpeg frame to seek (assuming mpeg and disc
                             // have same FPS)
     filename = ""; // blank 'filename' means error, so we default to this
                    // condition for safety reasons
@@ -1268,7 +1268,7 @@ Uint16 ldp_vldp::mpeg_info(string &filename, Uint16 ld_frame)
         // make sure a filename exists (when can this ever fail? verify!)
         if (m_mpeginfo[index].name != "") {
             filename             = m_mpeginfo[index].name;
-            mpeg_frame           = (Uint16)(ld_frame - m_mpeginfo[index].frame);
+            mpeg_frame           = (Uint32)(ld_frame - m_mpeginfo[index].frame);
             m_cur_ldframe_offset = m_mpeginfo[index].frame;
         } else {
             LOGW << "no filename found";
@@ -1329,8 +1329,8 @@ bool ldp_vldp::unlock_overlay(Uint32 timeout)
 
 bool ldp_vldp::parse_framefile(const char *pszInBuf,
                                const char *pszFramefileFullPath, string &sMpegPath,
-                               struct fileframes *pFrames, unsigned int &frame_idx,
-                               unsigned int max_frames, string &err_msg)
+                               struct fileframes *pFrames, Uint32 &frame_idx,
+                               unsigned long max_frames, string &err_msg)
 {
     bool result              = false;
     const char *pszPtr       = pszInBuf;
