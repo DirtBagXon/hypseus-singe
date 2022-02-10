@@ -103,6 +103,8 @@ bool g_opengl = false;
 
 bool g_vulkan = false;
 
+bool g_grabmouse = false;
+
 bool g_vsync = true;
 
 bool g_vid_resized = false;
@@ -263,7 +265,10 @@ bool init_display()
         if (rz && (int)g_draw_width != g_vid_width)
             LOGI << fmt("Repaint dimensions: %dx%d", g_draw_width, g_draw_height);
 
-        if (g_window) SDL_HideWindow(g_window);
+        if (g_window) {
+            SDL_SetWindowGrab(g_window, SDL_FALSE);
+            SDL_HideWindow(g_window);
+        }
 
         if (sdl_flags & SDL_WINDOW_MAXIMIZED)
             if (g_sb_window) SDL_HideWindow(g_sb_window);
@@ -349,6 +354,9 @@ bool init_display()
 
 		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
+
+                if (g_grabmouse)
+                    SDL_SetWindowGrab(g_window, SDL_TRUE);
 
                 if (g_scanlines)
                     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
@@ -790,6 +798,8 @@ void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 void set_opengl(bool value) { g_opengl = value; }
 
 void set_vulkan(bool value) { g_vulkan = value; }
+
+void set_grabmouse(bool value) { g_grabmouse = value; }
 
 void set_vsync(bool value) { g_vsync = value; }
 

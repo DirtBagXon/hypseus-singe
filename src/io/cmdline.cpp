@@ -782,6 +782,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen_window") == 0) {
                 video::set_fakefullscreen(true);
             }
+            // Capture mouse within SDL window
+            else if (strcasecmp(s, "-grabmouse") == 0) {
+                video::set_grabmouse(true);
+            }
             // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
             else if (strcasecmp(s, "-nolinear_scale") == 0) {
                 video::set_fullscreen_scale_nearest(true);
