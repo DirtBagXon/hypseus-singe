@@ -167,7 +167,8 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
-    -keymapfile                [ Specify an alternate hypinput.ini file        ]
+    -grabmouse                 [ Capture mouse in SDL window                   ]
+    -keymapfile <flight.ini>   [ Specify an alternate hypinput.ini file        ]
     -nolinear_scale            [ Disable bilinear scaling [fullscreen]         ]
     -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
@@ -177,6 +178,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
+    -bootsilent                [ Mute sound during initVLDP() if possible      ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
     -oversize_overlay          [ Use with HD gungame m2v video sources         ]
