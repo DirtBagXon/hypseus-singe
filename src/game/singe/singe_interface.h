@@ -32,6 +32,10 @@ struct singe_in_info
 	
 	// From sound/samples.h
 	int (*samples_play_sample)(Uint8 *pu8Buf, unsigned int uLength, unsigned int uChannels, int iSlot, void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot));
+	bool (*samples_set_state)  (unsigned int, bool);
+	bool (*samples_is_playing) (unsigned int);
+	bool (*samples_end_early) (unsigned int);
+	void (*samples_flush_queue)();
 
 	// Laserdisc Control Functions
 	void (*enable_audio1)();

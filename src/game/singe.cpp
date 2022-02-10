@@ -132,6 +132,11 @@ bool singe::init()
         g_SingeIn.get_singe_version = get_singe_version;
         g_SingeIn.set_ldp_verbose   = set_ldp_verbose;
 
+        g_SingeIn.samples_set_state = samples::set_state;
+        g_SingeIn.samples_is_playing = samples::is_playing;
+        g_SingeIn.samples_end_early = samples::end_early;
+        g_SingeIn.samples_flush_queue = samples::flush_queue;
+
         // These functions allow the DLL side of SINGE
         // call the functions set_keyboard_mode and get_keyboard_mode inside
         // this very class.

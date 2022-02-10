@@ -63,5 +63,9 @@ bool is_playing(unsigned int uSlot);
 // (in the future this will be automated)
 void do_queued_callbacks();
 
+bool set_state(unsigned int, bool);
+bool end_early(unsigned int);
+void flush_queue();
+
 }
 #endif // SAMPLES_H
