@@ -124,6 +124,11 @@ static int sep_get_pause_flag(lua_State *L);
 static int sep_set_pause_flag(lua_State *L);
 static int sep_singe_version(lua_State *L);
 static int sep_ldp_verbose(lua_State *L);
+static int sep_sound_pause(lua_State *L);
+static int sep_sound_resume(lua_State *L);
+static int sep_sound_get_flag(lua_State *L);
+static int sep_sound_stop(lua_State *L);
+static int sep_sound_flush_queue(lua_State *L);
 // by DBX - Singe 2
 static int sep_singe_two_pseudo_call_true(lua_State *L);
 static int sep_singe_two_pseudo_call_false(lua_State *L);

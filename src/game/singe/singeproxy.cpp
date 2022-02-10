@@ -368,7 +368,7 @@ void sep_shutdown(void)
 {
 	sep_release_vldp();
 	
-  sep_unload_fonts();
+	sep_unload_fonts();
 	sep_unload_sounds();
 	sep_unload_sprites();
 	
@@ -532,6 +532,11 @@ void sep_startup(const char *script)
 	
 	lua_register(g_se_lua_context, "soundLoad",        sep_sound_load);
 	lua_register(g_se_lua_context, "soundPlay",        sep_sound_play);
+	lua_register(g_se_lua_context, "soundPause",       sep_sound_pause);
+	lua_register(g_se_lua_context, "soundResume",      sep_sound_resume);
+	lua_register(g_se_lua_context, "soundIsPlaying",   sep_sound_get_flag);
+	lua_register(g_se_lua_context, "soundStop",        sep_sound_stop);
+	lua_register(g_se_lua_context, "soundFullStop",    sep_sound_flush_queue);
 
 	lua_register(g_se_lua_context, "spriteDraw",       sep_sprite_draw);
 	lua_register(g_se_lua_context, "spriteGetHeight",  sep_sprite_height);
@@ -604,6 +609,8 @@ void sep_unload_fonts(void)
 void sep_unload_sounds(void)
 {
   int x;
+
+  g_pSingeIn->samples_flush_queue();
 
   if (g_soundList.size() > 0)
 	{
@@ -1564,3 +1571,74 @@ static int sep_ldp_verbose(lua_State *L)
 	
 	return 0;
 }
+
+static int sep_sound_pause(lua_State *L)
+{
+  int n = lua_gettop(L);
+  int result = -1;
+
+  if (n == 1)
+    if (lua_isnumber(L, 1))
+    {
+        int sound = lua_tonumber(L, 1);
+        result = g_pSingeIn->samples_set_state(sound, false);
+    }
+
+  lua_pushboolean(L, result);
+  return 1;
+}
+
+static int sep_sound_resume(lua_State *L)
+{
+  int n = lua_gettop(L);
+  int result = -1;
+
+  if (n == 1)
+    if (lua_isnumber(L, 1))
+    {
+        int sound = lua_tonumber(L, 1);
+        result = g_pSingeIn->samples_set_state(sound, true);
+    }
+
+  lua_pushboolean(L, result);
+  return 1;
+}
+
+static int sep_sound_stop(lua_State *L)
+{
+  int n = lua_gettop(L);
+  int result = -1;
+
+  if (n == 1)
+    if (lua_isnumber(L, 1))
+    {
+        int sound = lua_tonumber(L, 1);
+        result = g_pSingeIn->samples_end_early(sound);
+    }
+
+  lua_pushboolean(L, result);
+  return 1;
+}
+
+static int sep_sound_flush_queue(lua_State *L)
+{
+    g_pSingeIn->samples_flush_queue();
+    return 0;
+}
+
+static int sep_sound_get_flag(lua_State *L)
+{
+  int n = lua_gettop(L);
+  bool result = false;
+
+  if (n == 1)
+    if (lua_isnumber(L, 1))
+    {
+        int sound = lua_tonumber(L, 1);
+        result = g_pSingeIn->samples_is_playing(sound);
+    }
+
+  lua_pushboolean(L, result);
+  return 1;
+}
+

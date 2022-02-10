@@ -34,6 +34,9 @@ struct data_s {
     // whether this dynamic sample is active (playing) or not
     bool bActive;
 
+    // activate this flag to make a sample end early
+    bool bEndEarly;
+
     // if this is not NULL, it will get called when the sample has finished
     // playing
     void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSampleIdx);
@@ -106,6 +109,9 @@ void get_stream(Uint8 *stream, int length, int unused)
 
             // do each sample
             for (unsigned int uSample = 0; uSample < uTotalSamples; ++uSample) {
+
+                if (data->bEndEarly) data->uPos = data->uLength;
+
                 // if there is still some sample data to be mixed to this stream
                 if (data->uPos < data->uLength) {
                     int iMixedSample1 = LOAD_LIL_SINT16((Sint16 *)ptrStream);
@@ -247,6 +253,49 @@ bool is_playing(unsigned int uSlot)
         LOGE << "was called with an out-of-range parameter";
     }
     return bResult;
+}
+
+bool set_state(unsigned int uSlot, bool thisState)
+{
+    bool bResult = false;
+    if (uSlot < MAX_DYNAMIC_SAMPLES) {
+        // about to access shared variables
+        SDL_LockAudio();
+        g_SampleStates[uSlot].bActive = thisState;
+        SDL_UnlockAudio();
+        bResult = true;
+    } else {
+        LOGE << "was called with an out-of-range parameter";
+    }
+    return bResult;
+}
+
+bool end_early(unsigned int uSlot)
+{
+    bool bResult = false;
+    if (uSlot < MAX_DYNAMIC_SAMPLES) {
+        // about to access shared variables
+        SDL_LockAudio();
+        g_SampleStates[uSlot].bEndEarly = true;
+        SDL_UnlockAudio();
+        bResult = true;
+    } else {
+        LOGE << "was called with an out-of-range parameter";
+    }
+    return bResult;
+}
+
+void flush_queue()
+{
+    for (unsigned int uSlot = 0; uSlot < MAX_DYNAMIC_SAMPLES; ++uSlot)
+    {
+         data_s *data = &g_SampleStates[uSlot];
+         if (data->bActive) {
+             SDL_LockAudio();
+             g_SampleStates[uSlot].bEndEarly = true;
+             SDL_UnlockAudio();
+         }
+    }
 }
 
 void do_queued_callbacks()
