@@ -71,7 +71,7 @@ class ldp_vldp : public ldp
     bool change_speed(unsigned int uNumerator, unsigned int uDenominator);
     void think();
 #ifdef DEBUG
-    unsigned long get_current_frame(); // enable for accuracy testing only
+    uint32_t get_current_frame(); // enable for accuracy testing only
 #endif
     void request_screenshot();
     void set_search_blanking(bool);
@@ -108,7 +108,7 @@ class ldp_vldp : public ldp
     // framefile parse tests.
     bool parse_framefile(const char *pszInBuf, const char *pszFramefileFullPath,
                          string &sMpegPath, struct fileframes *pFrames,
-                         Uint32 &frame_index, unsigned long max_frames,
+                         Uint32 &frame_index, uint32_t max_frames,
                          string &err_msg);
 
   private:
@@ -127,7 +127,7 @@ class ldp_vldp : public ldp
     //  target mpeg frame as input.  (The target mpeg frame is relative to the
     //  beginning
     //  of the mpeg, which is not necessarily the same as the laserdisc frame)
-    Uint64 get_audio_sample_position(unsigned long uTargetMpegFrame);
+    Uint64 get_audio_sample_position(uint32_t uTargetMpegFrame);
 
     // NOTE : 'filename' does not include the prefix path
     Uint32 mpeg_info(string &filename, Sint32 ld_frame);

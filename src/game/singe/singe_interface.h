@@ -42,7 +42,7 @@ struct singe_in_info
 	void (*set_search_blanking)(bool enabled);
 	void (*set_skip_blanking)(bool enabled);
 	bool (*pre_change_speed)(unsigned int uNumerator, unsigned int uDenominator);
-	unsigned long (*get_current_frame)();
+	uint32_t (*get_current_frame)();
 	void (*pre_play)();
 	void (*pre_pause)();
 	void (*pre_stop)();

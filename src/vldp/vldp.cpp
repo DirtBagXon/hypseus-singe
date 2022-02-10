@@ -49,7 +49,7 @@ Uint32 g_req_frame       = 0; // requested frame to search to
 Uint32 g_req_min_seek_ms = 0; // seek must take at least this many milliseconds
                               // (simulate laserdisc seek delay)
 VLDP_BOOL g_req_precache          = VLDP_FALSE; // whether g_req_idx has any meaning
-unsigned long g_req_idx            = 0; // multipurpose index (used by precaching)
+uint32_t g_req_idx                 = 0; // multipurpose index (used by precaching)
 unsigned int g_req_skip_per_frame = 0; // how many frames to skip per frame (for
                                        // playing at 2X for example)
 unsigned int g_req_stall_per_frame = 0; // how many frames to stall per frame
@@ -173,7 +173,7 @@ int vldp_open(const char *filename)
     return result;
 }
 
-VLDP_BOOL vldp_open_precached(unsigned long uIdx, const char *filename)
+VLDP_BOOL vldp_open_precached(uint32_t uIdx, const char *filename)
 {
     VLDP_BOOL bResult = VLDP_FALSE;
 

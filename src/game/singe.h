@@ -87,7 +87,7 @@ class singe : public game
     {
         return g_ldp->pre_change_speed(uNumerator, uDenominator);
     }
-    static unsigned long get_current_frame()
+    static uint32_t get_current_frame()
     {
         return g_ldp->get_current_frame();
     }

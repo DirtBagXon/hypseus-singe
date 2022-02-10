@@ -56,7 +56,7 @@ int s_skip_all = 0; // if we are to skip any frame to be displayed (to avoid
 
 // How many frames we've skipped when s_skip_all is enabled.
 // (for performance tuning, we want to minimize this number)
-unsigned long s_uSkipAllCount = 0;
+uint32_t s_uSkipAllCount = 0;
 
 Uint32 s_timer = 0; // FPS timer used by the blitting code to run at the right
                     // speed
@@ -71,7 +71,7 @@ Uint32 s_extra_delay_ms = 0;
 Uint32 s_uFramesShownSinceTimer = 0;
 
 // which frame we've skipped to (0 if there is nothing pending)
-unsigned long s_uPendingSkipFrame = 0;
+uint32_t s_uPendingSkipFrame = 0;
 
 // multi-speed variables ...
 unsigned int s_skip_per_frame = 0;  // how many frames to skip per frame (for
@@ -104,7 +104,7 @@ static Uint8 g_buffer[BUFFER_SIZE]; // buffer to hold mpeg2 file as we read it
 
 #define HEADER_BUF_SIZE 200
 static Uint8 g_header_buf[HEADER_BUF_SIZE];
-static unsigned long g_header_buf_size = 0; // size of the header buffer
+static uint32_t g_header_buf_size = 0; // size of the header buffer
 
 // how many frames we will stall after beginning playback (should be 1, because
 // presumably before we start playing, the disc has been paused showing the same
@@ -443,7 +443,7 @@ static void decode_mpeg2(uint8_t *current, uint8_t *end)
 void vldp_cache_sequence_header()
 {
     Uint32 val         = 0;
-    unsigned long index = 0;
+    uint32_t index = 0;
 
     io_seek(0);                             // start at beginning
     io_read(g_header_buf, HEADER_BUF_SIZE); // assume that we must find the
@@ -484,7 +484,7 @@ void vldp_process_sequence_header()
 void idle_handler_open()
 {
     char req_file[STRSIZE] = {0};
-    unsigned long req_idx  = g_req_idx;
+    uint32_t req_idx  = g_req_idx;
     VLDP_BOOL req_precache = g_req_precache;
     VLDP_BOOL bSuccess     = VLDP_FALSE;
 
@@ -854,9 +854,9 @@ void idle_handler_search(int skip)
                                             // acknowledge command
 
     // adjusted req frame is the requested frame with fields taken into account
-    unsigned long uAdjustedReqFrame = 0;
+    uint32_t uAdjustedReqFrame = 0;
 
-    unsigned long actual_frame = 0;
+    uint32_t actual_frame      = 0;
     int skipped_I              = 0;
 
     // status must be changed before acknowledging command, because previous
@@ -879,8 +879,8 @@ void idle_handler_search(int skip)
          *       'infinite timer' is enabled (it doesn't do any searches, just
          *       skips)
          */
-        unsigned long uNewFramesShownSinceTimer =
-            (unsigned long)((((Uint64)(g_in_info->uMsTimer - s_timer)) * g_out_info.uFpks) / 1000000);
+        uint32_t uNewFramesShownSinceTimer =
+            (uint32_t)((((Uint64)(g_in_info->uMsTimer - s_timer)) * g_out_info.uFpks) / 1000000);
 
         // take into account the extra frame we did when playback started
         uNewFramesShownSinceTimer += PLAY_FRAME_STALL;
@@ -1249,7 +1249,7 @@ VLDP_BOOL io_open(const char *cpszFilename)
     return bResult;
 }
 
-VLDP_BOOL io_open_precached(unsigned long uIdx)
+VLDP_BOOL io_open_precached(uint32_t uIdx)
 {
     VLDP_BOOL bResult = VLDP_FALSE;
 
@@ -1294,7 +1294,7 @@ unsigned int io_read(void *buf, unsigned int uBytesToRead)
     return uBytesRead;
 }
 
-VLDP_BOOL io_seek(unsigned long uPos)
+VLDP_BOOL io_seek(uint32_t uPos)
 {
     VLDP_BOOL bResult = VLDP_FALSE;
 
@@ -1340,9 +1340,9 @@ VLDP_BOOL io_is_open()
     return bResult;
 }
 
-unsigned long io_length()
+uint32_t io_length()
 {
-    unsigned long uResult = 0;
+    uint32_t uResult = 0;
 
     if (g_mpeg_handle) {
         struct stat the_stat;

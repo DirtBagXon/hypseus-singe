@@ -43,9 +43,6 @@ class numstr
     static unsigned int ToUint32(const char *str, int base = 10);
     static uint64_t ToUint64(const char *str, int base = 10);
     static double ToDouble(const char *s);
-#if defined(__WIN32) || (defined(__WORDSIZE) && __WORDSIZE != 64)
-    static string ToStr(unsigned long u, int base = 10, unsigned int min_digits = 0);
-#endif
     static string ToStr(int i, int base = 10, unsigned int min_digits = 0);
     static string ToStr(int64_t num, int base = 10, unsigned int min_digits = 0);
     static string ToStr(unsigned int u, int base = 10, unsigned int min_digits = 0);

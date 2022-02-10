@@ -41,7 +41,7 @@ bool need_frame_conversion()
 
 // returns the Frames Per Kilosecond of the target disc that we are converting
 // frames to
-unsigned long get_frame_conversion_fpks()
+uint32_t get_frame_conversion_fpks()
 {
     unsigned int uResult = 0;
 
@@ -66,12 +66,12 @@ unsigned long get_frame_conversion_fpks()
 
 // converts a standard DL/SA '83 NTSC frame to PAL, Space Ace'91, etc ...
 // the resulting frame is returned
-Uint32 do_frame_conversion(long source_frame)
+Uint32 do_frame_conversion(int32_t source_frame)
 {
 
     double result_frame = (double)source_frame; // it needs to be a float for
                                                 // precise math
-    long search_offset = get_search_offset();
+    int32_t search_offset = get_search_offset();
 
     result_frame = result_frame + search_offset; // apply any existing search
                                                  // offsets
