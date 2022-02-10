@@ -526,7 +526,7 @@ void seektest::repaint()
 
         // only present the additional options if this isn't a multimpeg test
         if (!m_multimpeg) {
-            sprintf(s, "Current frame : %lu", g_ldp->get_current_frame() + m_frame_offset);
+            sprintf(s, "Current frame : %d", g_ldp->get_current_frame() + m_frame_offset);
             if (m_locked) {
                 strcat(s, " (LOCKED)");
             } else {

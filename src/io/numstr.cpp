@@ -184,13 +184,6 @@ string numstr::ToStr(unsigned int u, int base, unsigned int min_digits)
     return UToStr(u, base, min_digits);
 }
 
-#if defined(__WIN32) || (defined(__WORDSIZE) && __WORDSIZE != 64)
-string numstr::ToStr(unsigned long u, int base, unsigned int min_digits)
-{
-    return UToStr(u, base, min_digits);
-}
-#endif
-
 string numstr::ToStr(uint64_t u, int base, unsigned int min_digits)
 {
     return UToStr(u, base, min_digits);

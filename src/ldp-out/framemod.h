@@ -37,7 +37,7 @@ enum {
 #include <SDL.h> // for data types
 
 bool need_frame_conversion();
-unsigned long get_frame_conversion_fpks();
-Uint32 do_frame_conversion(long source_frame);
+uint32_t get_frame_conversion_fpks();
+Uint32 do_frame_conversion(int32_t source_frame);
 
 #endif

@@ -340,7 +340,7 @@ bool ldp::pre_skip_forward(Uint32 frames_to_skip)
     // only skip if the LDP is playing
     if (m_status == LDP_PLAYING) {
         Uint32 target_frame = (Uint32)(m_uCurrentFrame + frames_to_skip);
-        unsigned long uOldCurrentFrame = m_uCurrentFrame;
+        uint32_t uOldCurrentFrame = m_uCurrentFrame;
 
         m_iSkipOffsetSincePlay += frames_to_skip;
 
@@ -370,7 +370,7 @@ bool ldp::pre_skip_backward(Uint32 frames_to_skip)
     // only skip if the LDP is playing
     if (m_status == LDP_PLAYING) {
         Uint32 target_frame = (Uint32)(m_uCurrentFrame - frames_to_skip);
-        unsigned long uOldCurrentFrame = m_uCurrentFrame;
+        uint32_t uOldCurrentFrame = m_uCurrentFrame;
 
         m_iSkipOffsetSincePlay -= frames_to_skip;
 
@@ -748,7 +748,7 @@ void ldp::pre_think()
     // get_status()!!!
     // Be very careful about changing this 'm_status' to a get_status()
     if (m_status == LDP_PLAYING) {
-        unsigned long uDiscFPKS = g_game->get_disc_fpks();
+        uint32_t uDiscFPKS = g_game->get_disc_fpks();
 
         // if our frame counter is in sync with vblank, then just increment
         // frame every 2 vblanks ...
@@ -795,7 +795,7 @@ void ldp::pre_think()
             // potential skips that can occur
             // (this is updated immediately, m_uCurrentFrame is updated on a
             // time boundary)
-            unsigned long uCurrentFrame =
+            uint32_t uCurrentFrame =
                 m_last_seeked_frame + m_iSkipOffsetSincePlay + m_uCurrentOffsetFrame;
 
             if (uCurrentFrame > time_result)
@@ -869,12 +869,12 @@ void ldp::increment_current_frame()
 void ldp::think() {}
 
 // (see .h for description)
-unsigned long ldp::get_current_frame() {
+uint32_t ldp::get_current_frame() {
 
      return m_uCurrentFrame;
 }
 
-unsigned long ldp::get_adjusted_current_frame()
+uint32_t ldp::get_adjusted_current_frame()
 {
 #ifdef DEBUG
     // this function assumes that the disc's FPS is in line with vblank
@@ -882,7 +882,7 @@ unsigned long ldp::get_adjusted_current_frame()
 #endif // DEBUG
 
     // because get_current_frame() is a virtual function
-    unsigned long uResult = get_current_frame();
+    uint32_t uResult = get_current_frame();
 
     // if the disc is playing and we've already displayed the 2nd field of the
     // frame, then advance the current frame
@@ -1079,7 +1079,7 @@ void ldp::get_bug_log(list<string> &log)
 void ldp::print_frame_info()
 {
     if (m_bVerbose) {
-        unsigned long u = m_uMsVblankBoundary - m_uElapsedMsSinceStart;
+        uint32_t u = m_uMsVblankBoundary - m_uElapsedMsSinceStart;
         LOGD << fmt("Current frame is %d, ms to next vblank: %d, vlbank since "
                     "frame change: %d",
                     m_uCurrentFrame, u, m_uVblankMiniCount);

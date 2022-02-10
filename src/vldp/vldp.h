@@ -128,7 +128,7 @@ struct vldp_out_info {
     // to
     //  by its precache index instead of a filename.  Behavior is similar to
     //  'open'.
-    VLDP_BOOL (*open_precached)(unsigned long uIdx, const char *filename);
+    VLDP_BOOL (*open_precached)(uint32_t uIdx, const char *filename);
 
     // plays the mpeg that has been previously open.  'timer' is the value
     // relative to uMsTimer that
@@ -193,7 +193,7 @@ struct vldp_out_info {
     Uint32 w;                  // width of the mpeg video
     Uint32 h;                  // height of the mpeg video
     int status; // the current status of the VLDP (see STAT_ enum's)
-    unsigned long current_frame; // the current frame of the opened mpeg that we
+    uint32_t current_frame; // the current frame of the opened mpeg that we
                                 // are on
     unsigned int uLastCachedIndex; // the index of the file that was last
                                    // precached (if any)

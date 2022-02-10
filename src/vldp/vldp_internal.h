@@ -42,8 +42,8 @@ struct dat_header {
 
 struct precache_entry_s {
     void *ptrBuf;         // buffer that holds precached file
-    unsigned long uLength; // length (in bytes) of the buffer
-    unsigned long uPos;    // our current position within the stream
+    uint32_t uLength; // length (in bytes) of the buffer
+    uint32_t uPos;    // our current position within the stream
 };
 
 int idle_handler(void *surface);
@@ -68,12 +68,12 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size);
 void ivldp_update_progress_indicator(SDL_Surface *indicator, double percentage_completed);
 
 VLDP_BOOL io_open(const char *cpszFilename);
-VLDP_BOOL io_open_precached(unsigned long uIdx);
+VLDP_BOOL io_open_precached(uint32_t uIdx);
 unsigned int io_read(void *buf, unsigned int uBytesToRead);
-VLDP_BOOL io_seek(unsigned long uPos);
+VLDP_BOOL io_seek(uint32_t uPos);
 void io_close();
 VLDP_BOOL io_is_open();
-unsigned long io_length();
+uint32_t io_length();
 
 void draw_frame(const mpeg2_info_t *info);
 
@@ -90,7 +90,7 @@ extern int s_frames_to_skip_with_inc; // how many frames to skip while
                                       // multi-speed playback)
 extern int s_skip_all; // skip all subsequent frames.  Used to bail out of the
                        // middle of libmpeg2, back to vldp
-extern unsigned long s_uSkipAllCount; // how many frames we've skipped when
+extern uint32_t s_uSkipAllCount; // how many frames we've skipped when
                                      // s_skip_all is enabled.
 extern int s_step_forward;           // if this is set, we step forward 1 frame
 extern Uint32 s_timer; // FPS timer used by the blitting code to run at the
@@ -106,7 +106,7 @@ extern int s_overlay_allocated; // whether the SDL overlays have been allocated
 // Which frame we've skipped to (0 if we haven't skipped)
 // Used in order to maintain the current frame number until the skip actually
 // occurs.
-extern unsigned long s_uPendingSkipFrame;
+extern uint32_t s_uPendingSkipFrame;
 
 extern unsigned int s_skip_per_frame;  // how many frames to skip per frame (for
                                        // playing at 2X for example)

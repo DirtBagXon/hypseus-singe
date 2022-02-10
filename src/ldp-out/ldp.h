@@ -184,12 +184,12 @@ class ldp
     // to return its status (ie the PR-8210) then either blocking seeking must
     // be used
     // or each game driver which uses this player must call get_status().
-    virtual unsigned long get_current_frame();
+    virtual uint32_t get_current_frame();
 
     // returns m_uCurrentFrame or m_uCurrentFrame+1 if the disc is playing and
     // we've already displayed the 2nd field of the frame
     // (this is in an effort to fix overrun problems on super don)
-    unsigned long get_adjusted_current_frame();
+    uint32_t get_adjusted_current_frame();
 
     // returns 0 if this is the first vblank of the frame (assuming vblanks and
     // frames line up),
@@ -302,13 +302,13 @@ class ldp
     // used by 'releasetest' to do automatic self-testing
     list<string> m_bug_log;
 
-    unsigned long m_uCurrentFrame; // the current frame, as calculated by
+    uint32_t m_uCurrentFrame; // the current frame, as calculated by
                                   // pre_think(), returned by
                                   // get_current_frame()
 
     // current frame - m_last_seeked_frame (for VLDP's usage)
     // For example, the first frame displayed after playing is 0.
-    unsigned long m_uCurrentOffsetFrame;
+    uint32_t m_uCurrentOffsetFrame;
 
     // How many milliseconds have elapsed since we started playing the disc.
     // This value is changed by pre_think(), which must get called every 1 ms by
