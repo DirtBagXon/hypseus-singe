@@ -757,6 +757,18 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
+            // SDL regression: FOURCC isn't supported by renderer back-ends for target access
+            // This avoids a CPU intensive conversion on SBC's
+            else if (strcasecmp(s, "-texturestream") == 0) {
+                video::set_textureaccess(SDL_TEXTUREACCESS_STREAMING);
+                printline("Forcing TEXTUREACCESS_STREAMING");
+            }
+            // Default (or override)
+            else if (strcasecmp(s, "-texturetarget") == 0) {
+		if (video::get_textureaccess() == SDL_TEXTUREACCESS_STREAMING)
+                    printline("Reassigning to TEXTUREACCESS_TARGET");
+                video::set_textureaccess(SDL_TEXTUREACCESS_TARGET);
+            }
             else if (strcasecmp(s, "-opengl") == 0) {
                 video::set_opengl(true);
                 printline("Enabling SDL_OPENGL");

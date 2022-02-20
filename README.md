@@ -167,6 +167,12 @@ Enforce SDL Window context when Renderer auto-detection fails (_no further exten
     -opengl                    [ Enable OpenGL SDL Window context              ]
     -vulkan                    [ Enable Vulkan SDL Window instance             ]
 
+
+Switch `SDL_TEXTUREACCESS` <sup>*(_This can aid SBC's with SDL2 =>_ **2.0.16**)</sup>
+
+    -texturetarget             [ Enable SDL_TEXTUREACCESS_TARGET (Default)     ]
+    -texturestream             [ Enable SDL_TEXTUREACCESS_STREAMING            ]
+
 ## Support
 
 This software intended for educational purposes only. Please submit [issues] or

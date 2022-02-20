@@ -119,6 +119,8 @@ int sboverlay_characterset = 2;
 
 int g_aspect_ratio;
 
+int g_texture_access = SDL_TEXTUREACCESS_TARGET;
+
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
@@ -339,7 +341,7 @@ bool init_display()
 
                     if (g_sb_renderer)
                         g_sb_texture = SDL_CreateTexture(g_sb_renderer, SDL_GetWindowPixelFormat(g_sb_window),
-                                                        SDL_TEXTUREACCESS_TARGET, 320, 240);
+                                                        g_texture_access, 320, 240);
                     else {
                         LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
                         g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
@@ -425,7 +427,7 @@ bool init_display()
                 // The g_screen_blitter surface is used from game.cpp anyway, so we always create it, used or not.
 		if (g_overlay_width && g_overlay_height) {
 		    g_overlay_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
-						 SDL_TEXTUREACCESS_TARGET,
+						 g_texture_access,
 						 g_overlay_width, g_overlay_height);
 
 		    SDL_SetTextureBlendMode(g_overlay_texture, SDL_BLENDMODE_BLEND);
@@ -799,6 +801,8 @@ void set_opengl(bool value) { g_opengl = value; }
 
 void set_vulkan(bool value) { g_vulkan = value; }
 
+void set_textureaccess(int value) { g_texture_access = value; }
+
 void set_grabmouse(bool value) { g_grabmouse = value; }
 
 void set_vsync(bool value) { g_vsync = value; }
@@ -817,6 +821,7 @@ void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
 
 void set_video_timer_blank(bool value) { g_yuv_video_timer_blank = value; }
 
+int get_textureaccess() { return g_texture_access; }
 int get_scalefactor() { return g_scalefactor; }
 void set_scalefactor(int value)
 {
@@ -1087,7 +1092,7 @@ void vid_setup_yuv_overlay (int width, int height) {
 
 SDL_Texture *vid_create_yuv_texture (int width, int height) {
     g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
-        SDL_TEXTUREACCESS_TARGET, width, height);
+        g_texture_access, width, height);
     vid_blank_yuv_texture(true);
     return g_yuv_texture;
 }
