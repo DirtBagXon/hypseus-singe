@@ -907,17 +907,15 @@ static int sep_mpeg_get_pixel(lua_State *L)
                                               / (double)g_se_overlay_height));
 				if (g_renderer && g_texture) {
 					if (SDL_SetRenderTarget(g_renderer, g_texture) < 0) {
-#if defined(__arm__) || defined(__aarch64__)
-                                            if (!ex) sep_print("get_pixel unsupported platform: Targets disabled");
+                                            if (!ex) {
+						sep_print("get_pixel unsupported texture: Targets disabled");
+						sep_print("Could not RenderTarget in get_pixel: %s", SDL_GetError());
+                                            }
                                             lua_State* X = luaL_newstate();
                                             lua_pushinteger(X, 70);
                                             lua_pushinteger(X, 10);
                                             lua_pushstring(X, "Targets disabled");
                                             sep_say_font(X);
-#else
-                                            sep_print("Could not RenderTarget in get_pixel: %s", SDL_GetError());
-                                            sep_die("Try '-nohwaccel'");
-#endif
 					} else {
                                             if (SDL_RenderReadPixels(g_renderer, &rect, format,
                                                               pixel, SDL_BYTESPERPIXEL(format)) < 0)
