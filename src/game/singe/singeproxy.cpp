@@ -451,6 +451,8 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
 				// compute 8-bit index
 				Uint8 u8Idx = u8R | (u8G >> 3) | (u8B >> 5);
 
+				if (u8Idx > 0xFE) u8Idx--;
+
 				// if alpha channel is more opaque, then make it fully opaque
 				if (u8A > 0x7F)
 				{
