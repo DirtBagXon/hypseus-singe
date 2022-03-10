@@ -151,6 +151,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -bootsilent                [ Mute sound during initVLDP() if possible      ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
+    -nocrosshair               [ Request game does not display crosshairs      ]
     -oversize_overlay          [ Use with HD gungame m2v video sources         ]
     -retropath                 [ Singe data path rewrites [libretro]           ]
     -sinden <1-10> <color>     [ Enable software border for lightguns          ]

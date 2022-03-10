@@ -68,6 +68,7 @@ class singe : public game
     bool singe_alt_pressed = false;
     bool oversize_overlay = false;
     bool muteinit = false;
+    bool notarget = false;
     bool oc = false;
 
     // g_ldp function wrappers (to make function pointers out of them)

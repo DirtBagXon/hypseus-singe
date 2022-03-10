@@ -69,6 +69,7 @@ double                g_sep_overlay_scale_x =  1;
 double                g_sep_overlay_scale_y =  1;
 bool                  g_pause_state         = false; // by RDG2010
 bool                  g_init_mute           = false;
+bool                  g_show_crosshair      = true;
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                int Ypitch, int Upitch, int Vpitch);
@@ -554,10 +555,11 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "overlaySetResolution",   sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
-  lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_two_pseudo_call_false);
+  lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
 
   lua_register(g_se_lua_context, "luaChangeSpeed",         sep_alter_lua_clock);
   lua_register(g_se_lua_context, "mutevldpInit",           sep_mute_vldp_init);
+  lua_register(g_se_lua_context, "noCrosshair",            sep_no_crosshair);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -957,8 +959,9 @@ static int sep_singe_two_pseudo_call_true(lua_State *L)
    return 0;
 }
 
-static int sep_singe_two_pseudo_call_false(lua_State *L)
+static int sep_singe_wants_crosshair(lua_State *L)
 {
+   lua_pushboolean(L, g_show_crosshair);
    return 1;
 }
 
@@ -978,6 +981,12 @@ static int sep_mute_vldp_init(lua_State *L)
        m = true;
    }
    return 1;
+}
+
+static int sep_no_crosshair(lua_State *L)
+{
+  g_show_crosshair = false;
+  return 1;
 }
 
 static int sep_mpeg_get_width(lua_State *L)

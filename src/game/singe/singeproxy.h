@@ -81,6 +81,7 @@ static int sep_color_set_forecolor(lua_State *L);
 static int sep_hypseus_get_height(lua_State *L);
 static int sep_alter_lua_clock(lua_State *L);
 static int sep_mute_vldp_init(lua_State *L);
+static int sep_no_crosshair(lua_State *L);
 static int sep_hypseus_get_width(lua_State *L);
 static int sep_debug_say(lua_State *L);
 static int sep_font_load(lua_State *L);
@@ -131,4 +132,4 @@ static int sep_sound_stop(lua_State *L);
 static int sep_sound_flush_queue(lua_State *L);
 // by DBX - Singe 2
 static int sep_singe_two_pseudo_call_true(lua_State *L);
-static int sep_singe_two_pseudo_call_false(lua_State *L);
+static int sep_singe_wants_crosshair(lua_State *L);

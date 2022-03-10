@@ -211,6 +211,7 @@ void singe::start()
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
+    if (notarget) g_pSingeOut->sep_call_lua("noCrosshair", "i", 1);
     if (muteinit) g_pSingeOut->sep_call_lua("mutevldpInit", "i", 1);
     if (oc) g_pSingeOut->sep_call_lua("luaChangeSpeed", "i", 1);
 
@@ -379,6 +380,10 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-manymouse") == 0) {
         game::set_manymouse(true);
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-nocrosshair") == 0) {
+        notarget = true;
         bResult = true;
     }
     else if (strcasecmp(arg, "-sinden") == 0) {
