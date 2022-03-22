@@ -97,6 +97,7 @@ bool init_opengl();
 #endif // USE_OPENGL
 
 void shutdown_display();
+void resize_cleanup();
 
 // flips the video buffers (if in double buffering mode)
 void vid_flip();
