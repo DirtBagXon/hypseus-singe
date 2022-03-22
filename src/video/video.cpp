@@ -268,14 +268,7 @@ bool init_display()
             LOGI << fmt("Repaint dimensions: %dx%d", g_draw_width, g_draw_height);
         }
 
-        if (g_window) {
-            SDL_SetWindowGrab(g_window, SDL_FALSE);
-            SDL_HideWindow(g_window);
-        }
-
-        if (sdl_flags & SDL_WINDOW_MAXIMIZED)
-            if (g_sb_window) SDL_HideWindow(g_sb_window);
-
+        if (g_window) resize_cleanup();
 
         if (g_fRotateDegrees != 0) {
             if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
@@ -469,6 +462,8 @@ void vid_free_yuv_overlay () {
 // returns true if successful, false if failure
 bool deinit_display()
 {
+    SDL_SetWindowGrab(g_window, SDL_FALSE);
+
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
 
@@ -482,10 +477,33 @@ bool deinit_display()
     if (g_sb_renderer)
         SDL_DestroyRenderer(g_sb_renderer);
 
+    if (g_sb_window)
+        SDL_DestroyWindow(g_sb_window);
+
     SDL_DestroyTexture(g_overlay_texture);
     SDL_DestroyRenderer(g_renderer);
+    SDL_DestroyWindow(g_window);
 
     return (true);
+}
+
+void resize_cleanup()
+{
+    SDL_SetWindowGrab(g_window, SDL_FALSE);
+
+    if (g_sb_texture) SDL_DestroyTexture(g_sb_texture);
+    if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
+    if (g_sb_window) SDL_DestroyWindow(g_sb_window);
+
+    if (g_screen_blitter) SDL_FreeSurface(g_screen_blitter);
+    if (g_leds_surface) SDL_FreeSurface(g_leds_surface);
+
+    if (g_yuv_texture) SDL_DestroyTexture(g_yuv_texture);
+    if (g_overlay_texture) SDL_DestroyTexture(g_overlay_texture);
+    if (g_renderer) SDL_DestroyRenderer(g_renderer);
+
+    SDL_DestroyWindow(g_window);
+
 }
 
 // shuts down video display
