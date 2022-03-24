@@ -76,6 +76,7 @@ int init(unsigned int unused)
         s->uPos             = 0;
         s->uChannels        = 0;
         s->bActive          = false;
+        s->bEndEarly        = false;
         s->finishedCallback = NULL;
     }
 
@@ -229,6 +230,7 @@ int play(Uint8 *pu8Buf, unsigned int uLength,
             state->uLength          = uLength;
             state->uChannels        = uChannels;
             state->uPos             = 0;
+            state->bEndEarly        = false;
             state->finishedCallback = finishedCallback;
         }
         // else there's an error so do nothing ...
