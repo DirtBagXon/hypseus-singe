@@ -77,7 +77,6 @@ SDL_Window *g_window               = NULL;
 SDL_Window *g_sb_window            = NULL;
 SDL_Renderer *g_renderer           = NULL;
 SDL_Renderer *g_sb_renderer        = NULL;
-SDL_Texture *g_sb_texture          = NULL;
 SDL_Texture *g_overlay_texture     = NULL; // The OVERLAY texture, excluding LEDs wich are a special case
 SDL_Texture *g_yuv_texture         = NULL; // The YUV video texture, registered from ldp-vldp.cpp
 SDL_Surface *g_screen_blitter      = NULL; // The main blitter surface
@@ -332,10 +331,7 @@ bool init_display()
 
                     g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, sdl_sb_render_flags);
 
-                    if (g_sb_renderer)
-                        g_sb_texture = SDL_CreateTexture(g_sb_renderer, SDL_GetWindowPixelFormat(g_sb_window),
-                                                        g_texture_access, 320, 240);
-                    else {
+                    if (!g_sb_renderer) {
                         LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
                         g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
                         set_quitflag();
@@ -470,9 +466,6 @@ bool deinit_display()
     FC_FreeFont(g_font);
     FC_FreeFont(g_fixfont);
 
-    if (g_sb_texture)
-        SDL_DestroyTexture(g_sb_texture);
-
     if (g_sb_renderer)
         SDL_DestroyRenderer(g_sb_renderer);
 
@@ -491,7 +484,6 @@ void resize_cleanup(uint32_t sdl_flags)
     SDL_SetWindowGrab(g_window, SDL_FALSE);
 
     if (sdl_flags & SDL_WINDOW_MAXIMIZED) {
-        if (g_sb_texture) SDL_DestroyTexture(g_sb_texture);
         if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
         if (g_sb_window) SDL_DestroyWindow(g_sb_window);
     }
