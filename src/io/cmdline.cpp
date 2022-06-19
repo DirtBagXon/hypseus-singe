@@ -786,6 +786,26 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("Forcing 4:3 aspect ratio.");
                 video::set_force_aspect_ratio(true);
             }
+            else if (strcasecmp(s, "-scanline_shunt") == 0) {
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+                if (i > 1 && i < 11) {
+                    video::set_shunt(i);
+                } else {
+                    printline("Shunt values: 2-10");
+                    result = false;
+                }
+            }
+            else if (strcasecmp(s, "-scanline_alpha") == 0) {
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+                if (i >= 1 && i <= 255) {
+                    video::set_alpha(i);
+                } else {
+                    printline("Alpha values: 1-255");
+                    result = false;
+                }
+            }
             // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
