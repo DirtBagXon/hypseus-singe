@@ -146,6 +146,8 @@ void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
+void set_shunt(int value);
+void set_alpha(int value);
 void set_yuv_video_blank(bool value);
 void set_video_timer_blank(bool value);
 int get_scalefactor();           // by RDG2010
@@ -156,7 +158,7 @@ Uint16 get_video_width();
 void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
-void draw_scanlines();
+void draw_scanlines(int, int, int);
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, bool ins);

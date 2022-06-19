@@ -56,6 +56,8 @@ namespace video
 int g_vid_width = 640, g_vid_height = 480; // default video dimensions
 unsigned int g_draw_width = g_vid_width, g_probe_width = g_vid_width;
 unsigned int g_draw_height = g_vid_height, g_probe_height = g_vid_height;
+int s_alpha = 255;
+int s_shunt = 2;
 
 #ifdef DEBUG
 const Uint16 cg_normalwidths[]  = {320, 640, 800, 1024, 1280, 1280, 1600};
@@ -351,7 +353,7 @@ bool init_display()
                     SDL_SetWindowGrab(g_window, SDL_TRUE);
 
                 if (g_scanlines)
-                    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
+                    SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
                 // Calculate font sizes
                 int ffs;
@@ -822,6 +824,10 @@ void set_vsync(bool value) { g_vsync = value; }
 
 void set_scanlines(bool value) { g_scanlines = value; }
 
+void set_shunt(int value) { s_shunt = value; }
+
+void set_alpha(int value) { s_alpha = value; }
+
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 
 void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
@@ -1058,8 +1064,8 @@ void vid_toggle_scanlines()
 {
     SDL_BlendMode mode;
     SDL_GetRenderDrawBlendMode(g_renderer, &mode);
-    if (mode != SDL_BLENDMODE_MOD && !g_scanlines)
-        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_MOD);
+    if (mode != SDL_BLENDMODE_BLEND && !g_scanlines)
+        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
     if (g_scanlines) {
         g_scanlines = false;
@@ -1262,7 +1268,8 @@ void vid_blit () {
                  (void *)g_leds_surface->pixels, g_leds_surface->pitch);
     else if (get_LDP1450_enabled()) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
 
-    if (g_scanlines) draw_scanlines();
+    if (g_scanlines)
+        draw_scanlines(g_draw_width, g_draw_height, s_shunt);
 
     if (g_fRotateDegrees != 0) {
         if (g_yuv_texture)
@@ -1355,27 +1362,14 @@ void take_screenshot()
     SDL_FreeSurface(surface);
 }
 
-void draw_scanlines() {
-    unsigned char c;
-    for (unsigned int i = 0; i < g_draw_height; i+=5) {
-         c = 0x40;
-         for (int j = 0; j < 4; j++) {
-             SDL_SetRenderDrawColor(g_renderer, c, c, c, SDL_ALPHA_OPAQUE);
-             SDL_RenderDrawLine(g_renderer, 0, i+j, g_draw_width, i+j);
-             switch(j)
-             {
-                case 0:
-                  c = 0x90;
-                  break;
-                case 1:
-                  c = 0xB0;
-                  break;
-                default:
-                  c = 0xD0;
-                  break;
-            }
-        }
+void draw_scanlines(int w, int h, int l) {
+
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, s_alpha);
+
+    for (int i = 0; i < h; i+=l) {
+       SDL_RenderDrawLine(g_renderer, 0, i, w, i);
     }
+
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 

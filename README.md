@@ -21,7 +21,6 @@ Features:
 * Daphne alternate overlay choices
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png?raw=true)
-* Simulated scan lines: [preview](screenshots/scanlines.png?raw=true)
 * 64bit Windows and MacOS X Ports
 
 ## Windows
@@ -104,6 +103,8 @@ Configuration of keycodes and joysticks should be made within [hypinput.ini](htt
 
 Refer to [keylist.txt](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/keylist.txt) for **SDL2** keycode values.
 
+Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help configuration.
+
 ## Screenshots
 
 *(Click images for YouTube playlist)*
@@ -173,7 +174,9 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -scalefactor               [ Scale video image [50-100]%                   ]
-    -scanlines                 [ Simulate scanlines [adjust: -x -y]            ]
+    -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
+    -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
+    -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
 
