@@ -46,12 +46,12 @@ enum {
     SWITCH_PAUSE,
     SWITCH_CONSOLE,
     SWITCH_TILT,
+    SWITCH_COUNT,
     SWITCH_MOUSE_SCROLL_UP,
     SWITCH_MOUSE_SCROLL_DOWN,
-    SWITCH_MOUSE_DISCONNECT,
-    SWITCH_COUNT,
+    SWITCH_MOUSE_DISCONNECT
 }; // hypseus inputs for arcade and additional controls, leave SWITCH_COUNT at
-   // the end
+   // the end of key_defs
 
 ///////////////////////
 
