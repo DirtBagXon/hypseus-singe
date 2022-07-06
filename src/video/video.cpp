@@ -185,6 +185,7 @@ g_yuv_surface_t *g_yuv_surface;
 
 // Blitting parameters. What textures need updating from their surfaces during a blitting strike?
 bool g_scoreboard_needs_update = false;
+bool g_softsboard_needs_update = false;
 bool g_overlay_needs_update    = false;
 bool g_yuv_video_needs_update  = false;
 bool g_yuv_video_needs_blank   = false;
@@ -599,6 +600,7 @@ bool draw_led(int value, int x, int y)
 
     tx = SDL_CreateTextureFromSurface(g_sb_renderer, srf);
     SDL_RenderCopy(g_sb_renderer, tx, NULL, &dest);
+    g_softsboard_needs_update = true;
 
     return true;
 }
@@ -733,6 +735,9 @@ bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
     SDL_Surface *srf = g_other_bmps[which];
     SDL_Texture *tx;
 
+    if (which == B_DL_PLAYER1)
+        SDL_RenderClear(g_sb_renderer);
+
     SDL_Rect dest;
     dest.x = (short)x;
     dest.y = (short)y;
@@ -741,6 +746,7 @@ bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
 
     tx = SDL_CreateTextureFromSurface(g_sb_renderer, srf);
     SDL_RenderCopy(g_sb_renderer, tx, NULL, &dest);
+    g_softsboard_needs_update = true;
 
     return true;
 }
@@ -1284,7 +1290,10 @@ void vid_blit () {
 
     SDL_RenderPresent(g_renderer);
 
-    if (g_sb_renderer) SDL_RenderPresent(g_sb_renderer);
+    if (g_sb_renderer && g_softsboard_needs_update) {
+        SDL_RenderPresent(g_sb_renderer);
+        g_softsboard_needs_update = false;
+    }
 
     if (queue_take_screenshot) {
         set_queue_screenshot(false);
