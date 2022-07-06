@@ -37,9 +37,12 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_RETURN") == 0) return SDLK_RETURN;
 	else if (strcmp(str, "SDLK_ESCAPE") == 0) return SDLK_ESCAPE;
 	else if (strcmp(str, "SDLK_SPACE") == 0) return SDLK_SPACE;
+	else if (strcmp(str, "SDLK_HASH") == 0) return SDLK_HASH;
+	else if (strcmp(str, "SDLK_QUOTE") == 0) return SDLK_QUOTE;
 	else if (strcmp(str, "SDLK_COMMA") == 0) return SDLK_COMMA;
 	else if (strcmp(str, "SDLK_MINUS") == 0) return SDLK_MINUS;
 	else if (strcmp(str, "SDLK_PERIOD") == 0) return SDLK_PERIOD;
+	else if (strcmp(str, "SDLK_APPLICATION") == 0) return SDLK_APPLICATION;
 	else if (strcmp(str, "SDLK_SLASH") == 0) return SDLK_SLASH;
 	else if (strcmp(str, "SDLK_0") == 0) return SDLK_0;
 	else if (strcmp(str, "SDLK_1") == 0) return SDLK_1;
@@ -51,7 +54,10 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_7") == 0) return SDLK_7;
 	else if (strcmp(str, "SDLK_8") == 0) return SDLK_8;
 	else if (strcmp(str, "SDLK_9") == 0) return SDLK_9;
+	else if (strcmp(str, "SDLK_SEMICOLON") == 0) return SDLK_SEMICOLON;
 	else if (strcmp(str, "SDLK_EQUALS") == 0) return SDLK_EQUALS;
+	else if (strcmp(str, "SDLK_LEFTBRACKET") == 0) return SDLK_LEFTBRACKET;
+	else if (strcmp(str, "SDLK_RIGHTBRACKET") == 0) return SDLK_RIGHTBRACKET;
 	else if (strcmp(str, "SDLK_BACKSLASH") == 0) return SDLK_BACKSLASH;
 	else if (strcmp(str, "SDLK_BACKQUOTE") == 0) return SDLK_BACKQUOTE;
 	else if (strcmp(str, "SDLK_a") == 0) return SDLK_a;
@@ -80,6 +86,7 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_x") == 0) return SDLK_x;
 	else if (strcmp(str, "SDLK_y") == 0) return SDLK_y;
 	else if (strcmp(str, "SDLK_z") == 0) return SDLK_z;
+	else if (strcmp(str, "SDLK_CAPSLOCK") == 0) return SDLK_CAPSLOCK;
 	else if (strcmp(str, "SDLK_DELETE") == 0) return SDLK_DELETE;
 	else if (strcmp(str, "SDLK_F1") == 0) return SDLK_F1;
 	else if (strcmp(str, "SDLK_F2") == 0) return SDLK_F2;
@@ -93,12 +100,18 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_F10") == 0) return SDLK_F10;
 	else if (strcmp(str, "SDLK_F11") == 0) return SDLK_F11;
 	else if (strcmp(str, "SDLK_F12") == 0) return SDLK_F12;
+	else if (strcmp(str, "SDLK_SCROLLLOCK") == 0) return SDLK_SCROLLLOCK;
+	else if (strcmp(str, "SDLK_PAUSE") == 0) return SDLK_PAUSE;
+	else if (strcmp(str, "SDLK_INSERT") == 0) return SDLK_INSERT;
+	else if (strcmp(str, "SDLK_HOME") == 0) return SDLK_HOME;
 	else if (strcmp(str, "SDLK_PAGEUP") == 0) return SDLK_PAGEUP;
+	else if (strcmp(str, "SDLK_END") == 0) return SDLK_END;
 	else if (strcmp(str, "SDLK_PAGEDOWN") == 0) return SDLK_PAGEDOWN;
 	else if (strcmp(str, "SDLK_RIGHT") == 0) return SDLK_RIGHT;
 	else if (strcmp(str, "SDLK_LEFT") == 0) return SDLK_LEFT;
 	else if (strcmp(str, "SDLK_DOWN") == 0) return SDLK_DOWN;
 	else if (strcmp(str, "SDLK_UP") == 0) return SDLK_UP;
+	else if (strcmp(str, "SDLK_NUMLOCKCLEAR") == 0) return SDLK_NUMLOCKCLEAR;
 	else if (strcmp(str, "SDLK_KP_DIVIDE") == 0) return SDLK_KP_DIVIDE;
 	else if (strcmp(str, "SDLK_KP_MULTIPLY") == 0) return SDLK_KP_MULTIPLY;
 	else if (strcmp(str, "SDLK_KP_MINUS") == 0) return SDLK_KP_MINUS;
@@ -125,6 +138,7 @@ int sdl2_keycode(const char *str)
 	else if (strcmp(str, "SDLK_RSHIFT") == 0) return SDLK_RSHIFT;
 	else if (strcmp(str, "SDLK_RALT") == 0) return SDLK_RALT;
 	else if (strcmp(str, "SDLK_RGUI") == 0) return SDLK_RGUI;
+	else if (strcmp(str, "SDLK_MODE") == 0) return SDLK_MODE;
 	else {
 		LOGW << fmt("Unrecognized key macro in config: %s", str);
 		LOGW << "Use decimal values for extended keycodes.";
