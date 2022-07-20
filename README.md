@@ -141,7 +141,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
     -grabmouse                 [ Capture mouse in SDL window                   ]
     -keymapfile <flight.ini>   [ Specify an alternate hypinput.ini file        ]
-    -nolinear_scale            [ Disable bilinear scaling [fullscreen]         ]
+    -nolinear_scale            [ Disable bilinear scaling                      ]
     -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
     -scalefactor               [ Scale video image [50-100]%                   ]
@@ -157,7 +157,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
     -nocrosshair               [ Request game does not display crosshairs      ]
     -oversize_overlay          [ Use with HD gungame m2v video sources         ]
-    -retropath                 [ Singe data path rewrites [libretro]           ]
+    -retropath                 [ Singe data path rewrites [.daphne]            ]
     -sinden <1-10> <color>     [ Enable software border for lightguns          ]
                                [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]
 

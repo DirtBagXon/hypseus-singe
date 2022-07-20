@@ -72,7 +72,7 @@ if [ -z $1 ] ; then
 			installed="$installed $game"
 		fi
         done
-        echo "$installed" | fold -s -w60 | sed 's/^ //; s/^/\t/' | STDERR
+        echo "$installed" | fold -s -w60 | sed 's/^ //; s/^/    /' | STDERR
 	echo
 	exit 1
 fi

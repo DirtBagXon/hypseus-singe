@@ -82,7 +82,7 @@ if [ -z "$1" ] ; then
     if [ "$uninstalled" ]; then
 	echo
 	echo "Games not found in $HYPSEUS_SHARE/vldp*: " | STDERR
-	echo "$uninstalled" | fold -s -w60 | sed 's/^ //; s/^/\t/' | STDERR
+	echo "$uninstalled" | fold -s -w60 | sed 's/^ //; s/^/    /' | STDERR
 	echo
     fi
     if [ -z "$installed" ]; then
@@ -93,7 +93,7 @@ EOF
     else
 	echo
 	echo "Games available: " | STDERR
-	echo "$installed" | fold -s -w60 | sed 's/^ //; s/^/\t/' | STDERR
+	echo "$installed" | fold -s -w60 | sed 's/^ //; s/^/    /' | STDERR
 	echo
     fi
     exit 1
