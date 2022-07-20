@@ -9,11 +9,10 @@
 Latest build is: (_32bit_ and _64bit_ versions are available.)
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.8.2b
+    [version] Hypseus Singe: v2.8.2c
     [console] Windows 10
     [console] SDL(CC): 2.0.14
     [console] SDL(LD): 2.0.16
-    [console] Build: Jun 20 2022 00:00:00
 
 
 ## Install
@@ -39,5 +38,7 @@ Refer to additional arguments on the [main page](https://github.com/DirtBagXon/h
 ## Configuration
 
 Configuration in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini) within the directory.
+
+Use the `hypjsch` application in the `C:\Hypseus Singe` folder to help calculate values.
 
 **Note:** Hypseus Singe uses **SDL2** keycodes. See information in *hypinput.ini*
