@@ -70,6 +70,7 @@ double                g_sep_overlay_scale_y =  1;
 bool                  g_pause_state         = false; // by RDG2010
 bool                  g_init_mute           = false;
 bool                  g_show_crosshair      = true;
+bool                  g_not_cursor          = true;
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                int Ypitch, int Upitch, int Vpitch);
@@ -962,6 +963,7 @@ static int sep_singe_two_pseudo_call_true(lua_State *L)
 static int sep_singe_wants_crosshair(lua_State *L)
 {
    lua_pushboolean(L, g_show_crosshair);
+   if (g_show_crosshair) g_not_cursor = false;
    return 1;
 }
 
@@ -1304,7 +1306,7 @@ static int sep_sprite_draw(lua_State *L)
 						dest.h = g_spriteList[sprite]->h;
 
 						if (g_se_overlay_width > SINGE_OW) {
-						    if (dest.y > 0xbe && dest.y <= 0xde)
+						    if (g_not_cursor && dest.y > 0xbe && dest.y <= 0xde)
 							dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
 						    else
 						        dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
@@ -1323,7 +1325,7 @@ static int sep_sprite_draw(lua_State *L)
 						SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);
 					}
 				}
-	
+	g_not_cursor = true;
 	return 0;
 }
 
