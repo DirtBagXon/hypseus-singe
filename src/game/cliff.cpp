@@ -199,6 +199,7 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
 {
 
     char s[81] = {0};
+    static Uint8 l = 0;
 
     Port &= 0xFF; // strip off high byte
 
@@ -206,7 +207,9 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
     // this unsigned char is written to the screen at the specified coordinates
     // (set by writing to port 0x54)
     case 0x44:
+        if (l == 0x10 && Value == 0x5E) { l = 0; break; }
         tms9128nl_write_port0(Value);
+        l = Value;
         break;
 
     // play sound, this is still a big hack
