@@ -40,6 +40,9 @@
 // we allow up to triple buffering
 #define MAX_VIDEO_OVERLAY_BUFFERS 3
 
+// Moved from tms9128nl.h
+#define TMS_VERTICAL_OFFSET 24
+
 // by RDG2010 -- added GAME_SINGE
 enum {
     GAME_UNDEFINED,
@@ -184,6 +187,8 @@ class game
     unsigned int get_sinden_border();
     unsigned int get_sinden_border_color();
 
+    int get_stretch_value();
+
     short get_game_errors();
 
     bool get_use_old_overlay();
@@ -256,6 +261,8 @@ class game
     const char *get_shortgamename(); // returns short game name
     void set_sdl_software_rendering(); // turns off hardware acceleration
 
+    void set_stretch_value(int); // Cliff letterbox
+
 #ifdef CPU_DEBUG
     const char *get_address_name(unsigned int addr); // get a potential name for
                                                      // a memory address (very
@@ -284,6 +291,8 @@ class game
     int m_sinden_border_color;
 
     bool m_manymouse;
+
+    int m_stretch;
 
   protected:
     bool m_game_paused;          // whether the game is paused or not

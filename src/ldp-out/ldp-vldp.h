@@ -80,7 +80,6 @@ class ldp_vldp : public ldp
     void set_min_seek_delay(unsigned int);
     void set_framefile(const char *filename);
     void set_altaudio(const char *audio_suffix);
-    void set_vertical_stretch(unsigned int);
 
     void test_helper(unsigned uIterations);
 

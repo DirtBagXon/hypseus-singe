@@ -743,17 +743,17 @@ bool parse_cmd_line(int argc, char **argv)
                 g_game->set_fastboot(true);
             }
 
-            // stretch video vertically by x amount (a value of 24 removes
+            // stretch overlay vertically by x amount (a value of 24 removes
             // letterboxing effect in Cliffhanger)
             else if (strcasecmp(s, "-vertical_stretch") == 0) {
-                ldp_vldp *the_ldp = dynamic_cast<ldp_vldp *>(g_ldp);
+                cliff *game_cliff = dynamic_cast<cliff *>(g_game);
 
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                if (the_ldp != NULL) {
-                    the_ldp->set_vertical_stretch(i);
+                if (game_cliff != NULL && (i >= 0 && i <= 24)) {
+                    g_game->set_stretch_value(i);
                 } else {
-                    printline("Vertical stretch only works with VLDP.");
+                    printline("This argument only works with cliff. Values [0-24]");
                     result = false;
                 }
             }

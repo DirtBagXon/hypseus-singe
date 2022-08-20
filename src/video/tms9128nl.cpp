@@ -64,6 +64,8 @@ bool g_tms_interrupt_enabled = false; // whether NMI is on or off
 int g_transparency_enabled = 0;
 int g_transparency_latch   = 0;
 
+static int stretch_offset  = TMS_VERTICAL_OFFSET;
+
 // BARBADEL: Added
 int introHack     = 0;
 int prevg_vidmode = 0;
@@ -96,6 +98,7 @@ void tms9128nl_reset()
     g_transparency_latch    = 0;
     introHack               = 0;
     prevg_vidmode           = 0;
+    stretch_offset          = g_game->get_stretch_value();
 }
 
 bool tms9128nl_int_enabled() { return (g_tms_interrupt_enabled); }
@@ -655,12 +658,12 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
         for (j = CHAR_WIDTH - 1; j >= 0; j--) {
             // if rightmost bit is 1, it means draw the pixel
             if (line & 1) {
-                *((Uint8 *)g_vidbuf + ((y + i + TMS_VERTICAL_OFFSET) * TMS9128NL_OVERLAY_W) +
+                *((Uint8 *)g_vidbuf + ((y + i + stretch_offset) * TMS9128NL_OVERLAY_W) +
                   (x + j)) = TMS_FG_COLOR;
             }
             // else draw the background
             else {
-                *((Uint8 *)g_vidbuf + ((y + i + TMS_VERTICAL_OFFSET) * TMS9128NL_OVERLAY_W) +
+                *((Uint8 *)g_vidbuf + ((y + i + stretch_offset) * TMS9128NL_OVERLAY_W) +
                   (x + j)) = background_color;
             }
             line = (unsigned char)(line >> 1);
@@ -674,7 +677,7 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
     if ((g_transparency_latch) && (ch != 0) && (ch != 0xFF)) {
         int row, col;
         Uint8 *ptr = ((Uint8 *)g_vidbuf) +
-                     ((y + TMS_VERTICAL_OFFSET) * TMS9128NL_OVERLAY_W) + x + CHAR_WIDTH;
+                     ((y + stretch_offset) * TMS9128NL_OVERLAY_W) + x + CHAR_WIDTH;
         for (row = 0; row < CHAR_HEIGHT; row++) {
             for (col = 0; col < CHAR_WIDTH; col++) {
                 // make it non-transparent if it is
@@ -766,7 +769,7 @@ void tms9128nl_video_repaint()
     if (g_transparency_enabled != g_transparency_latch) {
         int i = 0;
 
-        Uint8 *ptr = (Uint8 *)g_vidbuf + (TMS9128NL_OVERLAY_W * TMS_VERTICAL_OFFSET);
+        Uint8 *ptr = (Uint8 *)g_vidbuf + (TMS9128NL_OVERLAY_W * stretch_offset);
 
         // I don't believe we want to do the stretched overlay here
 
@@ -774,7 +777,7 @@ void tms9128nl_video_repaint()
         if ((g_transparency_enabled) && (g_vidmode == 1)) {
 
             for (i = 0; i < TMS9128NL_OVERLAY_W *
-                                (TMS9128NL_OVERLAY_H - (TMS_VERTICAL_OFFSET << 1));
+                                (TMS9128NL_OVERLAY_H - (stretch_offset << 1));
                  i++) {
                 // if color is a background color, make it 0x7F (transparency
                 // color)
@@ -783,7 +786,7 @@ void tms9128nl_video_repaint()
             }
         } else {
             for (i = 0; i < TMS9128NL_OVERLAY_W *
-                                (TMS9128NL_OVERLAY_H - (TMS_VERTICAL_OFFSET << 1));
+                                (TMS9128NL_OVERLAY_H - (stretch_offset << 1));
                  i++) {
                 // if color is transparent (0x7F), make it a background color
                 if (*ptr == TMS_TRANSPARENT_COLOR) *ptr = 0;
@@ -885,7 +888,7 @@ void tms9128nl_clear_overlay()
     }
 
     // top area always gets border color and is never transparent
-    for (i = 0; i < TMS9128NL_OVERLAY_W * TMS_VERTICAL_OFFSET; i++) {
+    for (i = 0; i < TMS9128NL_OVERLAY_W * stretch_offset; i++) {
 
         *ptr = 0;
         ptr++;
@@ -893,14 +896,14 @@ void tms9128nl_clear_overlay()
 
     // erase viewable area with either the background color or the transparent
     // color
-    for (i = 0; i < TMS9128NL_OVERLAY_W * (TMS9128NL_OVERLAY_H - (TMS_VERTICAL_OFFSET << 1));
+    for (i = 0; i < TMS9128NL_OVERLAY_W * (TMS9128NL_OVERLAY_H - (stretch_offset << 1));
          i++) {
         *ptr = clear_color;
         ptr++;
     }
 
     // bottom area always gets border color and is never transparent
-    for (i = 0; i < TMS9128NL_OVERLAY_W * TMS_VERTICAL_OFFSET; i++) {
+    for (i = 0; i < TMS9128NL_OVERLAY_W * stretch_offset; i++) {
         *ptr = 0;
     }
 

@@ -28,10 +28,6 @@
 #define TMS9128NL_OVERLAY_W 320 /* width of overlay */
 #define TMS9128NL_OVERLAY_H 240 /* height of the overlay */
 
-#define TMS_VERTICAL_OFFSET                                                    \
-    24 /* how many lines down to begin drawing video                           \
-          */
-
 #define TMS_BG_COLOR 0
 #define TMS_TRANSPARENT_COLOR 0x7F
 #define TMS_FG_COLOR 0xFF

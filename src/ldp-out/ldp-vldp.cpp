@@ -127,7 +127,6 @@ ldp_vldp::ldp_vldp()
     m_blank_on_skips     = false;
     m_seek_frames_per_ms = 0;
     m_min_seek_delay     = 0;
-    m_vertical_stretch   = 0;
 
     m_testing = false; // don't run tests by default
 
@@ -147,9 +146,6 @@ bool ldp_vldp::init_player()
 {
     bool result        = false;
     bool need_to_parse = false; // whether we need to parse all video
-
-    g_vertical_stretch = m_vertical_stretch; // callbacks don't have access to
-                                             // m_vertical_stretch
 
     // try to read in the framefile
     if (read_frame_conversions()) {
@@ -776,12 +772,6 @@ void ldp_vldp::set_framefile(const char *filename)
 void ldp_vldp::set_altaudio(const char *audio_suffix)
 {
     m_altaudio_suffix = audio_suffix;
-}
-
-// sets alternate soundtrack
-void ldp_vldp::set_vertical_stretch(unsigned int value)
-{
-    m_vertical_stretch = value;
 }
 
 void ldp_vldp::test_helper(unsigned uIterations)

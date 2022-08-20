@@ -132,6 +132,8 @@ game::game()
 
     m_manymouse      = false;
 
+    m_stretch        = TMS_VERTICAL_OFFSET;
+
     // switch to SDL software rendering if hardware acceleration is troublesome
     m_sdl_software_rendering = false;
 
@@ -596,6 +598,8 @@ unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
 unsigned int game::get_sinden_border() { return m_sinden_border; }
 unsigned int game::get_sinden_border_color() { return m_sinden_border_color; }
 
+int game::get_stretch_value() { return m_stretch; }
+
 short game::get_game_errors() { return m_game_error; }
 
 bool game::get_console_flag() { return m_run_on_console; }
@@ -616,6 +620,8 @@ void game::set_sinden_border(int value) { m_sinden_border = value; }
 void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
 
 void game::set_manymouse(bool value) { m_manymouse = value; }
+
+void game::set_stretch_value(int value) { m_stretch = m_stretch - value; }
 
 // generic preset function, does nothing
 void game::set_preset(int preset)
