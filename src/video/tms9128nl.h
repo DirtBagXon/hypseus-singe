@@ -31,6 +31,7 @@
 #define TMS_BG_COLOR 0
 #define TMS_TRANSPARENT_COLOR 0x7F
 #define TMS_FG_COLOR 0xFF
+#define TMS_ROW_HEIGHT 0x8
 
 #define TMS_COLOR_COUNT 256
 
