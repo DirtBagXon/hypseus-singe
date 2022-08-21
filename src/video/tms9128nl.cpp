@@ -100,7 +100,8 @@ void tms9128nl_reset()
     introHack               = 0;
     prevg_vidmode           = 0;
     stretch_offset          = g_game->get_stretch_value();
-    offset_shunt            = (TMS_VERTICAL_OFFSET - g_game->get_stretch_value()) / 7;
+    offset_shunt            = (TMS_VERTICAL_OFFSET - g_game->get_stretch_value())
+                                             / TMS_ROW_HEIGHT;
 }
 
 bool tms9128nl_int_enabled() { return (g_tms_interrupt_enabled); }
