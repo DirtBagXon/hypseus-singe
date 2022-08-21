@@ -65,6 +65,7 @@ int g_transparency_enabled = 0;
 int g_transparency_latch   = 0;
 
 static int stretch_offset  = TMS_VERTICAL_OFFSET;
+static int offset_shunt    = 0;
 
 // BARBADEL: Added
 int introHack     = 0;
@@ -99,6 +100,7 @@ void tms9128nl_reset()
     introHack               = 0;
     prevg_vidmode           = 0;
     stretch_offset          = g_game->get_stretch_value();
+    offset_shunt            = (TMS_VERTICAL_OFFSET - g_game->get_stretch_value()) / 7;
 }
 
 bool tms9128nl_int_enabled() { return (g_tms_interrupt_enabled); }
@@ -120,8 +122,28 @@ void tms9128nl_writechar(unsigned char value)
             base   = 0;
             rowdiv = 40; // 40*24
 
-            row = (wvidindex - base - 1) / rowdiv;
+            row = ((wvidindex - base - 1) / rowdiv) + offset_shunt;
             col = (wvidindex - base - 1) % rowdiv;
+
+            if (offset_shunt) {
+                switch (value)
+                {
+                   case 0x0:
+                      if ((int)row == offset_shunt)
+                          tms9128nl_drawchar(0, col, 0);
+                      break;
+                   case 0x60:
+                   case 0x61:
+                   case 0x62:
+                   case 0x63:
+                   case 0x67:
+                      break;
+                   default:
+                      if ((int)row == offset_shunt)
+                          row = 0x0;
+                      break;
+                }
+            }
 
             if ((col == 31) && (rowdiv == 32))
                 return; // problems with col31? or bug in fancyclearscreen
