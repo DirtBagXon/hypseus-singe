@@ -167,6 +167,16 @@ void tms9128nl_writechar(unsigned char value)
             row = (wvidindex - base - 1) / rowdiv;
             col = (wvidindex - base - 1) % rowdiv;
 
+            if (offset_shunt) {
+                switch (value)
+                {
+                   case 0xFF:
+                      if (!row && col == 0x14)
+                          tms9128nl_clear_overlay();
+                      return;
+                }
+            }
+
             if ((col == 31) && (rowdiv == 32))
                 return; // problems with col31? or bug in fancyclearscreen
                         // routine?
