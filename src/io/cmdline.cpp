@@ -750,10 +750,10 @@ bool parse_cmd_line(int argc, char **argv)
 
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                if (game_cliff != NULL && (i >= 0 && i <= 24)) {
+                if (game_cliff != NULL && (i >= 1 && i <= 24)) {
                     g_game->set_stretch_value(i);
                 } else {
-                    printline("This argument only works with cliff. Values [0-24]");
+                    printline("This argument only works with cliff. Values [1-24]");
                     result = false;
                 }
             }

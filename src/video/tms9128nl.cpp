@@ -171,7 +171,7 @@ void tms9128nl_writechar(unsigned char value)
                 switch (value)
                 {
                    case 0xFF:
-                      if (!row && col == 0x14)
+                      if (!row && col == 0xE)
                           tms9128nl_clear_overlay();
                       return;
                 }
