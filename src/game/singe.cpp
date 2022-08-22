@@ -378,10 +378,6 @@ bool singe::handle_cmdline_arg(const char *arg)
         oversize_overlay = true;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-manymouse") == 0) {
-        game::set_manymouse(true);
-        bResult = true;
-    }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {
         notarget = true;
         bResult = true;
