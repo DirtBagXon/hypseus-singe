@@ -818,6 +818,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-grabmouse") == 0) {
                 video::set_grabmouse(true);
             }
+            // Make manymouse a global argument
+            else if (strcasecmp(s, "-manymouse") == 0) {
+                g_game->set_manymouse(true);
+            }
             // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
             else if (strcasecmp(s, "-nolinear_scale") == 0) {
                 video::set_fullscreen_scale_nearest(true);
