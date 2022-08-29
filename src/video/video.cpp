@@ -1133,9 +1133,9 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
 void vid_blank_yuv_texture (bool s) {
 
     if (g_yuv_blue) {
-        // Blue YUV#1DFF6B
+        // Blue: YUV#1DEB6B
         memset(g_yuv_surface->Yplane, 0x1d, g_yuv_surface->Ysize);
-        memset(g_yuv_surface->Uplane, 0xff, g_yuv_surface->Usize);
+        memset(g_yuv_surface->Uplane, 0xeb, g_yuv_surface->Usize);
         memset(g_yuv_surface->Vplane, 0x6b, g_yuv_surface->Vsize);
     } else {
         // Black: YUV#108080, YUV(16,0,0)
