@@ -108,6 +108,8 @@ bool g_grabmouse = false;
 
 bool g_vsync = true;
 
+bool g_yuv_blue = false;
+
 bool g_vid_resized = false;
 
 bool g_bForceAspectRatio = false;
@@ -832,6 +834,8 @@ void set_grabmouse(bool value) { g_grabmouse = value; }
 
 void set_vsync(bool value) { g_vsync = value; }
 
+void set_yuv_blue(bool value) { g_yuv_blue = value; }
+
 void set_scanlines(bool value) { g_scanlines = value; }
 
 void set_shunt(int value) { s_shunt = value; }
@@ -1128,10 +1132,17 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
 
 void vid_blank_yuv_texture (bool s) {
 
-    // Black: YUV#108080, YUV(16,0,0)
-    memset(g_yuv_surface->Yplane, 0x10, g_yuv_surface->Ysize);
-    memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
-    memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
+    if (g_yuv_blue) {
+        // Blue YUV#1DFF6B
+        memset(g_yuv_surface->Yplane, 0x1d, g_yuv_surface->Ysize);
+        memset(g_yuv_surface->Uplane, 0xff, g_yuv_surface->Usize);
+        memset(g_yuv_surface->Vplane, 0x6b, g_yuv_surface->Vsize);
+    } else {
+        // Black: YUV#108080, YUV(16,0,0)
+        memset(g_yuv_surface->Yplane, 0x10, g_yuv_surface->Ysize);
+        memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
+        memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
+    }
 
     if (s) SDL_UpdateYUVTexture(g_yuv_texture, NULL,
 	    g_yuv_surface->Yplane, g_yuv_surface->width,

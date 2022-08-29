@@ -141,6 +141,7 @@ int get_textureaccess();
 void set_textureaccess(int value);
 void set_grabmouse(bool value);
 void set_vsync(bool value);
+void set_yuv_blue(bool value);
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);

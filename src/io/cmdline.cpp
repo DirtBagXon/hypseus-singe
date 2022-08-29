@@ -508,7 +508,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-blank_skips") == 0) {
                 g_ldp->set_skip_blanking(true);
             }
-
+            // provides a means to switch blanking YUV to blue
+            else if (strcasecmp(s, "-blank_blue") == 0) {
+                video::set_yuv_blue(true);
+            }
             // if they are pointing to a framefile to be used by VLDP
             else if (strcasecmp(s, "-framefile") == 0) {
                 ldp_vldp *cur_ldp =
