@@ -18,6 +18,7 @@ Features:
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
 * Psuedo Singe 2 support (details below)
 * Sinden support in Singe games
+* For Singe games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
 * Daphne alternate overlay choices
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png?raw=true)
@@ -165,6 +166,7 @@ Configure **joystick controls** in [hypinput.ini](https://github.com/DirtBagXon/
 
 The following additional, and reimplemented, arguments have been added to Hypseus Singe:
 
+    -blank_blue                [ VLDP blank using YUV#1DEB6B not YUV#108080    ]
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
@@ -179,6 +181,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
+    -vertical_stretch <1-24>   [ Overlay stretch implemented for (cliff) only  ]
 
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -bootsilent                [ Mute sound during initVLDP() if possible      ]
