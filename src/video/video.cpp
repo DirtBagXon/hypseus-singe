@@ -112,6 +112,8 @@ bool g_yuv_blue = false;
 
 bool g_vid_resized = false;
 
+bool g_enhance_overlay = false;
+
 bool g_bForceAspectRatio = false;
 
 bool g_fullscreen = false; // whether we should initialize video in fullscreen
@@ -404,6 +406,8 @@ bool init_display()
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, g_overlay_width, g_overlay_height,
 					surfacebpp, Rmask, Gmask, Bmask, Amask);
 
+		g_enhance_overlay = g_game->get_overlay_upgrade();
+
 		g_leds_surface =
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240,
 					surfacebpp, Rmask, Gmask, Bmask, Amask);
@@ -413,12 +417,12 @@ bool init_display()
                 // We couldn't do it earlier in load_bmps() because we need the g_screen_blitter format.
                 g_other_bmps[B_OVERLAY_LEDS] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LEDS],
                                     g_screen_blitter->format, 0);
-                SDL_SetColorKey (g_other_bmps[B_OVERLAY_LEDS], 1, 0x000000ff);
+                SDL_SetColorKey (g_other_bmps[B_OVERLAY_LEDS], SDL_TRUE, 0x000000ff);
 
                 if (g_game->get_use_old_overlay()) {
                     g_other_bmps[B_OVERLAY_LDP1450] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LDP1450],
                                     g_screen_blitter->format, 0);
-                    SDL_SetColorKey (g_other_bmps[B_OVERLAY_LDP1450], 1, 0x000000ff);
+                    SDL_SetColorKey (g_other_bmps[B_OVERLAY_LDP1450], SDL_TRUE, 0x000000ff);
 
                 }
 
@@ -1202,18 +1206,26 @@ void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
     g_overlay_size_rect.w = tx->w;
     g_overlay_size_rect.h = tx->h;
 
-    // MAC: 8bpp to RGBA8888 conversion. Black pixels are considered totally transparent so they become 0x00000000;
-    for (int i = 0; i < (tx->w * tx->h); i++) {
+    if (g_enhance_overlay) {
+
+        // DBX: 32bit overlay from Singe
+        SDL_SetColorKey (tx, SDL_TRUE, 0x00000000);
+        SDL_FillRect(g_screen_blitter, NULL, 0x00000000);
+        SDL_BlitSurface(tx, NULL, g_screen_blitter, NULL);
+
+    } else {
+
+        // MAC: 8bpp to RGBA8888 conversion. Black pixels are considered totally transparent so they become 0x00000000;
+        for (int i = 0; i < (tx->w * tx->h); i++) {
 	    *((uint32_t*)(g_screen_blitter->pixels)+i) =
-	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].r) << 24|
-	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].g) << 16|
-	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].b) << 8|
+	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].r) << 24 |
+	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].g) << 16 |
+	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].b) << 8  |
 	    (0x00000000 | tx->format->palette->colors[*((uint8_t*)(tx->pixels)+i)].a);
+        }
     }
 
     g_overlay_needs_update = true;
-    // MAC: We update the overlay texture later, just when we are going to SDL_RenderCopy() it to the renderer.
-    // SDL_UpdateTexture(g_overlay_texture, &g_overlay_size_rect, (void *)g_screen_blitter->pixels, g_screen_blitter->pitch);
 }
 
 void vid_blit () {

@@ -43,6 +43,9 @@
 // Moved from tms9128nl.h
 #define TMS_VERTICAL_OFFSET 24
 
+// Default game overlay depth
+#define GAME_OVERLAY_DEPTH 8
+
 // by RDG2010 -- added GAME_SINGE
 enum {
     GAME_UNDEFINED,
@@ -193,11 +196,15 @@ class game
 
     bool get_use_old_overlay();
 
+    bool get_overlay_upgrade();
+
     bool get_console_flag();
 
     bool get_manymouse();
 
     virtual void set_manymouse(bool);
+
+    virtual void set_32bit_overlay(bool);
 
     virtual void set_console_flag(bool);
 
@@ -282,6 +289,10 @@ class game
     bool m_sdl_software_scoreboard;
 
     bool m_use_old_overlay;
+
+    Uint8 m_overlay_depth;
+
+    bool m_overlay_upgrade;
 
     bool m_run_on_console;
 

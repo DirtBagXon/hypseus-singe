@@ -66,6 +66,7 @@ class singe : public game
     void repaint();
 
     bool singe_alt_pressed = false;
+    bool upgrade_overlay = false;
     bool oversize_overlay = false;
     bool muteinit = false;
     bool notarget = false;
