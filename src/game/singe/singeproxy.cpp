@@ -69,6 +69,7 @@ double                g_sep_overlay_scale_x =  1;
 double                g_sep_overlay_scale_y =  1;
 bool                  g_pause_state         = false; // by RDG2010
 bool                  g_init_mute           = false;
+bool                  g_upgrade_overlay     = false;
 bool                  g_show_crosshair      = true;
 bool                  g_not_cursor          = true;
 
@@ -96,6 +97,10 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
 	g_SingeOut.sep_set_surface         = sep_set_surface;
 	g_SingeOut.sep_shutdown            = sep_shutdown;
 	g_SingeOut.sep_startup             = sep_startup;
+	g_SingeOut.sep_alter_lua_clock     = sep_alter_lua_clock;
+	g_SingeOut.sep_mute_vldp_init      = sep_mute_vldp_init;
+	g_SingeOut.sep_no_crosshair        = sep_no_crosshair;
+	g_SingeOut.sep_upgrade_overlay     = sep_upgrade_overlay;
 	
 	result = &g_SingeOut;
 	
@@ -246,7 +251,10 @@ void sep_die(const char *fmt, ...)
 
 void sep_do_blit(SDL_Surface *srfDest)
 {
-	sep_srf32_to_srf8(g_se_surface, srfDest);
+	if (g_upgrade_overlay)
+	    sep_format_srf32(g_se_surface, srfDest);
+	else
+	    sep_srf32_to_srf8(g_se_surface, srfDest);
 }
 
 void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
@@ -423,7 +431,7 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
 		(dst->format->BitsPerPixel == 8) &&
 		// and source is 32-bit
 		(src->format->BitsPerPixel == 32)
-		)
+	)
 	{
 		SDL_LockSurface(dst);
 		SDL_LockSurface(src);
@@ -482,6 +490,70 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
 			pSrcLine = ((Uint8 *) pSrcLine) + src->pitch;	// go to the next line
 			pDstLine = ((Uint8 *) pDstLine) + dst->pitch;	// " " "
 		} // end doing all rows
+
+		SDL_UnlockSurface(src);
+		SDL_UnlockSurface(dst);
+
+		bResult = true;
+	}
+
+	return bResult;
+}
+
+bool sep_format_srf32(SDL_Surface *src, SDL_Surface *dst)
+{
+	bool bResult = false;
+
+	// cleanup 32-bit surface
+
+	if (
+		((dst->w == src->w) && (dst->h == src->h)) &&
+		(dst->format->BitsPerPixel == 32) &&
+		(src->format->BitsPerPixel == 32)
+	)
+	{
+		SDL_LockSurface(dst);
+		SDL_LockSurface(src);
+
+		void *pSrcLine = src->pixels;
+		void *pDstLine = dst->pixels;
+		for (unsigned int uRowIdx = 0; uRowIdx < (unsigned int) src->h; ++uRowIdx)
+		{
+			Uint32 *p32SrcPix = (Uint32 *) pSrcLine;
+			Uint32 *p32DstPix = (Uint32 *) pDstLine;
+
+			for (unsigned int uColIdx = 0; uColIdx < (unsigned int) src->w; ++uColIdx)
+			{
+				Uint32 u32SrcPix = *p32SrcPix;
+
+				Uint8 u32A = (u32SrcPix & src->format->Amask) >> src->format->Ashift;
+				Uint8 u32R = (u32SrcPix & src->format->Rmask) >> src->format->Rshift;
+				Uint8 u32G = (u32SrcPix & src->format->Gmask) >> src->format->Gshift;
+				Uint8 u32B = (u32SrcPix & src->format->Bmask) >> src->format->Bshift;
+
+				Uint32 u32Idx = (u32A << 24) | (u32R << 16) | (u32G << 8) | u32B;
+
+				if (u32A > 0x7F)
+				{
+					if (u32Idx == 0)
+					{
+						u32Idx = 1;
+					}
+				}
+				else
+				{
+					u32Idx = 0;
+				}
+
+				*p32DstPix = u32Idx;
+
+				++p32DstPix;
+				++p32SrcPix;
+			}
+
+			pSrcLine = ((Uint8 *) pSrcLine) + src->pitch;
+			pDstLine = ((Uint8 *) pDstLine) + dst->pitch;
+		}
 
 		SDL_UnlockSurface(src);
 		SDL_UnlockSurface(dst);
@@ -558,10 +630,6 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
 
-  lua_register(g_se_lua_context, "luaChangeSpeed",         sep_alter_lua_clock);
-  lua_register(g_se_lua_context, "mutevldpInit",           sep_mute_vldp_init);
-  lua_register(g_se_lua_context, "noCrosshair",            sep_no_crosshair);
-
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
   lua_register(g_se_lua_context, "keyboardSetMode",    sep_keyboard_set_mode);
@@ -635,6 +703,27 @@ void sep_unload_sprites(void)
 			SDL_FreeSurface(g_spriteList[x]);
 		g_spriteList.clear();
 	}
+}
+
+void sep_alter_lua_clock(void)
+{
+   os_alter_clocker();
+}
+
+void sep_mute_vldp_init(void)
+{
+   g_init_mute = true;
+   sep_print("Booting initVLDP() silently");
+}
+
+void sep_no_crosshair(void)
+{
+  g_show_crosshair = false;
+}
+
+void sep_upgrade_overlay(void)
+{
+  g_upgrade_overlay = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -846,7 +935,8 @@ static int sep_font_sprite(lua_State *L)
 					sep_die("Font surface is null!");
 				} else {
 
-					SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
+					SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
+					SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
 
 					g_spriteList.push_back(textsurface);
 					result = g_spriteList.size() - 1;
@@ -967,30 +1057,6 @@ static int sep_singe_wants_crosshair(lua_State *L)
    return 1;
 }
 
-static int sep_alter_lua_clock(lua_State *L)
-{
-   static bool c = false;
-   if (!c) { os_alter_clocker(L); c = true; }
-   return 1;
-}
-
-static int sep_mute_vldp_init(lua_State *L)
-{
-   static bool m = false;
-   if (!m) {
-       g_init_mute = true;
-       sep_print("Booting initVLDP() silently");
-       m = true;
-   }
-   return 1;
-}
-
-static int sep_no_crosshair(lua_State *L)
-{
-  g_show_crosshair = false;
-  return 1;
-}
-
 static int sep_mpeg_get_width(lua_State *L)
 {
   lua_pushnumber(L, g_pSingeIn->g_vldp_info->w);
@@ -1082,7 +1148,8 @@ static int sep_say_font(lua_State *L)
                                                                            + (dest.w * 26)) / SINGE_OW);
 							}
 
-							SDL_SetColorKey(textsurface, SDL_TRUE|SDL_RLEACCEL, 0);
+							SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
+							SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
 							if (!video::get_singe_blend_sprite())
 								SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 
@@ -1314,7 +1381,7 @@ static int sep_sprite_draw(lua_State *L)
 						}
 
 						if (dest.w == 0x89 && dest.h == 0x1c) { // SP
-							SDL_SetColorKey(g_spriteList[sprite], SDL_TRUE|SDL_RLEACCEL, 0x000000ff);
+							SDL_SetColorKey(g_spriteList[sprite], SDL_TRUE, 0x000000ff);
 							dest.x+=3;
 						}
 
@@ -1368,9 +1435,11 @@ static int sep_sprite_load(lua_State *L)
                             memcpy(filepath, sprite, len);
 
 			SDL_Surface *temp = IMG_Load(filepath);
+
 			if (temp != NULL)
 			{
-				SDL_SetColorKey(temp, SDL_TRUE|SDL_RLEACCEL, 0);
+				SDL_SetSurfaceRLE(temp, SDL_TRUE);
+				SDL_SetColorKey(temp, SDL_TRUE, 0x0);
 				g_spriteList.push_back(temp);
 				result = g_spriteList.size() - 1;
 			} else

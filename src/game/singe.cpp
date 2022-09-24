@@ -211,9 +211,10 @@ void singe::start()
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
-    if (notarget) g_pSingeOut->sep_call_lua("noCrosshair", "i", 1);
-    if (muteinit) g_pSingeOut->sep_call_lua("mutevldpInit", "i", 1);
-    if (oc) g_pSingeOut->sep_call_lua("luaChangeSpeed", "i", 1);
+    if (upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
+    if (muteinit) g_pSingeOut->sep_mute_vldp_init();
+    if (notarget) g_pSingeOut->sep_no_crosshair();
+    if (oc) g_pSingeOut->sep_alter_lua_clock();
 
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
@@ -340,6 +341,9 @@ bool singe::handle_cmdline_arg(const char *arg)
     char s[256]              = {0};
     int i;
 
+    game::set_32bit_overlay(true);
+    upgrade_overlay = true;
+
     if (strcasecmp(arg, "-script") == 0) {
         get_next_word(s, sizeof(s));
 
@@ -376,6 +380,11 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-oversize_overlay") == 0) {
         oversize_overlay = true;
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-8bit_overlay") == 0) {
+        game::set_32bit_overlay(false);
+        upgrade_overlay = false;
         bResult = true;
     }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {

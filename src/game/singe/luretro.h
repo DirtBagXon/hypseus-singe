@@ -31,7 +31,7 @@
 
 unsigned char get_retropath();
 
-LUA_API void (os_alter_clocker) (lua_State *L);
+void (os_alter_clocker)(void);
 
 void lua_set_retropath(unsigned char value);
 

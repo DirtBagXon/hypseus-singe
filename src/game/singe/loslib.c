@@ -77,7 +77,7 @@ static int os_clock (lua_State *L) {
   return 1;
 }
 
-void os_alter_clocker (lua_State *L) {
+void os_alter_clocker () {
   clocker = 0x08;
 }
 

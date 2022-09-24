@@ -63,12 +63,17 @@ void          sep_set_static_pointers(double *m_disc_fps, unsigned int *m_uDiscF
 void          sep_set_surface(int width, int height);
 void          sep_shutdown(void);
 void          sep_sound_ended(Uint8 *buffer, unsigned int slot);
-bool          sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst);
 void          sep_startup(const char *script);
 void          sep_unload_fonts(void);
 void          sep_unload_sounds(void);
 void          sep_unload_sprites(void);
 void          sep_set_retropath(void);
+void          sep_alter_lua_clock(void);
+void          sep_mute_vldp_init(void);
+void          sep_no_crosshair(void);
+void          sep_upgrade_overlay(void);
+bool          sep_format_srf32(SDL_Surface *src, SDL_Surface *dst);
+bool          sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -79,9 +84,6 @@ static int sep_change_speed(lua_State *L);
 static int sep_color_set_backcolor(lua_State *L);
 static int sep_color_set_forecolor(lua_State *L);
 static int sep_hypseus_get_height(lua_State *L);
-static int sep_alter_lua_clock(lua_State *L);
-static int sep_mute_vldp_init(lua_State *L);
-static int sep_no_crosshair(lua_State *L);
 static int sep_hypseus_get_width(lua_State *L);
 static int sep_debug_say(lua_State *L);
 static int sep_font_load(lua_State *L);

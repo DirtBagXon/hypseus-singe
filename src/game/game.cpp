@@ -143,6 +143,10 @@ game::game()
     // old style overlays
     m_use_old_overlay = false;
 
+    // overlay depth
+    m_overlay_depth = GAME_OVERLAY_DEPTH;
+    m_overlay_upgrade = false;
+
     // running on retro console
     m_run_on_console = false;
 
@@ -371,7 +375,7 @@ bool game::init_video()
 
             if (m_bFullScale) {
                 m_video_overlay_scaled =
-                    SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 8, 0, 0, 0, 0); // create an 8-bit surface
+                    SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, m_overlay_depth, 0, 0, 0, 0); // create a surface
 
                 // create matrix for scaling the overlay pixmap to the physical
                 // surface
@@ -413,7 +417,7 @@ bool game::init_video()
             for (index = 0; index < m_video_overlay_count; index++) {
                 m_video_overlay[index] =
                     SDL_CreateRGBSurface(SDL_SWSURFACE, m_video_overlay_width,
-                                         m_video_overlay_height, 8, 0, 0, 0, 0); // create an 8-bit surface
+                                         m_video_overlay_height, m_overlay_depth, 0, 0, 0, 0); // create a surface
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {
@@ -606,6 +610,8 @@ bool game::get_console_flag() { return m_run_on_console; }
 
 bool game::get_use_old_overlay() { return m_use_old_overlay; }
 
+bool game::get_overlay_upgrade() { return m_overlay_upgrade; }
+
 bool game::get_manymouse() { return m_manymouse; }
 
 void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
@@ -620,6 +626,14 @@ void game::set_sinden_border(int value) { m_sinden_border = value; }
 void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
 
 void game::set_manymouse(bool value) { m_manymouse = value; }
+
+void game::set_32bit_overlay(bool value)
+{
+	if (value) m_overlay_depth = 32;
+	else m_overlay_depth = GAME_OVERLAY_DEPTH;
+
+	m_overlay_upgrade = value;
+}
 
 void game::set_stretch_value(int value) { m_stretch = m_stretch - value; }
 
