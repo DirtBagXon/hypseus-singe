@@ -935,6 +935,7 @@ static int sep_font_sprite(lua_State *L)
 					sep_die("Font surface is null!");
 				} else {
 
+					textsurface = SDL_ConvertSurface(textsurface, g_se_surface->format, 0);
 					SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
 					SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
 
@@ -1438,6 +1439,7 @@ static int sep_sprite_load(lua_State *L)
 
 			if (temp != NULL)
 			{
+				temp = SDL_ConvertSurface(temp, g_se_surface->format, 0);
 				SDL_SetSurfaceRLE(temp, SDL_TRUE);
 				SDL_SetColorKey(temp, SDL_TRUE, 0x0);
 				g_spriteList.push_back(temp);
