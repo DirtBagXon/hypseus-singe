@@ -71,7 +71,6 @@ SDL_Surface *g_screen_blitter      = NULL; // The main blitter surface
 SDL_Surface *g_leds_surface        = NULL;
 
 SDL_Rect g_overlay_size_rect; 
-SDL_Rect g_display_size_rect = {0, 0, g_vid_width, g_vid_height};
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
 
 bool queue_take_screenshot = false;
@@ -94,7 +93,6 @@ int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
 int sboverlay_characterset = 2;
 int g_texture_access = SDL_TEXTUREACCESS_TARGET;
-
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
@@ -737,68 +735,58 @@ void clean_control_char(char *src, char *dst, int len)
 //////////////////////////////////////////////////////////////////////////////////////////
 
 SDL_Window *get_window() { return g_window; }
-
 SDL_Renderer *get_renderer() { return g_renderer; }
-
 SDL_Texture *get_screen() { return g_overlay_texture; }
-
 SDL_Surface *get_screen_blitter() { return g_screen_blitter; }
-
 SDL_Texture *get_yuv_screen() { return g_yuv_texture; }
-
 SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
-bool get_opengl() { return g_opengl; }
+FC_Font *get_font() { return g_font; }
+FC_Font *get_fixfont() { return g_fixfont; }
+TTF_Font *get_ttfont() { return g_ttfont; }
 
-bool get_vulkan() { return g_vulkan; }
-
-bool get_fullscreen() { return g_fullscreen; }
-
-bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
-
-bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
-
-bool get_use_old_osd() { return g_game->get_use_old_overlay(); }
-
-bool get_video_timer_blank() { return g_yuv_video_timer_blank; }
-
-// sets our g_fullscreen bool (whether will be in fullscreen)
-void set_fullscreen(bool value) { g_fullscreen = value; }
-
-void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
-
-void set_opengl(bool value) { g_opengl = value; }
-
-void set_vulkan(bool value) { g_vulkan = value; }
-
-void set_textureaccess(int value) { g_texture_access = value; }
-
-void set_grabmouse(bool value) { g_grabmouse = value; }
-
-void set_vsync(bool value) { g_vsync = value; }
-
-void set_yuv_blue(bool value) { g_yuv_blue = value; }
-
-void set_scanlines(bool value) { g_scanlines = value; }
-
-void set_shunt(int value) { s_shunt = value; }
-
-void set_alpha(int value) { s_alpha = value; }
-
-void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
-
-void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
-
-void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
-
-void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
-
-void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
-
-void set_video_timer_blank(bool value) { g_yuv_video_timer_blank = value; }
+Uint16 get_video_width() { return g_vid_width; }
+Uint16 get_video_height() { return g_vid_height; }
 
 int get_textureaccess() { return g_texture_access; }
 int get_scalefactor() { return g_scalefactor; }
+unsigned int get_draw_width() { return g_draw_width; }
+unsigned int get_draw_height() { return g_draw_height; }
+
+bool get_opengl() { return g_opengl; }
+bool get_vulkan() { return g_vulkan; }
+bool get_fullscreen() { return g_fullscreen; }
+bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
+bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
+bool get_use_old_osd() { return g_game->get_use_old_overlay(); }
+bool get_video_timer_blank() { return g_yuv_video_timer_blank; }
+
+void set_fullscreen(bool value) { g_fullscreen = value; }
+void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
+void set_opengl(bool value) { g_opengl = value; }
+void set_vulkan(bool value) { g_vulkan = value; }
+void set_textureaccess(int value) { g_texture_access = value; }
+void set_grabmouse(bool value) { g_grabmouse = value; }
+void set_vsync(bool value) { g_vsync = value; }
+void set_yuv_blue(bool value) { g_yuv_blue = value; }
+void set_scanlines(bool value) { g_scanlines = value; }
+void set_shunt(int value) { s_shunt = value; }
+void set_alpha(int value) { s_alpha = value; }
+void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
+void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
+void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
+void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
+void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
+void set_video_timer_blank(bool value) { g_yuv_video_timer_blank = value; }
+void set_rotate_degrees(float fDegrees) { g_fRotateDegrees = fDegrees; }
+void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
+void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
+void set_subtitle_display(char *s) { subchar = strdup(s); }
+void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
+void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
+void set_detected_height(int pHeight) { g_probe_height = pHeight; }
+void set_detected_width(int pWidth) { g_probe_width = pWidth; }
+
 void set_scalefactor(int value)
 {
     if (value > 100 || value < 50) // Validating in case user inputs crazy
@@ -812,13 +800,6 @@ void set_scalefactor(int value)
     }
 }
 
-void set_rotate_degrees(float fDegrees) { g_fRotateDegrees = fDegrees; }
-
-void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
-
-// returns video width
-Uint16 get_video_width() { return g_vid_width; }
-
 // sets g_vid_width
 void set_video_width(Uint16 width)
 {
@@ -830,9 +811,6 @@ void set_video_width(Uint16 width)
     g_vid_resized = true;
 }
 
-// returns video height
-Uint16 get_video_height() { return g_vid_height; }
-
 // sets g_vid_height
 void set_video_height(Uint16 height)
 {
@@ -843,10 +821,6 @@ void set_video_height(Uint16 height)
     g_vid_height = height;
     g_vid_resized = true;
 }
-
-FC_Font *get_font() { return g_font; }
-FC_Font *get_fixfont() { return g_fixfont; }
-TTF_Font *get_ttfont() { return g_ttfont; }
 
 void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 {
@@ -1038,15 +1012,6 @@ void vid_toggle_scanlines()
         SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
     } else g_scanlines = true;
 }
-
-void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
-void set_subtitle_display(char *s) { subchar = strdup(s); }
-void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
-void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
-void set_detected_height(int pHeight) { g_probe_height = pHeight; }
-void set_detected_width(int pWidth) { g_probe_width = pWidth; }
-unsigned int get_draw_width() { return g_draw_width; }
-unsigned int get_draw_height() { return g_draw_height; }
 
 void vid_setup_yuv_overlay (int width, int height) {
     // Prepare the YUV overlay, wich means setting up both the YUV surface and YUV texture.
