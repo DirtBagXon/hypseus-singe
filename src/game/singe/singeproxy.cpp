@@ -62,7 +62,6 @@ SDL_Color             g_colorBackground     = {0, 0, 0, 0};
 vector<TTF_Font *>    g_fontList;
 vector<g_soundT>      g_soundList;
 vector<SDL_Surface *> g_spriteList;
-struct yuv_buf        g_sep_yuv_buf;
 int                   g_fontCurrent         = -1;
 int                   g_fontQuality         =  1;
 double                g_sep_overlay_scale_x =  1;
@@ -382,13 +381,6 @@ void sep_shutdown(void)
 	sep_unload_sounds();
 	sep_unload_sprites();
 	
-	if (g_sep_yuv_buf.Y != NULL) free(g_sep_yuv_buf.Y);
-	if (g_sep_yuv_buf.U != NULL) free(g_sep_yuv_buf.U);
-	if (g_sep_yuv_buf.V != NULL) free(g_sep_yuv_buf.V);
-	
-	g_sep_yuv_buf.Y_size = 0;
-	g_sep_yuv_buf.UV_size = 0;
-
   TTF_Quit();
 
   if (g_bLuaInitialized)
@@ -645,13 +637,6 @@ void sep_startup(const char *script)
   {
     sep_die("Unable to initialize font library.");
   }
-
-	g_sep_yuv_buf.Y = NULL;
-	g_sep_yuv_buf.U = NULL;
-	g_sep_yuv_buf.V = NULL;
-	g_sep_yuv_buf.Y_size = 0;
-	g_sep_yuv_buf.UV_size = 0;
-	
 	sep_capture_vldp();
 
 	g_bLuaInitialized = true;
