@@ -266,8 +266,7 @@ int main(int argc, char **argv)
 
     // if command line was bogus, quit
     else {
-        printerror("Bad command line or initialization problem.\n"
-                   "hypseus.log may provide further details of the error.");
+        printerror("Bad command line or initialization problem.\n");
     }
 
     // if our g_game class was allocated

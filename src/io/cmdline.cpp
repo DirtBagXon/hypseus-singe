@@ -113,7 +113,7 @@ bool parse_homedir()
             // Ignore this one, already handled
             get_next_word(s, sizeof(s));
             if (s[0] == 0) {
-                printline("Homedir switch used but no homedir specified!");
+                printerror("Homedir switch used but no homedir specified!");
                 result = false;
                 break;
             } else {
@@ -393,7 +393,7 @@ bool parse_game_type()
         exit(0);
     } else {
         sprintf(e, "ERROR: Unknown game type specified : %s", s);
-        printline(e);
+        printerror(e);
         result = false;
     }
 
@@ -408,7 +408,7 @@ bool parse_game_type()
     //  convention.
     else if (bSGNMatches) {
         if (strcasecmp(s, g_game->get_shortgamename()) != 0) {
-            printline("Developer ERROR : short game name does not match "
+            printerror("Developer ERROR : short game name does not match "
                       "command-line game name and it should!");
             string msg = "Cmdline Game name is: ";
             msg += s;
@@ -440,7 +440,7 @@ bool parse_ldp_type()
     } else if (strcasecmp(s, "vldp") == 0) {
         g_ldp = new ldp_vldp();
     } else {
-        printline("ERROR: Unknown laserdisc player type specified");
+        printerror("ERROR: Unknown laserdisc player type specified");
         result = false;
     }
 
@@ -523,27 +523,23 @@ bool parse_cmd_line(int argc, char **argv)
                 if (cur_ldp) {
                     cur_ldp->set_framefile(s);
                 } else {
-                    printline("You can only set a framefile using VLDP as your "
+                    printerror("You can only set a framefile using VLDP as your "
                               "laserdisc player!");
                     result = false;
                 }
             }
-	    // Ignore some obsolete arguments (Rather than error)
-            else if (strcasecmp(s, "-ignore_aspect_ratio")==0
-                     || strcasecmp(s, "-noserversend")==0) {
+            // Ignore some deprecated arguments (Rather than error)
+            else if (strcasecmp(s, "-ignore_aspect_ratio") == 0
+                     || strcasecmp(s, "-noserversend") == 0) {
 
-                 bool dummy = true;
-
-                 if(dummy) {
-                    char e[355];
-                    sprintf(e, "NOTE : Ignoring obsolete argument: %s", s);
-                    printline(e);
-                 }
+                 char e[355];
+                 sprintf(e, "NOTE : Ignoring deprecated argument: %s", s);
+                 printline(e);
             }
-           // specify an alternate hypseus.ini file (located in home or app directory)
-           else if (strcasecmp(s, "-keymapfile")==0) {
+            // specify an alternate hypseus.ini file (located in home or app directory)
+            else if (strcasecmp(s, "-keymapfile") == 0) {
 
-		bool loadini = true;
+                bool loadini = true;
                 int iLen, k;
 
                 get_next_word(s, sizeof(s));
@@ -582,12 +578,11 @@ bool parse_cmd_line(int argc, char **argv)
 
                 if (!loadini) {
                     char e[355];
-                    snprintf(e, sizeof(e), "Invalid -keymapfile file: %s", s);
+                    snprintf(e, sizeof(e), "Invalid -keymapfile file: %s [Use .ini]", s);
                     printerror(e);
                     result = false;
                  }
-           }
-
+            }
             // if they are defining an alternate soundtrack to be used by VLDP
             else if (strcasecmp(s, "-altaudio") == 0) {
                 ldp_vldp *cur_ldp =
@@ -599,7 +594,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if (cur_ldp) {
                     cur_ldp->set_altaudio(s);
                 } else {
-                    printline("You can only set an alternate soundtrack when "
+                    printerror("You can only set an alternate soundtrack when "
                               "using VLDP as your laserdisc player!");
                     result = false;
                 }
@@ -656,6 +651,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-nojoystick") == 0) {
                 set_use_joystick(false);
             }
+            // Invert the Joystick HAT UP/DOWN
             else if (strcasecmp(s, "-tiphat") == 0) {
                 set_invert_hat(true);
             }
@@ -683,7 +679,7 @@ bool parse_cmd_line(int argc, char **argv)
                 g_game->disable_crc();
                 printline("Disabling ROM CRC check...");
             } else if (strcasecmp(s, "-scoreboard") == 0) {
-	        set_scoreboard(get_scoreboard() | 0x01);             // Bitmapped -- enable parallel SB
+                set_scoreboard(get_scoreboard() | 0x01);             // Bitmapped -- enable parallel SB
                 printline("Enabling external scoreboard...");
             } else if (strcasecmp(s, "-scoreport") == 0) {
                 get_next_word(s, sizeof(s));
@@ -691,10 +687,10 @@ bool parse_cmd_line(int argc, char **argv)
                 set_scoreboard_port(u);
                 sprintf(s, "Setting scoreboard port to %x", u);
                 printline(s);
-            } else if (strcasecmp(s, "-usbsb")==0) {
-	        set_scoreboard(get_scoreboard() | 0x02);             // Bitmapped -- enable USB SB
-		printline("Enabling USB scoreboard...");
-            } else if (strcasecmp(s, "-software_scoreboard")==0) {
+            } else if (strcasecmp(s, "-usbsb") == 0) {
+                set_scoreboard(get_scoreboard() | 0x02);             // Bitmapped -- enable USB SB
+                printline("Enabling USB scoreboard...");
+            } else if (strcasecmp(s, "-software_scoreboard") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
@@ -704,7 +700,7 @@ bool parse_cmd_line(int argc, char **argv)
                 } else {
                     printline("NOTE: Software scoreboard not supported in this game");
                 }
-	    }
+            }
             // used to modify the dip switch settings of the game in question
             else if (strcasecmp(s, "-bank") == 0) {
                 get_next_word(s, sizeof(s));
@@ -729,7 +725,7 @@ bool parse_cmd_line(int argc, char **argv)
                     sprintf(s, "Setting Search Latency to %d milliseconds", i);
                     printline(s);
                 } else {
-                    printline("Search Latency value cannot be negative!");
+                    printerror("Search Latency value cannot be negative!");
                     result = false;
                 }
             } else if (strcasecmp(s, "-cheat") == 0) {
@@ -753,10 +749,11 @@ bool parse_cmd_line(int argc, char **argv)
 
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
+
                 if (game_cliff != NULL && (i >= 1 && i <= 24)) {
                     g_game->set_stretch_value(i);
                 } else {
-                    printline("This argument only works with cliff. Values [1-24]");
+                    printerror("This argument only works with cliff. Values [1-24]");
                     result = false;
                 }
             }
@@ -768,7 +765,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
             // Default (or override)
             else if (strcasecmp(s, "-texturetarget") == 0) {
-		if (video::get_textureaccess() == SDL_TEXTUREACCESS_STREAMING)
+                if (video::get_textureaccess() == SDL_TEXTUREACCESS_STREAMING)
                     printline("Reassigning to TEXTUREACCESS_TARGET");
                 video::set_textureaccess(SDL_TEXTUREACCESS_TARGET);
             }
@@ -795,7 +792,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if (i > 1 && i < 11) {
                     video::set_shunt(i);
                 } else {
-                    printline("Shunt values: 2-10");
+                    printerror("Shunt values: 2-10");
                     result = false;
                 }
             }
@@ -805,7 +802,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if (i >= 1 && i <= 255) {
                     video::set_alpha(i);
                 } else {
-                    printline("Alpha values: 1-255");
+                    printerror("Alpha values: 1-255");
                     result = false;
                 }
             }
@@ -825,7 +822,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-manymouse") == 0) {
                 g_game->set_manymouse(true);
             }
-            // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear) for fullscreen
+            // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear)
             else if (strcasecmp(s, "-nolinear_scale") == 0) {
                 video::set_fullscreen_scale_nearest(true);
             }
@@ -845,7 +842,7 @@ bool parse_cmd_line(int argc, char **argv)
                 i = atoi(s);
                 sprintf(s, "Scaling image by %d%%", i);
                 printline(s);
-		video::set_scalefactor((Uint16)i);
+                video::set_scalefactor((Uint16)i);
             }
 
             else if (strcasecmp(s, "-pal_dl") == 0) {
@@ -911,7 +908,7 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("CPU tracing enabled");
                 cpu::set_trace(1);
 #else
-                printline("Needs to be compiled in debug mode for this "
+                printerror("Needs to be compiled in debug mode for this "
                           "to work");
                 result = false;
 #endif
@@ -968,8 +965,9 @@ bool parse_cmd_line(int argc, char **argv)
                             game_thayers->init_overlay_scoreboard();
                     }
                 } else {
-                    printline("-useoverlaysb requires an argument such as 0 or 1 "
-                           "after it. Instead, found: %s", s);
+                    char e[64];
+                    sprintf(e, "-useoverlaysb requires an argument such as 0 or 1, found: %s", s);
+                    printerror(e);
                     result = false;
                 }
             }
@@ -981,7 +979,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if (game_thayers)
                     game_thayers->no_speech();
                 else {
-                    printline(
+                    printerror(
                         "-nospeech: Switch not supported for this game...");
                     result = false;
                 }
@@ -1009,7 +1007,7 @@ bool parse_cmd_line(int argc, char **argv)
                                                      // selected LDP is VLDP
                 // if it is a vldp, then this option is not supported
                 if (cur_ldp) {
-                    printline("Full Scale mode only works with NOLDP.");
+                    printerror("Full Scale mode only works with NOLDP.");
                     result = false;
                 } else {
                     g_game->SetFullScale(true);
@@ -1030,8 +1028,8 @@ bool parse_cmd_line(int argc, char **argv)
                 // don't do anything in here, it has already been handled by the
                 // ldp class ...
             } else {
-                printline("Unknown command line parameter or parameter value:");
-                printline(s);
+                printerror("Unknown command line parameter or parameter value:");
+                printerror(s);
                 result = false;
             }
         } // end for
