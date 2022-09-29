@@ -212,6 +212,7 @@ void singe::start()
     g_ldp->set_min_seek_delay(0);
 
     if (upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
+    if (fullsize_overlay) g_pSingeOut->sep_overlay_resize();
     if (muteinit) g_pSingeOut->sep_mute_vldp_init();
     if (notarget) g_pSingeOut->sep_no_crosshair();
     if (oc) g_pSingeOut->sep_alter_lua_clock();
@@ -379,13 +380,50 @@ bool singe::handle_cmdline_arg(const char *arg)
         bResult = true;
     }
     else if (strcasecmp(arg, "-oversize_overlay") == 0) {
-        oversize_overlay = true;
+
+        if (overlay_size) {
+            printerror("SINGE: Only one overlay argument allowed");
+            return false;
+        }
+        printline("NOTE : -oversize_overlay deprecated use '-set_overlay oversize'");
+        overlay_size = 3;
         bResult = true;
     }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
         game::set_32bit_overlay(false);
         upgrade_overlay = false;
         bResult = true;
+    }
+    else if (strcasecmp(arg, "-set_overlay") == 0) {
+
+        if (overlay_size) {
+            printerror("SINGE: Only one overlay argument allowed");
+            return false;
+        }
+
+        unsigned char r = 0;
+        get_next_word(s, sizeof(s));
+
+        if (strcasecmp(s, "half") == 0)     r = 1;
+        if (strcasecmp(s, "full") == 0)     r = 2;
+        if (strcasecmp(s, "oversize") == 0) r = 3;
+
+        switch(r) {
+        case 1:
+        case 2:
+           overlay_size = r;
+           game::set_fullsize_overlay(true);
+           fullsize_overlay = true;
+           bResult = true;
+           break;
+        case 3:
+           overlay_size = r;
+           bResult = true;
+           break;
+        default:
+           printerror("SINGE: -set_overlay expects argument 'full', 'half' or 'oversize'");
+           break;
+        }
     }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {
         notarget = true;
@@ -456,12 +494,23 @@ void singe::palette_calculate()
 // redraws video
 void singe::repaint()
 {
-    Uint32 cur_w = g_ldp->get_discvideo_width() >> 1; // width overlay should be
-    Uint32 cur_h = g_ldp->get_discvideo_height() >> 1; // height overlay should be
 
-    if (oversize_overlay) {
-        cur_w = SINGE_ABS_OVERLAY_W;
-        cur_h = SINGE_ABS_OVERLAY_H;
+    Uint32 cur_w;
+    Uint32 cur_h;
+
+    switch(overlay_size) {
+    case 2:
+       cur_w = g_ldp->get_discvideo_width();
+       cur_h = g_ldp->get_discvideo_height();
+       break;
+    case 3:
+       cur_w = SINGE_ABS_OVERLAY_W;
+       cur_h = SINGE_ABS_OVERLAY_H;
+       break;
+    default:
+       cur_w = g_ldp->get_discvideo_width()  >> 1;
+       cur_h = g_ldp->get_discvideo_height() >> 1;
+       break;
     }
 
     // if the width or height of the mpeg video has changed since we last were

@@ -38,7 +38,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.50 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.80 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -65,9 +65,11 @@ class singe : public game
     void palette_calculate();
     void repaint();
 
+    unsigned char overlay_size = 0;
+
     bool singe_alt_pressed = false;
     bool upgrade_overlay = false;
-    bool oversize_overlay = false;
+    bool fullsize_overlay = false;
     bool muteinit = false;
     bool notarget = false;
     bool oc = false;

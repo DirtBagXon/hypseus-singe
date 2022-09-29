@@ -69,6 +69,7 @@ double                g_sep_overlay_scale_y =  1;
 bool                  g_pause_state         = false; // by RDG2010
 bool                  g_init_mute           = false;
 bool                  g_upgrade_overlay     = false;
+bool                  g_fullsize_overlay    = false;
 bool                  g_show_crosshair      = true;
 bool                  g_not_cursor          = true;
 
@@ -100,6 +101,7 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
 	g_SingeOut.sep_mute_vldp_init      = sep_mute_vldp_init;
 	g_SingeOut.sep_no_crosshair        = sep_no_crosshair;
 	g_SingeOut.sep_upgrade_overlay     = sep_upgrade_overlay;
+	g_SingeOut.sep_overlay_resize      = sep_overlay_resize;
 	
 	result = &g_SingeOut;
 	
@@ -711,6 +713,11 @@ void sep_upgrade_overlay(void)
   g_upgrade_overlay = true;
 }
 
+void sep_overlay_resize(void)
+{
+  g_fullsize_overlay = true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // Singe API Calls
@@ -1116,15 +1123,23 @@ static int sep_say_font(lua_State *L)
 							sep_die("Font surface is null!");
 						} else {
 							SDL_Rect dest;
-							dest.x = lua_tonumber(L, 1);
-							dest.y = lua_tonumber(L, 2);
 							dest.w = textsurface->w;
 							dest.h = textsurface->h;
 
-							if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
+							if (g_fullsize_overlay) {
+
+							    dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
+							    dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
+
+							} else {
+
+							    dest.x = lua_tonumber(L, 1);
+							    dest.y = lua_tonumber(L, 2);
+
+							    if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
 								dest.x+=20;
 
-							if (g_se_overlay_width > SINGE_OW) {
+							    if (g_se_overlay_width > SINGE_OW) {
 								if (dest.h == 0x16 && dest.y == 0xcf) { // JR SCOREBOARD
                                                                     dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 22);
                                                                     if (dest.x <(SINGE_OW>>2)) dest.x-=4;
@@ -1133,6 +1148,7 @@ static int sep_say_font(lua_State *L)
 								else
 								    dest.x = dest.x - (double)(((g_se_overlay_width) + (dest.x * 32)
                                                                            + (dest.w * 26)) / SINGE_OW);
+							    }
 							}
 
 							SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
@@ -1354,17 +1370,26 @@ static int sep_sprite_draw(lua_State *L)
 					if (sprite < (int)g_spriteList.size())
 					{
 						SDL_Rect dest;
-						dest.x = lua_tonumber(L, 1);
-						dest.y = lua_tonumber(L, 2);
 						dest.w = g_spriteList[sprite]->w;
 						dest.h = g_spriteList[sprite]->h;
 
-						if (g_se_overlay_width > SINGE_OW) {
-						    if (g_not_cursor && dest.y > 0xbe && dest.y <= 0xde)
-							dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
-						    else
-						        dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
+						if (g_fullsize_overlay) {
+
+						    dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
+						    dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
+
+						} else {
+
+						    dest.x = lua_tonumber(L, 1);
+						    dest.y = lua_tonumber(L, 2);
+
+						    if (g_se_overlay_width > SINGE_OW) {
+							if (g_not_cursor && dest.y > 0xbe && dest.y <= 0xde)
+							    dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
+							else
+							    dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
 									    + (dest.w * 26)) / SINGE_OW);
+						    }
 						}
 
 						if (dest.w == 0x89 && dest.h == 0x1c) { // SP

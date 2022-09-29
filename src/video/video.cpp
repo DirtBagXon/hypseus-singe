@@ -72,6 +72,7 @@ SDL_Surface *g_leds_surface        = NULL;
 
 SDL_Rect g_overlay_size_rect; 
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
+SDL_Rect g_render_size_rect = g_leds_size_rect;
 
 bool queue_take_screenshot = false;
 bool g_fs_scale_nearest = false;
@@ -85,6 +86,7 @@ bool g_vsync = true;
 bool g_yuv_blue = false;
 bool g_vid_resized = false;
 bool g_enhance_overlay = false;
+bool g_overlay_resize = false;
 bool g_bForceAspectRatio = false;
 bool g_LDP1450_overlay = false;
 bool g_fullscreen = false; // initialize video in fullscreen
@@ -344,8 +346,9 @@ bool init_display()
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, g_overlay_width, g_overlay_height,
 					surfacebpp, Rmask, Gmask, Bmask, Amask);
 
-		// Probe for 32bit game overlay
+		// Check for game overlay enhancements (depth and size)
 		g_enhance_overlay = g_game->get_overlay_upgrade();
+		g_overlay_resize = g_game->get_fullsize_overlay();
 
 		g_leds_surface =
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240,
@@ -1117,6 +1120,9 @@ void vid_update_overlay_surface (SDL_Surface *tx, int x, int y) {
     g_overlay_size_rect.w = tx->w;
     g_overlay_size_rect.h = tx->h;
 
+    if (g_overlay_resize)
+        g_render_size_rect = g_overlay_size_rect;
+
     if (g_enhance_overlay) {
 
         // DBX: 32bit overlay from Singe
@@ -1199,9 +1205,8 @@ void vid_blit () {
 
     // If there's an overlay texture, it means we are using some kind of overlay,
     // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
-    // ONLY a rect of the LEDs surface size is copied for now.
     if(g_overlay_texture) {
-	SDL_RenderCopy(g_renderer, g_overlay_texture, &g_leds_size_rect, NULL);
+	SDL_RenderCopy(g_renderer, g_overlay_texture, &g_render_size_rect, NULL);
     }
 
     // If there's a subtitle overlay
