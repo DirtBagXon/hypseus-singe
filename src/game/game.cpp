@@ -143,9 +143,10 @@ game::game()
     // old style overlays
     m_use_old_overlay = false;
 
-    // overlay depth
+    // overlay depth and size
     m_overlay_depth = GAME_OVERLAY_DEPTH;
     m_overlay_upgrade = false;
+    m_fullsize_overlay = false;
 
     // running on retro console
     m_run_on_console = false;
@@ -612,6 +613,8 @@ bool game::get_use_old_overlay() { return m_use_old_overlay; }
 
 bool game::get_overlay_upgrade() { return m_overlay_upgrade; }
 
+bool game::get_fullsize_overlay() { return m_fullsize_overlay; }
+
 bool game::get_manymouse() { return m_manymouse; }
 
 void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
@@ -626,6 +629,8 @@ void game::set_sinden_border(int value) { m_sinden_border = value; }
 void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
 
 void game::set_manymouse(bool value) { m_manymouse = value; }
+
+void game::set_fullsize_overlay(bool value) { m_fullsize_overlay = value; }
 
 void game::set_32bit_overlay(bool value)
 {

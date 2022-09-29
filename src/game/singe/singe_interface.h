@@ -97,6 +97,7 @@ struct singe_out_info
 	void (*sep_mute_vldp_init)(void);
 	void (*sep_no_crosshair)(void);
 	void (*sep_upgrade_overlay)(void);
+	void (*sep_overlay_resize)(void);
 	
 	////////////////////////////////////////////////////////////
 };

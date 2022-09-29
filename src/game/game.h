@@ -197,6 +197,7 @@ class game
     bool get_use_old_overlay();
 
     bool get_overlay_upgrade();
+    bool get_fullsize_overlay();
 
     bool get_console_flag();
 
@@ -205,6 +206,7 @@ class game
     virtual void set_manymouse(bool);
 
     virtual void set_32bit_overlay(bool);
+    virtual void set_fullsize_overlay(bool);
 
     virtual void set_console_flag(bool);
 
@@ -293,6 +295,8 @@ class game
     Uint8 m_overlay_depth;
 
     bool m_overlay_upgrade;
+
+    bool m_fullsize_overlay;
 
     bool m_run_on_console;
 
