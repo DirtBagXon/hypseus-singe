@@ -119,7 +119,7 @@ bool parse_homedir()
             } else {
                 g_homedir.set_homedir(s);
                 bHomeDirSet = true;
-                sprintf(e, "Setting alternate home dir: %s", s);
+                snprintf(e, sizeof(e), "Setting alternate home dir: %s", s);
                 printline(e);
                 break;
             }
@@ -392,7 +392,7 @@ bool parse_game_type()
         result = true;
         exit(0);
     } else {
-        sprintf(e, "ERROR: Unknown game type specified : %s", s);
+        snprintf(e, sizeof(e), "ERROR: Unknown game type specified : %s", s);
         printerror(e);
         result = false;
     }
@@ -533,7 +533,7 @@ bool parse_cmd_line(int argc, char **argv)
                      || strcasecmp(s, "-noserversend") == 0) {
 
                  char e[355];
-                 sprintf(e, "NOTE : Ignoring deprecated argument: %s", s);
+                 snprintf(e, sizeof(e), "NOTE : Ignoring deprecated argument: %s", s);
                  printline(e);
             }
             // specify an alternate hypseus.ini file (located in home or app directory)
@@ -665,7 +665,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 Uint16 sbsize = (Uint16)atoi(s);
                 sound::set_buf_size(sbsize);
-                sprintf(s, "Setting sound buffer size to %d", sbsize);
+                snprintf(s, sizeof(s), "Setting sound buffer size to %d", sbsize);
                 printline(s);
             } else if (strcasecmp(s, "-volume_vldp") == 0) {
                 get_next_word(s, sizeof(s));
@@ -685,7 +685,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 unsigned int u = (unsigned int)numstr::ToUint32(s, 16);
                 set_scoreboard_port(u);
-                sprintf(s, "Setting scoreboard port to %x", u);
+                snprintf(s, sizeof(s), "Setting scoreboard port to %x", u);
                 printline(s);
             } else if (strcasecmp(s, "-usbsb") == 0) {
                 set_scoreboard(get_scoreboard() | 0x02);             // Bitmapped -- enable USB SB
@@ -722,7 +722,7 @@ bool parse_cmd_line(int argc, char **argv)
                 // safety check
                 if (i >= 0) {
                     g_ldp->set_search_latency(i);
-                    sprintf(s, "Setting Search Latency to %d milliseconds", i);
+                    snprintf(s, sizeof(s), "Setting Search Latency to %d milliseconds", i);
                     printline(s);
                 } else {
                     printerror("Search Latency value cannot be negative!");
@@ -840,7 +840,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-scalefactor") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                sprintf(s, "Scaling image by %d%%", i);
+                snprintf(s, sizeof(s), "Scaling image by %d%%", i);
                 printline(s);
                 video::set_scalefactor((Uint16)i);
             }
@@ -895,13 +895,13 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 video::set_video_width((Uint16)i);
-                sprintf(s, "Setting screen width to %d", i);
+                snprintf(s, sizeof(s), "Setting screen width to %d", i);
                 printline(s);
             } else if (strcasecmp(s, "-y") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 video::set_video_height((Uint16)i);
-                sprintf(s, "Setting screen height to %d", i);
+                snprintf(s, sizeof(s), "Setting screen height to %d", i);
                 printline(s);
             } else if (strcasecmp(s, "-trace") == 0) {
 #ifdef CPU_DEBUG
@@ -918,7 +918,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 set_idleexit(i * 1000);
-                sprintf(s, "Setting idleexit to %d ", i);
+                snprintf(s, sizeof(s), "Setting idleexit to %d ", i);
                 printline(s);
             }
             // end edit
@@ -966,7 +966,7 @@ bool parse_cmd_line(int argc, char **argv)
                     }
                 } else {
                     char e[64];
-                    sprintf(e, "-useoverlaysb requires an argument such as 0 or 1, found: %s", s);
+                    snprintf(e, sizeof(e), "-useoverlaysb requires an argument such as 0 or 1, found: %s", s);
                     printerror(e);
                     result = false;
                 }
