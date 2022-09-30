@@ -22,12 +22,16 @@
 
 #include "input.h"
 #include "conout.h"
+#include "keycodes.h"
 #include <plog/Log.h>
 
 // Win32 doesn't use strcmp
 #ifdef WIN32
 #define strcmp stricmp
 #endif
+
+#define INC(N) (N + 1)
+#define TRIGGER(N) (N + AXIS_TRIGGER)
 
 // sAn3 subset - this can be extended with decimal keycodes
 int sdl2_keycode(const char *str)
@@ -142,6 +146,50 @@ int sdl2_keycode(const char *str)
 	else {
 		LOGW << fmt("Unrecognized key macro in config: %s", str);
 		LOGW << "Use decimal values for extended keycodes.";
+		return SDLK_UNKNOWN;
+	}
+}
+
+// Only enum from early SDL2 for compatability
+int sdl2_controller_button(const char *str)
+{
+	if (strcmp(str, "BUTTON_A") == 0) return INC(SDL_CONTROLLER_BUTTON_A);
+	else if (strcmp(str, "BUTTON_B") == 0) return INC(SDL_CONTROLLER_BUTTON_B);
+	else if (strcmp(str, "BUTTON_X") == 0) return INC(SDL_CONTROLLER_BUTTON_X);
+	else if (strcmp(str, "BUTTON_Y") == 0) return INC(SDL_CONTROLLER_BUTTON_Y);
+	else if (strcmp(str, "BUTTON_BACK") == 0) return INC(SDL_CONTROLLER_BUTTON_BACK);
+	else if (strcmp(str, "BUTTON_GUIDE") == 0) return INC(SDL_CONTROLLER_BUTTON_GUIDE);
+	else if (strcmp(str, "BUTTON_START") == 0) return INC(SDL_CONTROLLER_BUTTON_START);
+	else if (strcmp(str, "BUTTON_LEFTSTICK") == 0) return INC(SDL_CONTROLLER_BUTTON_LEFTSTICK);
+	else if (strcmp(str, "BUTTON_RIGHTSTICK") == 0) return INC(SDL_CONTROLLER_BUTTON_RIGHTSTICK);
+	else if (strcmp(str, "BUTTON_LEFTSHOULDER") == 0) return INC(SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+	else if (strcmp(str, "BUTTON_RIGHTSHOULDER") == 0) return INC(SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+	else if (strcmp(str, "BUTTON_DPAD_UP") == 0) return INC(SDL_CONTROLLER_BUTTON_DPAD_UP);
+	else if (strcmp(str, "BUTTON_DPAD_DOWN") == 0) return INC(SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+	else if (strcmp(str, "BUTTON_DPAD_LEFT") == 0) return INC(SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+	else if (strcmp(str, "BUTTON_DPAD_RIGHT") == 0) return INC(SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+	else if (strcmp(str, "AXIS_TRIGGER_LEFT") == 0) return TRIGGER(SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+	else if (strcmp(str, "AXIS_TRIGGER_RIGHT") == 0) return TRIGGER(SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+	else {
+		LOGW << fmt("Unrecognized button macro in config: %s", str);
+		return SDLK_UNKNOWN;
+	}
+}
+
+int sdl2_controller_axis(const char *str)
+{
+	if (strcmp(str, "AXIS_LEFT_UP") == 0) return -2;
+	else if (strcmp(str, "AXIS_LEFT_DOWN") == 0) return 2;
+	else if (strcmp(str, "AXIS_LEFT_LEFT") == 0) return -1;
+	else if (strcmp(str, "AXIS_LEFT_RIGHT") == 0) return 1;
+	else if (strcmp(str, "AXIS_RIGHT_UP") == 0) return -4;
+	else if (strcmp(str, "AXIS_RIGHT_DOWN") == 0) return 4;
+	else if (strcmp(str, "AXIS_RIGHT_LEFT") == 0) return -3;
+	else if (strcmp(str, "AXIS_RIGHT_RIGHT") == 0) return 3;
+	else {
+		if (strncmp(str, "0", 1) != 0) {
+		    LOGW << fmt("Unrecognized axis macro in config: %s", str);
+		}
 		return SDLK_UNKNOWN;
 	}
 }

@@ -23,6 +23,10 @@
 #ifndef keycodes_h
 #define keycodes_h
 
+#define AXIS_TRIGGER 0x2710
+
 int sdl2_keycode(const char *str);
+int sdl2_controller_button(const char *str);
+int sdl2_controller_axis(const char *str);
 
 #endif
