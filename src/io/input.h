@@ -97,10 +97,13 @@ void FilterMouseEvents(bool bFilteredOut);
 
 void SDL_check_input();
 
+void SDL_gamepad_init();
+
 void process_event(SDL_Event *event);
 void process_keydown(SDL_Keycode key);
 void process_keyup(SDL_Keycode key);
 void process_joystick_motion(SDL_Event *event);
+void process_controller_motion(SDL_Event *event);
 void process_joystick_hat_motion(SDL_Event *event);
 void input_enable(Uint8);
 void input_disable(Uint8);
@@ -110,5 +113,6 @@ void set_use_joystick(bool val);
 void set_invert_hat(bool val);
 void set_inputini_file(const char *inputFile);
 bool set_mouse_mode(int);
+void set_use_gamepad(bool value);
 
 #endif // INPUT_H

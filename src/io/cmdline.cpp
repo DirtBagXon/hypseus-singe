@@ -651,6 +651,9 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-nojoystick") == 0) {
                 set_use_joystick(false);
             }
+            else if (strcasecmp(s, "-gamepad") == 0) {
+                set_use_gamepad(true);
+            }
             // Invert the Joystick HAT UP/DOWN
             else if (strcasecmp(s, "-tiphat") == 0) {
                 set_invert_hat(true);
