@@ -532,7 +532,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-ignore_aspect_ratio") == 0
                      || strcasecmp(s, "-noserversend") == 0) {
 
-                 char e[355];
+                 char e[400];
                  snprintf(e, sizeof(e), "NOTE : Ignoring deprecated argument: %s", s);
                  printline(e);
             }
@@ -577,7 +577,7 @@ bool parse_cmd_line(int argc, char **argv)
                 }
 
                 if (!loadini) {
-                    char e[355];
+                    char e[400];
                     snprintf(e, sizeof(e), "Invalid -keymapfile file: %s [Use .ini]", s);
                     printerror(e);
                     result = false;
@@ -965,7 +965,7 @@ bool parse_cmd_line(int argc, char **argv)
                             game_thayers->init_overlay_scoreboard();
                     }
                 } else {
-                    char e[64];
+                    char e[400];
                     snprintf(e, sizeof(e), "-useoverlaysb requires an argument such as 0 or 1, found: %s", s);
                     printerror(e);
                     result = false;
