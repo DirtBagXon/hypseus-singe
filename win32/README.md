@@ -9,10 +9,12 @@
 Latest build is: (_32bit_ and _64bit_ versions are available.)
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.8.3
+    [version] Hypseus Singe: v2.10.1
     [console] Windows 10
     [console] SDL(CC): 2.0.14
     [console] SDL(LD): 2.0.16
+
+Windows executables linked with `-subsystem,windows` are also available to suppress *Command Prompt* popups.
 
 
 ## Install
@@ -29,16 +31,18 @@ Place *framefile* and *video* files in `vldp` or `singe` under the appropriate g
 
 Example `.bat` files are provided in the repo. Run `hypseus.exe` with *Daphne* [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine):
 
-    hypseus.exe lair vldp -software_scoreboard -framefile "vldp\lair\lair.txt" -fullscreen_window
+    hypseus.exe lair vldp -software_scoreboard -framefile vldp/lair/lair.txt
 
-    hypseus.exe singe vldp -blend_sprites -framefile "singe\timegal\timegal.txt" -script "singe\timegal\timegal.singe"
+    hypseus.exe singe vldp -framefile singe/timegal/timegal.txt -script singe/timegal/timegal.singe
 
 Refer to additional arguments on the [main page](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys).
 
 ## Configuration
 
-Configuration in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini) within the directory.
+Configuration in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini) within the Hypseus folder.
 
 Use the `hypjsch` application in the `C:\Hypseus Singe` folder to help calculate values.
+
+See also the **GameController** configuration option: [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput_gamepad.ini)
 
 **Note:** Hypseus Singe uses **SDL2** keycodes. See information in *hypinput.ini*

@@ -16,10 +16,11 @@ Features:
 * Daphne and Singe 4k M2V support
 * Singe libretro emulation path integration
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
-* Psuedo Singe 2 support (details below)
+* Singe 2 full 32bit overlay support (details below)
 * Sinden support in Singe games
 * For Singe games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
 * Daphne alternate overlay choices
+* SDL_GameController (including hotplug) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png?raw=true)
 * 64bit Windows and MacOS X Ports
@@ -63,7 +64,7 @@ Build:
     mkdir build
     cd build
     cmake ../src
-    make -j
+    make
 
 ## Install and Run
 
@@ -73,9 +74,9 @@ Ensure you have data in the following `daphne` HOME folders:
 
 Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
 
-    hypseus lair vldp -framefile "vldp_dl\lair\lair.txt" -fullscreen_window -software_scoreboard
+    hypseus lair vldp -framefile vldp_dl/lair/lair.txt -fullscreen_window -software_scoreboard
 
-    hypseus singe vldp -framefile "singe\timegal\timegal.txt" -script "singe\timegal\timegal.singe"
+    hypseus singe vldp -framefile singe/timegal/timegal.txt -script singe/timegal/timegal.singe
 
 
 In **Windows** you are able to create `.bat` files with arguments for specific games.
@@ -88,10 +89,14 @@ The singe `-retropath` argument can ease integration into libretro style systems
 
 `bash` scripts are provided for systems that support this shell.
 
-**Install bash scripts:**
+**Build Hypseus home and install bash scripts:**
 
-    cp -R fonts ~/.daphne
+    mkdir -p ~/.daphne/roms ~/.daphne/ram ~/.daphne/vldp
+    mkdir -p ~/.daphne/vldp_dl ~/.daphne/singe
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
+    cp doc/hypinput_gamepad.ini ~/.daphne
+    cp -R pics sound fonts ~/.daphne
+    
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
     sudo cp scripts/run.sh /usr/local/bin/hypseus
     sudo cp scripts/singe.sh /usr/local/bin/singe
@@ -100,11 +105,19 @@ The singe `-retropath` argument can ease integration into libretro style systems
 
 ## Configuration
 
-Configuration of keycodes and joysticks should be made within [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+Configuration of keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
 
-Refer to [keylist.txt](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/keylist.txt) for **SDL2** keycode values.
+By default SDL2 Keycodes and the Joystick API configuration options will be used.
 
-Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help configuration.
+SDL GameController API configuration can now be enabled for supported controllers.
+
+Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput.ini](doc/hypinput_gamepad.ini)
+
+Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus home folder.
+
+Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
+
+Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 ## Screenshots
 
@@ -142,9 +155,9 @@ Check for Singe anomalies and replacement files [here](https://github.com/DirtBa
 
 ## Singe 2
 
-Hypseus Singe now has psuedo support for Singe 2 games.
+Hypseus Singe has support for Singe 2 games, including full 32bit overlays.
 
-For current details see: [Hypseus Singe 2 Data](https://github.com/DirtBagXon/hypseus_singe_data)
+For current details see: [Hypseus Singe Data](https://github.com/DirtBagXon/hypseus_singe_data)
 
 ## Lightguns
 
@@ -160,7 +173,7 @@ Singe now automatically interprets **joystick axis** change as mouse movement (*
 
 Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
 
-Configure **joystick controls** in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput.ini)
+Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [GameController](doc/hypinput_gamepad.ini)
 
 ## Extended arguments and keys
 
@@ -170,6 +183,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
+    -gamepad                   [ Enable SDL_GameController configuration       ]
     -grabmouse                 [ Capture mouse in SDL window                   ]
     -keymapfile <flight.ini>   [ Specify an alternate hypinput.ini file        ]
     -nolinear_scale            [ Disable bilinear scaling                      ]
@@ -183,13 +197,17 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
     -vertical_stretch <1-24>   [ Overlay stretch implemented for (cliff) only  ]
 
+    -8bit_overlay              [ Restore original 8bit Singe overlays          ]
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
     -bootsilent                [ Mute sound during initVLDP() if possible      ]
     -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
     -nocrosshair               [ Request game does not display crosshairs      ]
-    -oversize_overlay          [ Use with HD gungame m2v video sources         ]
     -retropath                 [ Singe data path rewrites [.daphne]            ]
+    -set_overlay               [ Enforce overlay size (full, half, oversize)   ]
+                               [ (full): Set to full video resolution [Singe2] ]
+                               [ (half): Set to half video resolution [Singe2] ]
+                               [ (oversize): Use with HD gungame video sources ]
     -sinden <1-10> <color>     [ Enable software border for lightguns          ]
                                [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]
 
