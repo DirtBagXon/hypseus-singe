@@ -15,11 +15,15 @@ while [[ $# -gt 0 ]]; do
 
     case $key in
       -blanking)
-        BLANK="-blank_searches -blank_skips -min_seek_delay 1000"
+        BLANK="-blank_searches -blank_skips -min_seek_delay 500"
         shift
         ;;
       -fullscreen)
         FULLSCREEN="-fullscreen"
+        shift
+        ;;
+      -gamepad)
+        GAMEPAD="-gamepad"
         shift
         ;;
       -nolinear)
@@ -70,7 +74,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] [-blanking] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
+    echo  -e "$0 [-fullscreen] [-blanking] [-gamepad] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
     for game in ace astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld interstellar lair lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
@@ -215,6 +219,7 @@ fi
 $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
+$GAMEPAD \
 $NEAREST \
 $BLANK \
 $OVERLAY \
