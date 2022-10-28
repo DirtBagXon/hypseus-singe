@@ -10,7 +10,6 @@ option(VLDP_DEBUG       "VLDP Debug"            OFF)
 option(CPU_DEBUG        "CPU Debug"             OFF)
 option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
-option(USB_SCOREBOARD   "UsbScoreboard"         OFF)
 
 if( NOT CMAKE_BUILD_TYPE )
     set(CMAKE_BUILD_TYPE "Release")
@@ -104,10 +103,6 @@ add_subdirectory(vldp)
 
 add_executable( hypseus hypseus.cpp globals.h )
 target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
-
-if(USB_SCOREBOARD)
-    add_library(ftdi1 INTERFACE)
-endif()
 
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)

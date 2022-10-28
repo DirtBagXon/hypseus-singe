@@ -20,48 +20,35 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef USB_SCOREBOARD_H
-#define USB_SCOREBOARD_H
+#ifndef USB_UTIL_H
+#define USB_UTIL_H
 
-#include "scoreboard_interface.h"
-#include "usb_util.h"
+#define ASCI(N) (N + 0x030)
 
-class ScoreboardFactory;
+#define SCOREBOARD  0x00000
+#define ANNUNCIATOR 0x00001
+#define STARTDELAY  0x0000f
+#define BOOTCYCLE   0x0002c
+#define BOOTBYPASS  0x3c668
+#define LOWBAUD     0x04b00
 
-class USBScoreboard : public IScoreboard
+#define vla  int('a')
+#define vle  int('e')
+#define vlh  int('h')
+#define vll  int('l')
+#define vlp  int('p')
+#define spc  int(' ')
+#define dsh  int('-')
+
+typedef struct
 {
-	// allow ScoreboardFactory GetInstance
-	friend class ScoreboardFactory;
+   char unit;
+   char digit;
+   char value;
+} DigitStruct;
 
-public:
-	static IScoreboard *GetInstance();
+bool g_usb_connected();
 
-	void DeleteInstance();
-
-	void Invalidate();
-
-	bool RepaintIfNeeded();
-
-	bool ChangeVisibility(bool bVisible);
-
-	bool set_digit(unsigned int uValue, WhichDigit which);
-
-	bool is_repaint_needed();
-
-	bool get_digit(unsigned int &uValue, WhichDigit which);
-
-protected:
-private:
-	// initialize the USB port
-	bool USBInit();
-
-	// shutdown the USB port
-	void USBShutdown();
-
-	USBScoreboard();
-	virtual ~USBScoreboard();
-
-	DigitStruct ds;
-};
+void send_usb_annunciator(DigitStruct);
 
 #endif

@@ -11,6 +11,7 @@ set( LIB_SOURCES
 
 set( LIB_HEADERS
     hw_scoreboard.h
+    usb_util.h
     usb_scoreboard.h
     img_scoreboard.h
     null_scoreboard.h

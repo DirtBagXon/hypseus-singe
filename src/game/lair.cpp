@@ -41,6 +41,7 @@
 #include "../ldp-in/pr7820.h"
 #include "../ldp-out/ldp.h"
 #include "../scoreboard/scoreboard_collection.h"
+#include "../scoreboard/usb_util.h"
 #include "../video/led.h"
 #include "../video/palette.h"
 #include "../io/conout.h"
@@ -48,6 +49,8 @@
 #include "../sound/sound.h"
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
+
+bool g_bUsbAnnunciator = false;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -501,6 +504,8 @@ void lair::do_nmi()
 void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
 // Called whenever the Z80 emulator wants to write to memory
 {
+    static uint8_t g_skill = 0;
+
     // if we're writing to RAM or hardware
     if (Addr >= 0xA000) {
         // if we're writing to RAM
@@ -618,10 +623,26 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 }
                 // else do something with the LED's
                 else {
-                    if (Addr == 0xE03B)
+                    if (Addr == 0xE03B) {
+                        g_skill = 0x1;
                         change_led(false, false, true); // ACE SKILL
-                    else if (Addr == 0xE03D)
+		    } else if (Addr == 0xE03D) {
+                        g_skill = 0x2;
                         change_led(false, true, false); // CAPTAIN SKILL
+		    }
+                }
+                if (g_bUsbAnnunciator) {
+                    switch (g_skill) {
+                    case 0x1: // Ace
+                        change_led(false, false, true);
+                        break;
+                    case 0x2: // Captain
+                        change_led(false, true, false);
+                        break;
+                    case 0x3: // Cadet
+                        change_led(true, false, false);
+                        break;
+                    }
                 }
                 break;
 
@@ -631,6 +652,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                     m_pScoreboard->update_player_lives(Value & 0x0F, 0);
                 } else {
                     // show cadet skill LED
+                    g_skill = 0x3;
                     change_led(true, false, false);
                 }
                 break;
@@ -638,6 +660,9 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
             case 0xE03F:
                 // Clears LEDs
                 if (Value == 0xCC) {
+                    if (g_bUsbAnnunciator) {
+                        change_led(false, false, false);
+                    } else
                     // not needed for emulation
                     // change_led(false, false, false);
                     if (m_bUseAnnunciator) {
@@ -745,8 +770,12 @@ bool lair::init()
         }
 	
 	// if user has also requested a USB scoreboard, then enable that too
-	if (get_scoreboard() & 0x02) {
+	else if (get_scoreboard() & 0x02) {
 	    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
+	    if (m_bUseAnnunciator) {
+		g_bUsbAnnunciator = true;
+		m_bUseAnnunciator = false;
+	    }
 	}
 
         m_pScoreboard = pScoreboard;
@@ -803,6 +832,12 @@ void lair::palette_calculate()
 // frees any images we loaded in, etc
 void lair::shutdown()
 {
+    if (g_bUsbAnnunciator) {
+        change_led(false, false, false);
+        struct timespec delta = {0, 300000};
+        nanosleep(&delta, &delta); // Let serial flush
+    }
+
     // IMPORTANT: the scoreboard must always be shut down even if in VLDP mode,
     //  because it closes the parallel port.
     if (m_pScoreboard) {
@@ -1074,3 +1109,13 @@ void lair::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
         }
     }
 }
+
+bool g_game_sae()
+{
+        if (g_game->get_game_type() == GAME_SAE)
+            return true;
+        else
+            return false;
+}
+
+bool g_game_annun() { return g_bUsbAnnunciator; }

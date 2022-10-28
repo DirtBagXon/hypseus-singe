@@ -1,13 +1,13 @@
 set( LIB_SOURCES
     cmdline.cpp conout.cpp error.cpp fileparse.cpp homedir.cpp input.cpp
-    mpo_fileio.cpp parallel.cpp keycodes.cpp
+    mpo_fileio.cpp parallel.cpp keycodes.cpp serialib.cpp
     network.cpp numstr.cpp sram.cpp unzip.cpp
     
 )
 
 set( LIB_HEADERS
     cmdline.h conout.h error.h fileparse.h homedir.h input.h
-    mpo_fileio.h mpo_mem.h my_stdio.h keycodes.h
+    mpo_fileio.h mpo_mem.h my_stdio.h keycodes.h serialib.h
     network.h numstr.h parallel.h sram.h unzip.h
 )
 

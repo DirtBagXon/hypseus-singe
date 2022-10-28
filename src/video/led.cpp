@@ -31,6 +31,8 @@
 #include "config.h"
 
 #include "led.h"
+#include "../game/lair_util.h"
+#include "../scoreboard/usb_util.h"
 
 bool g_save_numlock = false, g_save_capital = false, g_save_scroll = false;
 bool g_leds_enabled = false; // LEDs are disabled by default since they don't
@@ -136,6 +138,23 @@ int CloseKeyboardDevice(HANDLE hndKbdDev)
 
 void change_led(bool num_lock, bool caps_lock, bool scroll_lock)
 {
+
+    if (g_game_annun()) {
+
+        if (g_usb_connected()) {
+            int val = 0;
+            DigitStruct ds;
+            ds.unit = ds.digit = ANNUNCIATOR;
+
+            if (scroll_lock) val |= 0x01;
+            if (num_lock) val |= 0x02;
+            if (caps_lock) val |= 0x04;
+
+            ds.value = (char)val;
+            send_usb_annunciator(ds);
+            return;
+        }
+    }
 
     // are the LED's enabled
     if (g_leds_enabled) {

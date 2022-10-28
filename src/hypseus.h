@@ -57,6 +57,9 @@ unsigned char get_autostart();
 unsigned char get_frame_modifier();
 void set_frame_modifier(unsigned char value);
 void set_scoreboard(unsigned char value);
+void set_scoreboard_usb_port(unsigned char value);
+void set_scoreboard_usb_impl(unsigned char value);
+void set_scoreboard_usb_baud(unsigned int value);
 unsigned char get_scoreboard();
 void set_scoreboard_port(unsigned int value);
 unsigned int get_scoreboard_port();
@@ -69,6 +72,10 @@ unsigned int get_idleexit(); // added by JFA for -idleexit
 void set_startsilent(unsigned char value);
 unsigned char get_startsilent();
 // end edit
+
+unsigned char get_usb_port();
+unsigned char get_usb_impl();
+unsigned int get_usb_baud();
 
 // added by MAC for -nolog
 void set_log_was_disabled(bool value);
