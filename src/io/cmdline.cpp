@@ -457,7 +457,7 @@ bool parse_ldp_type()
 bool parse_cmd_line(int argc, char **argv)
 {
     bool result = true;
-    char s[320] = {0}; // in case they pass in a huge directory as part of the
+    char s[400] = {0}; // in case they pass in a huge directory as part of the
                        // framefile
     int i                 = 0;
 
@@ -540,39 +540,35 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-keymapfile") == 0) {
 
                 bool loadini = true;
-                int iLen, k;
-
                 get_next_word(s, sizeof(s));
+                int iLen = strlen(s);
 
-                iLen = strlen(s);
-
-                if (iLen < 5) {
-                  loadini = false;
-                 }
+                if (iLen < 5)
+                    loadini = false;
 
                 if (loadini) {
 
-                   for(k=0;k<iLen;k++)
-                     s[k] = tolower(s[k]);
+                    for(int k=0;k<iLen;k++) // lowercase
+                        s[k] = tolower(s[k]);
 
                     string s1(s);
-                    string s2(s1.substr(s1.length()-4));
+                    string s2(s1.substr(iLen-4));
 
                     if (s2.compare(".ini") != 0) {
-                       loadini = false;
+                        loadini = false;
                     }
 
                     if (loadini) {
-                       string s3 = s1.substr(0, s1.size()-4);
+                        string s3 = s1.substr(0, (iLen-4));
+                        for (int i = 0; s3[i] != '\0'; i++) {
+                            if (!isalnum(s3[i]) && s3[i] != int('-')
+                                     && s3[i] != int('_')) {
+                                loadini = false;
+                            }
+                        }
 
-                       for (int i = 0; s3[i] != '\0'; i++) {
-                           if (!isalnum(s3[i])) {
-                              loadini = false;
-                           }
-                       }
-
-                       if (loadini)
-                          set_inputini_file(s);
+                        if (loadini)
+                            set_inputini_file(s);
                     }
                 }
 
@@ -682,7 +678,7 @@ bool parse_cmd_line(int argc, char **argv)
                 g_game->disable_crc();
                 printline("Disabling ROM CRC check...");
             } else if (strcasecmp(s, "-scoreboard") == 0) {
-                set_scoreboard(get_scoreboard() | 0x01);             // Bitmapped -- enable parallel SB
+                set_scoreboard(get_scoreboard() | 0x01); // Bitmapped -- enable parallel SB
                 printline("Enabling external scoreboard...");
             } else if (strcasecmp(s, "-scoreport") == 0) {
                 get_next_word(s, sizeof(s));
@@ -690,18 +686,58 @@ bool parse_cmd_line(int argc, char **argv)
                 set_scoreboard_port(u);
                 snprintf(s, sizeof(s), "Setting scoreboard port to %x", u);
                 printline(s);
-            } else if (strcasecmp(s, "-usbsb") == 0) {
-                set_scoreboard(get_scoreboard() | 0x02);             // Bitmapped -- enable USB SB
-                printline("Enabling USB scoreboard...");
+            } else if (strcasecmp(s, "-usbscoreboard") == 0) {
+                if (g_game->m_sdl_software_scoreboard) return false;
+                int baud = 0;
+                int impl = 0;
+                char e[400];
+                get_next_word(s, sizeof(s));
+#ifdef WIN32
+                snprintf(e, sizeof(e), "-usbscoreboard requires a COM port number\n and baud rate: COM [1-9] [BAUD]");
+                if (strcasecmp(s, "COM") == 0) impl = 0x01;
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+                get_next_word(s, sizeof(s));
+                baud = atoi(s);
+                if ((i > 0 && i < 10) && impl && baud) {
+                    set_scoreboard_usb_port(i);
+                    set_scoreboard_usb_baud(baud);
+#elif defined(LINUX)
+                snprintf(e, sizeof(e), "-usbscoreboard requires device type, number and baud rate: [USB|ACM] [0-9] [BAUD]");
+                if (strcasecmp(s, "USB") == 0) impl = 0x01;
+                else if (strcasecmp(s, "ACM") == 0) impl = 0x02;
+                get_next_word(s, sizeof(s));
+                if (strcasecmp(s, "0") == 0) i = 0x01;
+                else {
+                    i = atoi(s);
+                    if (i) i++;
+                }
+                get_next_word(s, sizeof(s));
+                baud = atoi(s);
+
+                if ((i > 0 && i <= 10) && impl && baud) {
+                    set_scoreboard_usb_port(i-1);
+                    set_scoreboard_usb_baud(baud);
+                    set_scoreboard_usb_impl(impl);
+#else
+                snprintf(e, sizeof(e), "-usbscoreboard is unsupported on this platform");
+                if (baud == -1 && impl == -1) {
+#endif
+                    set_scoreboard(get_scoreboard() | 0x02); // Bitmapped -- enable USB SB
+                    printline("Enabling USB scoreboard...");
+                } else {
+                    printerror(e);
+                    result = false;
+                }
             } else if (strcasecmp(s, "-software_scoreboard") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
-                if (game_lair_or_sa || game_thayers) {
+                if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
                     g_game->m_sdl_software_scoreboard = true;
                     printline("Enabling Software scoreboard...");
                 } else {
-                    printline("NOTE: Software scoreboard not supported in this game");
+                    printline("NOTE: Software scoreboard is not available");
                 }
             }
             // used to modify the dip switch settings of the game in question

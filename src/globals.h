@@ -49,6 +49,10 @@ unsigned int rsb_port = 0; // 0 = LPT1, 1 = LPT2 or address of real scoreboard
 unsigned int idleexit; // added by JFA for -idleexit
 unsigned char startsilent = 0;
 
+unsigned char scoreboard_usb_port = 0;
+unsigned char scoreboard_usb_impl = 0;
+unsigned int scoreboard_usb_baud = 300;
+
 bool log_was_disabled = false; // added by MAC for -nolog
 
 #endif

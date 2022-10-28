@@ -303,6 +303,10 @@ void set_frame_modifier(unsigned char value) { frame_modifier = value; }
 
 void set_scoreboard(unsigned char value) { realscoreboard = value; }
 
+void set_scoreboard_usb_port(unsigned char value) { scoreboard_usb_port = value; }
+void set_scoreboard_usb_impl(unsigned char value) { scoreboard_usb_impl = value; }
+void set_scoreboard_usb_baud(unsigned int value) { scoreboard_usb_baud = value; }
+
 unsigned char get_scoreboard() { return (realscoreboard); }
 
 void set_scoreboard_port(unsigned int value) { rsb_port = value; }
@@ -356,6 +360,10 @@ unsigned int get_idleexit() { return (idleexit); }
 
 // added by JFA for -startsilent
 void set_startsilent(unsigned char value) { startsilent = value; }
+
+unsigned char get_usb_port() { return (scoreboard_usb_port); }
+unsigned char get_usb_impl() { return (scoreboard_usb_impl); }
+unsigned int get_usb_baud() { return (scoreboard_usb_baud); }
 
 unsigned char get_startsilent() { return (startsilent); }
 // end edit

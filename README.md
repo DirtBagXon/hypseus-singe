@@ -20,9 +20,9 @@ Features:
 * Sinden support in Singe games
 * For Singe games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
 * Daphne alternate overlay choices
-* SDL_GameController (including hotplug) support: [config](doc/hypinput_gamepad.ini)
+* *SDL_GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
-* Software 'lair/ace' original scoreboard: [preview](screenshots/scoreboard.png?raw=true)
+* 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
 * 64bit Windows and MacOS X Ports
 
 ## Windows
@@ -139,6 +139,12 @@ Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
     ~/.hypseus
 
+## Hardware USB Scoreboard
+
+Example arguments: `-usbscoreboard COM 4 19200`
+
+Full details of the USB scoreboard [here](https://github.com/DirtBagXon/hypseus_scoreboard).
+
 ## Software Scoreboard
 
 Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-software_scoreboard`
@@ -179,7 +185,7 @@ Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [Game
 
 The following additional, and reimplemented, arguments have been added to Hypseus Singe:
 
-    -blank_blue                [ VLDP blank using YUV#1DEB6B not YUV#108080    ]
+    -blank_blue                [ VLDP blank using YUV#1DEB6B                   ]
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
@@ -195,6 +201,8 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
     -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
+    -usbscoreboard <args>      [ Enable USB serial support for scoreboard:     ]
+                               [ Arguments: (i)mplementation, (p)ort, (b)aud   ]
     -vertical_stretch <1-24>   [ Overlay stretch implemented for (cliff) only  ]
 
     -8bit_overlay              [ Restore original 8bit Singe overlays          ]
@@ -204,7 +212,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
     -nocrosshair               [ Request game does not display crosshairs      ]
     -retropath                 [ Singe data path rewrites [.daphne]            ]
-    -set_overlay               [ Enforce overlay size (full, half, oversize)   ]
+    -set_overlay <size>        [ Enforce overlay size (full, half, oversize)   ]
                                [ (full): Set to full video resolution [Singe2] ]
                                [ (half): Set to half video resolution [Singe2] ]
                                [ (oversize): Use with HD gungame video sources ]

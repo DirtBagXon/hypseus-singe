@@ -47,6 +47,7 @@ set( LIB_HEADERS
     lair2.h
     laireuro.h
     lair.h
+    lair_util.h
     lgp.h
     mach3.h
     multicputest.h

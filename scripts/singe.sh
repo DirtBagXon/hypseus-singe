@@ -84,7 +84,7 @@ if [ -z $1 ] ; then
 
         echo "Games available: "
 	for game in $(ls $HYPSEUS_SHARE/singe/); do
-		if [ $game != "actionmax" ]; then
+		if [ $game != "actionmax" ] && [ $game != "Framework" ]; then
 			installed="$installed $game"
 		fi
         done
@@ -107,7 +107,6 @@ $HYPSEUS_BIN singe vldp \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
-$EIGHTBIT \
 $NEAREST \
 $BLANK \
 $BLEND \
@@ -117,6 +116,7 @@ $OVERLAY \
 $SCANLINES \
 $SCALE \
 $SILENTBOOT \
+$EIGHTBIT \
 -sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20
