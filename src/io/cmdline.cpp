@@ -547,18 +547,16 @@ bool parse_cmd_line(int argc, char **argv)
                     loadini = false;
 
                 if (loadini) {
-
                     for(int k=0;k<iLen;k++) // lowercase
                         s[k] = tolower(s[k]);
 
                     string s1(s);
                     string s2(s1.substr(iLen-4));
 
-                    if (s2.compare(".ini") != 0) {
+                    if (s2.compare(".ini") != 0) // .ini
                         loadini = false;
-                    }
 
-                    if (loadini) {
+                    if (loadini) { // alphanum
                         string s3 = s1.substr(0, (iLen-4));
                         for (int i = 0; s3[i] != '\0'; i++) {
                             if (!isalnum(s3[i]) && s3[i] != int('-')

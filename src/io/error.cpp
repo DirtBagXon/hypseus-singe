@@ -30,16 +30,7 @@
 #endif
 
 #include <SDL.h>
-#include <string.h>
 #include <plog/Log.h>
-#include "../hypseus.h"
-#include "conout.h"
-#include "input.h"
-#include "../game/game.h"
-#include "../sound/sound.h"
-#include "../video/video.h"
-
-const char *instr = "Read hypseus.log for help";
 
 // notifies the user of an error that has occurred
 void printerror(const char *s)
@@ -50,9 +41,13 @@ void printerror(const char *s)
     LOGE << s;
 #endif
 
-#ifdef LINUX
     if (!plog::get())
+#ifdef LINUX
         fprintf(stderr, "[ error ] \033[31;1m%s\033[0m\n", s);
+#elif __APPLE__
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", s, NULL);
+#else
+        return;
 #endif
 }
 
