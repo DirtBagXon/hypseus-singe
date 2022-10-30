@@ -49,6 +49,6 @@ typedef struct
 
 bool g_usb_connected();
 
-void send_usb_annunciator(DigitStruct);
+void write_usb_serial(DigitStruct);
 
 #endif

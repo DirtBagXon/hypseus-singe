@@ -151,7 +151,7 @@ void change_led(bool num_lock, bool caps_lock, bool scroll_lock)
             if (caps_lock) val |= 0x04;
 
             ds.value = (char)val;
-            send_usb_annunciator(ds);
+            write_usb_serial(ds);
             return;
         }
     }

@@ -158,7 +158,7 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
 
               for (char u = PLAYER2_0; u <= PLAYER2_5; u++) {
                    clr.digit = (WhichDigit)u;
-                   s.writeBytes((uint8_t *)&clr, sizeof(clr));
+                   write_usb_serial(clr);
               }
           }
       }
@@ -199,7 +199,7 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
       else trip = true;
   }
 
-  s.writeBytes((uint8_t *)&ds, sizeof(ds));
+  write_usb_serial(ds);
   return true;
 }
  
@@ -214,6 +214,6 @@ bool USBScoreboard::ChangeVisibility(bool bDontCare) { return false; }
 
 bool g_usb_connected() { return rts; }
 
-void send_usb_annunciator(DigitStruct ds) {
+void write_usb_serial(DigitStruct ds) {
 	s.writeBytes((uint8_t *)&ds, sizeof(ds));
 }
