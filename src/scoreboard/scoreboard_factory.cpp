@@ -8,9 +8,8 @@
 #include "overlay_scoreboard.h"
 
 IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type,
-											SDL_Surface *(*pFuncGetActiveOverlay)(), bool bThayers,
-											bool bUsingAnnunciator,
-											unsigned int uWhichPort)
+		SDL_Surface *(*pFuncGetActiveOverlay)(),
+		bool bThayers, bool bUsingAnnunciator, unsigned int uWhichPort)
 {
 	IScoreboard *pRes = 0;
 
