@@ -28,8 +28,8 @@
 #include <plog/Log.h>
 #include <cstdio>
 
-serialib s;
-bool rts = false, saeboot = false;
+serialib g_usb_serial;
+bool g_serial_rts = false, g_serial_saeboot = false;
 
 void USBScoreboard::DeleteInstance() { delete this; }
 
@@ -53,7 +53,7 @@ bool USBScoreboard::USBInit() {
   unsigned char port = get_usb_port();
   unsigned int baud = get_usb_baud();
 
-  if (s.SupportedBaud(baud)) {
+  if (g_usb_serial.SupportedBaud(baud)) {
      LOGI << "Setting BAUD rate: " << baud;
   } else {
      LOGE << "Aborting: Unsupported BAUD rate: " << baud;
@@ -81,7 +81,7 @@ bool USBScoreboard::USBInit() {
   }
 #endif
 
-  int usb = s.openDevice(device, baud);
+  int usb = g_usb_serial.openDevice(device, baud);
 
   if (usb != 1)
   {
@@ -91,23 +91,23 @@ bool USBScoreboard::USBInit() {
 
   LOGI << "Opened: " << device;
 
-  if (g_game_sae()) saeboot = true;
+  if (g_game_sae()) g_serial_saeboot = true;
 
-  s.DTR(false);
-  s.RTS(true);
-  rts = true;
+  g_usb_serial.DTR(false);
+  g_usb_serial.RTS(true);
+  g_serial_rts = true;
 
   return true;
 }
 
 void USBScoreboard::USBShutdown() {
 
-  if (rts) {
-      rts = false;
+  if (g_serial_rts) {
+      g_serial_rts = false;
       LOGI << "Shutting down serial";
-      s.flushReceiver();
+      g_usb_serial.flushReceiver();
   }
-  s.closeDevice();
+  g_usb_serial.closeDevice();
 }
 
 USBScoreboard::USBScoreboard() { }
@@ -120,12 +120,13 @@ bool USBScoreboard::RepaintIfNeeded() { return false; }
 
 bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
 
+  USBUtil serial;
   ds.unit = SCOREBOARD;
   ds.digit = which;
   static bool bseq, trip;
   static uint32_t buf = 0;
 
-  if (saeboot) // SAE is a serial killer
+  if (g_serial_saeboot) // SAE is a serial killer
   {
       if (get_usb_baud() < LOWBAUD) {
           if (buf < BOOTBYPASS) {
@@ -151,14 +152,14 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
       if (buf > BOOTCYCLE) {
           if ((uValue > 0xb) && (which == PLAYER2_5)) {
 
-              saeboot = false;
+              g_serial_saeboot = false;
               DigitStruct clr;
               clr.value = spc;
               clr.unit = SCOREBOARD;
 
               for (char u = PLAYER2_0; u <= PLAYER2_5; u++) {
                    clr.digit = (WhichDigit)u;
-                   write_usb_serial(clr);
+                   serial.write_usb(clr);
               }
           }
       }
@@ -199,7 +200,7 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
       else trip = true;
   }
 
-  write_usb_serial(ds);
+  serial.write_usb(ds);
   return true;
 }
  
@@ -212,8 +213,8 @@ bool USBScoreboard::get_digit(unsigned int &uValue, WhichDigit which) {
 
 bool USBScoreboard::ChangeVisibility(bool bDontCare) { return false; }
 
-bool g_usb_connected() { return rts; }
+bool USBUtil::usb_connected() { return g_serial_rts; }
 
-void write_usb_serial(DigitStruct ds) {
-	s.writeBytes((uint8_t *)&ds, sizeof(ds));
+void USBUtil::write_usb(DigitStruct ds) {
+	g_usb_serial.writeBytes((uint8_t *)&ds, sizeof(ds));
 }

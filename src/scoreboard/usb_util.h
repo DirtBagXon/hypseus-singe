@@ -47,8 +47,11 @@ typedef struct
    char value;
 } DigitStruct;
 
-bool g_usb_connected();
-
-void write_usb_serial(DigitStruct);
+class USBUtil
+{
+  public:
+    bool usb_connected();
+    void write_usb(DigitStruct);
+};
 
 #endif

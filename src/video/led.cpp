@@ -141,7 +141,9 @@ void change_led(bool num_lock, bool caps_lock, bool scroll_lock)
 
     if (g_game_annun()) {
 
-        if (g_usb_connected()) {
+        USBUtil serial;
+
+        if (serial.usb_connected()) {
             int val = 0;
             DigitStruct ds;
             ds.unit = ds.digit = ANNUNCIATOR;
@@ -151,7 +153,7 @@ void change_led(bool num_lock, bool caps_lock, bool scroll_lock)
             if (caps_lock) val |= 0x04;
 
             ds.value = (char)val;
-            write_usb_serial(ds);
+            serial.write_usb(ds);
             return;
         }
     }
