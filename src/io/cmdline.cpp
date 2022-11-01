@@ -688,7 +688,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if (g_game->m_sdl_software_scoreboard) return false;
                 int baud = 0;
                 int impl = 0;
-                char e[460];
+                char e[100];
                 get_next_word(s, sizeof(s));
 #ifdef WIN32
                 snprintf(e, sizeof(e), "-usbscoreboard requires a COM port number\n and baud rate: COM [1-9] [BAUD]");
