@@ -52,9 +52,10 @@ const struct singe_out_info *g_pSingeOut = NULL;
 struct singe_in_info g_SingeIn;
 
 // joystick
-static Sint16 xpos, ypos, jrelx, jrely, xmov, ymov;
-static Sint16 js_sen = 5;
-static bool bjx = false, bjy = false;
+static Sint16 g_singe_xpos, g_singe_ypos, g_singe_jrelx,
+              g_singe_jrely, g_singe_xmov, g_singe_ymov;
+static Sint16 g_singe_js_sen = 5;
+static bool   g_singe_bjx = false, g_singe_bjy = false;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -226,7 +227,7 @@ void singe::start()
                 m_video_overlay_needs_update = true;
             }
 
-            if (bjx||bjy) {
+            if (g_singe_bjx||g_singe_bjy) {
                 JoystickMotion();
             }
 
@@ -259,24 +260,24 @@ void singe::input_enable(Uint8 input)
 {
     switch (input) {
     case SWITCH_UP:
-       ypos = -abs(js_sen);
-       jrely--;
-       bjy = true;
+       g_singe_ypos = -abs(g_singe_js_sen);
+       g_singe_jrely--;
+       g_singe_bjy = true;
        break;
     case SWITCH_DOWN:
-       ypos = js_sen;
-       jrely++;
-       bjy = true;
+       g_singe_ypos = g_singe_js_sen;
+       g_singe_jrely++;
+       g_singe_bjy = true;
        break;
     case SWITCH_LEFT:
-       xpos = -abs(js_sen);
-       jrelx--;
-       bjx = true;
+       g_singe_xpos = -abs(g_singe_js_sen);
+       g_singe_jrelx--;
+       g_singe_bjx = true;
        break;
     case SWITCH_RIGHT:
-       xpos = js_sen;
-       jrelx++;
-       bjx = true;
+       g_singe_xpos = g_singe_js_sen;
+       g_singe_jrelx++;
+       g_singe_bjx = true;
        break;
     }
 
@@ -289,15 +290,15 @@ void singe::input_disable(Uint8 input)
     switch (input) {
     case SWITCH_UP:
     case SWITCH_DOWN:
-       ypos = 0;
-       jrely = 0;
-       bjy = false;
+       g_singe_ypos = 0;
+       g_singe_jrely = 0;
+       g_singe_bjy = false;
        break;
     case SWITCH_LEFT:
     case SWITCH_RIGHT:
-       xpos = 0;
-       jrelx = 0;
-       bjx = false;
+       g_singe_xpos = 0;
+       g_singe_jrelx = 0;
+       g_singe_bjx = false;
        break;
     }
 
@@ -318,18 +319,18 @@ void singe::JoystickMotion()
     Uint16 cur_h = g_SingeIn.get_video_height();
     static bool s = false;
 
-    if (!s) { xmov = cur_w/4; ymov = cur_h/4; s = true; }
+    if (!s) { g_singe_xmov = cur_w/4; g_singe_ymov = cur_h/4; s = true; }
 
-    xmov = xpos + xmov;
-    ymov = ypos + ymov;
+    g_singe_xmov = g_singe_xpos + g_singe_xmov;
+    g_singe_ymov = g_singe_ypos + g_singe_ymov;
 
-    if (xmov > cur_w) { xmov = cur_w; jrelx = 0; }
-    if (ymov > cur_h) { ymov = cur_h; jrely = 0; }
-    if (xmov < 0) { xmov = abs(xmov); jrelx = 0; }
-    if (ymov < 0) { ymov = abs(ymov); jrely = 0; }
+    if (g_singe_xmov > cur_w) { g_singe_xmov = cur_w; g_singe_jrelx = 0; }
+    if (g_singe_ymov > cur_h) { g_singe_ymov = cur_h; g_singe_jrely = 0; }
+    if (g_singe_xmov < 0) { g_singe_xmov = abs(g_singe_xmov); g_singe_jrelx = 0; }
+    if (g_singe_ymov < 0) { g_singe_ymov = abs(g_singe_ymov); g_singe_jrely = 0; }
 
     if (g_pSingeOut) {
-        g_pSingeOut->sep_do_mouse_move(xmov, ymov, jrelx, jrely);
+        g_pSingeOut->sep_do_mouse_move(g_singe_xmov, g_singe_ymov, g_singe_jrelx, g_singe_jrely);
     }
 }
 
@@ -456,7 +457,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         i = atoi(s);
 
         if ((i > 0) && (i < 21)) {
-           js_sen = i;
+           g_singe_js_sen = i;
            bResult = true;
         } else {
            printerror("SINGE: js_range out of scope: <1-20>");
