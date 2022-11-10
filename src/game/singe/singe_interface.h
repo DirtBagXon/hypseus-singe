@@ -93,7 +93,7 @@ struct singe_out_info
 	void (*sep_shutdown)(void);
 	void (*sep_startup)(const char *script);
 	void (*sep_set_retropath)(void);
-	void (*sep_alter_lua_clock)(void);
+	void (*sep_alter_lua_clock)(bool);
 	void (*sep_mute_vldp_init)(void);
 	void (*sep_no_crosshair)(void);
 	void (*sep_upgrade_overlay)(void);

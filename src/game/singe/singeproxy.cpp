@@ -692,9 +692,12 @@ void sep_unload_sprites(void)
 	}
 }
 
-void sep_alter_lua_clock(void)
+void sep_alter_lua_clock(bool s)
 {
-   os_alter_clocker();
+   if (s)
+       os_alter_clocker(LUA_HI);
+   else
+       os_alter_clocker(LUA_LO);
 }
 
 void sep_mute_vldp_init(void)

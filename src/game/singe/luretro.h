@@ -26,12 +26,14 @@
 #ifndef luretro_h
 #define luretro_h
 
+#define LUA_LO 4
+#define LUA_HI 8
 #define RETRO_PAD  12
 #define RETRO_MAXPATH 128
 
 unsigned char get_retropath();
 
-void (os_alter_clocker)(void);
+void (os_alter_clocker)(unsigned char value);
 
 void lua_set_retropath(unsigned char value);
 
