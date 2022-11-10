@@ -27,7 +27,7 @@
 #define luretro_h
 
 #define LUA_LO 4
-#define LUA_HI 8
+#define LUA_HI 6
 #define RETRO_PAD      12
 #define RETRO_MAXPATH  128
 
