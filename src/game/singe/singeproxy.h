@@ -68,7 +68,7 @@ void          sep_unload_fonts(void);
 void          sep_unload_sounds(void);
 void          sep_unload_sprites(void);
 void          sep_set_retropath(void);
-void          sep_alter_lua_clock(void);
+void          sep_alter_lua_clock(bool);
 void          sep_mute_vldp_init(void);
 void          sep_no_crosshair(void);
 void          sep_upgrade_overlay(void);

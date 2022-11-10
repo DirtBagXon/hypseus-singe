@@ -16,10 +16,11 @@
 
 #include "lua.h"
 
+#include "luretro.h"
 #include "lauxlib.h"
 #include "lualib.h"
 
-static int clocker = 0x04;
+static int clocker = LUA_LO;
 
 static int os_pushresult (lua_State *L, int i, const char *filename) {
   int en = errno;  /* calls to Lua API may change this value */
@@ -77,8 +78,9 @@ static int os_clock (lua_State *L) {
   return 1;
 }
 
-void os_alter_clocker () {
-  clocker = 0x08;
+void os_alter_clocker (unsigned char s) {
+  if (s == LUA_HI) clocker = LUA_HI;
+  else clocker = LUA_LO >> 1;
 }
 
 /*

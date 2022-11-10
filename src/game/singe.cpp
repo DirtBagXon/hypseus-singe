@@ -216,7 +216,7 @@ void singe::start()
     if (fullsize_overlay) g_pSingeOut->sep_overlay_resize();
     if (muteinit) g_pSingeOut->sep_mute_vldp_init();
     if (notarget) g_pSingeOut->sep_no_crosshair();
-    if (oc) g_pSingeOut->sep_alter_lua_clock();
+    if (oc) g_pSingeOut->sep_alter_lua_clock(ocd);
 
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
@@ -378,6 +378,12 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-overclock") == 0) {
         oc = true;
+        ocd = true;
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-underclock") == 0) {
+        oc = true;
+        ocd = false;
         bResult = true;
     }
     else if (strcasecmp(arg, "-oversize_overlay") == 0) {
