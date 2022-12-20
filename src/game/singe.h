@@ -72,7 +72,7 @@ class singe : public game
     bool fullsize_overlay = false;
     bool muteinit = false;
     bool notarget = false;
-    bool ocd = false;
+    bool ocv = false;
     bool oc = false;
 
     // g_ldp function wrappers (to make function pointers out of them)
