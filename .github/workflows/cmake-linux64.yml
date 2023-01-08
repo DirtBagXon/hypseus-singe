@@ -21,6 +21,8 @@ jobs:
         sudo apt install gcc
         sudo apt install libogg-dev
         sudo apt install libsdl2-dev
+        sudo apt install libsdl2-ttf-dev
+        sudo apt install libsdl2-image-dev
         sudo apt install zlib1g-dev
         sudo apt install libvorbis-dev
     - name: Build
