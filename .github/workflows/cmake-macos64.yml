@@ -1,0 +1,39 @@
+name: CMake-MacOS64
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Dependancies
+      run: |
+        brew update
+        brew install autoconf
+        brew install automake
+        brew install pkg-config
+        brew install sdl2
+        brew install sdl2_ttf
+        brew install sdl2_image
+        brew install libtool
+        brew install libvorbis
+        brew install libogg
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake ../src
+        make
+    - uses: actions/upload-artifact@v3
+      with:
+        name: hypseus
+        path: build/hypseus
