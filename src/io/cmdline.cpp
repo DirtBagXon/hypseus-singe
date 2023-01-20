@@ -867,6 +867,45 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-nolog") == 0) {
                 set_log_was_disabled(true);
             }
+            // specify a bezel file (located in home 'bezels' directory)
+            else if (strcasecmp(s, "-bezel") == 0) {
+
+                bool loadbezel = true;
+                get_next_word(s, sizeof(s));
+                int iLen = strlen(s);
+
+                if (iLen < 5)
+                    loadbezel = false;
+
+                if (loadbezel) {
+
+                    string s1(s);
+                    string s2(s1.substr(iLen-4));
+
+                    if (s2.compare(".png") != 0) // .png
+                        loadbezel = false;
+
+                    if (loadbezel) { // alphanum
+                        string s3 = s1.substr(0, (iLen-4));
+                        for (int i = 0; s3[i] != '\0'; i++) {
+                            if (!isalnum(s3[i]) && s3[i] != int('-')
+                                && s3[i] != int('_') && s3[i] != int('/')) {
+                                loadbezel = false;
+                            }
+                        }
+
+                        if (loadbezel)
+                            video::set_bezel_file(s);
+                    }
+                }
+
+                if (!loadbezel) {
+                    char e[460];
+                    snprintf(e, sizeof(e), "Invalid -bezel file: %s [Use .png]", s);
+                    printerror(e);
+                    result = false;
+                 }
+            }
 
             // by RDG2010
             // Scales video image to something smaller than the window size.

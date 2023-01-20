@@ -173,6 +173,7 @@ void set_subtitle_enabled(bool bEnabled);
 void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
+void set_bezel_file(const char *);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);

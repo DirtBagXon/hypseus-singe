@@ -57,7 +57,7 @@ void homedir::set_homedir(const string &s)
     make_dir(m_homedir + "/roms");
     make_dir(m_homedir + "/logs");
     make_dir(m_homedir + "/fonts");
-    make_dir(m_homedir + "/framefile");
+    make_dir(m_homedir + "/bezels");
     make_dir(m_homedir + "/screenshots");
 }
 

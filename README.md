@@ -12,6 +12,7 @@ Features:
 
 * SDL2 support
 * Updated MPEG2 decoder
+* Integrated bezel support
 * Daphne VLDP 32bit upgrade
 * Daphne and Singe 4k M2V support
 * Singe libretro emulation path integration
@@ -165,6 +166,7 @@ Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [Game
 
 The following additional, and reimplemented, arguments have been added to Hypseus Singe:
 
+    -bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
     -blank_blue                [ VLDP blank using YUV#1DEB6B                   ]
     -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
     -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]

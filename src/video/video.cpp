@@ -69,6 +69,7 @@ SDL_Texture *g_overlay_texture     = NULL; // The OVERLAY texture, excluding LED
 SDL_Texture *g_yuv_texture         = NULL; // The YUV video texture, registered from ldp-vldp.cpp
 SDL_Surface *g_screen_blitter      = NULL; // The main blitter surface
 SDL_Surface *g_leds_surface        = NULL;
+SDL_Texture *g_bezel_texture       = NULL;
 
 SDL_Rect g_overlay_size_rect; 
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
@@ -90,6 +91,7 @@ bool g_overlay_resize = false;
 bool g_bForceAspectRatio = false;
 bool g_LDP1450_overlay = false;
 bool g_fullscreen = false; // initialize video in fullscreen
+bool g_bezel_toggle = false;
 
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
@@ -98,18 +100,20 @@ int g_texture_access = SDL_TEXTUREACCESS_TARGET;
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
-char *subchar;
+char *subchar = NULL;
 
-char *LDP1450_069;
-char *LDP1450_085;
-char *LDP1450_101;
-char *LDP1450_104;
-char *LDP1450_120;
-char *LDP1450_128;
-char *LDP1450_136;
-char *LDP1450_168;
-char *LDP1450_184;
-char *LDP1450_200;
+char *LDP1450_069 = NULL;
+char *LDP1450_085 = NULL;
+char *LDP1450_101 = NULL;
+char *LDP1450_104 = NULL;
+char *LDP1450_120 = NULL;
+char *LDP1450_128 = NULL;
+char *LDP1450_136 = NULL;
+char *LDP1450_168 = NULL;
+char *LDP1450_184 = NULL;
+char *LDP1450_200 = NULL;
+
+string g_bezel_file = "";
 
 // degrees in clockwise rotation
 SDL_RendererFlip g_flipState = SDL_FLIP_NONE;
@@ -150,6 +154,7 @@ bool init_display()
     Uint8  sdl_sb_render_flags = 0;
     static bool sb = false;
     static bool rz = false;
+    char bezelpath[96] = {};
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
     sdl_flags = SDL_WINDOW_SHOWN;
@@ -259,6 +264,19 @@ bool init_display()
                 exit(SDL_ERROR_MAINRENDERER);
             } else {
 
+                if (g_bezel_file.length() > 0) {
+                    snprintf(bezelpath, sizeof(bezelpath), "bezels/%s", g_bezel_file.c_str());
+                    g_bezel_texture = IMG_LoadTexture(g_renderer, bezelpath);
+
+                    if (!rz) {
+                        if (g_bezel_texture) {
+                            LOGI << fmt("Loaded bezel file: %s", bezelpath);
+                        } else {
+                            LOGW << fmt("Failed to load bezel: %s", bezelpath);
+                        }
+                    }
+                }
+
                 // Set bilinear filtering by default
                 if (!g_fs_scale_nearest)
                     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
@@ -269,6 +287,7 @@ bool init_display()
                                (sdl_flags & SDL_WINDOW_MAXIMIZED) != 0) {
 
                     SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+                    g_bezel_toggle = true;
                 }
 
                 if (g_game->m_sdl_software_scoreboard && !(sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) && !sb) {
@@ -380,6 +399,7 @@ bool init_display()
                 }
 
                 SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+
                 SDL_RenderClear(g_renderer);
                 SDL_RenderPresent(g_renderer);
                 // NOTE: SDL Console was initialized here.
@@ -428,6 +448,9 @@ bool deinit_display()
     if (g_sb_window)
         SDL_DestroyWindow(g_sb_window);
 
+    if (g_bezel_texture)
+        SDL_DestroyTexture(g_bezel_texture);
+
     SDL_DestroyTexture(g_overlay_texture);
     SDL_DestroyRenderer(g_renderer);
     SDL_DestroyWindow(g_window);
@@ -446,6 +469,8 @@ void resize_cleanup(uint32_t sdl_flags)
 
     if (g_screen_blitter) SDL_FreeSurface(g_screen_blitter);
     if (g_leds_surface) SDL_FreeSurface(g_leds_surface);
+
+    if (g_bezel_texture) SDL_DestroyTexture(g_bezel_texture);
 
     if (g_overlay_texture) SDL_DestroyTexture(g_overlay_texture);
     if (g_renderer) SDL_DestroyRenderer(g_renderer);
@@ -787,6 +812,7 @@ void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
 void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
+void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
 
 void set_scalefactor(int value)
 {
@@ -987,6 +1013,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
 // toggles fullscreen mode
 void vid_toggle_fullscreen()
 {
+    g_bezel_toggle = false;
     Uint32 flags = (SDL_GetWindowFlags(g_window) ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (SDL_SetWindowFullscreen(g_window, flags) < 0) {
         LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());
@@ -994,6 +1021,7 @@ void vid_toggle_fullscreen()
     }
     if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
         SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+        g_bezel_toggle = true;
         return;
     }
     SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
@@ -1225,9 +1253,15 @@ void vid_blit () {
         if (g_overlay_texture)
             SDL_RenderCopyEx(g_renderer, g_overlay_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
-    } else if (g_game->get_sinden_border())
+    } else if (g_game->get_sinden_border() && !g_bezel_texture)
             draw_border(g_game->get_sinden_border(),
                       g_game->get_sinden_border_color());
+
+    if (g_bezel_texture && g_bezel_toggle) {
+        SDL_RenderSetViewport(g_renderer, NULL);
+        SDL_RenderCopy(g_renderer, g_bezel_texture, NULL, NULL);
+        SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+    }
 
     SDL_RenderPresent(g_renderer);
 
