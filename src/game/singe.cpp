@@ -216,7 +216,7 @@ void singe::start()
     if (fullsize_overlay) g_pSingeOut->sep_overlay_resize();
     if (muteinit) g_pSingeOut->sep_mute_vldp_init();
     if (notarget) g_pSingeOut->sep_no_crosshair();
-    if (oc) g_pSingeOut->sep_alter_lua_clock(ocv);
+    if (singe_oc) g_pSingeOut->sep_alter_lua_clock(singe_ocv);
 
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
@@ -346,8 +346,7 @@ bool singe::handle_cmdline_arg(const char *arg)
 
     if (!bInit) {
         game::set_32bit_overlay(true);
-        upgrade_overlay = true;
-        bInit = true;
+        upgrade_overlay = bInit = true;
     }
 
     if (strcasecmp(arg, "-script") == 0) {
@@ -381,13 +380,12 @@ bool singe::handle_cmdline_arg(const char *arg)
         bResult = true;
     }
     else if (strcasecmp(arg, "-overclock") == 0) {
-        oc = true;
-        ocv = true;
+        singe_oc = singe_ocv = true;
         bResult = true;
     }
     else if (strcasecmp(arg, "-underclock") == 0) {
-        oc = true;
-        ocv = false;
+        singe_oc = true;
+        singe_ocv = false;
         bResult = true;
     }
     else if (strcasecmp(arg, "-oversize_overlay") == 0) {

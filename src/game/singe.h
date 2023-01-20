@@ -72,8 +72,8 @@ class singe : public game
     bool fullsize_overlay = false;
     bool muteinit = false;
     bool notarget = false;
-    bool ocv = false;
-    bool oc = false;
+    bool singe_ocv = false;
+    bool singe_oc = false;
 
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }

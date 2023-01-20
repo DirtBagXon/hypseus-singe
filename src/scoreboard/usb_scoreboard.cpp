@@ -143,7 +143,7 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
 
            } else if (which == PLAYER2_1 && ((uValue == 0xc)
                       || (uValue == 0xe)))
-              uValue = vla;
+              uValue = s_asc_vla;
       }
 
       if (bseq && (which == PLAYER2_5) && (uValue == 0x0))
@@ -154,7 +154,7 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
 
               g_serial_saeboot = false;
               DigitStruct clr;
-              clr.value = spc;
+              clr.value = s_asc_spc;
               clr.unit = SCOREBOARD;
 
               for (char u = PLAYER2_0; u <= PLAYER2_5; u++) {
@@ -168,25 +168,25 @@ bool USBScoreboard::set_digit(unsigned int uValue, WhichDigit which) {
 
   switch(uValue) {
   case 0xa:
-      ds.value = dsh;
+      ds.value = s_asc_dsh;
       break;
   case 0xb:
-      ds.value = vle;
+      ds.value = s_asc_vle;
       break;
   case 0xc:
-      ds.value = vlh;
+      ds.value = s_asc_vlh;
       break;
   case 0xd:
-      ds.value = vll;
+      ds.value = s_asc_vll;
       break;
   case 0xe:
-      ds.value = vlp;
+      ds.value = s_asc_vlp;
       break;
   case 0xf:
-      ds.value = spc;
+      ds.value = s_asc_spc;
       buf++;
       break;
-  case vla:
+  case s_asc_vla:
       ds.value = uValue;
       break;
   default:
