@@ -32,13 +32,13 @@
 #define BOOTBYPASS  0x3c668
 #define LOWBAUD     0x04b00
 
-#define vla  int('a')
-#define vle  int('e')
-#define vlh  int('h')
-#define vll  int('l')
-#define vlp  int('p')
-#define spc  int(' ')
-#define dsh  int('-')
+#define s_asc_vla  int('a')
+#define s_asc_vle  int('e')
+#define s_asc_vlh  int('h')
+#define s_asc_vll  int('l')
+#define s_asc_vlp  int('p')
+#define s_asc_spc  int(' ')
+#define s_asc_dsh  int('-')
 
 typedef struct
 {
