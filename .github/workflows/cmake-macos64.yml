@@ -20,6 +20,7 @@ jobs:
         brew update
         brew install autoconf
         brew install automake
+        brew install glibc
         brew install pkg-config
         brew install sdl2
         brew install sdl2_ttf
