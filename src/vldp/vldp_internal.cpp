@@ -485,6 +485,8 @@ void vldp_process_sequence_header()
 // The file is positioned at the beginning
 void idle_handler_open()
 {
+    int sAspect = 0;
+    int dCurAspectRatio = 0;
     char req_file[STRSIZE] = {0};
     uint32_t req_idx  = g_req_idx;
     VLDP_BOOL req_precache = g_req_precache;
@@ -537,8 +539,24 @@ void idle_handler_open()
                 ((small_buf[5] & 0x0F) << 8) | small_buf[6]; // get mpeg height
             ivldp_set_framerate(small_buf[7] & 0xF); // set the framerate
 
+            // Look for aspect ratio meta field - thanks to walknight
+            sAspect = small_buf[7] >> 4;
+
+            switch (sAspect) {
+            case 2:
+               dCurAspectRatio = ASPECTSD;
+               video::set_aspect_change((g_out_info.h * 4) / 3, g_out_info.h);
+               break;
+            case 3:
+               dCurAspectRatio = ASPECTWS;
+               video::set_aspect_change((g_out_info.h * 16) / 9, g_out_info.h);
+               break;
+            default:
+               dCurAspectRatio = (int)(((double)g_out_info.w / g_out_info.h) * 100);
+               break;
+            }
+
             // Send media info to video::
-            int dCurAspectRatio = (int)(((double)g_out_info.w / g_out_info.h) * 100);
             video::set_aspect_ratio(dCurAspectRatio);
             video::set_detected_height((int)g_out_info.h);
             video::set_detected_width((int)g_out_info.w);

@@ -529,8 +529,7 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             // Ignore some deprecated arguments (Rather than error)
-            else if (strcasecmp(s, "-ignore_aspect_ratio") == 0
-                     || strcasecmp(s, "-noserversend") == 0) {
+            else if (strcasecmp(s, "-noserversend") == 0) {
 
                  char e[460];
                  snprintf(e, sizeof(e), "NOTE : Ignoring deprecated argument: %s", s);
@@ -822,6 +821,11 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-force_aspect_ratio") == 0) {
                 printline("Forcing 4:3 aspect ratio.");
                 video::set_force_aspect_ratio(true);
+                video::set_ignore_aspect_ratio(false);
+            }
+            else if (strcasecmp(s, "-ignore_aspect_ratio") == 0) {
+                video::set_ignore_aspect_ratio(true);
+                video::set_force_aspect_ratio(false);
             }
             else if (strcasecmp(s, "-scanline_shunt") == 0) {
                 get_next_word(s, sizeof(s));

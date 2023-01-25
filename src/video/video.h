@@ -32,6 +32,10 @@
 #define PATH_SEPARATOR "/"
 #endif
 
+#define ASPECTSD 133
+#define ASPECTWS 178 // Round up
+#define NOSQUARE 0x2d0
+
 #include "SDL_FontCache.h"
 #include <SDL.h>
 
@@ -132,7 +136,6 @@ bool get_opengl();
 bool get_vulkan();
 bool get_fullscreen();
 bool get_use_old_osd();
-bool get_force_aspect_ratio();
 bool get_singe_blend_sprite();
 bool get_video_timer_blank();
 void set_opengl(bool value);
@@ -146,6 +149,7 @@ void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
 void set_fullscreen_scale_nearest(bool value);
 void set_force_aspect_ratio(bool bEnabled);
+void set_ignore_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
 void set_shunt(int value);
 void set_alpha(int value);
@@ -174,6 +178,7 @@ void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
+void set_aspect_change(int aspectWidth, int aspectHeight);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);

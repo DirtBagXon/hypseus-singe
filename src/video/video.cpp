@@ -53,6 +53,9 @@ unsigned int g_draw_height = g_vid_height, g_probe_height = g_vid_height;
 int s_alpha = 255;
 int s_shunt = 2;
 
+int g_viewport_width = g_vid_width, g_viewport_height = g_vid_height;
+int g_aspect_width = 0, g_aspect_height = 0;
+
 // the current game overlay dimensions
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
 
@@ -89,6 +92,7 @@ bool g_vid_resized = false;
 bool g_enhance_overlay = false;
 bool g_overlay_resize = false;
 bool g_bForceAspectRatio = false;
+bool g_bIgnoreAspectRatio = false;
 bool g_LDP1450_overlay = false;
 bool g_fullscreen = false; // initialize video in fullscreen
 bool g_bezel_toggle = false;
@@ -117,7 +121,7 @@ string g_bezel_file = "";
 
 // degrees in clockwise rotation
 SDL_RendererFlip g_flipState = SDL_FLIP_NONE;
-int sdl_max_rotate_width = 720;
+int sdl_max_rotate_width = NOSQUARE;
 float g_fRotateDegrees = 0.0;
 
 // YUV structure
@@ -183,11 +187,21 @@ bool init_display()
         if ((int)g_probe_height < g_vid_height) g_probe_height = g_vid_height;
 
         if (g_vid_resized) {
-            g_draw_width  = g_vid_width;
-            g_draw_height = g_vid_height;
+            g_draw_width  = g_viewport_width  = g_vid_width;
+            g_draw_height = g_viewport_height = g_vid_height;
+
         } else {
+
             g_draw_width  = g_probe_width;
             g_draw_height = g_probe_height;
+
+            if (!g_bIgnoreAspectRatio && g_aspect_width > 0) {
+                g_viewport_width  = g_aspect_width;
+                g_viewport_height = g_aspect_height;
+            } else {
+                g_viewport_width  = g_draw_width;
+                g_viewport_height = g_draw_height;
+            }
         }
 
         // Enforce 4:3 aspect ratio
@@ -197,16 +211,18 @@ bool init_display()
 
             if (dCurAspectRatio < dTARGET_ASPECT_RATIO) {
                 g_draw_height = (g_draw_width * 3) / 4;
+                g_viewport_height = (g_viewport_width * 3) / 4;
             }
             else if (dCurAspectRatio > dTARGET_ASPECT_RATIO) {
                 g_draw_width = (g_draw_height * 4) / 3;
+                g_viewport_width = (g_viewport_height * 4) / 3;
             }
         }
 
         // if we're supposed to scale the image...
         if (g_scalefactor < 100) {
-            g_draw_width  = g_draw_width * g_scalefactor / 100;
-            g_draw_height = g_draw_height * g_scalefactor / 100;
+            g_viewport_width  = g_viewport_width * g_scalefactor / 100;
+            g_viewport_height = g_viewport_height * g_scalefactor / 100;
         }
 
         if (g_draw_width < 500) {
@@ -216,8 +232,8 @@ bool init_display()
             memcpy(title, target, sizeof(target));
         }
 
-        if (rz && (int)g_draw_width != g_vid_width) {
-            LOGI << fmt("Repaint dimensions: %dx%d", g_draw_width, g_draw_height);
+        if (rz) {
+            LOGI << fmt("Viewport resolution: %dx%d", g_viewport_width, g_viewport_height);
         }
 
         if (g_window) resize_cleanup(sdl_flags);
@@ -226,8 +242,8 @@ bool init_display()
             if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
                 if (g_fRotateDegrees != 180.0) {
                     LOGW << "Screen rotation enabled, aspect ratios will be ignored";
-                    g_draw_width = g_vid_width;
-                    g_draw_height = g_vid_width;
+                    g_viewport_width = g_vid_width;
+                    g_viewport_height = g_vid_width;
                 }
                 if (g_game->get_game_type() != 10)
                     g_yuv_video_needs_update = true;
@@ -241,7 +257,7 @@ bool init_display()
 
 	g_window =
             SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                             g_draw_width, g_draw_height, sdl_flags);
+                         g_viewport_width, g_viewport_height, sdl_flags);
 
         if (!g_window) {
             LOGE << fmt("Could not initialize window: %s", SDL_GetError());
@@ -287,7 +303,7 @@ bool init_display()
                 if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0 ||
                                (sdl_flags & SDL_WINDOW_MAXIMIZED) != 0) {
 
-                    SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+                    SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
                     g_bezel_toggle = true;
                 }
 
@@ -327,7 +343,7 @@ bool init_display()
                 // Calculate font sizes
                 int ffs;
                 int fs = get_draw_width() / 36;
-                if (g_aspect_ratio == 0xb1) ffs = get_draw_width() / 24;
+                if (g_aspect_ratio == ASPECTWS) ffs = get_draw_width() / 24;
                 else ffs = get_draw_width() / 18;
 
                 char font[32]="fonts/default.ttf";
@@ -660,7 +676,8 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
     int LDP1450_strlen;
     g_scoreboard_needs_update = true;
 
-    if (g_aspect_ratio == 0x96 && g_fRotateDegrees == 0)
+    if (g_aspect_ratio == ASPECTSD && g_draw_width == NOSQUARE
+                         && g_fRotateDegrees == 0)
         start_x = (start_x - (start_x/4));
 
     dest.x = start_x;
@@ -784,7 +801,6 @@ unsigned int get_draw_height() { return g_draw_height; }
 bool get_opengl() { return g_opengl; }
 bool get_vulkan() { return g_vulkan; }
 bool get_fullscreen() { return g_fullscreen; }
-bool get_force_aspect_ratio() { return g_bForceAspectRatio; }
 bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
 bool get_use_old_osd() { return g_game->get_use_old_overlay(); }
 bool get_video_timer_blank() { return g_yuv_video_timer_blank; }
@@ -811,6 +827,7 @@ void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
 void set_subtitle_enabled(bool bEnabled) { g_bSubtitleShown = bEnabled; }
 void set_subtitle_display(char *s) { subchar = strdup(s); }
 void set_force_aspect_ratio(bool bEnabled) { g_bForceAspectRatio = bEnabled; }
+void set_ignore_aspect_ratio(bool bEnabled) { g_bIgnoreAspectRatio = bEnabled; }
 void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
@@ -827,6 +844,13 @@ void set_scalefactor(int value)
     } else {
         g_scalefactor = value;
     }
+}
+
+// deal with MPEG headers aspect ratio
+void set_aspect_change(int aspectWidth, int aspectHeight)
+{
+    g_aspect_width  = aspectWidth;
+    g_aspect_height = aspectHeight;
 }
 
 // sets g_vid_width
@@ -873,8 +897,8 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 
 void draw_subtitle(char *s, bool insert)
 {
-    int x = (int)(get_draw_width() - (get_draw_width() * 0.97));
-    int y = (int)(get_draw_height() * 0.92);
+    int x = (int)(g_draw_width - (g_draw_width * 0.97));
+    int y = (int)(g_draw_height * 0.92);
     SDL_Renderer *renderer = get_renderer();
     static int m_message_timer;
     const int timeout = 200;
@@ -923,14 +947,14 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
 
        switch(g_aspect_ratio)
        {
-          case 0x96:
-             x = (((double)get_draw_width()/0x140) * start_x);
-             break;
-          case 0xb1:
-             x = (((double)get_draw_width()/0x0e1) * start_x);
+          case ASPECTWS:
+             x = (((double)g_draw_width/0x0e1) * start_x);
              break;
           default:
-             x = (((double)get_draw_width()/0x100) * start_x);
+             if (g_draw_width == NOSQUARE)
+                 x = (((double)g_draw_width/0x180) * start_x);
+             else
+                 x = (((double)g_draw_width/0x100) * start_x);
              break;
        }
 
@@ -1022,11 +1046,11 @@ void vid_toggle_fullscreen()
         return;
     }
     if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
-        SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+        SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
         g_bezel_toggle = true;
         return;
     }
-    SDL_SetWindowSize(g_window, g_draw_width, g_draw_height);
+    SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
     SDL_SetWindowPosition(g_window, SDL_WINDOWPOS_CENTERED,
                           SDL_WINDOWPOS_CENTERED);
 }
@@ -1262,7 +1286,7 @@ void vid_blit () {
     if (g_bezel_texture && g_bezel_toggle) {
         SDL_RenderSetViewport(g_renderer, NULL);
         SDL_RenderCopy(g_renderer, g_bezel_texture, NULL, NULL);
-        SDL_RenderSetLogicalSize(g_renderer, g_draw_width, g_draw_height);
+        SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
     }
 
     SDL_RenderPresent(g_renderer);
