@@ -56,6 +56,8 @@ int s_shunt = 2;
 int g_viewport_width = g_vid_width, g_viewport_height = g_vid_height;
 int g_aspect_width = 0, g_aspect_height = 0;
 
+int sb_window_pos_x = 0, sb_window_pos_y = 0;
+
 // the current game overlay dimensions
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
 
@@ -162,7 +164,7 @@ bool init_display()
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
     sdl_flags = SDL_WINDOW_SHOWN;
-    sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP;
+    sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_BORDERLESS;
     sdl_render_flags = SDL_RENDERER_TARGETTEXTURE;
 
     // if we were able to initialize the video properly
@@ -307,7 +309,7 @@ bool init_display()
                 }
 
                 if (g_game->m_sdl_software_scoreboard && !(sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) && !sb) {
-                    g_sb_window = SDL_CreateWindow(NULL, 4, 28, 340, 480, sdl_sb_flags);
+                    g_sb_window = SDL_CreateWindow(NULL, sb_window_pos_x, sb_window_pos_y, 340, 480, sdl_sb_flags);
 
                     if (!g_sb_window) {
                         LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
@@ -842,6 +844,13 @@ void set_scalefactor(int value)
     } else {
         g_scalefactor = value;
     }
+}
+
+// position sb_scoreboard
+void set_sb_window(int xValue, int yValue)
+{
+    sb_window_pos_x = xValue;
+    sb_window_pos_y = yValue;
 }
 
 // deal with MPEG headers aspect ratio

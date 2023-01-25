@@ -726,7 +726,8 @@ bool parse_cmd_line(int argc, char **argv)
                     printerror(e);
                     result = false;
                 }
-            } else if (strcasecmp(s, "-software_scoreboard") == 0) {
+            }
+            else if (strcasecmp(s, "-software_scoreboard") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
@@ -735,6 +736,20 @@ bool parse_cmd_line(int argc, char **argv)
                     printline("Enabling Software scoreboard...");
                 } else {
                     printline("NOTE: Software scoreboard is not available");
+                }
+            }
+            else if (strcasecmp(s, "-software_scoreboard_position") == 0) {
+                const int vMax = 3840; // This should handle 4k
+                get_next_word(s, sizeof(s));
+                unsigned int xVal = atoi(s);
+                get_next_word(s, sizeof(s));
+                unsigned int yVal = atoi(s);
+
+                if ((xVal > 0) && (xVal <= vMax) && (yVal > 0) && (yVal <= vMax)) {
+                    video::set_sb_window(xVal, yVal);
+                } else {
+                    printerror("Scoreboard position requires two integer values");
+                    result = false;
                 }
             }
             // used to modify the dip switch settings of the game in question
