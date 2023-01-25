@@ -83,9 +83,6 @@ game::game()
       m_overlay_size_is_dynamic(false), // the overlay size is usually static
       m_video_overlay_scaled(0),        // " " "
       m_video_overlay_matrix(0),        //
-      m_video_screen_width(0),          //
-      m_video_screen_height(0),         //
-      m_video_screen_size(0),           //
       m_bFullScale(false),              // full-scale is disabled by default
       m_video_overlay_count(2),  // default to double buffering because it is
                                  // conservative
@@ -362,9 +359,8 @@ bool game::init_video()
     video::init_display();
     // set instance variables and local variables to the actual screen (or
     // window) dimension
-    m_video_screen_width = w = video::get_screen_blitter()->w;
-    m_video_screen_height = h = video::get_screen_blitter()->h;
-
+    w = video::get_screen_blitter()->w;
+    h = video::get_screen_blitter()->h;
     // if this particular game uses video overlay (most do)
     if (m_game_uses_video_overlay) {
         // safety check, make sure variables are initialized like we expect them

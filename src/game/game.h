@@ -361,12 +361,6 @@ class game
     long *m_video_overlay_matrix; // the precalculated matrix used for scaling
                                   // the game graphics to the target screen
                                   // dimension
-    Uint32 m_video_screen_width;  // the width  of the target screen (according
-                                  // to the graphic mode set by Hypseus)
-    Uint32 m_video_screen_height; // the height of the target screen (according
-                                  // to the graphic mode set by Hypseus)
-    Uint32 m_video_screen_size; // m_video_screen_width x m_video_screen_height,
-                                // just to speedup things a bit
     bool m_bFullScale;          // whether fullscale is enabled or not
     // end fullscale variables
 
