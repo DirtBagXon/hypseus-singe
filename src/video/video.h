@@ -179,6 +179,7 @@ void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
 void set_aspect_change(int aspectWidth, int aspectHeight);
+void set_sb_window(int, int);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);
