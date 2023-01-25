@@ -227,7 +227,7 @@ bool init_display()
             g_viewport_height = g_viewport_height * g_scalefactor / 100;
         }
 
-        if (g_draw_width < 500) {
+        if (g_viewport_width < 500) {
             char target[14];
             memcpy(target, title, sizeof(target));
             target[13] = 0;
@@ -1277,7 +1277,7 @@ void vid_blit () {
     if (g_LDP1450_overlay) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
 
     if (g_scanlines)
-        draw_scanlines(g_draw_width, g_draw_height, s_shunt);
+        draw_scanlines(g_viewport_width, g_viewport_height, s_shunt);
 
     if (g_fRotateDegrees != 0) {
         if (g_yuv_texture)
@@ -1415,11 +1415,11 @@ void draw_border(int s, int c) {
 
     tb.x = lb.x = bb.x = 0;
     tb.y = lb.y = rb.y = 0;
-    rb.x = g_draw_width - s;
-    bb.y = g_draw_height - s;
-    tb.w = bb.w = g_draw_width;
+    rb.x = g_viewport_width - s;
+    bb.y = g_viewport_height - s;
+    tb.w = bb.w = g_viewport_width;
     tb.h = bb.h = lb.w = rb.w = s;
-    lb.h = rb.h = g_draw_height;
+    lb.h = rb.h = g_viewport_height;
 
     SDL_RenderFillRect(g_renderer, &tb);
     SDL_RenderFillRect(g_renderer, &lb);
@@ -1437,11 +1437,11 @@ void draw_border(int s, int c) {
         SDL_Rect tib, lib, rib, bib;
         tib.x = lib.x = bib.x = s;
         tib.y = lib.y = rib.y = s;
-        rib.x = ((g_draw_width - s) - i);
-        bib.y = ((g_draw_height - s) - i);
+        rib.x = ((g_viewport_width - s) - i);
+        bib.y = ((g_viewport_height - s) - i);
         tib.h = bib.h = lib.w = rib.w = i;
-        tib.w = bib.w = g_draw_width - (s<<1);
-        lib.h = rib.h = g_draw_height - (s<<1);
+        tib.w = bib.w = g_viewport_width - (s<<1);
+        lib.h = rib.h = g_viewport_height - (s<<1);
 
         SDL_RenderFillRect(g_renderer, &tib);
         SDL_RenderFillRect(g_renderer, &lib);
