@@ -955,7 +955,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
        switch(g_aspect_ratio)
        {
           case ASPECTWS:
-             x = (((double)g_draw_width/0x0e1) * start_x);
+             x = (((double)g_draw_width/0xe1) * start_x);
              break;
           default:
              if (g_draw_width == NOSQUARE)
@@ -1046,7 +1046,7 @@ void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
 // toggles fullscreen mode
 void vid_toggle_fullscreen()
 {
-    g_bezel_toggle = false;
+    if (!g_fakefullscreen) g_bezel_toggle = false;
     Uint32 flags = (SDL_GetWindowFlags(g_window) ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (SDL_SetWindowFullscreen(g_window, flags) < 0) {
         LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());

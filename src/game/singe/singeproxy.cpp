@@ -1208,7 +1208,7 @@ static int sep_search_blanking(lua_State *L)
   if (n == 1)
     if (lua_isboolean(L, 1))
 	{
-      g_pSingeIn->set_search_blanking(lua_toboolean(L, 1));
+          g_pSingeIn->set_search_blanking(lua_toboolean(L, 1));
 	}
 
   return 0;
@@ -1243,6 +1243,7 @@ static int sep_skip_backward(lua_State *L)
 	{
           if (g_pSingeIn->g_local_info->blank_during_skips)
               video::set_video_timer_blank(true);
+
           g_pSingeIn->pre_skip_backward(lua_tonumber(L, 1));
 	}
       
@@ -1256,7 +1257,7 @@ static int sep_skip_blanking(lua_State *L)
   if (n == 1)
     if (lua_isboolean(L, 1))
 	{
-      g_pSingeIn->set_skip_blanking(lua_toboolean(L, 1));
+           g_pSingeIn->set_skip_blanking(lua_toboolean(L, 1));
 	}
 
   return 0;
@@ -1271,6 +1272,7 @@ static int sep_skip_forward(lua_State *L)
 	{
           if (g_pSingeIn->g_local_info->blank_during_skips)
               video::set_video_timer_blank(true);
+
           g_pSingeIn->pre_skip_forward(lua_tonumber(L, 1));
 	}
       
@@ -1487,21 +1489,20 @@ static int sep_sprite_width(lua_State *L)
 
 static int sep_step_backward(lua_State *L)
 {
-  g_pSingeIn->pre_step_backward();
-  return 0;
+	g_pSingeIn->pre_step_backward();
+	return 0;
 }
 
 static int sep_step_forward(lua_State *L)
 {
-  g_pSingeIn->pre_step_forward();
-  return 0;
+	g_pSingeIn->pre_step_forward();
+	return 0;
 }
 
 static int sep_stop(lua_State *L)
 {
-  g_pSingeIn->pre_stop();
-
-  return 0;
+	g_pSingeIn->pre_stop();
+	return 0;
 }
 
 // by RDG2010
@@ -1670,71 +1671,71 @@ static int sep_ldp_verbose(lua_State *L)
 
 static int sep_sound_pause(lua_State *L)
 {
-  int n = lua_gettop(L);
-  int result = -1;
+	int n = lua_gettop(L);
+	int result = -1;
 
-  if (n == 1)
-    if (lua_isnumber(L, 1))
-    {
-        int sound = lua_tonumber(L, 1);
-        result = g_pSingeIn->samples_set_state(sound, false);
-    }
+	if (n == 1)
+		if (lua_isnumber(L, 1))
+		{
+			int sound = lua_tonumber(L, 1);
+			result = g_pSingeIn->samples_set_state(sound, false);
+		}
 
-  lua_pushboolean(L, result);
-  return 1;
+	lua_pushboolean(L, result);
+	return 1;
 }
 
 static int sep_sound_resume(lua_State *L)
 {
-  int n = lua_gettop(L);
-  int result = -1;
+	int n = lua_gettop(L);
+	int result = -1;
 
-  if (n == 1)
-    if (lua_isnumber(L, 1))
-    {
-        int sound = lua_tonumber(L, 1);
-        result = g_pSingeIn->samples_set_state(sound, true);
-    }
+	if (n == 1)
+		if (lua_isnumber(L, 1))
+		{
+			int sound = lua_tonumber(L, 1);
+			result = g_pSingeIn->samples_set_state(sound, true);
+		}
 
-  lua_pushboolean(L, result);
-  return 1;
+	lua_pushboolean(L, result);
+	return 1;
 }
 
 static int sep_sound_stop(lua_State *L)
 {
-  int n = lua_gettop(L);
-  int result = -1;
+	int n = lua_gettop(L);
+	int result = -1;
 
-  if (n == 1)
-    if (lua_isnumber(L, 1))
-    {
-        int sound = lua_tonumber(L, 1);
-        result = g_pSingeIn->samples_end_early(sound);
-    }
+	if (n == 1)
+		if (lua_isnumber(L, 1))
+		{
+			int sound = lua_tonumber(L, 1);
+			result = g_pSingeIn->samples_end_early(sound);
+		}
 
-  lua_pushboolean(L, result);
-  return 1;
+	lua_pushboolean(L, result);
+	return 1;
 }
 
 static int sep_sound_flush_queue(lua_State *L)
 {
-    g_pSingeIn->samples_flush_queue();
-    return 0;
+	g_pSingeIn->samples_flush_queue();
+	return 0;
 }
 
 static int sep_sound_get_flag(lua_State *L)
 {
-  int n = lua_gettop(L);
-  bool result = false;
+	int n = lua_gettop(L);
+	bool result = false;
 
-  if (n == 1)
-    if (lua_isnumber(L, 1))
-    {
-        int sound = lua_tonumber(L, 1);
-        result = g_pSingeIn->samples_is_playing(sound);
-    }
+	if (n == 1)
+		if (lua_isnumber(L, 1))
+		{
+			int sound = lua_tonumber(L, 1);
+			result = g_pSingeIn->samples_is_playing(sound);
+		}
 
-  lua_pushboolean(L, result);
-  return 1;
+	lua_pushboolean(L, result);
+	return 1;
 }
 

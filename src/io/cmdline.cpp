@@ -727,7 +727,7 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-            else if (strcasecmp(s, "-software_scoreboard") == 0) {
+            else if (strcasecmp(s, "-scorepanel") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
@@ -738,15 +738,25 @@ bool parse_cmd_line(int argc, char **argv)
                     printline("NOTE: Software scoreboard is not available");
                 }
             }
-            else if (strcasecmp(s, "-software_scoreboard_position") == 0) {
-                const int vMax = 3840; // This should handle 4k
+            else if (strcasecmp(s, "-scorepanel_position") == 0) {
+                const int vMax = 3841; // This should handle 4k
+                int xVal = 0;
+                int yVal = 0;
+
                 get_next_word(s, sizeof(s));
-                unsigned int xVal = atoi(s);
+                if (strcasecmp(s, "0") == 0) xVal = 1;
+                else { xVal = atoi(s);
+                       if (xVal) xVal++;
+                }
+
                 get_next_word(s, sizeof(s));
-                unsigned int yVal = atoi(s);
+                if (strcasecmp(s, "0") == 0) yVal = 1;
+                else { yVal = atoi(s);
+                       if (yVal) yVal++;
+                }
 
                 if ((xVal > 0) && (xVal <= vMax) && (yVal > 0) && (yVal <= vMax)) {
-                    video::set_sb_window(xVal, yVal);
+                    video::set_sb_window(xVal-1, yVal-1);
                 } else {
                     printerror("Scoreboard position requires two integer values");
                     result = false;
@@ -865,10 +875,12 @@ bool parse_cmd_line(int argc, char **argv)
             // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
+                video::set_fakefullscreen(false);
             }
             // run hypseus in borderless fullscreen window mode
             else if (strcasecmp(s, "-fullscreen_window") == 0) {
                 video::set_fakefullscreen(true);
+                video::set_fullscreen(false);
             }
             // Capture mouse within SDL window
             else if (strcasecmp(s, "-grabmouse") == 0) {
