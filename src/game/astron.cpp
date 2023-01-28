@@ -848,7 +848,7 @@ void astron::repaint()
 }
 
 // this gets called when the user presses a key or moves the joystick
-void astron::input_enable(Uint8 move)
+void astron::input_enable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:
@@ -889,7 +889,7 @@ void astron::input_enable(Uint8 move)
 
 // this gets called when the user releases a key or moves the joystick back to
 // center position
-void astron::input_disable(Uint8 move)
+void astron::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:
@@ -929,7 +929,7 @@ void astron::input_disable(Uint8 move)
 }
 
 // this gets called when the user presses a key or moves the joystick
-void cobraab::input_enable(Uint8 move)
+void cobraab::input_enable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:
@@ -973,7 +973,7 @@ void cobraab::input_enable(Uint8 move)
 
 // this gets called when the user releases a key or moves the joystick back to
 // center position
-void cobraab::input_disable(Uint8 move)
+void cobraab::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:

@@ -333,6 +333,8 @@ static void manymouse_init_mice(void)
     if (available_mice > MAX_MICE)
         available_mice = MAX_MICE;
 
+    g_game->set_mice_detected(available_mice);
+
     if (available_mice <= 0) {
         LOGW << "No mice detected!";
     }
@@ -387,7 +389,7 @@ static void manymouse_update_mice()
             if (mouse->y < 0) mouse->y = 0;
             else if (mouse->y >= video::get_video_height()) mouse->y = video::get_video_height();
 
-            g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
+            g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely, mm_event.device);
             break;
         case MANYMOUSE_EVENT_ABSMOTION:
 
@@ -404,19 +406,19 @@ static void manymouse_update_mice()
                 mouse->y = (val / maxval) * video::get_video_height();
 #endif
 
-            g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely);
+            g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely, mm_event.device);
             break;
         case MANYMOUSE_EVENT_BUTTON:
             if (mm_event.item < 32)
             {
                 if (mm_event.value == 1)
                 {
-                    input_enable((Uint8)mouse_buttons_map[mm_event.item]);
+                    input_enable((Uint8)mouse_buttons_map[mm_event.item], mm_event.device);
                     mouse->buttons |= (1 << mm_event.item);
                 }
                 else
                 {
-                    input_disable((Uint8)mouse_buttons_map[mm_event.item]);
+                    input_disable((Uint8)mouse_buttons_map[mm_event.item], mm_event.device);
                     mouse->buttons &= ~(1 << mm_event.item);
                 }
             }
@@ -425,14 +427,14 @@ static void manymouse_update_mice()
             if (mm_event.item == 0)
             {
                 if (mm_event.value > 0)
-                    input_disable(SWITCH_MOUSE_SCROLL_UP);
+                    input_disable(SWITCH_MOUSE_SCROLL_UP, mm_event.device);
                 else
-                    input_disable(SWITCH_MOUSE_SCROLL_DOWN);
+                    input_disable(SWITCH_MOUSE_SCROLL_DOWN, mm_event.device);
             }
             break;
         case MANYMOUSE_EVENT_DISCONNECT:
             mice[mm_event.device].connected = 0;
-            input_disable(SWITCH_MOUSE_DISCONNECT);
+            input_disable(SWITCH_MOUSE_DISCONNECT, mm_event.device);
             break;
         default:
             break;
@@ -616,11 +618,11 @@ void SDL_check_input()
         if (cpu::get_total_cycles_executed(0) > coin.cycles_when_to_enable) {
             // if we're supposed to enable this coin
             if (coin.coin_enabled) {
-                g_game->input_enable(coin.coin_val);
+                g_game->input_enable(coin.coin_val, NOMOUSE);
             }
             // else we are supposed to disable this coin
             else {
-                g_game->input_disable(coin.coin_val);
+                g_game->input_disable(coin.coin_val, NOMOUSE);
             }
             g_coin_queue.pop(); // remove coin entry from queue
         }
@@ -742,7 +744,7 @@ void process_event(SDL_Event *event)
             if (event->jbutton.which == joystick_buttons_map[i][0]
                             && event->jbutton.button == joystick_buttons_map[i][1]-1) {
                 if (i == SWITCH_COIN1) hotkey = true;
-                input_enable(i);
+                input_enable(i, NOMOUSE);
                 break;
             }
         }
@@ -754,7 +756,7 @@ void process_event(SDL_Event *event)
         for (i = 0; i < SWITCH_COUNT; i++) {
             if (event->cbutton.button == joystick_buttons_map[i][1]-1) {
                 if (i == SWITCH_COIN1) hotkey = true;
-                input_enable(i);
+                input_enable(i, NOMOUSE);
                 break;
             }
         }
@@ -769,7 +771,7 @@ void process_event(SDL_Event *event)
         for (i = 0; i < SWITCH_COUNT; i++) {
             if (event->jbutton.which == joystick_buttons_map[i][0]
                            && event->jbutton.button == joystick_buttons_map[i][1]-1) {
-                input_disable(i);
+                input_disable(i, NOMOUSE);
                 break;
             }
         }
@@ -782,7 +784,7 @@ void process_event(SDL_Event *event)
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
             if (event->cbutton.button == joystick_buttons_map[i][1]-1) {
-                input_disable(i);
+                input_disable(i, NOMOUSE);
                 break;
             }
         }
@@ -808,7 +810,7 @@ void process_event(SDL_Event *event)
            case SDL_MOUSEBUTTONDOWN:
                for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
                     if (event->button.button == i) {
-                        g_game->input_enable((Uint8)mouse_buttons_map[i]);
+                        g_game->input_enable((Uint8)mouse_buttons_map[i], NOMOUSE);
                         break;
                     }
                }
@@ -816,14 +818,14 @@ void process_event(SDL_Event *event)
            case SDL_MOUSEBUTTONUP:
                for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
                     if (event->button.button == i) {
-                        g_game->input_disable((Uint8)mouse_buttons_map[i]);
+                        g_game->input_disable((Uint8)mouse_buttons_map[i], NOMOUSE);
                         break;
                     }
                }
                break;
            case SDL_MOUSEMOTION:
                g_game->OnMouseMotion(event->motion.x, event->motion.y,
-                       event->motion.xrel, event->motion.yrel);
+                       event->motion.xrel, event->motion.yrel, NOMOUSE);
                break;
           }
        }
@@ -843,7 +845,7 @@ void process_keydown(SDL_Keycode key)
     // "move"
     for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
         if ((key == g_key_defs[move][0]) || (key == g_key_defs[move][1])) {
-            input_enable(move);
+            input_enable(move, NOMOUSE);
         }
     }
 
@@ -868,7 +870,7 @@ void process_keyup(SDL_Keycode key)
     // "move"
     for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
         if ((key == g_key_defs[move][0]) || (key == g_key_defs[move][1])) {
-            input_disable(move);
+            input_disable(move, NOMOUSE);
         }
     }
 
@@ -891,10 +893,10 @@ void process_controller_motion(SDL_Event *event)
 
             if ((abs(event->caxis.value) > JOY_AXIS_TRIG)
 			    && i != controller_trigger_use[event->caxis.axis]) {
-                input_enable(i);
+                input_enable(i, NOMOUSE);
                 controller_trigger_use[event->caxis.axis] = i;
             } else {
-                input_disable(controller_trigger_use[event->caxis.axis]);
+                input_disable(controller_trigger_use[event->caxis.axis], NOMOUSE);
                 controller_trigger_use[event->caxis.axis] = 0;
             }
             return;
@@ -914,7 +916,7 @@ void process_controller_motion(SDL_Event *event)
     if (key == -1) return;
 
     if (abs(event->caxis.value) > JOY_AXIS_MID) {
-        input_enable(key);
+        input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
             y_axis_in_use = 1;
         else
@@ -922,13 +924,13 @@ void process_controller_motion(SDL_Event *event)
     }
     else {
         if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use) {
-            input_disable(SWITCH_UP);
-            input_disable(SWITCH_DOWN);
+            input_disable(SWITCH_UP, NOMOUSE);
+            input_disable(SWITCH_DOWN, NOMOUSE);
             y_axis_in_use = 0;
 
         } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use) {
-            input_disable(SWITCH_LEFT);
-            input_disable(SWITCH_RIGHT);
+            input_disable(SWITCH_LEFT, NOMOUSE);
+            input_disable(SWITCH_RIGHT, NOMOUSE);
             x_axis_in_use = 0;
         }
     }
@@ -952,7 +954,7 @@ void process_joystick_motion(SDL_Event *event)
     if (key == -1) return;
 
     if (abs(event->jaxis.value) > JOY_AXIS_MID) {
-        input_enable(key);
+        input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
             y_axis_in_use = 1;
         else
@@ -960,13 +962,13 @@ void process_joystick_motion(SDL_Event *event)
     }
     else {
         if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use) {
-            input_disable(SWITCH_UP);
-            input_disable(SWITCH_DOWN);
+            input_disable(SWITCH_UP, NOMOUSE);
+            input_disable(SWITCH_DOWN, NOMOUSE);
             y_axis_in_use = 0;
 
         } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use) {
-            input_disable(SWITCH_LEFT);
-            input_disable(SWITCH_RIGHT);
+            input_disable(SWITCH_LEFT, NOMOUSE);
+            input_disable(SWITCH_RIGHT, NOMOUSE);
             x_axis_in_use = 0;
         }
     }
@@ -980,51 +982,51 @@ void process_joystick_hat_motion(SDL_Event *event)
 
     if ((event->jhat.value & SDL_HAT_UP) && !(prev_hat_position & SDL_HAT_UP)) {
         // hat moved to the up position
-        if (g_invert_hat) input_enable(SWITCH_DOWN);
-        else input_enable(SWITCH_UP);
+        if (g_invert_hat) input_enable(SWITCH_DOWN, NOMOUSE);
+        else input_enable(SWITCH_UP, NOMOUSE);
     } else if (!(event->jhat.value & SDL_HAT_UP) && (prev_hat_position & SDL_HAT_UP)) {
         // up hat released
-        if (g_invert_hat) input_disable(SWITCH_DOWN);
-        else input_disable(SWITCH_UP);
+        if (g_invert_hat) input_disable(SWITCH_DOWN, NOMOUSE);
+        else input_disable(SWITCH_UP, NOMOUSE);
     }
 
     if ((event->jhat.value & SDL_HAT_RIGHT) && !(prev_hat_position & SDL_HAT_RIGHT)) {
         // hat moved to the right position
-        input_enable(SWITCH_RIGHT);
+        input_enable(SWITCH_RIGHT, NOMOUSE);
     } else if (!(event->jhat.value & SDL_HAT_RIGHT) && (prev_hat_position & SDL_HAT_RIGHT)) {
         // right hat released
-        input_disable(SWITCH_RIGHT);
+        input_disable(SWITCH_RIGHT, NOMOUSE);
     }
 
     if ((event->jhat.value & SDL_HAT_DOWN) && !(prev_hat_position & SDL_HAT_DOWN)) {
         // hat moved to the down position
-        if (g_invert_hat) input_enable(SWITCH_UP);
-        else input_enable(SWITCH_DOWN);
+        if (g_invert_hat) input_enable(SWITCH_UP, NOMOUSE);
+        else input_enable(SWITCH_DOWN, NOMOUSE);
     } else if (!(event->jhat.value & SDL_HAT_DOWN) && (prev_hat_position & SDL_HAT_DOWN)) {
         // down hat released
-        if (g_invert_hat) input_disable(SWITCH_UP);
-        else input_disable(SWITCH_DOWN);
+        if (g_invert_hat) input_disable(SWITCH_UP, NOMOUSE);
+        else input_disable(SWITCH_DOWN, NOMOUSE);
     }
 
     if ((event->jhat.value & SDL_HAT_LEFT) && !(prev_hat_position & SDL_HAT_LEFT)) {
         // hat moved to the left position
-        input_enable(SWITCH_LEFT);
+        input_enable(SWITCH_LEFT, NOMOUSE);
     } else if (!(event->jhat.value & SDL_HAT_LEFT) && (prev_hat_position & SDL_HAT_LEFT)) {
         // left hat released
-        input_disable(SWITCH_LEFT);
+        input_disable(SWITCH_LEFT, NOMOUSE);
     }
 
     prev_hat_position = event->jhat.value;
 }
 
 // if user has pressed a key/moved the joystick/pressed a button
-void input_enable(Uint8 move)
+void input_enable(Uint8 move, Sint8 mouseID)
 {
     // first test universal input, then pass unknown input on to the game driver
 
     switch (move) {
     default:
-        g_game->input_enable(move);
+        g_game->input_enable(move, mouseID);
         break;
     case SWITCH_RESET:
         g_game->reset();
@@ -1043,7 +1045,7 @@ void input_enable(Uint8 move)
         if (hotkey)
             set_quitflag();
         else
-            g_game->input_enable(move);
+            g_game->input_enable(move, mouseID);
         break;
     case SWITCH_COIN1:
     case SWITCH_COIN2:
@@ -1063,7 +1065,7 @@ void input_enable(Uint8 move)
 
 // if user has released a key/released a button/moved joystick back to center
 // position
-void input_disable(Uint8 move)
+void input_disable(Uint8 move, Sint8 mouseID)
 {
     // don't send reset or screenshots key-ups to the individual games because
     // they will return warnings that will alarm users
@@ -1076,7 +1078,7 @@ void input_disable(Uint8 move)
         if (((move == SWITCH_COIN1) || (move == SWITCH_COIN2)) && (cpu::get_hz(0) > 0)) {
             add_coin_to_queue(false, move);
         } else {
-            g_game->input_disable(move);
+            g_game->input_disable(move, mouseID);
         }
     }
     // else do nothing

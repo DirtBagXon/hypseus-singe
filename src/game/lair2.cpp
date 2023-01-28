@@ -897,7 +897,7 @@ bool lair2::set_bank(unsigned char which_bank, unsigned char value)
     return result;
 }
 
-void lair2::input_enable(Uint8 move)
+void lair2::input_enable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:
@@ -937,7 +937,7 @@ void lair2::input_enable(Uint8 move)
     }
 }
 
-void lair2::input_disable(Uint8 move)
+void lair2::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:

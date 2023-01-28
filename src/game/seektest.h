@@ -31,8 +31,8 @@ class seektest : public game
     seektest();
     void start();
     void go(Uint32 target_frame);
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     void set_preset(int);
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();

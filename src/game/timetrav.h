@@ -38,8 +38,8 @@ class timetrav : public game
     void cpu_mem_write(Uint32 addr, Uint8 value);
     Uint8 port_read(Uint16);
     void port_write(Uint16, Uint8);
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
 

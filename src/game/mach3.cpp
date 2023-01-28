@@ -901,7 +901,7 @@ bool mach3::set_bank(unsigned char which_bank, unsigned char value)
     return result;
 }
 
-void mach3::input_disable(Uint8 move)
+void mach3::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:
@@ -958,7 +958,7 @@ void mach3::input_disable(Uint8 move)
     }
 }
 
-void mach3::input_enable(Uint8 move)
+void mach3::input_enable(Uint8 move, Sint8 mouseID)
 {
     // FIXME:   don't allow up/down or left/right to be pressed at the same time
     //   (MACH3 reacts badly to this -- displays the wrong sprites for the

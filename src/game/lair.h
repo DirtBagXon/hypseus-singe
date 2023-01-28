@@ -43,8 +43,8 @@ class lair : public game
     void do_nmi();
     Uint8 cpu_mem_read(Uint16 addr);
     void cpu_mem_write(Uint16 addr, Uint8 value);
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     void OnVblank();
     void OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled);
     void repaint();

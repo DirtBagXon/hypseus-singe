@@ -442,7 +442,7 @@ void laireuro::repaint()
 }
 
 // this gets called when the user presses a key or moves the joystick
-void laireuro::input_enable(Uint8 move)
+void laireuro::input_enable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:
@@ -483,7 +483,7 @@ void laireuro::input_enable(Uint8 move)
 
 // this gets called when the user releases a key or moves the joystick back to
 // center position
-void laireuro::input_disable(Uint8 move)
+void laireuro::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:

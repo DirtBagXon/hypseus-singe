@@ -80,8 +80,8 @@ class laireuro : public game
     void cpu_mem_write(Uint16, Uint8);
     Uint8 port_read(Uint16);
     void port_write(Uint16, Uint8);
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     void palette_calculate();
     void repaint();
     void set_version(int);

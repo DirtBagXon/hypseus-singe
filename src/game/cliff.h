@@ -94,8 +94,8 @@ class cliff : public game
 #endif
     Uint8 port_read(Uint16 port);              // read from port
     void port_write(Uint16 port, Uint8 value); // write to a port
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
     void repaint(); // function to repaint video

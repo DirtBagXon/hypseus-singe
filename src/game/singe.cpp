@@ -159,6 +159,9 @@ bool singe::init()
         g_SingeIn.cfm_set_keyboard_mode = gfm_set_keyboard_mode;
         g_SingeIn.cfm_get_keyboard_mode = gfm_get_keyboard_mode;
 
+	// Number of attached mice
+        g_SingeIn.cfm_get_number_of_mice = gfm_number_of_mice;
+
         /*
         Why a wrapper?
 
@@ -256,7 +259,7 @@ void singe::start()
 
 void singe::shutdown() {}
 
-void singe::input_enable(Uint8 input)
+void singe::input_enable(Uint8 input, Sint8 mouseID)
 {
     switch (input) {
     case SWITCH_UP:
@@ -282,10 +285,10 @@ void singe::input_enable(Uint8 input)
     }
 
     if (g_pSingeOut) // by RDG2010
-        g_pSingeOut->sep_call_lua("onInputPressed", "i", input);
+        g_pSingeOut->sep_call_lua("onInputPressed", "ii", input, mouseID);
 }
 
-void singe::input_disable(Uint8 input)
+void singe::input_disable(Uint8 input, Sint8 mouseID)
 {
     switch (input) {
     case SWITCH_UP:
@@ -303,13 +306,13 @@ void singe::input_disable(Uint8 input)
     }
 
     if (g_pSingeOut) // by RDG2010
-        g_pSingeOut->sep_call_lua("onInputReleased", "i", input);
+        g_pSingeOut->sep_call_lua("onInputReleased", "ii", input, mouseID);
 }
 
-void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
+void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID)
 {
     if (g_pSingeOut) {
-        g_pSingeOut->sep_do_mouse_move(x, y, xrel, yrel);
+        g_pSingeOut->sep_do_mouse_move(x, y, xrel, yrel, mouseID);
     }
 }
 
@@ -330,7 +333,7 @@ void singe::JoystickMotion()
     if (g_singe_ymov < 0) { g_singe_ymov = abs(g_singe_ymov); g_singe_jrely = 0; }
 
     if (g_pSingeOut) {
-        g_pSingeOut->sep_do_mouse_move(g_singe_xmov, g_singe_ymov, g_singe_jrelx, g_singe_jrely);
+        g_pSingeOut->sep_do_mouse_move(g_singe_xmov, g_singe_ymov, g_singe_jrelx, g_singe_jrely, NOMOUSE);
     }
 }
 
@@ -603,29 +606,29 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
     { // traverse the keydef array for mapped keys.
         for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
             if ((key == keydefs[move][0]) || (key == keydefs[move][1])) {
-                if (move != SWITCH_PAUSE) input_enable(move);
+                if (move != SWITCH_PAUSE) input_enable(move, NOMOUSE);
             }
         }
 
     } else { // Using full keyboard access....
 
-        if (key >= SDLK_a && key <= SDLK_z) input_enable(key);
+        if (key >= SDLK_a && key <= SDLK_z) input_enable(key, NOMOUSE);
         // check to see if key is a number on the top row of the keyboard (not
         // keypad)
         else if (key >= SDLK_MINUS && key <= SDLK_9)
-            input_enable(key);
+            input_enable(key, NOMOUSE);
         // numeric keypad keys
         else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
-            input_enable(key);
+            input_enable(key, NOMOUSE);
         // arrow keys and insert, delete, home, end, pgup, pgdown
         else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
-            input_enable(key);
+            input_enable(key, NOMOUSE);
         // function keys
         else if (key >= SDLK_F1 && key <= SDLK_F15)
-            input_enable(key);
+            input_enable(key, NOMOUSE);
         // Key state modifier keys (left and right ctrls, alts)
         else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
-            input_enable(key);
+            input_enable(key, NOMOUSE);
         else {
 
             /*
@@ -637,7 +640,7 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
 
             for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
                 if (key == i_full_keybd_defs[k]) {
-                    input_enable(key);
+                    input_enable(key, NOMOUSE);
                     break;
                 } // end if
 
@@ -677,7 +680,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
         // Handle pause and quit keypresses first.
         if (key == keydefs[SWITCH_PAUSE][0] || key == keydefs[SWITCH_PAUSE][1]) {
             toggle_game_pause();
-            input_disable(SWITCH_PAUSE);
+            input_disable(SWITCH_PAUSE, NOMOUSE);
 
         } else if (key == keydefs[SWITCH_QUIT][0] || key == keydefs[SWITCH_QUIT][1]) {
 
@@ -692,7 +695,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
 
             for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
                 if ((key == keydefs[move][0]) || (key == keydefs[move][1])) {
-                    if (move != SWITCH_PAUSE) input_disable(move);
+                    if (move != SWITCH_PAUSE) input_disable(move, NOMOUSE);
                 }
 
             } // end for
@@ -705,23 +708,23 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
         if (key == SDLK_ESCAPE) set_quitflag();
         // letter keys
         else if (key >= SDLK_a && key <= SDLK_z)
-            input_disable(key);
+            input_disable(key, NOMOUSE);
         // check to see if key is a number on the top row of the keyboard
         // (not keypad)
         else if (key >= SDLK_MINUS && key <= SDLK_9)
-            input_disable(key);
+            input_disable(key, NOMOUSE);
         // numeric keypad keys
         else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
-            input_disable(key);
+            input_disable(key, NOMOUSE);
         // arrow keys and insert, delete, home, end, pgup, pgdown
         else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
-            input_disable(key);
+            input_disable(key, NOMOUSE);
         // function keys
         else if (key >= SDLK_F1 && key <= SDLK_F15)
-            input_disable(key);
+            input_disable(key, NOMOUSE);
         // Key state modifier keys (left and right ctrls, alts)
         else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
-            input_disable(key);
+            input_disable(key, NOMOUSE);
         else {
             /*
             * SDLK_BACKSPACE, SDLK_TAB, SDLK_RETURN, SDLK_PAUSE,
@@ -732,7 +735,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
 
             for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
                 if (key == i_full_keybd_defs[k]) {
-                    input_disable(key);
+                    input_disable(key, NOMOUSE);
                     break;
                 } // end if
 

@@ -55,8 +55,8 @@ class bega : public game
     void do_irq(unsigned int);                    // does an IRQ tick
     Uint8 cpu_mem_read(Uint16 addr);              // memory read routine
     void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     void palette_calculate();
     void repaint(); // function to repaint video
     void set_version(int);

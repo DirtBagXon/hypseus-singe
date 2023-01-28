@@ -849,6 +849,7 @@ bool parse_cmd_line(int argc, char **argv)
                 video::set_ignore_aspect_ratio(false);
             }
             else if (strcasecmp(s, "-ignore_aspect_ratio") == 0) {
+                printline("Ignoring MPEG aspect ratio headers.");
                 video::set_ignore_aspect_ratio(true);
                 video::set_force_aspect_ratio(false);
             }

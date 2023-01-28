@@ -975,7 +975,7 @@ Uint8 lair::read_C010()
     return (m_misc_val);
 }
 
-void lair::input_enable(Uint8 move)
+void lair::input_enable(Uint8 move, Sint8 mouseID)
 {
 
     switch (move) {
@@ -1037,7 +1037,7 @@ void lair::input_enable(Uint8 move)
     }
 }
 
-void lair::input_disable(Uint8 move)
+void lair::input_disable(Uint8 move, Sint8 mouseID)
 {
 
     switch (move) {

@@ -105,8 +105,8 @@ void process_keyup(SDL_Keycode key);
 void process_joystick_motion(SDL_Event *event);
 void process_controller_motion(SDL_Event *event);
 void process_joystick_hat_motion(SDL_Event *event);
-void input_enable(Uint8);
-void input_disable(Uint8);
+void input_enable(Uint8, Sint8);
+void input_disable(Uint8, Sint8);
 inline void add_coin_to_queue(bool enabled, Uint8 val);
 void reset_idle(void); // added by JFA
 void set_use_joystick(bool val);

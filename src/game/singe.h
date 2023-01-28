@@ -58,9 +58,9 @@ class singe : public game
     void start();
     void shutdown();
     void JoystickMotion();
-    void input_enable(Uint8);
-    void input_disable(Uint8);
-    void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
+    void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();
     void repaint();
@@ -152,6 +152,12 @@ class singe : public game
     {
         singe *pSingeInstance = (singe *)pInstance;
         return pSingeInstance->get_keyboard_mode();
+    }
+
+    static int gfm_number_of_mice(void *pInstance)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        return pSingeInstance->get_mice_detected();
     }
 
     void set_keyboard_mode(int); // Sets value of private member i_keyboard_mode
