@@ -156,9 +156,9 @@ bool timetrav::set_bank(unsigned char which_bank, unsigned char value)
     return result;
 }
 
-void timetrav::input_disable(Uint8 move) {}
+void timetrav::input_disable(Uint8 move, Sint8 mouseID) {}
 
-void timetrav::input_enable(Uint8 move) {}
+void timetrav::input_enable(Uint8 move, Sint8 mouseID) {}
 
 void timetrav::palette_calculate()
 {

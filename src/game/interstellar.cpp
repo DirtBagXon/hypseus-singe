@@ -667,7 +667,7 @@ void interstellar::repaint()
 }
 
 // this gets called when the user presses a key or moves the joystick
-void interstellar::input_enable(Uint8 move)
+void interstellar::input_enable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_RIGHT: // fr left
@@ -718,7 +718,7 @@ void interstellar::input_enable(Uint8 move)
 
 // this gets called when the user releases a key or moves the joystick back to
 // center position
-void interstellar::input_disable(Uint8 move)
+void interstellar::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_RIGHT:

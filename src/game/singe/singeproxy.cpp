@@ -258,13 +258,14 @@ void sep_do_blit(SDL_Surface *srfDest)
 	    sep_srf32_to_srf8(g_se_surface, srfDest);
 }
 
-void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
+void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID)
 {
 	static bool debounced = false;
 	int x1 = (int)x;
 	int y1 = (int)y;
 	int xr = (int)xrel;
 	int yr = (int)yrel;
+	int mID = (int) mouseID;
 	
 	// Not sure what's wrong here.  I think things are getting started before Singe is ready.
 	if (!debounced) {
@@ -277,7 +278,7 @@ void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
 	xr *= g_sep_overlay_scale_x;
 	yr *= g_sep_overlay_scale_y;
 	
-	sep_call_lua("onMouseMoved", "iiii", x1, y1, xr, yr);
+	sep_call_lua("onMouseMoved", "iiiii", x1, y1, xr, yr, mID);
 }
 
 void sep_error(const char *fmt, ...)
@@ -562,7 +563,7 @@ void sep_startup(const char *script)
 {
   g_se_lua_context = lua_open();
   luaL_openlibs(g_se_lua_context);
-	lua_atpanic(g_se_lua_context, sep_lua_error);
+  lua_atpanic(g_se_lua_context, sep_lua_error);
 
   lua_register(g_se_lua_context, "colorBackground",    sep_color_set_backcolor);
   lua_register(g_se_lua_context, "colorForeground",    sep_color_set_forecolor);
@@ -600,18 +601,18 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "overlayGetWidth",    sep_get_overlay_width);
   lua_register(g_se_lua_context, "overlayPrint",       sep_say);
 	
-	lua_register(g_se_lua_context, "soundLoad",        sep_sound_load);
-	lua_register(g_se_lua_context, "soundPlay",        sep_sound_play);
-	lua_register(g_se_lua_context, "soundPause",       sep_sound_pause);
-	lua_register(g_se_lua_context, "soundResume",      sep_sound_resume);
-	lua_register(g_se_lua_context, "soundIsPlaying",   sep_sound_get_flag);
-	lua_register(g_se_lua_context, "soundStop",        sep_sound_stop);
-	lua_register(g_se_lua_context, "soundFullStop",    sep_sound_flush_queue);
+  lua_register(g_se_lua_context, "soundLoad",        sep_sound_load);
+  lua_register(g_se_lua_context, "soundPlay",        sep_sound_play);
+  lua_register(g_se_lua_context, "soundPause",       sep_sound_pause);
+  lua_register(g_se_lua_context, "soundResume",      sep_sound_resume);
+  lua_register(g_se_lua_context, "soundIsPlaying",   sep_sound_get_flag);
+  lua_register(g_se_lua_context, "soundStop",        sep_sound_stop);
+  lua_register(g_se_lua_context, "soundFullStop",    sep_sound_flush_queue);
 
-	lua_register(g_se_lua_context, "spriteDraw",       sep_sprite_draw);
-	lua_register(g_se_lua_context, "spriteGetHeight",  sep_sprite_height);
-	lua_register(g_se_lua_context, "spriteGetWidth",   sep_sprite_width);
-	lua_register(g_se_lua_context, "spriteLoad",       sep_sprite_load);
+  lua_register(g_se_lua_context, "spriteDraw",       sep_sprite_draw);
+  lua_register(g_se_lua_context, "spriteGetHeight",  sep_sprite_height);
+  lua_register(g_se_lua_context, "spriteGetWidth",   sep_sprite_width);
+  lua_register(g_se_lua_context, "spriteLoad",       sep_sprite_load);
 
   lua_register(g_se_lua_context, "vldpGetHeight",      sep_mpeg_get_height);
   lua_register(g_se_lua_context, "vldpGetPixel",       sep_mpeg_get_pixel);
@@ -623,6 +624,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
+  lua_register(g_se_lua_context, "mouseHowMany",           sep_get_number_of_mice);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -1503,6 +1505,12 @@ static int sep_stop(lua_State *L)
 {
 	g_pSingeIn->pre_stop();
 	return 0;
+}
+
+static int sep_get_number_of_mice(lua_State *L)
+{
+	lua_pushnumber(L, g_pSingeIn->cfm_get_number_of_mice(g_pSingeIn->pSingeInstance));
+	return 1;
 }
 
 // by RDG2010

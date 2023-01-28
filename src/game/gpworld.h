@@ -57,8 +57,8 @@ class gpworld : public game
     void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
     Uint8 port_read(Uint16 port);                 // read from port
     void port_write(Uint16 port, Uint8 value);    // write to a port
-    virtual void input_enable(Uint8);
-    virtual void input_disable(Uint8);
+    virtual void input_enable(Uint8, Sint8);
+    virtual void input_disable(Uint8, Sint8);
     bool set_bank(Uint8, Uint8);
     void palette_calculate();
     void repaint(); // function to repaint video

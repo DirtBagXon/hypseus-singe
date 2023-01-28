@@ -502,7 +502,7 @@ void cliff::cliff_set_test_mode(int enabled)
 }
 
 // this gets called when the user presses a key or moves the joystick
-void cliff::input_enable(Uint8 move)
+void cliff::input_enable(Uint8 move, Sint8 mouseID)
 {
     static unsigned char service_enabled = 0; // start disabled
     static unsigned char test_enabled    = 0;
@@ -558,7 +558,7 @@ void cliff::input_enable(Uint8 move)
 
 // this gets called when the user releases a key or moves the joystick back to
 // center position
-void cliff::input_disable(Uint8 move)
+void cliff::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_UP:

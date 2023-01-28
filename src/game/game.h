@@ -46,6 +46,9 @@
 // Default game overlay depth
 #define GAME_OVERLAY_DEPTH 8
 
+// Default for SDL mouse index
+#define NOMOUSE -1
+
 // by RDG2010 -- added GAME_SINGE
 enum {
     GAME_UNDEFINED,
@@ -135,9 +138,9 @@ class game
     virtual Uint8 port_read(Uint16 port);                 // read from port
     virtual void port_write(Uint16 port, Uint8 value);    // write to a port
     virtual void update_pc(Uint32 new_pc);                // update the PC
-    virtual void input_enable(Uint8);
-    virtual void input_disable(Uint8);
-    virtual void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel); // Added by ScottD
+    virtual void input_enable(Uint8, Sint8);
+    virtual void input_disable(Uint8, Sint8);
+    virtual void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
     virtual void OnVblank(); // this gets called by the ldp class every vblank
                              // (since many games use vblank for their
                              // interrupt)
@@ -306,6 +309,7 @@ class game
     int m_sinden_border_color;
 
     bool m_manymouse;
+    void set_mice_detected(int);
 
     int m_stretch;
 
@@ -405,6 +409,8 @@ class game
     // if the game uses the mouse, this should be set to true IN THE GAME'S
     // CONSTRUCTOR
     bool m_bMouseEnabled;
+    int m_miceDetected;
+    int get_mice_detected();
 
 #ifdef CPU_DEBUG
     struct addr_name *addr_names;

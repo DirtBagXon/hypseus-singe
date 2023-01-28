@@ -65,6 +65,8 @@ struct singe_in_info
 	double (*get_singe_version)(void);
 	void (*set_ldp_verbose)(bool);	
 
+	int  (*cfm_get_number_of_mice)(void *);
+
 	bool (*get_retro_path)();
 	void (*set_singe_errors)(short);
 
@@ -85,7 +87,7 @@ struct singe_out_info
 	// FUNCTIONS:
 	void (*sep_call_lua)(const char *func, const char *sig, ...);
 	void (*sep_do_blit)(SDL_Surface *srfDest);
-	void (*sep_do_mouse_move)(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
+	void (*sep_do_mouse_move)(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
 	void (*sep_error)(const char *fmt, ...);
 	void (*sep_print)(const char *fmt, ...);
 	void (*sep_set_static_pointers)(double *m_disc_fps, unsigned int *m_uDiscFPKS);

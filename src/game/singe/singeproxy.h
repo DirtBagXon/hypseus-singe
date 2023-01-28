@@ -52,7 +52,7 @@ void          sep_call_lua(const char *func, const char *sig, ...);
 void          sep_capture_vldp();
 void          sep_die(const char *fmt, ...);
 void          sep_do_blit(SDL_Surface *srfDest);
-void          sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
+void          sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
 void          sep_error(const char *fmt, ...);
 int           sep_lua_error(lua_State *L);
 int           sep_prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
@@ -136,3 +136,4 @@ static int sep_sound_flush_queue(lua_State *L);
 // by DBX - Singe 2
 static int sep_singe_two_pseudo_call_true(lua_State *L);
 static int sep_singe_wants_crosshair(lua_State *L);
+static int sep_get_number_of_mice(lua_State *L);

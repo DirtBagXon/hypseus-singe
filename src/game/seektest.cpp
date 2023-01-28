@@ -120,7 +120,7 @@ void seektest::go(Uint32 target_frame)
     g_ldp->pre_search(s, true);
 }
 
-void seektest::input_enable(Uint8 input)
+void seektest::input_enable(Uint8 input, Sint8 mouseID)
 {
     switch (input) {
     case SWITCH_UP:
@@ -199,7 +199,7 @@ void seektest::input_enable(Uint8 input)
     }
 }
 
-void seektest::input_disable(Uint8 input)
+void seektest::input_disable(Uint8 input, Sint8 mouseID)
 {
     // get rid of warnings
     if (input) {

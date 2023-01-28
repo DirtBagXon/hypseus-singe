@@ -464,7 +464,7 @@ void badlands::repaint()
 }
 
 // this gets called when the user presses a key or moves the joystick
-void badlands::input_enable(Uint8 move)
+void badlands::input_enable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_START1: // '1' on keyboard
@@ -498,7 +498,7 @@ void badlands::input_enable(Uint8 move)
 
 // this gets called when the user releases a key or moves the joystick back to
 // center position
-void badlands::input_disable(Uint8 move)
+void badlands::input_disable(Uint8 move, Sint8 mouseID)
 {
     switch (move) {
     case SWITCH_START1: // '1' on keyboard

@@ -110,6 +110,7 @@ game::game()
     //	m_disc_ms_per_frame = 0.0;
     m_game_type   = GAME_UNDEFINED;
     m_game_issues = NULL; // assume game has no issues unless we specify some
+    m_miceDetected = -1;
 #ifdef CPU_DEBUG
     addr_names = game_addr_names;
 #endif
@@ -298,7 +299,7 @@ void game::update_pc(Uint32 new_pc)
     }
 }
 
-void game::input_enable(Uint8 input)
+void game::input_enable(Uint8 input, Sint8 mouseID)
 {
     // get rid of warnings
     if (input) {
@@ -307,7 +308,7 @@ void game::input_enable(Uint8 input)
     LOGW << "generic input_enable function called, does nothing";
 }
 
-void game::input_disable(Uint8 input)
+void game::input_disable(Uint8 input, Sint8 mouseID)
 {
     // get rid of warnings
     if (input) {
@@ -317,7 +318,7 @@ void game::input_disable(Uint8 input)
 }
 
 // Added by ScottD
-void game::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel)
+void game::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID)
 {
     // get rid of warnings
     if (x || y || xrel || yrel) {
@@ -1118,6 +1119,10 @@ const char *game::get_address_name(unsigned int addr)
 #endif //cpu::type::DEBUG
 
 bool game::get_mouse_enabled() { return m_bMouseEnabled; }
+
+int game::get_mice_detected() { return m_miceDetected; }
+
+void game::set_mice_detected(int thisMany) { m_miceDetected = thisMany; }
 
 bool game::getGameNeedsOverlayUpdate() { return m_video_overlay_needs_update; }
 

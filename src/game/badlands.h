@@ -46,8 +46,8 @@ class badlands : public game
     void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
     void reset();
     void set_preset(int);
-    void input_enable(Uint8);
-    void input_disable(Uint8);
+    void input_enable(Uint8, Sint8);
+    void input_disable(Uint8, Sint8);
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
     void repaint(); // function to repaint video
