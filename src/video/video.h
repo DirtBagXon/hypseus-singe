@@ -34,7 +34,7 @@
 
 #define ASPECTSD 133
 #define ASPECTWS 178 // Round up
-#define NOSQUARE 0x2d0
+#define NOSQUARE 0x2D0
 
 #include "SDL_FontCache.h"
 #include <SDL.h>
