@@ -1343,17 +1343,24 @@ void take_screenshot()
         { LOGW << fmt("'%s' is not a directory.", dir); return; }
 
     int flags = SDL_GetWindowFlags(g_window);
-    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
-        { LOGW << "Cannot screenshot in fullscreen render."; return; }
-
     SDL_Rect     screenshot;
     SDL_Surface  *surface      = NULL;
 
     if (g_renderer) {
+
+        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+            SDL_RenderSetViewport(g_renderer, NULL);
+
         SDL_RenderGetViewport(g_renderer, &screenshot);
+
+        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+            SDL_GetRendererOutputSize(g_renderer, &screenshot.w, &screenshot.h);
+
         surface = SDL_CreateRGBSurface(0, screenshot.w, screenshot.h, 32, 0, 0, 0, 0);
+
         if (!surface) { LOGE << "Cannot allocate surface"; return; }
-        if (SDL_RenderReadPixels(g_renderer, NULL, surface->format->format,
+
+        if (SDL_RenderReadPixels(g_renderer, &screenshot, surface->format->format,
             surface->pixels, surface->pitch) != 0)
             { LOGE << fmt("Cannot ReadPixels - Something bad happened: %s", SDL_GetError());
                  g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
@@ -1362,6 +1369,9 @@ void take_screenshot()
         LOGE << "Could not allocate renderer";
         return;
     }
+
+    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+        SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
 
     for (;;) {
         screenshot_num++;
