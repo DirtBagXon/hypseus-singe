@@ -81,6 +81,7 @@ SDL_Rect g_leds_size_rect = {0, 0, 320, 240};
 SDL_Rect g_render_size_rect = g_leds_size_rect;
 
 bool queue_take_screenshot = false;
+bool g_screenshot_scorepanel = false;
 bool g_fs_scale_nearest = false;
 bool g_singe_blend_sprite = false;
 bool g_scanlines = false;
@@ -832,6 +833,7 @@ void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
+void set_screenshot_scorepanel(bool bEnabled) { g_screenshot_scorepanel = bEnabled; }
 
 void set_scalefactor(int value)
 {
@@ -1333,6 +1335,7 @@ void take_screenshot()
     struct       stat info;
     char         filename[64];
     int32_t      screenshot_num = 0;
+    bool         fullscreen = false;
     const char   dir[12] = "screenshots";
 
     if (stat(dir, &info ) != 0 )
@@ -1343,15 +1346,19 @@ void take_screenshot()
     int flags = SDL_GetWindowFlags(g_window);
     SDL_Rect     screenshot;
     SDL_Surface  *surface      = NULL;
+    SDL_Surface  *scoreboard   = NULL;
+
+    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+        fullscreen = true;
 
     if (g_renderer) {
 
-        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+        if (fullscreen)
             SDL_RenderSetViewport(g_renderer, NULL);
 
         SDL_RenderGetViewport(g_renderer, &screenshot);
 
-        if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+        if (fullscreen)
             SDL_GetRendererOutputSize(g_renderer, &screenshot.w, &screenshot.h);
 
         surface = SDL_CreateRGBSurface(0, screenshot.w, screenshot.h, 32, 0, 0, 0, 0);
@@ -1363,12 +1370,29 @@ void take_screenshot()
             { LOGE << fmt("Cannot ReadPixels - Something bad happened: %s", SDL_GetError());
                  g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
                  set_quitflag(); }
+
+        if (g_sb_window && g_screenshot_scorepanel) {
+
+            SDL_Rect     boardrect;
+            SDL_RenderGetViewport(g_sb_renderer, &boardrect);
+            scoreboard = SDL_CreateRGBSurface(0, boardrect.w, boardrect.h, 32, 0, 0, 0, 0);
+
+            if (scoreboard) {
+                SDL_RenderReadPixels(g_sb_renderer, &boardrect,scoreboard->format->format,
+                       scoreboard->pixels, scoreboard->pitch);
+
+                // Find a way to calculate placement, until then place top left
+                boardrect.x = boardrect.y = 0xa;
+                SDL_BlitSurface(scoreboard, NULL, surface, &boardrect);
+            }
+        }
+
     } else {
         LOGE << "Could not allocate renderer";
         return;
     }
 
-    if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
+    if (fullscreen)
         SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
 
     for (;;) {
@@ -1385,6 +1409,9 @@ void take_screenshot()
     } else {
         LOGE <<  fmt("Could not write screenshot: %s !!", filename);
     }
+
+    if (scoreboard)
+        SDL_FreeSurface(scoreboard);
 
     SDL_FreeSurface(surface);
 }
