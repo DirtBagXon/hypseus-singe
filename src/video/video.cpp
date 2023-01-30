@@ -1378,11 +1378,11 @@ void take_screenshot()
             scoreboard = SDL_CreateRGBSurface(0, boardrect.w, boardrect.h, 32, 0, 0, 0, 0);
 
             if (scoreboard) {
-                SDL_RenderReadPixels(g_sb_renderer, &boardrect,scoreboard->format->format,
+                SDL_RenderReadPixels(g_sb_renderer, &boardrect, scoreboard->format->format,
                        scoreboard->pixels, scoreboard->pitch);
 
                 // Find a way to calculate placement, until then place top left
-                boardrect.x = boardrect.y = 0xa;
+                boardrect.x = boardrect.y = 10;
                 SDL_BlitSurface(scoreboard, NULL, surface, &boardrect);
             }
         }

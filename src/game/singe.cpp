@@ -162,6 +162,10 @@ bool singe::init()
 	// Number of attached mice
         g_SingeIn.cfm_get_number_of_mice = gfm_number_of_mice;
 
+        // Extended args
+        g_SingeIn.cfm_get_xratio         = gfm_get_xratio;
+        g_SingeIn.cfm_get_yratio         = gfm_get_yratio;
+
         /*
         Why a wrapper?
 
@@ -463,6 +467,26 @@ bool singe::handle_cmdline_arg(const char *arg)
            game::set_sinden_border_color(j);
         }
     }
+    else if (strcasecmp(arg, "-xratio") == 0) {
+        get_next_word(s, sizeof(s));
+        float f = (float)numstr::ToDouble(s);
+
+        if (f > 0 && f < 100) {
+            singe_xratio = (double)floorf(f * 100) / 100;
+            bResult = true;
+        } else
+            printerror("SINGE: ratio should be a float");
+    }
+    else if (strcasecmp(arg, "-yratio") == 0) {
+        get_next_word(s, sizeof(s));
+        float f = (float)numstr::ToDouble(s);
+
+        if (f > 0 && f < 100) {
+            singe_yratio = (double)floorf(f * 100) / 100;
+            bResult = true;
+        } else
+            printerror("SINGE: ratio should be a float");
+    }
     else if (strcasecmp(arg, "-js_range") == 0) {
         get_next_word(s, sizeof(s));
         i = atoi(s);
@@ -570,6 +594,9 @@ void singe::set_keyboard_mode(int thisVal)
     } else
         i_keyboard_mode = thisVal;
 }
+
+double singe::get_xratio() { return singe_xratio; }
+double singe::get_yratio() { return singe_yratio; }
 
 int singe::get_keyboard_mode() { return i_keyboard_mode; }
 

@@ -57,6 +57,9 @@ struct singe_in_info
 	void (*pre_step_forward)();
 	void (*pre_step_backward)();
 
+	double (*cfm_get_xratio)(void *);
+	double (*cfm_get_yratio)(void *);
+
 	//by RDG2010
 	void *pSingeInstance;
 	void (*cfm_set_keyboard_mode)(void *, int);

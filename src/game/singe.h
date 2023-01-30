@@ -74,6 +74,8 @@ class singe : public game
     bool notarget = false;
     bool singe_ocv = false;
     bool singe_oc = false;
+    double singe_xratio = 0.0;
+    double singe_yratio = 0.0;
 
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }
@@ -160,6 +162,18 @@ class singe : public game
         return pSingeInstance->get_mice_detected();
     }
 
+    static double gfm_get_xratio(void *pInstance)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        return pSingeInstance->get_xratio();
+    }
+
+    static double gfm_get_yratio(void *pInstance)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        return pSingeInstance->get_yratio();
+    }
+
     void set_keyboard_mode(int); // Sets value of private member i_keyboard_mode
     int get_keyboard_mode();     // Retrieves the value of i_keyboard_mode
 
@@ -167,6 +181,9 @@ class singe : public game
     // Copying expanded keyboard handling technique from Thayer's driver.
     void process_keydown(SDL_Keycode, int[][2]);
     void process_keyup(SDL_Keycode, int[][2]);
+
+    double get_xratio();
+    double get_yratio();
 
   private:
     // callback function for singe to pass error messages to us
