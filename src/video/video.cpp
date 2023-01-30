@@ -1372,7 +1372,7 @@ void take_screenshot()
         if (g_sb_window) {
 
             SDL_DisplayMode mode;
-            if (SDL_GetCurrentDisplayMode(0, &mode) != 0)
+            if (SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(g_window), &mode) != 0)
                 { LOGE << fmt("Cannot GetDisplayMode: %s", SDL_GetError());
                  g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
                  set_quitflag(); }
