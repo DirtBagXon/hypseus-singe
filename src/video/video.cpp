@@ -81,7 +81,6 @@ SDL_Rect g_leds_size_rect = {0, 0, 320, 240};
 SDL_Rect g_render_size_rect = g_leds_size_rect;
 
 bool queue_take_screenshot = false;
-bool g_screenshot_scorepanel = false;
 bool g_fs_scale_nearest = false;
 bool g_singe_blend_sprite = false;
 bool g_scanlines = false;
@@ -833,7 +832,6 @@ void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
-void set_screenshot_scorepanel(bool bEnabled) { g_screenshot_scorepanel = bEnabled; }
 
 void set_scalefactor(int value)
 {
@@ -1371,7 +1369,13 @@ void take_screenshot()
                  g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
                  set_quitflag(); }
 
-        if (g_sb_window && g_screenshot_scorepanel) {
+        if (g_sb_window) {
+
+            SDL_DisplayMode mode;
+            if (SDL_GetCurrentDisplayMode(0, &mode) != 0)
+                { LOGE << fmt("Cannot GetDisplayMode: %s", SDL_GetError());
+                 g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
+                 set_quitflag(); }
 
             SDL_Rect     boardrect;
             SDL_RenderGetViewport(g_sb_renderer, &boardrect);
@@ -1381,8 +1385,8 @@ void take_screenshot()
                 SDL_RenderReadPixels(g_sb_renderer, &boardrect, scoreboard->format->format,
                        scoreboard->pixels, scoreboard->pitch);
 
-                // Find a way to calculate placement, until then place top left
-                boardrect.x = boardrect.y = 10;
+                boardrect.x = (mode.w / screenshot.w) * sb_window_pos_x;
+                boardrect.y = (mode.h / screenshot.h) * sb_window_pos_y;
                 SDL_BlitSurface(scoreboard, NULL, surface, &boardrect);
             }
         }

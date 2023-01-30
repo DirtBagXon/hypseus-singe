@@ -762,10 +762,6 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-            // enable experimental scorepanel inclusion in screenshot
-            else if (strcasecmp(s, "-screenshot_scorepanel") == 0) {
-                video::set_screenshot_scorepanel(true);
-            }
             // used to modify the dip switch settings of the game in question
             else if (strcasecmp(s, "-bank") == 0) {
                 get_next_word(s, sizeof(s));
