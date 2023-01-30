@@ -183,7 +183,6 @@ void set_sb_window(int, int);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);
-void set_screenshot_scorepanel(bool bEnabled);
 
 unsigned int get_draw_width();
 unsigned int get_draw_height();
