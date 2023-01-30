@@ -137,3 +137,5 @@ static int sep_sound_flush_queue(lua_State *L);
 static int sep_singe_two_pseudo_call_true(lua_State *L);
 static int sep_singe_wants_crosshair(lua_State *L);
 static int sep_get_number_of_mice(lua_State *L);
+static int sep_get_xratio(lua_State *L);
+static int sep_get_yratio(lua_State *L);

@@ -625,6 +625,8 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
   lua_register(g_se_lua_context, "mouseHowMany",           sep_get_number_of_mice);
+  lua_register(g_se_lua_context, "ratioGetX",              sep_get_xratio);
+  lua_register(g_se_lua_context, "ratioGetY",              sep_get_yratio);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -1046,6 +1048,18 @@ static int sep_mpeg_get_pixel(lua_State *L)
 static int sep_singe_two_pseudo_call_true(lua_State *L)
 {
    return 0;
+}
+
+static int sep_get_xratio(lua_State *L)
+{
+   lua_pushnumber(L, g_pSingeIn->cfm_get_xratio(g_pSingeIn->pSingeInstance));
+   return 1;
+}
+
+static int sep_get_yratio(lua_State *L)
+{
+   lua_pushnumber(L, g_pSingeIn->cfm_get_yratio(g_pSingeIn->pSingeInstance));
+   return 1;
 }
 
 static int sep_singe_wants_crosshair(lua_State *L)
