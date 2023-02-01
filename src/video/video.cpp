@@ -74,6 +74,8 @@ SDL_Texture *g_overlay_texture     = NULL; // The OVERLAY texture, excluding LED
 SDL_Texture *g_yuv_texture         = NULL; // The YUV video texture, registered from ldp-vldp.cpp
 SDL_Surface *g_screen_blitter      = NULL; // The main blitter surface
 SDL_Surface *g_leds_surface        = NULL;
+SDL_Surface *g_sb_surface          = NULL;
+SDL_Texture *g_sb_texture          = NULL;
 SDL_Texture *g_bezel_texture       = NULL;
 
 SDL_Rect g_overlay_size_rect; 
@@ -454,18 +456,20 @@ bool deinit_display()
 {
     SDL_SetWindowGrab(g_window, SDL_FALSE);
 
+    if (g_sb_window) {
+        // free_bmps()
+        g_sb_surface = NULL;
+        if (g_sb_texture) SDL_DestroyTexture(g_sb_texture);
+        if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
+        SDL_DestroyWindow(g_sb_window);
+    }
+
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
 
     TTF_Quit();
     FC_FreeFont(g_font);
     FC_FreeFont(g_fixfont);
-
-    if (g_sb_renderer)
-        SDL_DestroyRenderer(g_sb_renderer);
-
-    if (g_sb_window)
-        SDL_DestroyWindow(g_sb_window);
 
     if (g_bezel_texture)
         SDL_DestroyTexture(g_bezel_texture);
@@ -482,8 +486,10 @@ void resize_cleanup(uint32_t sdl_flags)
     SDL_SetWindowGrab(g_window, SDL_FALSE);
 
     if (sdl_flags & SDL_WINDOW_MAXIMIZED) {
-        if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
-        if (g_sb_window) SDL_DestroyWindow(g_sb_window);
+        if (g_sb_window) {
+            if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
+            SDL_DestroyWindow(g_sb_window);
+        }
     }
 
     if (g_screen_blitter) SDL_FreeSurface(g_screen_blitter);
@@ -585,17 +591,16 @@ SDL_Surface *load_one_bmp(const char *filename)
 // 1 is returned on success, 0 on failure
 bool draw_led(int value, int x, int y)
 {
-    SDL_Surface *srf = g_led_bmps[value];
-    SDL_Texture *tx;
+    g_sb_surface = g_led_bmps[value];
 
     SDL_Rect dest;
     dest.x = (short) x;
     dest.y = (short) y;
-    dest.w = (unsigned short) srf->w;
-    dest.h = (unsigned short) srf->h;
+    dest.w = (unsigned short) g_sb_surface->w;
+    dest.h = (unsigned short) g_sb_surface->h;
 
-    tx = SDL_CreateTextureFromSurface(g_sb_renderer, srf);
-    SDL_RenderCopy(g_sb_renderer, tx, NULL, &dest);
+    g_sb_texture = SDL_CreateTextureFromSurface(g_sb_renderer, g_sb_surface);
+    SDL_RenderCopy(g_sb_renderer, g_sb_texture, NULL, &dest);
     g_softsboard_needs_update = true;
 
     return true;
@@ -729,8 +734,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 //  'which' corresponds to enumerated values
 bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
 {
-    SDL_Surface *srf = g_other_bmps[which];
-    SDL_Texture *tx;
+    g_sb_surface = g_other_bmps[which];
 
     if (which == B_DL_PLAYER1)
         SDL_RenderClear(g_sb_renderer);
@@ -738,11 +742,11 @@ bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
     SDL_Rect dest;
     dest.x = (short)x;
     dest.y = (short)y;
-    dest.w = (unsigned short) srf->w;
-    dest.h = (unsigned short) srf->h;
+    dest.w = (unsigned short) g_sb_surface->w;
+    dest.h = (unsigned short) g_sb_surface->h;
 
-    tx = SDL_CreateTextureFromSurface(g_sb_renderer, srf);
-    SDL_RenderCopy(g_sb_renderer, tx, NULL, &dest);
+    g_sb_texture = SDL_CreateTextureFromSurface(g_sb_renderer, g_sb_surface);
+    SDL_RenderCopy(g_sb_renderer, g_sb_texture, NULL, &dest);
     g_softsboard_needs_update = true;
 
     return true;

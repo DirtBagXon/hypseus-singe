@@ -41,7 +41,7 @@ Lightguns will require the ``-manymouse`` argument passed to Singe to enable abs
 
 See discussion here: [Discussions](https://github.com/DirtBagXon/hypseus-singe/discussions/)
 
-Using Gun Game HD video content (_above 720x480_) will require the ``-oversize_overlay`` argument.
+Using Gun Game HD video content (_above 720x480_) will require the ``-set_overlay oversize`` argument.
 
 ## Compilation
 
