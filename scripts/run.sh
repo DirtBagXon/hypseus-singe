@@ -58,7 +58,7 @@ while [[ $# -gt 0 ]]; do
         if [ $FULLSCREEN ] ; then
            FULLSCREEN="-fullscreen_window"
         fi
-        SCOREBOARD="-software_scoreboard"
+        SCOREBOARD="-scorepanel"
         shift
         ;;
       *)

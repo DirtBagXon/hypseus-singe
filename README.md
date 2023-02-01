@@ -55,7 +55,7 @@ Ensure you have data in the following `daphne` HOME folders:
 
 Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
 
-    hypseus lair vldp -framefile vldp_dl/lair/lair.txt -fullscreen_window -software_scoreboard
+    hypseus lair vldp -framefile vldp_dl/lair/lair.txt -fullscreen_window -scorepanel
 
     hypseus singe vldp -framefile singe/timegal/timegal.txt -script singe/timegal/timegal.singe
 
@@ -128,7 +128,9 @@ Full details of the USB scoreboard [here](https://github.com/DirtBagXon/hypseus_
 
 ## Software Scoreboard
 
-Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-software_scoreboard`
+Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-scorepanel`
+
+The scorepanel can be positioned using `-scorepanel_position x y` - *Window Managers* may influence placement.
 
 Works in conjunction with `-fullscreen_window` or normal windowed mode.
 
@@ -173,6 +175,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
     -gamepad                   [ Enable SDL_GameController configuration       ]
     -grabmouse                 [ Capture mouse in SDL window                   ]
+    -ignore_aspect_ratio       [ Ignore MPEG aspect ratio header [01B3]        ]
     -keymapfile <flight.ini>   [ Specify an alternate hypinput.ini file        ]
     -nolinear_scale            [ Disable bilinear scaling                      ]
     -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
@@ -181,7 +184,8 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
     -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
     -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
-    -software_scoreboard       [ Enable software scoreboard in lair/ace/tq     ]
+    -scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
+    -scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
     -usbscoreboard <args>      [ Enable USB serial support for scoreboard:     ]
                                [ Arguments: (i)mplementation, (p)ort, (b)aud   ]
@@ -249,7 +253,7 @@ project would not be possible.
 ## License
 
 **Hypseus Singe**, Being Retro Orientated This Humble Emulator Regenerates  
-Copyright (C) 2021-2022  [DirtBagXon][owner]
+Copyright (C) 2021-2023  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]
