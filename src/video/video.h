@@ -55,10 +55,15 @@ static const uint8_t OVERLAY_LDP1450_HEIGHT = 16;
 static const uint8_t OVERLAY_LDP1450_CHARACTER_SPACING = 15;
 // spacing between LDP1450 overlay lines
 static const uint8_t OVERLAY_LDP1450_LINE_SPACING = 16;
+static const uint8_t OVERLAY_LDP1450_LINES = 16;
 
-// dimensions of small font
-static const uint8_t FONT_SMALL_W = 6;
-static const uint8_t FONT_SMALL_H = 13;
+typedef struct
+{
+    bool enable;
+    char* OVERLAY_LDP1450_String;
+    float x;
+    float y;
+} LDP1450_CharStruct;
 
 enum {
     B_DL_PLAYER1,
@@ -120,7 +125,6 @@ bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
 void free_bmps();
 SDL_Surface *load_one_bmp(const char *);
 void free_one_bmp(SDL_Surface *);
-void clean_control_char(char *, char *, int len);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
 SDL_Window *get_window();
@@ -167,7 +171,7 @@ void draw_scanlines(int, int, int);
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, bool ins);
-void draw_LDP1450_overlay(char *, int, int, bool ins, bool rst);
+void draw_LDP1450_overlay();
 void vid_toggle_fullscreen();
 void vid_toggle_scanlines();
 void set_aspect_ratio(int fRatio);

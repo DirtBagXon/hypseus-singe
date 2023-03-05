@@ -82,6 +82,8 @@ SDL_Rect g_overlay_size_rect;
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
 SDL_Rect g_render_size_rect = g_leds_size_rect;
 
+LDP1450_CharStruct LDP1450_CharSet[OVERLAY_LDP1450_LINES];
+
 bool queue_take_screenshot = false;
 bool g_fs_scale_nearest = false;
 bool g_singe_blend_sprite = false;
@@ -109,17 +111,6 @@ int g_texture_access = SDL_TEXTUREACCESS_TARGET;
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
 char *subchar = NULL;
-
-char *LDP1450_069 = NULL;
-char *LDP1450_085 = NULL;
-char *LDP1450_101 = NULL;
-char *LDP1450_104 = NULL;
-char *LDP1450_120 = NULL;
-char *LDP1450_128 = NULL;
-char *LDP1450_136 = NULL;
-char *LDP1450_168 = NULL;
-char *LDP1450_184 = NULL;
-char *LDP1450_200 = NULL;
 
 string g_bezel_file = "";
 
@@ -165,6 +156,7 @@ bool init_display()
     char bezelpath[96] = {};
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
+    SDL_SysWMinfo info;
     sdl_flags = SDL_WINDOW_SHOWN;
     sdl_sb_flags = SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_BORDERLESS;
     sdl_render_flags = SDL_RENDERER_TARGETTEXTURE;
@@ -298,6 +290,8 @@ bool init_display()
                     }
                 }
 
+                SDL_VERSION(&info.version);
+
                 // Set bilinear filtering by default
                 if (!g_fs_scale_nearest)
                     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
@@ -311,8 +305,12 @@ bool init_display()
                     g_bezel_toggle = true;
                 }
 
-                if (g_game->m_sdl_software_scoreboard && !(sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) && !sb) {
-                    g_sb_window = SDL_CreateWindow(NULL, sb_window_pos_x, sb_window_pos_y, 340, 480, sdl_sb_flags);
+                if (g_game->m_sdl_software_scoreboard &&
+                       !(sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) &&
+                       SDL_GetWindowWMInfo(g_window, &info) && !sb) {
+
+                    g_sb_window = SDL_CreateWindow(NULL, sb_window_pos_x,
+                       sb_window_pos_y, 340, 480, sdl_sb_flags);
 
                     if (!g_sb_window) {
                         LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
@@ -343,6 +341,12 @@ bool init_display()
 
                 if (g_scanlines)
                     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+
+                int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
+                if (IMG_Init(imgflags) != imgflags) {
+                    LOGE << fmt("Failed to initialize IMG: %s", SDL_GetError());
+                    set_quitflag();
+                }
 
                 // Calculate font sizes
                 int ffs;
@@ -467,6 +471,7 @@ bool deinit_display()
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
 
+    IMG_Quit();
     TTF_Quit();
     FC_FreeFont(g_font);
     FC_FreeFont(g_fixfont);
@@ -539,7 +544,7 @@ bool load_bmps()
     char filename[81];
 
     for (; index < LED_RANGE; index++) {
-        sprintf(filename, "pics/led%d.bmp", index);
+        snprintf(filename, sizeof(filename), "pics/led%d.bmp", index);
 
         g_led_bmps[index] = load_one_bmp(filename);
 
@@ -650,28 +655,54 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
 {
     int i, j = 0;
     int LDP1450_strlen;
+    int index = (int)((y / OVERLAY_LDP1450_HEIGHT) + 0.5f);
+    float x = (double)g_game->get_video_overlay_width() /
+               g_game->get_video_overlay_height();
 
+    LDP1450_CharSet[index].enable = false;
     LDP1450_strlen = strlen(LDP1450_String);
+    g_LDP1450_overlay = true;
 
     if (!LDP1450_strlen)
     {
         strcpy(LDP1450_String, "           ");
-        LDP1450_strlen = strlen(LDP1450_String);
-    } else {
-        if (LDP1450_strlen <= 11)
+    }
+    else {
+	if (LDP1450_strlen <= 11)
         {
             for (i = LDP1450_strlen; i <= 11; i++) LDP1450_String[i] = 32;
-            LDP1450_strlen = strlen(LDP1450_String);
         }
     }
 
-    char* p = (char*)malloc(LDP1450_strlen+1);
-    strcpy(p, LDP1450_String);
-    for (i = 0; i < LDP1450_strlen; p++, i++)
-       if (*p == 32) j++;
+    LDP1450_strlen = strlen(LDP1450_String);
 
-    if (j == 12) draw_LDP1450_overlay(LDP1450_String, 0, 0, 0, 1);
-    else draw_LDP1450_overlay(LDP1450_String, start_x, y, 1, 0);
+    switch(g_aspect_ratio)
+    {
+       case ASPECTWS:
+          x = (((double)g_draw_width/0xe1) * start_x);
+          break;
+       default:
+          if (g_draw_width == NOSQUARE)
+              x = (((double)g_draw_width/0x180) * start_x);
+          else
+              x = (((double)g_draw_width/0x100) * start_x);
+          break;
+    }
+
+    for (i = 0; i < LDP1450_strlen; i++)
+    {
+         if (LDP1450_String[i] == 0x13)
+             LDP1450_String[i] = 0x5f;
+
+         if (LDP1450_String[i] != 32) j++;
+    }
+
+    if (j > 0) {
+        LDP1450_CharSet[index].enable = true;
+        LDP1450_CharSet[index].x = x;
+        LDP1450_CharSet[index].y = (y * (double)(get_draw_height() * 0.004f));
+        LDP1450_CharSet[index].OVERLAY_LDP1450_String = LDP1450_String;
+    }
 }
 
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
@@ -774,15 +805,6 @@ void free_one_bmp(SDL_Surface *candidate) {
 	SDL_FreeSurface(candidate); 
 }
 
-void clean_control_char(char *src, char *dst, int len)
-{
-    for (int i = 0; i < len; src++, i++) {
-        if (*src == 0x13) *dst = 0x5f;
-        else *dst = *src;
-        dst++;
-    }
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////
 
 SDL_Window *get_window() { return g_window; }
@@ -825,7 +847,6 @@ void set_alpha(int value) { s_alpha = value; }
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 void set_fullscreen_scale_nearest(bool value) { g_fs_scale_nearest = value; }
 void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
-void set_LDP1450_enabled(bool value) { g_LDP1450_overlay = value; }
 void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
 void set_video_timer_blank(bool value) { g_yuv_video_timer_blank = value; }
 void set_rotate_degrees(float fDegrees) { g_fRotateDegrees = fDegrees; }
@@ -928,125 +949,15 @@ void draw_subtitle(char *s, bool insert)
     m_message_timer++;
 }
 
-void draw_LDP1450_overlay(char *s, int start_x, int y, bool insert, bool reset)
+void draw_LDP1450_overlay()
 {
-    SDL_Renderer *renderer = get_renderer();
-    FC_Font *fixfont = get_fixfont();
-    float f = (get_draw_height()*0.004);
-    float x = (double)g_game->get_video_overlay_width() /
-               g_game->get_video_overlay_height();
-    static float x0, x1, x2, x3, x4, x5, x6, x7, x8, x9;
-    static bool y0, y1, y2, y3, y4, y5, y6, y7, y8, y9;
-    static int rcount, cr;
-    static char *rank;
-    int i, k = 0;
-    char t[13];
-
-    if (reset && !g_LDP1450_overlay) return;
-
-    if (reset) {
-       rcount++;
-       if (rcount > 1) {
-          y0 = y1 = y2 = y3 = y4 = y5
-             = y6 = y7 = y8 = y9
-             = false;
-          set_LDP1450_enabled(false);
-          rcount = 0;
-       }
-       return;
+    for (int i = 0; i < OVERLAY_LDP1450_LINES; i++) {
+        if (LDP1450_CharSet[i].enable) {
+		FC_Draw(g_fixfont, g_renderer,
+		   LDP1450_CharSet[i].x, LDP1450_CharSet[i].y,
+		   LDP1450_CharSet[i].OVERLAY_LDP1450_String);
+	}
     }
-
-    if (insert) {
-
-       switch(g_aspect_ratio)
-       {
-          case ASPECTWS:
-             x = (((double)g_draw_width/0xe1) * start_x);
-             break;
-          default:
-             if (g_draw_width == NOSQUARE)
-                 x = (((double)g_draw_width/0x180) * start_x);
-             else
-                 x = (((double)g_draw_width/0x100) * start_x);
-             break;
-       }
-
-       switch(y)
-       {
-          case 69:
-             LDP1450_069 = strdup(s);
-             y0 = true; x0 = x;
-             break;
-          case 85:
-             LDP1450_085 = strdup(s);
-             y1 = true; x1 = x;
-             break;
-          case 101:
-             LDP1450_101 = strdup(s);
-             y2 = true; x2 = x;
-             break;
-          case 103:
-          case 104:
-             clean_control_char(s, t, sizeof(t));
-             LDP1450_104 = strdup(t);
-             for (i = 0; i < (int)sizeof(s); s++, i++)
-               if (*s != 32) k++;
-             if (k==3) {
-                if (cr == 1) rank = strdup(LDP1450_104);
-                else if (rank) LDP1450_104 = strdup(rank);
-                cr++;
-                if (cr>2) cr = 0;
-             }
-             else cr = 0;
-             y3 = true; x3 = x;
-             break;
-          case 119:
-          case 120:
-             LDP1450_120 = strdup(s);
-             y4 = true; x4 = x;
-             break;
-          case 128:
-             LDP1450_128 = strdup(s);
-             y5 = true; x5 = x;
-             break;
-          case 135:
-          case 136:
-             LDP1450_136 = strdup(s);
-             y6 = true; x6 = x;
-             break;
-          case 168:
-             LDP1450_168 = strdup(s);
-             y7 = true; x7 = x;
-             break;
-          case 184:
-             LDP1450_184 = strdup(s);
-             y8 = true; x8 = x;
-             cr = 0;
-             break;
-          case 200:
-             LDP1450_200 = strdup(s);
-             y9 = true; x9 = x;
-             cr = 0;
-             break;
-       }
-       rcount = 0;
-       set_LDP1450_enabled(true);
-    }
-
-    if (g_LDP1450_overlay) {
-       if (y0) FC_Draw(fixfont, renderer, x0, 69*f,  LDP1450_069);
-       if (y1) FC_Draw(fixfont, renderer, x1, 85*f,  LDP1450_085);
-       if (y2) FC_Draw(fixfont, renderer, x2, 101*f, LDP1450_101);
-       if (y3) FC_Draw(fixfont, renderer, x3, 104*f, LDP1450_104);
-       if (y4) FC_Draw(fixfont, renderer, x4, 120*f, LDP1450_120);
-       if (y5) FC_Draw(fixfont, renderer, x5, 128*f, LDP1450_128);
-       if (y6) FC_Draw(fixfont, renderer, x6, 136*f, LDP1450_136);
-       if (y7) FC_Draw(fixfont, renderer, x7, 168*f, LDP1450_168);
-       if (y8) FC_Draw(fixfont, renderer, x8, 184*f, LDP1450_184);
-       if (y9) FC_Draw(fixfont, renderer, x9, 200*f, LDP1450_200);
-    }
-
-    if (y3 && (k==0x2||k==0x3)) SDL_RenderPresent(renderer);
 }
 
 // toggles fullscreen mode
@@ -1280,7 +1191,7 @@ void vid_blit () {
     if (g_bSubtitleShown) draw_subtitle(subchar, false);
 
     // LDP1450 overlay
-    if (g_LDP1450_overlay) draw_LDP1450_overlay(NULL, 0, 0, 0, 0);
+    if (g_LDP1450_overlay) draw_LDP1450_overlay();
 
     if (g_scanlines)
         draw_scanlines(g_viewport_width, g_viewport_height, s_shunt);
@@ -1407,7 +1318,7 @@ void take_screenshot()
 
     for (;;) {
         screenshot_num++;
-        sprintf(filename, "%s%shypseus-%d.png",
+        snprintf(filename, sizeof(filename), "%s%shypseus-%d.png",
           dir, PATH_SEPARATOR, screenshot_num);
 
         if (!mpo_file_exists(filename))
