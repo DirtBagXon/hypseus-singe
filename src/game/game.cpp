@@ -67,7 +67,8 @@ void g_cpu_break(char *s)
     }
 
 #ifdef CPU_DEBUG
-    cpu::set_trace(1);
+    LOGW <<
+        "TODO...";
 #else
     LOGW << 
         "You have to compile withcpu::type::DEBUG defined to use the debugger!";

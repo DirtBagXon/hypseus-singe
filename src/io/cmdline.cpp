@@ -1014,7 +1014,7 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-trace") == 0) {
 #ifdef CPU_DEBUG
                 printline("CPU tracing enabled");
-                cpu::set_trace(1);
+                printerror("TODO....");
 #else
                 printerror("Needs to be compiled in debug mode for this "
                           "to work");

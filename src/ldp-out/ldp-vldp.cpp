@@ -727,8 +727,7 @@ uint32_t ldp_vldp::get_current_frame()
             LOGD << fmt(
                 "correct elapsed ms is %x (%f), which is frame offset %d (%f)",
                 ((result - m_last_seeked_frame) * 1000000 / uFPKS),
-                ((result - m_last_seeked_frame) * 1000000.0 / uFPKS),
-                ((uMsCorrect * uFPKS) / 1000000), (uMsCorrect * uFPKS * 0.000001));
+                ((result - m_last_seeked_frame) * 1000000.0 / uFPKS));
         }
     }
 
@@ -960,7 +959,8 @@ bool ldp_vldp::handle_cmdline_arg(const char *arg)
 
     if (strcasecmp(arg, "-blend") == 0) {
         g_filter_type |= FILTER_BLEND;
-    } else if (strcasecmp(arg, "-scanlines") == 0) {
+    }
+    else if (strcasecmp(arg, "-scanlines") == 0) {
         video::set_scanlines(true);
         g_filter_type |= FILTER_SCANLINES;
     }
