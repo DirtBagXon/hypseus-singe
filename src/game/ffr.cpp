@@ -118,7 +118,7 @@ void ffr::start()
 
             // 0 means we're done
             if (start_frame) {
-                sprintf(s, "%05d", start_frame);
+                snprintf(s, sizeof(s), "%05d", start_frame);
                 g_ldp->pre_search(s, true); // do the seek
                 g_ldp->pre_play();          // and start playing
 
@@ -140,7 +140,7 @@ void ffr::start()
             }
         }
 #else
-        sprintf(s, "%05d", m_pClips[0].start);
+        snprintf(s, sizeof(s), "%05d", m_pClips[0].start);
         g_ldp->pre_search(s, true); // do the seek
         g_ldp->pre_play();          // and start playing
 

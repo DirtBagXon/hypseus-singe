@@ -160,7 +160,7 @@ Uint8 starrider::cpu_mem_read(Uint16 addr)
     }
 
     else {
-        sprintf(s, "STARRIDER: Unmapped read from %x", addr);
+        snprintf(s, sizeof(s), "STARRIDER: Unmapped read from %x", addr);
         printline(s);
     }
 
@@ -185,7 +185,7 @@ void starrider::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // bank selector
     else if (addr == 0xc800) {
-        sprintf(s, "STARRIDER: Switch to bank %x", value & 0xf);
+        snprintf(s, sizeof(s), "STARRIDER: Switch to bank %x", value & 0xf);
         printline(s);
         current_bank = value & 0xf;
     }
@@ -204,7 +204,7 @@ void starrider::cpu_mem_write(Uint16 addr, Uint8 value)
     }
 
     else {
-        sprintf(s, "STARRIDER: Unmapped write to %x with %x", addr, value);
+        snprintf(s, sizeof(s), "STARRIDER: Unmapped write to %x with %x", addr, value);
         printline(s);
     }
 

@@ -83,18 +83,18 @@ int sram_save(const char *filename, unsigned char *mem, unsigned int size)
         gzsetparams(savefile, Z_BEST_COMPRESSION, Z_DEFAULT_STRATEGY);
 
         if (gzwrite(savefile, (voidp)mem, size) == (int)size) {
-            sprintf(s, "Saved %d bytes to %s", size, filename);
+            snprintf(s, sizeof(s), "Saved %d bytes to %s", size, filename);
             printline(s);
             result = 1;
         } else {
-            sprintf(s, "Error saving %d bytes to %s", size, filename);
+            snprintf(s, sizeof(s), "Error saving %d bytes to %s", size, filename);
             printline(s);
         }
         gzclose(savefile);
     }
 
     else {
-        sprintf(s, "Error saving RAM to file ram/%s", filename);
+        snprintf(s, sizeof(s), "Error saving RAM to file ram/%s", filename);
         printline(s);
     }
 

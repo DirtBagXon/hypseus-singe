@@ -173,7 +173,7 @@ void process_command()
         // '?F' Picture Number Request (ignored)
         if (command[1] == 'F') {
             current_frame = g_ldp->get_current_frame();
-            sprintf(frame_string, "%05d", current_frame);
+            snprintf(frame_string, sizeof(frame_string), "%05d", current_frame);
             status_queue.push('F'); // Frame
             status_queue.push(frame_string[0]);
             status_queue.push(frame_string[1]);

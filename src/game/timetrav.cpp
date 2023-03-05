@@ -80,7 +80,7 @@ Uint8 timetrav::cpu_mem_read(Uint32 addr)
     // ROM
     else if (addr >= 0xc0000) {
     } else {
-        sprintf(s, "Unmapped read from %x", addr);
+        snprintf(s, sizeof(s), "Unmapped read from %x", addr);
         printline(s);
     }
     return (result);
@@ -97,10 +97,10 @@ void timetrav::cpu_mem_write(Uint32 addr, Uint8 value)
     }
     // ROM
     else if (addr >= 0xc0000) {
-        sprintf(s, "Write to rom at %x with %x!", addr, value);
+        snprintf(s, sizeof(s), "Write to rom at %x with %x!", addr, value);
         printline(s);
     } else {
-        sprintf(s, "Unmapped write to %x with %x", addr, value);
+        snprintf(s, sizeof(s), "Unmapped write to %x with %x", addr, value);
         printline(s);
     }
 }
@@ -125,7 +125,7 @@ void timetrav::port_write(Uint16 port, Uint8 value)
         blit();
         break;
     default:
-        sprintf(s, "Unmapped write to port %x, value %x", port, value);
+        snprintf(s, sizeof(s), "Unmapped write to port %x, value %x", port, value);
         printline(s);
         break;
     }
@@ -137,7 +137,7 @@ Uint8 timetrav::port_read(Uint16 port)
 
     unsigned char result = 0;
 
-    sprintf(s, "Unmapped read from port %x", port);
+    snprintf(s, sizeof(s), "Unmapped read from port %x", port);
     printline(s);
     return (result);
 }

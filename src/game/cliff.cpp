@@ -254,7 +254,7 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
     {
         m_frame_val = pr8210::get_current_frame();
         g_ldp->framenum_to_frame(m_frame_val, m_frame_str);
-        sprintf(s, "Playing Frame: %s", m_frame_str);
+        snprintf(s, sizeof(s), "Playing Frame: %s", m_frame_str);
         tms9128nl_outcommand(s, 43, 23);
     } break;
     case 0x60:
@@ -412,7 +412,7 @@ void outcommand(char *s) // dangit Matt, stop ripping out my useful routines =]
     slength = strlen(s);
     strcpy(strtoprint, s);
     for (x = slength; x <= 18; x++) strcat(strtoprint, " ");
-    sprintf(string2, "%d) %s\n", commandnum++, strtoprint);
+    snprintf(string2, sizeof(string2), "%d) %s\n", commandnum++, strtoprint);
     tms9128nl_outcommand(string2, 45, row);
 }
 

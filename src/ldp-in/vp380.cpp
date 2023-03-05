@@ -140,7 +140,7 @@ void write(unsigned char value)
             // itoa(curframe, &f[0], 10);	// should be faster than sprintf
             safe_itoa(curframe, f, sizeof(f)); // MPO : linux doesn't have
                                                      // itoa
-            sprintf(f, "%05d", curframe);
+            snprintf(f, sizeof(f), "%05d", curframe);
             stack_push(0x0D); // M7
             stack_push(f[4]); // M6
             stack_push(f[3]); // M5

@@ -1525,8 +1525,8 @@ void update_parse_meter(const string &strFilename)
             const char * c = strFilename.c_str();
 
             len = strlen(c);
-            sprintf(f, "Parsing file: %s\n", c);
-            sprintf(s, "Video parsing is %02.f percent complete, %02.f seconds "
+            snprintf(f, sizeof(f), "Parsing file: %s\n", c);
+            snprintf(s, sizeof(s), "Video parsing is %02.f percent complete, %02.f seconds "
                        "remaining.\n",
                     percent_complete, remaining_s);
 

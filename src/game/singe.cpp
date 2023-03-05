@@ -209,7 +209,7 @@ void singe::start()
     char s1[100];
     int intTimer = 0;
     int intReturn = 0;
-    sprintf(s1, "Starting Singe version %.2f", get_singe_version());
+    snprintf(s1, sizeof(s1), "Starting Singe version %.2f", get_singe_version());
     printline(s1);
     g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);

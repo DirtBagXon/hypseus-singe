@@ -219,7 +219,7 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
         {
             result = m_cpumem[addr];
         } else {
-            sprintf(s, "INTERSTELLAR: CPU 0: Unsupported Memory Read-> %x (PC "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Memory Read-> %x (PC "
                        "is %x)",
                     addr, Z80_GET_PC);
             printline(s);
@@ -234,7 +234,7 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
         {
             result = m_cpumem2[addr];
         } else {
-            sprintf(s, "INTERSTELLAR: CPU 1: Unsupported Memory Read-> %x (PC "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Memory Read-> %x (PC "
                        "is %x)",
                     addr, Z80_GET_PC);
             printline(s);
@@ -252,7 +252,7 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
         {
             result = m_cpumem3[addr];
         } else {
-            sprintf(s, "INTERSTELLAR: CPU 2: Unsupported Memory Read-> %x (PC "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Memory Read-> %x (PC "
                        "is %x)",
                     addr, Z80_GET_PC);
             printline(s);
@@ -289,7 +289,7 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
         } else {
             m_cpumem[addr] = value;
 
-            sprintf(s, "INTERSTELLAR: CPU 0: Unsupported Memory Write-> %x "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Memory Write-> %x "
                        "with %x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
@@ -298,7 +298,7 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
     case 1:
         if (addr <= 0x1fff) // rom
         {
-            sprintf(s, "INTERSTELLAR: CPU 1: Attemped write to ROM!-> %x with "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Attemped write to ROM!-> %x with "
                        "%x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
@@ -307,7 +307,7 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
             m_cpumem2[addr] = value;
         } else {
             m_cpumem2[addr] = value;
-            sprintf(s, "INTERSTELLAR: CPU 1: Unsupported Memory Write-> %x "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Memory Write-> %x "
                        "with %x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
@@ -316,7 +316,7 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
     case 2:
         if (addr <= 0x17ff) // rom
         {
-            sprintf(s, "INTERSTELLAR: CPU 2: Attemped write to ROM!-> %x with "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Attemped write to ROM!-> %x with "
                        "%x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
@@ -325,7 +325,7 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
             m_cpumem3[addr] = value;
         } else {
             m_cpumem3[addr] = value;
-            sprintf(s, "INTERSTELLAR: CPU 2: Unsupported Memory Write-> %x "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Memory Write-> %x "
                        "with %x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
@@ -362,14 +362,14 @@ Uint8 interstellar::port_read(Uint16 port)
             result = cpu_latch1;
             if (result != old1) {
 #ifdef DEBUG
-                sprintf(s, "Main Z80 Read %x from LDP Z80 (PC is %x)", result, Z80_GET_PC);
+                snprintf(s, sizeof(s), "Main Z80 Read %x from LDP Z80 (PC is %x)", result, Z80_GET_PC);
                 printline(s);
 #endif
             }
             old1 = result;
             break;
         default:
-            sprintf(s, "INTERSTELLAR: CPU 0: Unsupported Port Input-> %x (PC "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Port Input-> %x (PC "
                        "is %x)",
                     port, Z80_GET_PC);
             printline(s);
@@ -385,7 +385,7 @@ Uint8 interstellar::port_read(Uint16 port)
             m_cpu1_nmi_enable = true;
             break;
         default:
-            sprintf(s, "INTERSTELLAR: CPU 1: Unsupported Port Input-> %x (PC "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Port Input-> %x (PC "
                        "is %x)",
                     port, Z80_GET_PC);
             printline(s);
@@ -398,7 +398,7 @@ Uint8 interstellar::port_read(Uint16 port)
             result = ldv1000::read();
             if (result != oldldp) {
 #ifdef DEBUG
-                sprintf(s, "LDP Z80 Read %x from LD-V1000 (PC is %x)", result, Z80_GET_PC);
+                snprintf(s, sizeof(s), "LDP Z80 Read %x from LD-V1000 (PC is %x)", result, Z80_GET_PC);
                 printline(s);
 #endif
             }
@@ -407,7 +407,7 @@ Uint8 interstellar::port_read(Uint16 port)
         case 0x01:
             result = cpu_latch2;
             if (result != old2) {
-                sprintf(s, "LDP Z80 Read %x from Main Z80 (PC is %x)", result, Z80_GET_PC);
+                snprintf(s, sizeof(s), "LDP Z80 Read %x from Main Z80 (PC is %x)", result, Z80_GET_PC);
                 printline(s);
             }
             old2 = result;
@@ -416,7 +416,7 @@ Uint8 interstellar::port_read(Uint16 port)
             m_cpu2_nmi_enable = true;
             break;
         default:
-            sprintf(s, "INTERSTELLAR: CPU 2: Unsupported Port Input-> %x (PC "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Port Input-> %x (PC "
                        "is %x)",
                     port, Z80_GET_PC);
             printline(s);
@@ -504,7 +504,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             if (old2 != value) {
 // cpu::generate_nmi(2);
 #ifdef DEBUG
-                sprintf(s, "Main Z80 Write %x to LDP Z80 (PC is %x)", value, Z80_GET_PC);
+                snprintf(s, sizeof(s), "Main Z80 Write %x to LDP Z80 (PC is %x)", value, Z80_GET_PC);
                 printline(s);
 #endif
             }
@@ -515,7 +515,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             old2 = value;
             break;
         default:
-            sprintf(s, "INTERSTELLAR: CPU 0: Unsupported Port Output-> %x:%x "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Port Output-> %x:%x "
                        "(PC is %x)",
                     port, value, Z80_GET_PC);
             printline(s);
@@ -539,7 +539,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             sound::writedata(m_soundchip2_id, value);
             break;
         default:
-            sprintf(s, "INTERSTELLAR: CPU 1: Unsupported Port Output-> %x:%x "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Port Output-> %x:%x "
                        "(PC is %x)",
                     port, value, Z80_GET_PC);
             printline(s);
@@ -552,7 +552,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             ldv1000::write(value);
             if (oldldp != value) {
 #ifdef DEBUG
-                sprintf(s, "LDP Z80 Write %x to LD-V1000 (PC is %x)", value, Z80_GET_PC);
+                snprintf(s, sizeof(s), "LDP Z80 Write %x to LD-V1000 (PC is %x)", value, Z80_GET_PC);
                 printline(s);
 #endif
             }
@@ -562,7 +562,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             cpu_latch1 = value;
             if (old1 != value) {
 #ifdef DEBUG
-                sprintf(s, "LDP Z80 Write %x to Main Z80 (PC is %x)", value, Z80_GET_PC);
+                snprintf(s, sizeof(s), "LDP Z80 Write %x to Main Z80 (PC is %x)", value, Z80_GET_PC);
                 printline(s);
 #endif
             }
@@ -576,7 +576,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
                 palette::set_transparency(0, false);
             break;
         default:
-            sprintf(s, "INTERSTELLAR: CPU 2: Unsupported Port Output-> %x:%x "
+            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Port Output-> %x:%x "
                        "(PC is %x)",
                     port, value, Z80_GET_PC);
             printline(s);

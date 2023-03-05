@@ -406,7 +406,7 @@ void superd::port_write(Uint16 Port, Uint8 Value)
         break;
 
     default:
-        sprintf(s, "SUPERDON: Unsupported Port Output-> %x:%x (PC is %x)", Port,
+        snprintf(s, sizeof(s), "SUPERDON: Unsupported Port Output-> %x:%x (PC is %x)", Port,
                 Value, Z80_GET_PC);
         printline(s);
         break;
@@ -445,7 +445,7 @@ Uint8 superd::port_read(Uint16 Port)
         break;
 
     default:
-        sprintf(s, "SUPERD: Unsupported Port Input-> %x (PC is %x)", Port, Z80_GET_PC);
+        snprintf(s, sizeof(s), "SUPERD: Unsupported Port Input-> %x (PC is %x)", Port, Z80_GET_PC);
         printline(s);
         break;
     }

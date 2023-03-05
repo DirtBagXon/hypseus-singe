@@ -174,7 +174,7 @@ Uint8 lgp::cpu_mem_read(Uint16 addr)
         }
 
         else {
-            sprintf(s, "CPU0: Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
+            snprintf(s, sizeof(s), "CPU0: Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
             printline(s);
         }
         break;
@@ -189,7 +189,7 @@ Uint8 lgp::cpu_mem_read(Uint16 addr)
         // unknown
         else if (addr >= 0x8800 && addr <= 0x8803) {
         } else {
-            sprintf(s, "CPU1: Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
+            snprintf(s, sizeof(s), "CPU1: Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
             printline(s);
         }
         break;
@@ -207,7 +207,7 @@ void lgp::cpu_mem_write(Uint16 addr, Uint8 value)
         m_cpumem[addr] = value;
         // main rom
         if (addr <= 0x7fff) {
-            sprintf(s, "Attempted write to main ROM! at %x with value %x", addr, value);
+            snprintf(s, sizeof(s), "Attempted write to main ROM! at %x with value %x", addr, value);
             printline(s);
         }
 
@@ -246,7 +246,7 @@ void lgp::cpu_mem_write(Uint16 addr, Uint8 value)
 
         else {
             m_cpumem[addr] = value;
-            sprintf(s, "CPU0: Unmapped write to %x with value %x (PC is %x)",
+            snprintf(s, sizeof(s), "CPU0: Unmapped write to %x with value %x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
         }
@@ -283,7 +283,7 @@ void lgp::cpu_mem_write(Uint16 addr, Uint8 value)
         else if (addr >= 0x8800 && addr <= 0x8803) {
         } else {
             m_cpumem[addr] = value;
-            sprintf(s, "CPU1: Unmapped write to %x with value %x (PC is %x)",
+            snprintf(s, sizeof(s), "CPU1: Unmapped write to %x with value %x (PC is %x)",
                     addr, value, Z80_GET_PC);
             printline(s);
         }

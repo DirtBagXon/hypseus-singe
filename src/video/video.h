@@ -134,8 +134,6 @@ SDL_Texture *get_yuv_screen();
 SDL_Surface *get_screen_blitter();
 SDL_Surface *get_screen_leds();
 FC_Font *get_font();
-FC_Font *get_fixfont();
-TTF_Font *get_ttfont();
 bool get_opengl();
 bool get_vulkan();
 bool get_fullscreen();

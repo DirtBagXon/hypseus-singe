@@ -205,7 +205,7 @@ Uint8 laireuro::cpu_mem_read(Uint16 addr)
     else if (addr >= 0xe0a0 && addr <= 0xe0a7) {
     } else {
         char s[81] = {0};
-        sprintf(s, "Unmapped read from %x", addr);
+        snprintf(s, sizeof(s), "Unmapped read from %x", addr);
         printline(s);
     }
 
@@ -218,7 +218,7 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // main rom (must be > 0 because it's unsigned)
     if (addr <= 0x9fff) {
-        sprintf(s, "ERROR: WRITE TO MAIN ROM at %x with %x(PC is %x)", addr, value, Z80_GET_PC);
+        snprintf(s, sizeof(s), "ERROR: WRITE TO MAIN ROM at %x with %x(PC is %x)", addr, value, Z80_GET_PC);
         //		printline(s);
     }
 
@@ -268,7 +268,7 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
 
     else {
         char s[81] = {0};
-        sprintf(s, "Unmapped write to %x with %x", addr, value);
+        snprintf(s, sizeof(s), "Unmapped write to %x with %x", addr, value);
         printline(s);
     }
 }
@@ -297,7 +297,7 @@ void laireuro::port_write(Uint16 port, Uint8 value)
         dart_write((port >> 1) & 0x01, port & 0x01, value);
         break;
     default:
-        sprintf(s, "LAIREURO: Unsupported Port Output-> %x:%x (PC is %x)", port,
+        snprintf(s, sizeof(s), "LAIREURO: Unsupported Port Output-> %x:%x (PC is %x)", port,
                 value, Z80_GET_PC);
         printline(s);
         break;
@@ -329,7 +329,7 @@ Uint8 laireuro::port_read(Uint16 port)
     case 0x82:
     case 0x83:
     default:
-        sprintf(s, "LAIREURO: Unsupported Port Input-> %x (PC is %x)", port, Z80_GET_PC);
+        snprintf(s, sizeof(s), "LAIREURO: Unsupported Port Input-> %x (PC is %x)", port, Z80_GET_PC);
         printline(s);
         break;
     }
@@ -540,7 +540,7 @@ void ctc_write(Uint8 channel, Uint8 value)
         g_ctc.channels[channel].time_const = value;
         ctc_update_period(channel);
 #ifdef DEBUG
-        sprintf(s, "CTC time constant of %x loaded on channel %x",
+        snprintf(s, sizeof(s), "CTC time constant of %x loaded on channel %x",
                 g_ctc.channels[channel].time_const, channel);
         printline(s);
 #endif
@@ -549,7 +549,7 @@ void ctc_write(Uint8 channel, Uint8 value)
     else if (!(value & 0x01) && channel == 0) {
         g_ctc.int_vector = value & 0xf8;
 #ifdef DEBUG
-        sprintf(s, "CTC interrupt vector set to %x", g_ctc.int_vector);
+        snprintf(s, sizeof(s), "CTC interrupt vector set to %x", g_ctc.int_vector);
         printline(s);
 #endif
     }
@@ -562,7 +562,7 @@ void ctc_write(Uint8 channel, Uint8 value)
 
         if (g_ctc.channels[channel].interrupt) {
 #ifdef DEBUG
-            sprintf(s, "CTC interrupt enabled on channel %x", channel);
+            snprintf(s, sizeof(s), "CTC interrupt enabled on channel %x", channel);
             printline(s);
 #endif
         }
@@ -613,7 +613,7 @@ void dart_write(bool b, bool command, Uint8 data)
             if (b) {
                 g_dart.int_vector = data;
 #ifdef DEBUG
-                sprintf(s, "DART interrupt vector set to %x", g_ctc.int_vector);
+                snprintf(s, sizeof(s), "DART interrupt vector set to %x", g_ctc.int_vector);
                 printline(s);
 #endif
             }
@@ -624,7 +624,7 @@ void dart_write(bool b, bool command, Uint8 data)
             break;
         case 4:
             g_dart.next_reg = 0;
-            sprintf(s, "DART register 4 written with %x", data);
+            snprintf(s, sizeof(s), "DART register 4 written with %x", data);
             printline(s);
             break;
         case 5:
@@ -668,7 +668,7 @@ void ctc_update_period(Uint8 channel)
         cpu::change_irq(0, channel, new_period);
 #ifdef DEBUG
         char s[81] = {0};
-        sprintf(s, "Set up Irq %x with period of %f", channel, new_period);
+        snprintf(s, sizeof(s), "Set up Irq %x with period of %f", channel, new_period);
         printline(s);
 #endif
     } else {
@@ -688,7 +688,7 @@ void ctc_update_period(Uint8 channel)
         }
 #ifdef DEBUG
         char s[81] = {0};
-        sprintf(s, "Set up Irq %x with period of %d", channel, 0);
+        snprintf(s, sizeof(s), "Set up Irq %x with period of %d", channel, 0);
         printline(s);
 #endif
     }

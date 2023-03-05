@@ -319,7 +319,7 @@ void reset_logfile(int argc, char **argv)
     string str;
     char logname[64];
 
-    sprintf(logname, "logs%shypseus.log", PATH_SEPARATOR);
+    snprintf(logname, sizeof(logname), "logs%shypseus.log", PATH_SEPARATOR);
     static plog::ColorConsoleAppender<plog::TxtFormatter> consoleAppender;
     static plog::RollingFileAppender<plog::TxtFormatter> fileAppender(logname, 50000, 3);
     plog::init(LOGLEVEL, &consoleAppender).addAppender(&fileAppender);
