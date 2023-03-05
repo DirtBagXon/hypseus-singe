@@ -435,7 +435,7 @@ bool ldp::skip_forward(Uint32 frames_to_skip, Uint32 target_frame)
     bool result = false;
 
     char frame[6] = {0};
-    sprintf(frame, "%05d", target_frame);
+    snprintf(frame, sizeof(frame), "%05d", target_frame);
 
     result = pre_search(frame, true);
     pre_play();
@@ -452,7 +452,7 @@ bool ldp::skip_backward(Uint32 frames_to_skip, Uint32 target_frame)
     bool result = false;
 
     char frame[6] = {0};
-    sprintf(frame, "%05d", target_frame);
+    snprintf(frame, sizeof(frame), "%05d", target_frame);
 
     result = pre_search(frame, true);
     pre_play();
@@ -946,9 +946,9 @@ int ldp::get_status()
 // converts an integer frame number into ASCII (with leading zeroes)
 // NOTE : 'f' should be an array of 6 characters (5 numbers plus null
 // terminator)
-void ldp::framenum_to_frame(Uint32 num, char *f) { sprintf(f, "%05d", num); }
+void ldp::framenum_to_frame(Uint32 num, char *f) { snprintf(f, 6, "%05d", num); }
 
-void ldp::framenum_to_maxframe(Uint32 num, char *f) { sprintf(f, "%06d", num); }
+void ldp::framenum_to_maxframe(Uint32 num, char *f) { snprintf(f, 7, "%06d", num); }
 
 Uint32 ldp::get_search_latency() { return (search_latency); }
 

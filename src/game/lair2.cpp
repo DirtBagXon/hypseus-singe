@@ -1044,7 +1044,7 @@ void lair2::EEPROM_9536_write(Uint8 value)
                 address_count++;
                 if (address_count == 2 && (nv_opcode == 0 || nv_opcode == 3)) {
                     char s[81] = {0};
-                    sprintf(s, "EEP unhandled OPCode %x with address %x", nv_opcode, nv_address);
+                    snprintf(s, sizeof(s), "EEP unhandled OPCode %x with address %x", nv_opcode, nv_address);
                     banks[1] |= 0x01; // set bit 0 high to indicate we aren't
                                       // busy
                     LOGW << s;

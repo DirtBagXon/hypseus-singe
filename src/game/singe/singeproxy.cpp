@@ -232,7 +232,7 @@ void sep_die(const char *fmt, ...)
 
 	va_list argp;
 	va_start(argp, fmt);
-	vsprintf(temp, fmt, argp);
+	vsnprintf(temp, sizeof(temp), fmt, argp);
 
 	strcat(message, temp);
 
@@ -287,7 +287,7 @@ void sep_error(const char *fmt, ...)
 	sep_print("Script Error!");
 	va_list argp;
 	va_start(argp, fmt);
-	vsprintf(message, fmt, argp);
+	vsnprintf(message, sizeof(message), fmt, argp);
 	lua_close(g_se_lua_context);
 	sep_die(message);
 }
@@ -333,7 +333,7 @@ void sep_print(const char *fmt, ...)
 
 	va_list argp;
 	va_start(argp, fmt);
-	vsprintf(temp, fmt, argp);
+	vsnprintf(temp, sizeof(temp), fmt, argp);
 	
 	strcat(message, temp);
 	
@@ -402,7 +402,7 @@ void sep_sound_ended(Uint8 *buffer, unsigned int slot)
 	// Following lines are for debug purposes:
 
 	char s[100];
-	sprintf(s, "sep_sound_ended:  slot numer is %u", slot);
+	snprintf(s, sizeof(s), "sep_sound_ended:  slot numer is %u", slot);
 	sep_print(s);
 	
 	///////////////////////////

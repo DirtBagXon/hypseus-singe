@@ -515,7 +515,7 @@ static int dir_iter_factory (lua_State *L) {
 	if (strlen(dirpath) > MAX_DIR_LENGTH)
 		luaL_error (L, "path too long: %s", dirpath);
 	else
-		sprintf (d->pattern, "%s/*", dirpath);
+		snprintf (d->pattern, MAX_DIR_LENGTH, "%s/*", dirpath);
 #else
 	luaL_getmetatable (L, DIR_METATABLE);
 	lua_setmetatable (L, -2);

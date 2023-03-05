@@ -115,7 +115,7 @@ void seektest::go(Uint32 target_frame)
     char s[81] = {0};
 
     target_frame = (Uint32)(target_frame + m_frame_offset);
-    sprintf(s, "%05u", target_frame);
+    snprintf(s, sizeof(s), "%05u", target_frame);
 
     g_ldp->pre_search(s, true);
 }
@@ -517,7 +517,7 @@ void seektest::repaint()
     if (m_overlay) {
         //draw_string(m_name, 1, 1, m_video_overlay[m_active_video_overlay]); // draw the game name
 
-        sprintf(s, "%u x %u", cur_w << 1, cur_h << 1);
+        snprintf(s, sizeof(s), "%u x %u", cur_w << 1, cur_h << 1);
         //draw_string(s, 1, 2, m_video_overlay[m_active_video_overlay]); // draw
                                                                        // the
                                                                        // resolution
@@ -526,7 +526,7 @@ void seektest::repaint()
 
         // only present the additional options if this isn't a multimpeg test
         if (!m_multimpeg) {
-            sprintf(s, "Current frame : %d", g_ldp->get_current_frame() + m_frame_offset);
+            snprintf(s, sizeof(s), "Current frame : %d", g_ldp->get_current_frame() + m_frame_offset);
             if (m_locked) {
                 strcat(s, " (LOCKED)");
             } else {
@@ -535,7 +535,7 @@ void seektest::repaint()
             //draw_string(s, 1, 3, m_video_overlay[m_active_video_overlay]);
 
             if (m_frame_offset != 0) {
-                sprintf(s, "* Adjust framefile by %d frames *", m_frame_offset);
+                snprintf(s, sizeof(s), "* Adjust framefile by %d frames *", m_frame_offset);
                 //draw_string(s, 1, 4, m_video_overlay[m_active_video_overlay]);
             }
 

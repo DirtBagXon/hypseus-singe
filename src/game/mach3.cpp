@@ -521,10 +521,10 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
             }
         } else if (addr >= 0x5800 && addr <= 0x5FFF) // mapped i/o
         {
-            sprintf(s, "Undefined mapped i/o read from %x", addr);
+            snprintf(s, sizeof(s), "Undefined mapped i/o read from %x", addr);
             printline(s);
         } else {
-            sprintf(s, "Unmapped read from %x", addr);
+            snprintf(s, sizeof(s), "Unmapped read from %x", addr);
             printline(s);
         }
     } // end x86 CPU
@@ -557,7 +557,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
             m_video_overlay_needs_update = true;
         }
     } else if (Addr >= 0x4000 && Addr <= 0x4FFF) {
-        sprintf(s, "invalid write to character ROM at %x, value %x", Addr, Value);
+        snprintf(s, sizeof(s), "invalid write to character ROM at %x, value %x", Addr, Value);
         printline(s);
 
         m_cpumem[Addr] = Value;                  // store to RAM anyway
@@ -672,7 +672,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         //                            by our own cpu_mem_read() )
         m_frame_decoder_select_bit = Value & 0x01;
     } else if (Addr >= 0x5800 && Addr <= 0x5FFF) {
-        sprintf(s,
+        snprintf(s, sizeof(s),
                 "Undefined write to memory-mapped i/o device at %x, value %x", Addr, Value);
         printline(s);
 
@@ -682,7 +682,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         //	sprintf(s, "Ignoring write to ROM at %x, value %x", Addr, Value);
         //	printline(s);
     } else {
-        sprintf(s, "Unmapped write to %x, value %x", Addr, Value);
+        snprintf(s, sizeof(s), "Unmapped write to %x, value %x", Addr, Value);
         printline(s);
         // m_cpumem[Addr] = Value; // store to RAM
     }
@@ -856,7 +856,7 @@ void mach3::port_write(Uint16 port, Uint8 value)
 {
     char s[80];
 
-    sprintf(s, "Unmapped write to port %x, value %x", port, value);
+    snprintf(s, sizeof(s), "Unmapped write to port %x, value %x", port, value);
     printline(s);
 }
 
@@ -868,7 +868,7 @@ Uint8 mach3::port_read(Uint16 port)
 
     unsigned char result = 0;
 
-    sprintf(s, "Unmapped read from port %x", port);
+    snprintf(s, sizeof(s), "Unmapped read from port %x", port);
     printline(s);
     return (result);
 }

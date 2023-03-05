@@ -767,7 +767,7 @@ bool game::load_roms()
                     // if CRC's don't match
                     if (crc != rom->crc32) {
                         char s[160];
-                        sprintf(s, "ROM CRC checked failed for %s, expected "
+                        snprintf(s, sizeof(s), "ROM CRC checked failed for %s, expected "
                                    "%x, got %x",
                                 rom->filename, rom->crc32, crc);
                         LOGW << s;

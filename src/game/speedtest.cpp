@@ -78,7 +78,7 @@ void speedtest::start()
     g_ldp->pre_search("00001", true); // go to frame #1
 
     while (attempt < NUM_TESTS) {
-        sprintf(s, "Attempt #%d", attempt);
+        snprintf(s, sizeof(s), "Attempt #%d", attempt);
         printline(s);
 
         make_delay(DELAY_BETWEEN_TESTS);
@@ -86,7 +86,7 @@ void speedtest::start()
         g_ldp->pre_search(m_max_frame, true);
         forward[attempt] = elapsed_ms_time(cur_time);
 
-        sprintf(s, "It took %u ms to go from frame 1 to frame %s.",
+        snprintf(s, sizeof(s), "It took %u ms to go from frame 1 to frame %s.",
                 forward[attempt], m_max_frame);
         printline(s);
 
@@ -95,7 +95,7 @@ void speedtest::start()
         g_ldp->pre_search("00001", true); // go to beginning of disc
         backward[attempt] = elapsed_ms_time(cur_time);
 
-        sprintf(s, "It took %u ms to go from frame %s to frame 1.",
+        snprintf(s, sizeof(s), "It took %u ms to go from frame %s to frame 1.",
                 backward[attempt], m_max_frame);
         printline(s);
 
@@ -115,11 +115,11 @@ void speedtest::start()
     }
     avg_backward = temp / NUM_TESTS;
 
-    sprintf(s, "Average forward seek speed: %f", avg_forward);
+    snprintf(s, sizeof(s), "Average forward seek speed: %f", avg_forward);
     printline(s);
-    sprintf(s, "Average backward seek speed: %f", avg_backward);
+    snprintf(s, sizeof(s), "Average backward seek speed: %f", avg_backward);
     printline(s);
-    sprintf(s, "Overall average: %f", (avg_forward + avg_backward) / 2.0);
+    snprintf(s, sizeof(s), "Overall average: %f", (avg_forward + avg_backward) / 2.0);
     printline(s);
 
     char frame[6] = {0};

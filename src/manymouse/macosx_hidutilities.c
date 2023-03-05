@@ -302,7 +302,7 @@ static void hid_GetElementInfo (CFTypeRef refElement, pRecElement pElement)
 			if (!*pElement->name) { // if no name
 				HIDGetUsageName (pElement->usagePage, pElement->usage, pElement->name);
 				if (!*pElement->name) // if not usage
-					sprintf (pElement->name, "Element");
+					snprintf (pElement->name, 8, "Element");
 			}
 		}
 	}

@@ -475,9 +475,9 @@ void firefox::cpu_mem_write(Uint16 addr, Uint8 value)
     // Led 1-4 (LATCH1)
     else if (addr >= 0x428c && addr <= 0x428f) {
         if (value & 0x80) {
-            sprintf(s, "Led %x off", (addr & 0x03) + 1);
+            snprintf(s, sizeof(s), "Led %x off", (addr & 0x03) + 1);
         } else {
-            sprintf(s, "Led %x on", (addr & 0x03) + 1);
+            snprintf(s, sizeof(s), "Led %x on", (addr & 0x03) + 1);
         }
         LOGD << s;
     }

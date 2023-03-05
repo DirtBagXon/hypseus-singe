@@ -202,7 +202,7 @@ Uint8 gpworld::cpu_mem_read(Uint16 addr)
     }
 
     else {
-        sprintf(s, "Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
+        snprintf(s, sizeof(s), "Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
         printline(s);
     }
 
@@ -217,7 +217,7 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // main rom
     if (addr <= 0xbfff) {
-        sprintf(s, "Attempted write to main ROM! at %x with value %x", addr, value);
+        snprintf(s, sizeof(s), "Attempted write to main ROM! at %x with value %x", addr, value);
         printline(s);
     }
 
@@ -279,7 +279,7 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 
     else {
         m_cpumem[addr] = value;
-        sprintf(s, "Unmapped write to %x with value %x (PC is %x)", addr, value, Z80_GET_PC);
+        snprintf(s, sizeof(s), "Unmapped write to %x with value %x (PC is %x)", addr, value, Z80_GET_PC);
         printline(s);
     }
 }
@@ -329,7 +329,7 @@ Uint8 gpworld::port_read(Uint16 port)
         return banks[4];
         break;
     default:
-        sprintf(s, "ERROR: CPU port %x read requested, but this function is "
+        snprintf(s, sizeof(s), "ERROR: CPU port %x read requested, but this function is "
                    "unimplemented!",
                 port);
         printline(s);
@@ -357,7 +357,7 @@ void gpworld::port_write(Uint16 port, Uint8 value)
         break;
 
     default:
-        sprintf(s, "ERROR: CPU port %x write requested (value %x) but this "
+        snprintf(s, sizeof(s), "ERROR: CPU port %x write requested (value %x) but this "
                    "function is unimplemented!",
                 port, value);
         printline(s);

@@ -670,7 +670,8 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
     else {
 	if (LDP1450_strlen <= 11)
         {
-            for (i = LDP1450_strlen; i <= 11; i++) LDP1450_String[i] = 32;
+            for (i = LDP1450_strlen; i <= 11; i++)
+                 LDP1450_String[i] = 32;
         }
     }
 
@@ -815,8 +816,6 @@ SDL_Texture *get_yuv_screen() { return g_yuv_texture; }
 SDL_Surface *get_screen_leds() { return g_leds_surface; }
 
 FC_Font *get_font() { return g_font; }
-FC_Font *get_fixfont() { return g_fixfont; }
-TTF_Font *get_ttfont() { return g_ttfont; }
 
 Uint16 get_video_width() { return g_vid_width; }
 Uint16 get_video_height() { return g_vid_height; }

@@ -128,7 +128,7 @@ void mcputest::port_write(Uint16 Port, Uint8 Value)
     if (expected_val[which_cpu][Port] == Value) {
         printline("CORRECT!");
     } else {
-        sprintf(s, "*** INCORRECT *** Expecting %u", expected_val[which_cpu][Port]);
+        snprintf(s, sizeof(s), "*** INCORRECT *** Expecting %u", expected_val[which_cpu][Port]);
         printline(s);
     }
 }

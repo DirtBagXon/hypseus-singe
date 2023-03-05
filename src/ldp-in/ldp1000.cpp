@@ -479,7 +479,7 @@ void think()
             // start over if we still need to repeat
             if (g_iLDP1000TimesToRepeat != 0) {
                 char f[FRAME_ARRAY_SIZE] = {0};
-                sprintf(f, "%i", repeat_start_frame);
+                snprintf(f, sizeof(f), "%i", repeat_start_frame);
 
                 // if _blocking_ search succeeds, then play ...
                 if (g_ldp->pre_search(f, true)) {

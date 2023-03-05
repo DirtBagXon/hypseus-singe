@@ -346,7 +346,7 @@ Uint8 thayers::port_read(Uint16 port)
     default:
         char s[81];
 
-        sprintf(s, "ERROR: CPU port %x read requested, but this function is "
+        snprintf(s, sizeof(s), "ERROR: CPU port %x read requested, but this function is "
                    "unimplemented!",
                 port);
         printline(s);
@@ -421,7 +421,7 @@ void thayers::port_write(Uint16 port, Uint8 value)
                          static_cast<Uint8>(value & 0x0f), 1);
         break;
     default:
-        sprintf(s, "ERROR: CPU port %x write requested (value %x) at pc %x",
+        snprintf(s, sizeof(s), "ERROR: CPU port %x write requested (value %x) at pc %x",
                 port, value, Z80_GET_PC);
         printline(s);
         break;
@@ -670,7 +670,7 @@ void thayers::process_keydown(SDL_Keycode key)
             // else we recognized no keys so print an error
             char s[81] = {0};
 
-            sprintf(s, "THAYERS: Unhandled keypress: %x", key);
+            snprintf(s, sizeof(s), "THAYERS: Unhandled keypress: %x", key);
             printline(s);
             break;
         }
@@ -740,7 +740,7 @@ void thayers::write_scoreboard(Uint8 address, Uint8 data, int den)
     } else {
         char s[81] = {0};
 
-        sprintf(s,
+        snprintf(s, sizeof(s),
                 "THAYERS: Unsupported write to scoreboard: Address %x Data %x ",
                 address, data);
         printline(s);
