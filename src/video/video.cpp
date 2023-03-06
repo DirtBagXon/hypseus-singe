@@ -653,11 +653,10 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 // Draw LDP1450 overlay characters to the screen - rewrite for SDL2 (DBX)
 void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
 {
+    float x;
     int i, j = 0;
     int LDP1450_strlen;
     int index = (int)((y / OVERLAY_LDP1450_HEIGHT) + 0.5f);
-    float x = (double)g_game->get_video_overlay_width() /
-               g_game->get_video_overlay_height();
 
     LDP1450_CharSet[index].enable = false;
     LDP1450_strlen = strlen(LDP1450_String);
@@ -681,13 +680,13 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
     switch(g_aspect_ratio)
     {
        case ASPECTWS:
-          x = (((double)g_draw_width/0xe1) * start_x);
+          x = (((double)g_draw_width / 225) * start_x);
           break;
        default:
           if (g_draw_width == NOSQUARE)
-              x = (((double)g_draw_width/0x180) * start_x);
+              x = (((double)g_draw_width / 384) * start_x);
           else
-              x = (((double)g_draw_width/0x100) * start_x);
+              x = (((double)g_draw_width / 256) * start_x);
           break;
     }
 
@@ -716,9 +715,9 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
     int LDP1450_strlen;
     g_scoreboard_needs_update = true;
 
-    if (g_aspect_ratio == ASPECTSD
-             && g_draw_width == NOSQUARE
-             && g_fRotateDegrees == 0)
+    if (g_aspect_ratio == ASPECTSD &&
+             g_draw_width == NOSQUARE &&
+             g_fRotateDegrees == 0)
         start_x = (start_x - (start_x / 4));
 
     dest.x = start_x;

@@ -1003,13 +1003,13 @@ const char *generic_6502_info(void *unused, int regnum)
 	// find which register they are requesting info about
 	switch( regnum )
 	{
-	case CPU_INFO_REG+0: sprintf(buffer[which], "PC:%04X", context.pc_reg); break;
-	case CPU_INFO_REG+1: sprintf(buffer[which], " A:%02X", context.a_reg); break;
-	case CPU_INFO_REG+2: sprintf(buffer[which], " X:%02X", context.x_reg); break;
-	case CPU_INFO_REG+3: sprintf(buffer[which], " Y:%02X", context.y_reg); break;
+	case CPU_INFO_REG+0: snprintf(buffer[which], sizeof(buffer[which]), "PC:%04X", context.pc_reg); break;
+	case CPU_INFO_REG+1: snprintf(buffer[which], sizeof(buffer[which]), " A:%02X", context.a_reg); break;
+	case CPU_INFO_REG+2: snprintf(buffer[which], sizeof(buffer[which]), " X:%02X", context.x_reg); break;
+	case CPU_INFO_REG+3: snprintf(buffer[which], sizeof(buffer[which]), " Y:%02X", context.y_reg); break;
 
 	case CPU_INFO_FLAGS:
-		sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
+		snprintf(buffer[which], sizeof(buffer[which]), "%c%c%c%c%c%c%c%c",
 				context.p_reg & 0x80 ? 'N':'.',
 				context.p_reg & 0x40 ? 'V':'.',
 				context.p_reg & 0x20 ? 'R':'.',
