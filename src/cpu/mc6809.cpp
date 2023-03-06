@@ -2079,19 +2079,19 @@ const char *mc6809_info(void *unused, int regnum)
 	// find which register they are requesting info about
 	switch( regnum )
 	{
-	case CPU_INFO_REG+0: sprintf(buffer[which], "PC:%04X", pc); break;
-	case CPU_INFO_REG+1: sprintf(buffer[which], " A:%02X", ar); break;
-	case CPU_INFO_REG+2: sprintf(buffer[which], " B:%02X", br); break;
-	case CPU_INFO_REG+3: sprintf(buffer[which], " X:%02X", xr); break;
-	case CPU_INFO_REG+4: sprintf(buffer[which], " Y:%02X", yr); break;
-	case CPU_INFO_REG+5: sprintf(buffer[which], " U:%02X", yr); break;
-	case CPU_INFO_REG+6: sprintf(buffer[which], " S:%02X", yr); break;
-	case CPU_INFO_REG+7: sprintf(buffer[which], "CC:%04X", getcc()); break;
+	case CPU_INFO_REG+0: snprintf(buffer[which], sizeof(buffer[which]), "PC:%04X", pc); break;
+	case CPU_INFO_REG+1: snprintf(buffer[which], sizeof(buffer[which]), " A:%02X", ar); break;
+	case CPU_INFO_REG+2: snprintf(buffer[which], sizeof(buffer[which]), " B:%02X", br); break;
+	case CPU_INFO_REG+3: snprintf(buffer[which], sizeof(buffer[which]), " X:%02X", xr); break;
+	case CPU_INFO_REG+4: snprintf(buffer[which], sizeof(buffer[which]), " Y:%02X", yr); break;
+	case CPU_INFO_REG+5: snprintf(buffer[which], sizeof(buffer[which]), " U:%02X", yr); break;
+	case CPU_INFO_REG+6: snprintf(buffer[which], sizeof(buffer[which]), " S:%02X", yr); break;
+	case CPU_INFO_REG+7: snprintf(buffer[which], sizeof(buffer[which]), "CC:%04X", getcc()); break;
 
 	/*
 	// I'm not sure how to decode flags on this thing
 	case CPU_INFO_FLAGS:
-		sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
+		snprintf(buffer[which], sizeof(buffer[which]), "%c%c%c%c%c%c%c%c",
 				context.p_reg & 0x80 ? 'N':'.',
 				context.p_reg & 0x40 ? 'V':'.',
 				context.p_reg & 0x20 ? 'R':'.',

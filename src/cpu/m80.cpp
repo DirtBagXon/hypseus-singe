@@ -433,7 +433,7 @@ void m80_reset()
 		break;	\
 	case 0xA2:	/* INI */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode INI at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode INI at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	case 0xA3:	/* OUTI */	\
@@ -447,12 +447,12 @@ void m80_reset()
 		break;	\
 	case 0xAA:	/* IND */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode IND at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode IND at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	case 0xAB:	/* OUTD */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode OUTD at PC: %x",PC); \
+		snprintf(s2,  sizeof(s2), "Unimplemented opcode OUTD at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	case 0xB0:	/* LDIR */	\
@@ -464,7 +464,7 @@ void m80_reset()
 		break;	\
 	case 0xB2:	/* INIR */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode INIR at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode INIR at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	case 0xB3:	/* OTIR */	\
@@ -480,12 +480,12 @@ void m80_reset()
 		break;	\
 	case 0xBA:	/* INDR */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode INDR at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode INDR at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	case 0xBB:	/* OTDR */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode OTDR at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode OTDR at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	default:	\
@@ -4071,24 +4071,24 @@ const char *m80_info(void *context, int regnum)
 	// find which register they are requesting info about
 	switch( regnum )
 	{
-		case CPU_INFO_REG+M80_PC: sprintf(buffer[which], "PC:%04X", PC); break;
-		case CPU_INFO_REG+M80_SP: sprintf(buffer[which], "SP:%04X", SP); break;
-		case CPU_INFO_REG+M80_AF: sprintf(buffer[which], "AF:%04X", AF); break;
-		case CPU_INFO_REG+M80_BC: sprintf(buffer[which], "BC:%04X", BC); break;
-		case CPU_INFO_REG+M80_DE: sprintf(buffer[which], "DE:%04X", DE); break;
-		case CPU_INFO_REG+M80_HL: sprintf(buffer[which], "HL:%04X", HL); break;
-		case CPU_INFO_REG+M80_IX: sprintf(buffer[which], "IX:%04X", IX); break;
-		case CPU_INFO_REG+M80_IY: sprintf(buffer[which], "IY:%04X", IY); break;
-		case CPU_INFO_REG+M80_RI: sprintf(buffer[which], "RI:%02X %02X", R, I); break;
-		case CPU_INFO_REG+M80_AFPRIME: sprintf(buffer[which], "AF'%04X", AFPRIME); break;
-		case CPU_INFO_REG+M80_BCPRIME: sprintf(buffer[which], "BC'%04X", BCPRIME); break;
-		case CPU_INFO_REG+M80_DEPRIME: sprintf(buffer[which], "DE'%04X", DEPRIME); break;
-		case CPU_INFO_REG+M80_HLPRIME: sprintf(buffer[which], "HL'%04X", HLPRIME); break;
-		case CPU_INFO_REG+M80_RI+1: sprintf(buffer[which], "IFF1: %02X IFF2: %02X",
+		case CPU_INFO_REG+M80_PC: snprintf(buffer[which], sizeof(buffer[which]), "PC:%04X", PC); break;
+		case CPU_INFO_REG+M80_SP: snprintf(buffer[which], sizeof(buffer[which]), "SP:%04X", SP); break;
+		case CPU_INFO_REG+M80_AF: snprintf(buffer[which], sizeof(buffer[which]), "AF:%04X", AF); break;
+		case CPU_INFO_REG+M80_BC: snprintf(buffer[which], sizeof(buffer[which]), "BC:%04X", BC); break;
+		case CPU_INFO_REG+M80_DE: snprintf(buffer[which], sizeof(buffer[which]), "DE:%04X", DE); break;
+		case CPU_INFO_REG+M80_HL: snprintf(buffer[which], sizeof(buffer[which]), "HL:%04X", HL); break;
+		case CPU_INFO_REG+M80_IX: snprintf(buffer[which], sizeof(buffer[which]), "IX:%04X", IX); break;
+		case CPU_INFO_REG+M80_IY: snprintf(buffer[which], sizeof(buffer[which]), "IY:%04X", IY); break;
+		case CPU_INFO_REG+M80_RI: snprintf(buffer[which], sizeof(buffer[which]), "RI:%02X %02X", R, I); break;
+		case CPU_INFO_REG+M80_AFPRIME: snprintf(buffer[which], sizeof(buffer[which]), "AF'%04X", AFPRIME); break;
+		case CPU_INFO_REG+M80_BCPRIME: snprintf(buffer[which], sizeof(buffer[which]), "BC'%04X", BCPRIME); break;
+		case CPU_INFO_REG+M80_DEPRIME: snprintf(buffer[which], sizeof(buffer[which]), "DE'%04X", DEPRIME); break;
+		case CPU_INFO_REG+M80_HLPRIME: snprintf(buffer[which], sizeof(buffer[which]), "HL'%04X", HLPRIME); break;
+		case CPU_INFO_REG+M80_RI+1: snprintf(buffer[which], sizeof(buffer[which]), "IFF1: %02X IFF2: %02X",
 										g_context.IFF1, g_context.IFF2); break;
 
 		case CPU_INFO_FLAGS:
-			sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
+			snprintf(buffer[which], sizeof(buffer[which]), "%c%c%c%c%c%c%c%c",
 				FLAGS & 0x80 ? 'S':'.',
 				FLAGS & 0x40 ? 'Z':'.',
 				FLAGS & 0x20 ? '5':'.',

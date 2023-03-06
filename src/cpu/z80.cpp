@@ -4510,32 +4510,32 @@ const char *z80_info(void *context, int regnum)
 
 	switch( regnum )
 	{
-		case CPU_INFO_REG+Z80_PC: sprintf(buffer[which], "PC:%04X", r->PC.w.l); break;
-		case CPU_INFO_REG+Z80_SP: sprintf(buffer[which], "SP:%04X", r->SP.w.l); break;
-		case CPU_INFO_REG+Z80_AF: sprintf(buffer[which], "AF:%04X", r->AF.w.l); break;
-		case CPU_INFO_REG+Z80_BC: sprintf(buffer[which], "BC:%04X", r->BC.w.l); break;
-		case CPU_INFO_REG+Z80_DE: sprintf(buffer[which], "DE:%04X", r->DE.w.l); break;
-		case CPU_INFO_REG+Z80_HL: sprintf(buffer[which], "HL:%04X", r->HL.w.l); break;
-		case CPU_INFO_REG+Z80_IX: sprintf(buffer[which], "IX:%04X", r->IX.w.l); break;
-		case CPU_INFO_REG+Z80_IY: sprintf(buffer[which], "IY:%04X", r->IY.w.l); break;
-		case CPU_INFO_REG+Z80_R: sprintf(buffer[which], "R:%02X", (r->R & 0x7f) | (r->R2 & 0x80)); break;
-		case CPU_INFO_REG+Z80_I: sprintf(buffer[which], "I:%02X", r->I); break;
-		case CPU_INFO_REG+Z80_AF2: sprintf(buffer[which], "AF'%04X", r->AF2.w.l); break;
-		case CPU_INFO_REG+Z80_BC2: sprintf(buffer[which], "BC'%04X", r->BC2.w.l); break;
-		case CPU_INFO_REG+Z80_DE2: sprintf(buffer[which], "DE'%04X", r->DE2.w.l); break;
-		case CPU_INFO_REG+Z80_HL2: sprintf(buffer[which], "HL'%04X", r->HL2.w.l); break;
-		case CPU_INFO_REG+Z80_IM: sprintf(buffer[which], "IM:%X", r->IM); break;
-		case CPU_INFO_REG+Z80_IFF1: sprintf(buffer[which], "IFF1:%X", r->IFF1); break;
-		case CPU_INFO_REG+Z80_IFF2: sprintf(buffer[which], "IFF2:%X", r->IFF2); break;
-		case CPU_INFO_REG+Z80_HALT: sprintf(buffer[which], "HALT:%X", r->HALT); break;
-		case CPU_INFO_REG+Z80_NMI_STATE: sprintf(buffer[which], "NMI:%X", r->nmi_state); break;
-		case CPU_INFO_REG+Z80_IRQ_STATE: sprintf(buffer[which], "IRQ:%X", r->irq_state); break;
-		case CPU_INFO_REG+Z80_DC0: if(Z80.irq_max >= 1) sprintf(buffer[which], "DC0:%X", r->int_state[0]); break;
-		case CPU_INFO_REG+Z80_DC1: if(Z80.irq_max >= 2) sprintf(buffer[which], "DC1:%X", r->int_state[1]); break;
-		case CPU_INFO_REG+Z80_DC2: if(Z80.irq_max >= 3) sprintf(buffer[which], "DC2:%X", r->int_state[2]); break;
-		case CPU_INFO_REG+Z80_DC3: if(Z80.irq_max >= 4) sprintf(buffer[which], "DC3:%X", r->int_state[3]); break;
+		case CPU_INFO_REG+Z80_PC: snprintf(buffer[which], sizeof(buffer[which]), "PC:%04X", r->PC.w.l); break;
+		case CPU_INFO_REG+Z80_SP: snprintf(buffer[which], sizeof(buffer[which]), "SP:%04X", r->SP.w.l); break;
+		case CPU_INFO_REG+Z80_AF: snprintf(buffer[which], sizeof(buffer[which]), "AF:%04X", r->AF.w.l); break;
+		case CPU_INFO_REG+Z80_BC: snprintf(buffer[which], sizeof(buffer[which]), "BC:%04X", r->BC.w.l); break;
+		case CPU_INFO_REG+Z80_DE: snprintf(buffer[which], sizeof(buffer[which]), "DE:%04X", r->DE.w.l); break;
+		case CPU_INFO_REG+Z80_HL: snprintf(buffer[which], sizeof(buffer[which]), "HL:%04X", r->HL.w.l); break;
+		case CPU_INFO_REG+Z80_IX: snprintf(buffer[which], sizeof(buffer[which]), "IX:%04X", r->IX.w.l); break;
+		case CPU_INFO_REG+Z80_IY: snprintf(buffer[which], sizeof(buffer[which]), "IY:%04X", r->IY.w.l); break;
+		case CPU_INFO_REG+Z80_R: snprintf(buffer[which], sizeof(buffer[which]), "R:%02X", (r->R & 0x7f) | (r->R2 & 0x80)); break;
+		case CPU_INFO_REG+Z80_I: snprintf(buffer[which], sizeof(buffer[which]), "I:%02X", r->I); break;
+		case CPU_INFO_REG+Z80_AF2: snprintf(buffer[which], sizeof(buffer[which]), "AF'%04X", r->AF2.w.l); break;
+		case CPU_INFO_REG+Z80_BC2: snprintf(buffer[which], sizeof(buffer[which]), "BC'%04X", r->BC2.w.l); break;
+		case CPU_INFO_REG+Z80_DE2: snprintf(buffer[which], sizeof(buffer[which]), "DE'%04X", r->DE2.w.l); break;
+		case CPU_INFO_REG+Z80_HL2: snprintf(buffer[which], sizeof(buffer[which]), "HL'%04X", r->HL2.w.l); break;
+		case CPU_INFO_REG+Z80_IM: snprintf(buffer[which], sizeof(buffer[which]), "IM:%X", r->IM); break;
+		case CPU_INFO_REG+Z80_IFF1: snprintf(buffer[which], sizeof(buffer[which]), "IFF1:%X", r->IFF1); break;
+		case CPU_INFO_REG+Z80_IFF2: snprintf(buffer[which], sizeof(buffer[which]), "IFF2:%X", r->IFF2); break;
+		case CPU_INFO_REG+Z80_HALT: snprintf(buffer[which], sizeof(buffer[which]), "HALT:%X", r->HALT); break;
+		case CPU_INFO_REG+Z80_NMI_STATE: snprintf(buffer[which], sizeof(buffer[which]), "NMI:%X", r->nmi_state); break;
+		case CPU_INFO_REG+Z80_IRQ_STATE: snprintf(buffer[which], sizeof(buffer[which]), "IRQ:%X", r->irq_state); break;
+		case CPU_INFO_REG+Z80_DC0: if(Z80.irq_max >= 1) snprintf(buffer[which], sizeof(buffer[which]), "DC0:%X", r->int_state[0]); break;
+		case CPU_INFO_REG+Z80_DC1: if(Z80.irq_max >= 2) snprintf(buffer[which], sizeof(buffer[which]), "DC1:%X", r->int_state[1]); break;
+		case CPU_INFO_REG+Z80_DC2: if(Z80.irq_max >= 3) snprintf(buffer[which], sizeof(buffer[which]), "DC2:%X", r->int_state[2]); break;
+		case CPU_INFO_REG+Z80_DC3: if(Z80.irq_max >= 4) snprintf(buffer[which], sizeof(buffer[which]), "DC3:%X", r->int_state[3]); break;
 		case CPU_INFO_FLAGS:
-			sprintf(buffer[which], "%c%c%c%c%c%c%c%c",
+			snprintf(buffer[which], sizeof(buffer[which]), "%c%c%c%c%c%c%c%c",
 				r->AF.b.l & 0x80 ? 'S':'.',
 				r->AF.b.l & 0x40 ? 'Z':'.',
 				r->AF.b.l & 0x20 ? '5':'.',
