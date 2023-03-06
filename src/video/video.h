@@ -59,7 +59,7 @@ static const uint8_t OVERLAY_LDP1450_LINES = 16;
 
 typedef struct
 {
-    bool enable;
+    bool enable {};
     char* OVERLAY_LDP1450_String;
     float x;
     float y;
