@@ -57,9 +57,8 @@ static const uint8_t OVERLAY_LDP1450_CHARACTER_SPACING = 15;
 static const uint8_t OVERLAY_LDP1450_LINE_SPACING = 16;
 static const uint8_t OVERLAY_LDP1450_LINES = 16;
 
-typedef struct
-{
-    bool enable {};
+typedef struct LDP1450_CharStruct {
+    bool enable = false;
     char* OVERLAY_LDP1450_String;
     float x;
     float y;
