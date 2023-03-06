@@ -38,7 +38,7 @@
 #define strcasecmp stricmp
 #endif
 
-#include <stdio.h> // for sprintf
+#include <stdio.h> // for snprintf
 #include <math.h>  // for pow() in palette gamma
 #include "mach3.h"
 #include "../video/palette.h"

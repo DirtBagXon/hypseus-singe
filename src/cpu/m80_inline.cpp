@@ -433,7 +433,7 @@ void m80_reset()
 		break;	\
 	case 0xA2:	/* INI */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode INI at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode INI at PC: %x",PC); \
 		printline(s2); \
 		break;	\
 	case 0xA3:	/* OUTI */	\
@@ -447,12 +447,12 @@ void m80_reset()
 		break;	\
 	case 0xAA:	/* IND */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode IND at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode IND at PC: %x",PC); \
 		printline(s2); \
 		break;	\
 	case 0xAB:	/* OUTD */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode OUTD at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode OUTD at PC: %x",PC); \
 		printline(s2); \
 		break;	\
 	case 0xB0:	/* LDIR */	\
@@ -464,7 +464,7 @@ void m80_reset()
 		break;	\
 	case 0xB2:	/* INIR */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode INIR at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode INIR at PC: %x",PC); \
 		printline(s2); \
 		break;	\
 	case 0xB3:	/* OTIR */	\
@@ -480,12 +480,12 @@ void m80_reset()
 		break;	\
 	case 0xBA:	/* INDR */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode INDR at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode INDR at PC: %x",PC); \
 		printline(s2); \
 		break;	\
 	case 0xBB:	/* OTDR */	\
 		X;	\
-		sprintf(s2,"Unimplemented opcode OTDR at PC: %x",PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode OTDR at PC: %x",PC); \
 		printline(s2); \
 		break;	\
 	default:	\

@@ -23,7 +23,7 @@
 #include "config.h"
 
 #include <string.h> // for memset
-#include <stdio.h>  // for sprintf (we shouldn't use sprintf anymore)
+#include <stdio.h>  // for snprintf (we shouldn't use sprintf anymore)
 #include "timetrav.h"
 #include "../ldp-out/ldp.h"
 #include "../io/conout.h"

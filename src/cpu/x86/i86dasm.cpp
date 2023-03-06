@@ -789,15 +789,15 @@ static char *addr_to_hex(UINT32 addr, int splitup) {
 
   if (splitup) {
     if (fp_segment(addr)==0 || fp_offset(addr)==0xffff) /* 'coz of wraparound */
-      sprintf(buffer, "%04X", (unsigned)fp_offset(addr) );
+      snprintf(buffer, sizeof(buffer), "%04X", (unsigned)fp_offset(addr) );
     else
-      sprintf(buffer, "%04X:%04X", (unsigned)fp_segment(addr), (unsigned)fp_offset(addr) );
+      snprintf(buffer, sizeof(buffer), "%04X:%04X", (unsigned)fp_segment(addr), (unsigned)fp_offset(addr) );
   } else {
 #if 0
 	  /* Pet outcommented, reducing address size to 4
 		 when segment is 0 or 0xffff */
     if (fp_segment(addr)==0 || fp_segment(addr)==0xffff) /* 'coz of wraparound */
-      sprintf(buffer, "%04X", (unsigned)fp_offset(addr) );
+      snprintf(buffer, sizeof(buffer), "%04X", (unsigned)fp_offset(addr) );
     else
 #endif
 
@@ -805,9 +805,9 @@ static char *addr_to_hex(UINT32 addr, int splitup) {
 //			sprintf(buffer, "%05X", addr&0xfffff );
 			strcpy(buffer, set_ea_info(0, addr, 0, EA_ABS_PC));
 		} else if (addr24bit) {
-			sprintf(buffer, "%06X", addr&0xffffff );
+			snprintf(buffer, sizeof(buffer), "%06X", addr&0xffffff );
 		} else if (addr32bit) {
-			sprintf(buffer, "%08X", addr );
+			snprintf(buffer, sizeof(buffer), "%08X", addr );
 		}
   }
 

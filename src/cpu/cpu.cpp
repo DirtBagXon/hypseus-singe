@@ -580,17 +580,17 @@ void execute()
 					double cur_mhz = ((double) cd_cycle_count[g_active] / (double) elapsed_ms) * 0.001;
 					cd_report_count[g_active]++;
 
-					sprintf(s,"CPU #%d : cycles = %d, time = %d ms, MHz = %f, avg MHz = %f",
+					snprintf(s, sizeof(s), "CPU #%d : cycles = %d, time = %d ms, MHz = %f, avg MHz = %f",
 						g_active,
 						cd_cycle_count[g_active], elapsed_ms,
 						cur_mhz, cd_avg_mhz[g_active]);
 					printline(s);
-					sprintf(s, "         NMI's = %d ", cd_nmi_count[g_active]);
+					snprintf(s, sizeof(s), "         NMI's = %d ", cd_nmi_count[g_active]);
 					cd_nmi_count[g_active] = 0;
 					outstr(s);
 					for (int irqi = 0; irqi < MAX_IRQS; irqi++)
 					{
-						sprintf(s, "IRQ%d's = %d ", irqi, cd_irq_count[g_active][irqi]);
+						snprintf(s, sizeof(s), "IRQ%d's = %d ", irqi, cd_irq_count[g_active][irqi]);
 						outstr(s);
 						cd_irq_count[g_active][irqi] = 0;
 					}
@@ -598,7 +598,7 @@ void execute()
 					cd_old_time[g_active] += elapsed_ms;
 					cd_cycle_count[g_active] -= CPU_DIAG_ACCURACY;
 					
-					sprintf(s, "Resource Usage: %u percent", 100 - ((cd_extra_ms * 100) / elapsed_ms));
+					snprintf(s, sizeof(s), "Resource Usage: %u percent", 100 - ((cd_extra_ms * 100) / elapsed_ms));
 					printline(s);
 					cd_extra_ms = 0;	// reset
 				}
