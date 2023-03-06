@@ -665,17 +665,17 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
 
     if (!LDP1450_strlen)
     {
-        strcpy(LDP1450_String, "           ");
+        return;
     }
     else {
 	if (LDP1450_strlen <= 11)
         {
             for (i = LDP1450_strlen; i <= 11; i++)
                  LDP1450_String[i] = 32;
+
+            LDP1450_strlen = strlen(LDP1450_String);
         }
     }
-
-    LDP1450_strlen = strlen(LDP1450_String);
 
     switch(g_aspect_ratio)
     {
