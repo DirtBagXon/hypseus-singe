@@ -661,7 +661,6 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
 
     LDP1450_CharSet[index].enable = false;
     LDP1450_strlen = strlen(LDP1450_String);
-    g_LDP1450_overlay = true;
 
     if (!LDP1450_strlen)
     {
@@ -676,6 +675,8 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
             LDP1450_strlen = strlen(LDP1450_String);
         }
     }
+
+    g_LDP1450_overlay = true;
 
     switch(g_aspect_ratio)
     {
@@ -715,9 +716,10 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
     int LDP1450_strlen;
     g_scoreboard_needs_update = true;
 
-    if (g_aspect_ratio == ASPECTSD && g_draw_width == NOSQUARE
-                         && g_fRotateDegrees == 0)
-        start_x = (start_x - (start_x/4));
+    if (g_aspect_ratio == ASPECTSD
+             && g_draw_width == NOSQUARE
+             && g_fRotateDegrees == 0)
+        start_x = (start_x - (start_x / 4));
 
     dest.x = start_x;
     dest.y = y;
@@ -932,7 +934,6 @@ void draw_subtitle(char *s, bool insert)
 {
     int x = (int)(g_draw_width - (g_draw_width * 0.97));
     int y = (int)(g_draw_height * 0.92);
-    SDL_Renderer *renderer = get_renderer();
     static int m_message_timer;
     const int timeout = 200;
 
@@ -944,7 +945,7 @@ void draw_subtitle(char *s, bool insert)
        set_subtitle_enabled(false);
     }
 
-    FC_Draw(get_font(), renderer, x, y, s);
+    FC_Draw(g_font, g_renderer, x, y, s);
     m_message_timer++;
 }
 

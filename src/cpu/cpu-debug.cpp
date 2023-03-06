@@ -90,7 +90,7 @@ const char *set_ea_info( int what, unsigned address, int size, int acc )
 	{
 		case EA_NONE:
 		case EA_VALUE:
-			sprintf(addrstr, "%x", address);
+			snprintf(addrstr, sizeof(addrstr), "%x", address);
 			break;
 		case EA_ABS_PC:
 		case EA_MEM_RD:
@@ -99,11 +99,11 @@ const char *set_ea_info( int what, unsigned address, int size, int acc )
 			// if memory location has a name, print that too
 			if (name)
 			{
-				sprintf(addrstr, "%s ($%x)", name, address);
+				snprintf(addrstr, sizeof(addrstr), "%s ($%x)", name, address);
 			}
 			else
 			{
-				sprintf(addrstr, "$%x", address);
+				snprintf(addrstr, sizeof(addrstr), "$%x", address);
 			}
 			break;
 		case EA_REL_PC:
@@ -112,15 +112,15 @@ const char *set_ea_info( int what, unsigned address, int size, int acc )
 
 			if (name)
 			{
-				sprintf(addrstr, "%s ($%x) (PC + %d)", name, address, size);
+				snprintf(addrstr, sizeof(addrstr), "%s ($%x) (PC + %d)", name, address, size);
 			}
 			else
 			{
-				sprintf(addrstr, "$%x (PC + %d)", address, size);
+				snprintf(addrstr, sizeof(addrstr), "$%x (PC + %d)", address, size);
 			}
 			break;
 		default:
-			sprintf(addrstr, "Unknown: acc %d, size %d, address %u, what %d", acc, size, address, what);
+			snprintf(addrstr, sizeof(addrstr), "Unknown: acc %d, size %d, address %u, what %d", acc, size, address, what);
 			break;
 	}
 
@@ -142,7 +142,7 @@ void debug_prompt()
 		newline();
 		print_cpu_context();	// show registers and stuff
 		
-		sprintf(s, "[#%u][%04x Command,'?']-> ", g_which_cpu, cpu->getpc_callback());
+		snprintf(s, sizeof(s), "[#%u][%04x Command,'?']-> ", g_which_cpu, cpu->getpc_callback());
 		outstr(s);
 		con_getline(s, 80);
 		switch(toupper(s[0]))
@@ -273,7 +273,7 @@ void debug_disassemble(unsigned int addr)
 			printline(":");
 			line++;
 		}
-		sprintf(s, "%04x: ", addr);
+		snprintf(s, sizeof(s), "%04x: ", addr);
 		outstr(s);
 
 		addr += get_cpu_struct(g_which_cpu)->dasm_callback(s, addr);
@@ -320,7 +320,7 @@ void print_cpu_context()
 	};
 	newline();
 
-	sprintf(tmpstr,
+	snprintf(tmpstr, sizeof(tmpstr),
 	    "AT PC: [%02X - %s]   FLAGS: [%s] ",
 		cpu->getpc_callback(),
 		nextinstr,
@@ -340,12 +340,12 @@ void print_memory_dump(unsigned int addr)
 
 	for(j=0 ; j < lines ; j++)
 	{
-		sprintf(tmpstr, "%04X: ", addr);
+		snprintf(tmpstr, sizeof(tmpstr), "%04X: ", addr);
 		outstr(tmpstr);
 
 		for(i=0; i < 16; i++,addr++)
 		{
-			sprintf(tmpstr, "%02X ", g_game->cpu_mem_read(addr));
+			snprintf(tmpstr, sizeof(tmpstr), "%02X ", g_game->cpu_mem_read(addr));
 			outstr(tmpstr);
 		}
 
