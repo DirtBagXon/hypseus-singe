@@ -272,13 +272,9 @@ void dle2::patch_roms()
         }
     }
 
-    if (m_fastboot) {
+    if (m_fastboot && strcasecmp(m_shortgamename, "dle21") == 0) {
         m_cpumem[0x121b] = 0x00;
         m_cpumem[0x123d] = 0x58;
-
-        if (get_scoreboard() & 0x02) {
-            LOGE << "-fastboot is not compatible with -usbscoreboard";
-        }
         g_bBootLog = false;
     }
 }
