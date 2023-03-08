@@ -30,6 +30,7 @@
 
 #define LAIR_IRQ_PERIOD 32.768 // # of ms of IRQ period
 #define LAIR_CPU_HZ 4000000    // speed of cpu
+#define LAIR_INTROFRAME "325"
 
 enum { S_DL_CREDIT, S_DL_ACCEPT, S_DL_BUZZ };
 
