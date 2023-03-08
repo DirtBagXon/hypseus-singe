@@ -51,6 +51,7 @@
 #include "../cpu/generic_z80.h"
 
 bool g_bUsbAnnunciator = false;
+bool g_bBootLog = true;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -270,6 +271,16 @@ void dle2::patch_roms()
             set_quitflag();
         }
     }
+
+    if (m_fastboot) {
+        m_cpumem[0x121b] = 0x00;
+        m_cpumem[0x123d] = 0x58;
+
+        if (get_scoreboard() & 0x02) {
+            LOGE << "-fastboot is not compatible with -usbscoreboard";
+        }
+        g_bBootLog = false;
+    }
 }
 
 // Space Ace class constructor
@@ -369,6 +380,16 @@ void sae::patch_roms()
         LOGI << "The SAE readme.txt file is missing or altered.";
         LOGI << "Please get the original file from www.d-l-p.com, thanks.";
         set_quitflag();
+    }
+
+    if (m_fastboot) {
+        m_cpumem[0x121b] = 0x00;
+        m_cpumem[0x1248] = 0x9d;
+
+        if (get_scoreboard() & 0x02) {
+            LOGE << "-fastboot is not compatible with -usbscoreboard";
+        }
+        g_bBootLog = false;
     }
 }
 
@@ -505,6 +526,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
 // Called whenever the Z80 emulator wants to write to memory
 {
     static uint8_t g_skill = 0;
+    static bool bAttractMode = true;
 
     // if we're writing to RAM or hardware
     if (Addr >= 0xA000) {
@@ -620,6 +642,9 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 // annunciator
                 if ((Value != 0xCC) || (m_bUseAnnunciator)) {
                     m_pScoreboard->update_player_score(Addr & 7, (Value & 0x0F), 0);
+                    if (!g_bBootLog && Addr == 0xE03D && Value == 0) {
+                        g_bBootLog = true;
+                    }
                 }
                 // else do something with the LED's
                 else {
@@ -684,6 +709,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 }
                 break;
             default: {
+                if (!g_bBootLog) return;
                 LOGW << fmt("Unknown hardware output at %x, value of %x, PC %x",
                         Addr, Value, Z80_GET_PC);
             } break;
@@ -698,7 +724,24 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
     // if we are trying to write below 0xA000, it means we are trying to write
     // to ROM
     else {
+        if (!g_bBootLog) return;
         LOGW << fmt("Error, program attempting to write to ROM (%x), PC is %x", Addr, Z80_GET_PC);
+    }
+
+    if (!g_bBootLog && bAttractMode) { // dle2 fastboot attract mode hack
+        if (m_game_type == GAME_DLE2) {
+
+            int a_frame = g_ldp->get_current_frame();
+
+            if (a_frame == 0x0AD) // split m2v needs this check
+                if (g_ldp->pre_search(LAIR_INTROFRAME, true))
+                    g_ldp->pre_play();
+
+            if (a_frame > 0x53C) {
+                m_cpumem[0xA009] = 0x01;
+                bAttractMode = false;
+            }
+        } else bAttractMode = false;
     }
 }
 
@@ -1000,6 +1043,8 @@ void lair::input_enable(Uint8 move, Sint8 mouseID)
     case SWITCH_BUTTON1:                        // SWORD
         m_joyskill_val &= (unsigned char)~0x10; // clear bit 4
         break;
+    case SWITCH_BUTTON2:
+        break;
     case SWITCH_BUTTON3:
         m_bScoreboardVisibility = !m_bScoreboardVisibility;
         m_pScoreboard->ChangeVisibility(m_bScoreboardVisibility);
@@ -1061,6 +1106,9 @@ void lair::input_disable(Uint8 move, Sint8 mouseID)
         break;
     case SWITCH_BUTTON1:        // SWORD
         m_joyskill_val |= 0x10; // set bit 4
+        break;
+    case SWITCH_BUTTON2:
+    case SWITCH_BUTTON3:
         break;
     case SWITCH_COIN1:
         m_misc_val |= 0x04;

@@ -40,7 +40,7 @@
 #define s_asc_spc  int(' ')
 #define s_asc_dsh  int('-')
 
-typedef struct
+typedef struct DigitStruct
 {
    char unit;
    char digit;

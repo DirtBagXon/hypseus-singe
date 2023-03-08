@@ -452,7 +452,7 @@ void m80_reset()
 		break;	\
 	case 0xAB:	/* OUTD */	\
 		X;	\
-		snprintf(s2,  sizeof(s2), "Unimplemented opcode OUTD at PC: %x", PC); \
+		snprintf(s2, sizeof(s2), "Unimplemented opcode OUTD at PC: %x", PC); \
 		printline(s2); \
 		break;	\
 	case 0xB0:	/* LDIR */	\
