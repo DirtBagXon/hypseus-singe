@@ -381,11 +381,11 @@ void sae::patch_roms()
     if (m_fastboot) {
         m_cpumem[0x121b] = 0x00;
         m_cpumem[0x1248] = 0x9d;
+        g_bBootLog = false;
 
         if (get_scoreboard() & 0x02) {
             LOGE << "-fastboot is not compatible with -usbscoreboard";
         }
-        g_bBootLog = false;
     }
 }
 
@@ -522,7 +522,6 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
 // Called whenever the Z80 emulator wants to write to memory
 {
     static uint8_t g_skill = 0;
-    static bool bAttractMode = true;
 
     // if we're writing to RAM or hardware
     if (Addr >= 0xA000) {
@@ -638,9 +637,6 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
                 // annunciator
                 if ((Value != 0xCC) || (m_bUseAnnunciator)) {
                     m_pScoreboard->update_player_score(Addr & 7, (Value & 0x0F), 0);
-                    if (!g_bBootLog && Addr == 0xE03D && Value == 0) {
-                        g_bBootLog = true;
-                    }
                 }
                 // else do something with the LED's
                 else {
@@ -724,20 +720,32 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
         LOGW << fmt("Error, program attempting to write to ROM (%x), PC is %x", Addr, Z80_GET_PC);
     }
 
-    if (!g_bBootLog && bAttractMode) { // dle2 fastboot attract mode hack
+    if (!g_bBootLog) { // enhanced fastboot attract mode hacks
+
+        int a_frame = g_ldp->get_current_frame();
+
         if (m_game_type == GAME_DLE2) {
 
-            int a_frame = g_ldp->get_current_frame();
-
-            if (a_frame == 0x0AD) // split m2v needs this check
-                if (g_ldp->pre_search(LAIR_INTROFRAME, true))
+            if (a_frame == (stoi(LAIR_INTROFRAME) - 0x96)) {
+                if (g_ldp->pre_search(LAIR_INTROFRAME, true)) {
+                    m_cpumem[0x121b] = 0xF0;
+                    m_cpumem[0x123d] = 0xC5;
                     g_ldp->pre_play();
-
-            if (a_frame > 0x53C) {
-                m_cpumem[0xA009] = 0x01;
-                bAttractMode = false;
+                    g_bBootLog = true;
+                } else set_quitflag();
             }
-        } else bAttractMode = false;
+
+        } else {
+
+            if (a_frame == (stoi(ACE_INTROFRAME) - 0x03)) {
+                if (g_ldp->pre_search(ACE_INTROFRAME, true)) {
+                    m_cpumem[0x121b] = 0xF0;
+                    m_cpumem[0x1248] = 0x07;
+                    g_ldp->pre_play();
+                    g_bBootLog = true;
+                } else set_quitflag();
+            }
+        }
     }
 }
 

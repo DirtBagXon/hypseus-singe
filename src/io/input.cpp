@@ -321,7 +321,7 @@ void CFG_Keys()
 
         mpo_close(io);
     } else // end if file was opened successfully
-        LOGW << "keymapfile not found, using default";
+        LOGW << "config .ini file not found, using defaults";
 }
 
 static void manymouse_init_mice(void)
