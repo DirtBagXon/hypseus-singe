@@ -79,6 +79,7 @@ SDL_Texture *g_sb_texture          = NULL;
 SDL_Texture *g_bezel_texture       = NULL;
 
 SDL_Rect g_overlay_size_rect; 
+SDL_Rect g_scaling_rect = {0, 0, 0, 0};
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
 SDL_Rect g_render_size_rect = g_leds_size_rect;
 
@@ -217,15 +218,10 @@ bool init_display()
 
         // if we're supposed to scale the image...
         if (g_scalefactor < 100) {
-            g_viewport_width  = g_viewport_width * g_scalefactor / 100;
-            g_viewport_height = g_viewport_height * g_scalefactor / 100;
-        }
-
-        if (g_viewport_width < 500) {
-            char target[14];
-            memcpy(target, title, sizeof(target));
-            target[13] = 0;
-            memcpy(title, target, sizeof(target));
+            g_scaling_rect.w = (g_viewport_width * g_scalefactor) / 100;
+            g_scaling_rect.h = (g_viewport_height * g_scalefactor) / 100;
+            g_scaling_rect.x = ((g_viewport_width - g_scaling_rect.w) >> 1);
+            g_scaling_rect.y = ((g_viewport_height - g_scaling_rect.h) >> 1);
         }
 
         if (rz) {
@@ -1176,14 +1172,20 @@ void vid_blit () {
 
     // Sadly, we have to RenderCopy the YUV texture on every blitting strike, because
     // the image on the renderer gets "dirty" with previous overlay frames on top of the yuv.
-    if(g_yuv_texture) {
-        SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL); 
+    if (g_yuv_texture) {
+        if (SDL_RectEmpty(&g_scaling_rect))
+            SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL);
+        else
+            SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, &g_scaling_rect);
     }
 
     // If there's an overlay texture, it means we are using some kind of overlay,
     // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
-    if(g_overlay_texture) {
-	SDL_RenderCopy(g_renderer, g_overlay_texture, &g_render_size_rect, NULL);
+    if (g_overlay_texture) {
+        if (SDL_RectEmpty(&g_scaling_rect))
+            SDL_RenderCopy(g_renderer, g_overlay_texture, &g_render_size_rect, NULL);
+        else
+            SDL_RenderCopy(g_renderer, g_overlay_texture, &g_render_size_rect, &g_scaling_rect);
     }
 
     // If there's a subtitle overlay
