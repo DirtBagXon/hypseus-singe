@@ -321,7 +321,7 @@ void CFG_Keys()
 
         mpo_close(io);
     } else // end if file was opened successfully
-        LOGW << "config .ini file not found, using defaults";
+        LOGW << fmt("%s not found, using defaults", g_inputini_file.c_str());
 }
 
 static void manymouse_init_mice(void)
