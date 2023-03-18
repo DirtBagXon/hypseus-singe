@@ -105,7 +105,7 @@ bool init_opengl();
 #endif // USE_OPENGL
 
 void shutdown_display();
-void resize_cleanup(uint32_t);
+void resize_cleanup();
 
 // flips the video buffers (if in double buffering mode)
 void vid_flip();
@@ -181,6 +181,8 @@ void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
 void set_aspect_change(int aspectWidth, int aspectHeight);
 void set_sb_window(int, int);
+void set_score_bezel(bool bEnabled);
+void set_score_bezel_alpha(bool bEnabled);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);

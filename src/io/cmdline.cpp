@@ -727,19 +727,36 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
+            else if (strcasecmp(s, "-scorebezel") == 0) {
+                lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
+                thayers *game_thayers = dynamic_cast<thayers *>(g_game);
+
+                if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
+                    video::set_score_bezel(true);
+                    g_game->m_sdl_software_scoreboard = true;
+                    printline("Enabling Scoreboard bezel...");
+                } else {
+                    printline("NOTE: Scoreboard bezel is not available");
+                }
+            }
+            else if (strcasecmp(s, "-scorebezel_alpha") == 0) {
+                    video::set_score_bezel_alpha(true);
+            }
             else if (strcasecmp(s, "-scorepanel") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
                 if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
+                    video::set_score_bezel(false);
                     g_game->m_sdl_software_scoreboard = true;
                     printline("Enabling Software scoreboard...");
                 } else {
                     printline("NOTE: Software scoreboard is not available");
                 }
             }
-            else if (strcasecmp(s, "-scorepanel_position") == 0) {
-                const int vMax = 3841; // This should handle 4k
+            else if (strcasecmp(s, "-scorepanel_position") == 0 ||
+                         strcasecmp(s, "-scorebezel_position") == 0) {
+                const int vMax = 3840 + 1; // This should handle 4k
                 int xVal = 0;
                 int yVal = 0;
 
@@ -758,7 +775,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if ((xVal > 0) && (xVal <= vMax) && (yVal > 0) && (yVal <= vMax)) {
                     video::set_sb_window(xVal-1, yVal-1);
                 } else {
-                    printerror("Scoreboard position requires two integer values");
+                    printerror("Scoreboard position requires x and y values");
                     result = false;
                 }
             }

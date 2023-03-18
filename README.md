@@ -150,9 +150,9 @@ Full details of the USB scoreboard [here](https://github.com/DirtBagXon/hypseus_
 
 Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-scorepanel`
 
-The scorepanel can be positioned using `-scorepanel_position x y` - *Window Managers* may influence placement.
+A *bezel* based alternate is also available via: `-scorebezel`
 
-Works in conjunction with `-fullscreen_window` or normal windowed mode.
+The scorepanel, or bezel, can be positioned using `-scorepanel_position x y` - *Window Managers* may influence placement of the panel, *scorebezel* is not under their influence. The `-scorebezel_alpha` argument is a transparency option for the bezel based scoreboard.
 
 ## Singe
 
@@ -204,6 +204,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
     -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
     -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
+    -scorebezel                [ Bezel layer software scoreboard               ]
     -scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
     -scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
     -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]

@@ -50,6 +50,7 @@ namespace video
 int g_vid_width = 640, g_vid_height = 480; // default video dimensions
 unsigned int g_draw_width = g_vid_width, g_probe_width = g_vid_width;
 unsigned int g_draw_height = g_vid_height, g_probe_height = g_vid_height;
+int g_sb_w = 340, g_sb_h = 480;
 int s_alpha = 255;
 int s_shunt = 2;
 
@@ -76,10 +77,12 @@ SDL_Surface *g_screen_blitter      = NULL; // The main blitter surface
 SDL_Surface *g_leds_surface        = NULL;
 SDL_Surface *g_sb_surface          = NULL;
 SDL_Texture *g_sb_texture          = NULL;
+SDL_Surface *g_sb_blit_surface     = NULL;
 SDL_Texture *g_bezel_texture       = NULL;
 
 SDL_Rect g_overlay_size_rect; 
 SDL_Rect g_scaling_rect = {0, 0, 0, 0};
+SDL_Rect g_sb_bezel_rect = {0, 0, 0, 0};
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
 SDL_Rect g_render_size_rect = g_leds_size_rect;
 
@@ -103,6 +106,9 @@ bool g_bIgnoreAspectRatio = false;
 bool g_LDP1450_overlay = false;
 bool g_fullscreen = false; // initialize video in fullscreen
 bool g_bezel_toggle = false;
+bool g_scale_view = false;
+bool g_sb_bezel_alpha = false;
+bool g_sb_bezel = false;
 
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
@@ -152,8 +158,7 @@ bool init_display()
     Uint32 sdl_sb_flags = 0;
     Uint8  sdl_render_flags = 0;
     Uint8  sdl_sb_render_flags = 0;
-    static bool sb = false;
-    static bool rz = false;
+    static bool notify = false;
     char bezelpath[96] = {};
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
@@ -224,11 +229,13 @@ bool init_display()
             g_scaling_rect.y = ((g_viewport_height - g_scaling_rect.h) >> 1);
         }
 
-        if (rz) {
+        if (!SDL_RectEmpty(&g_scaling_rect)) g_scale_view = true;
+
+        if (notify) {
             LOGI << fmt("Viewport resolution: %dx%d", g_viewport_width, g_viewport_height);
         }
 
-        if (g_window) resize_cleanup(sdl_flags);
+        if (g_window) resize_cleanup();
 
         if (g_fRotateDegrees != 0) {
             if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
@@ -277,7 +284,7 @@ bool init_display()
                     snprintf(bezelpath, sizeof(bezelpath), "bezels/%s", g_bezel_file.c_str());
                     g_bezel_texture = IMG_LoadTexture(g_renderer, bezelpath);
 
-                    if (!rz) {
+                    if (!notify) {
                         if (g_bezel_texture) {
                             LOGI << fmt("Loaded bezel file: %s", bezelpath);
                         } else {
@@ -292,42 +299,62 @@ bool init_display()
                 if (!g_fs_scale_nearest)
                     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
+                // Create a 32-bit surface with alpha component.
+                int surfacebpp;
+                Uint32 Rmask, Gmask, Bmask, Amask;
+                SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_RGBA8888, &surfacebpp,
+                                &Rmask, &Gmask, &Bmask, &Amask);
+
+                if (g_game->m_sdl_software_scoreboard) {
+
+                    g_sb_blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_sb_w, g_sb_h,
+                                            surfacebpp, Rmask, Gmask, Bmask, Amask);
+
+                    if (g_sb_bezel) {
+
+                        g_sb_bezel_rect.x = sb_window_pos_x;
+                        g_sb_bezel_rect.y = sb_window_pos_y;
+                        g_sb_bezel_rect.w = (g_viewport_width / 6.3f);
+                        g_sb_bezel_rect.h = (g_sb_bezel_rect.w * 1.411f); // 17:24
+
+                        if (!g_sb_bezel_alpha)
+                            SDL_FillRect(g_sb_blit_surface, NULL, 0x000000ff);
+
+                    } else if (SDL_GetWindowWMInfo(g_window, &info) && !g_sb_window) {
+
+                        g_sb_window = SDL_CreateWindow(NULL, sb_window_pos_x,
+                                          sb_window_pos_y, g_sb_w, g_sb_h, sdl_sb_flags);
+
+                        if (!g_sb_window) {
+                            LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
+                            g_game->set_game_errors(SDL_ERROR_SCOREWINDOW);
+                            set_quitflag();
+                        }
+
+                        g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, sdl_sb_render_flags);
+
+                        if (!g_sb_renderer) {
+                            LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
+                            g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
+                            set_quitflag();
+                        }
+                        SDL_SetRenderDrawColor(g_sb_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+                        SDL_RenderClear(g_sb_renderer);
+                        SDL_RenderPresent(g_sb_renderer);
+                    } else if (!notify) { LOGE << "Cannot create a Scoreboard entity..."; }
+                }
+
                 // MAC: If we start in fullscreen mode, we have to set the logical
                 // render size to get the desired aspect ratio.
                 if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0 ||
                                (sdl_flags & SDL_WINDOW_MAXIMIZED) != 0) {
 
                     SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
-                    g_bezel_toggle = true;
+
+                    if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
+                        g_bezel_toggle = true;
                 }
 
-                if (g_game->m_sdl_software_scoreboard &&
-                       !(sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) &&
-                       SDL_GetWindowWMInfo(g_window, &info) && !sb) {
-
-                    g_sb_window = SDL_CreateWindow(NULL, sb_window_pos_x,
-                       sb_window_pos_y, 340, 480, sdl_sb_flags);
-
-                    if (!g_sb_window) {
-                        LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
-                        g_game->set_game_errors(SDL_ERROR_SCOREWINDOW);
-                        set_quitflag();
-                    }
-
-                    g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, sdl_sb_render_flags);
-
-                    if (!g_sb_renderer) {
-                        LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
-                        g_game->set_game_errors(SDL_ERROR_SCORERENDERER);
-                        set_quitflag();
-                   }
-                   SDL_SetRenderDrawColor(g_sb_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-                   SDL_RenderClear(g_sb_renderer);
-                   SDL_RenderPresent(g_sb_renderer);
-
-                   if (!(sdl_flags & SDL_WINDOW_MAXIMIZED))
-                       sb = true;
-		}
 
 		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
@@ -378,10 +405,6 @@ bool init_display()
                     exit(SDL_ERROR_FONT);
                 }
 
-                // Create a 32-bit surface with alpha component. As big as an overlay can possibly be...
-		int surfacebpp;
-		Uint32 Rmask, Gmask, Bmask, Amask;              
-		SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_RGBA8888, &surfacebpp, &Rmask, &Gmask, &Bmask, &Amask);
 		g_screen_blitter =
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, g_overlay_width, g_overlay_height,
 					surfacebpp, Rmask, Gmask, Bmask, Amask);
@@ -432,7 +455,7 @@ bool init_display()
         exit(SDL_ERROR_INIT);
     }
 
-    rz = true;
+    notify = true;
     return (result);
 }
 
@@ -456,13 +479,15 @@ bool deinit_display()
 {
     SDL_SetWindowGrab(g_window, SDL_FALSE);
 
+    if (g_sb_texture)
+        SDL_DestroyTexture(g_sb_texture);
+
     if (g_sb_window) {
-        // free_bmps()
-        g_sb_surface = NULL;
-        if (g_sb_texture) SDL_DestroyTexture(g_sb_texture);
         if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
         SDL_DestroyWindow(g_sb_window);
     }
+
+    if (g_sb_blit_surface) SDL_FreeSurface(g_sb_blit_surface);
 
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
@@ -482,17 +507,11 @@ bool deinit_display()
     return (true);
 }
 
-void resize_cleanup(uint32_t sdl_flags)
+void resize_cleanup()
 {
     SDL_SetWindowGrab(g_window, SDL_FALSE);
 
-    if (sdl_flags & SDL_WINDOW_MAXIMIZED) {
-        if (g_sb_window) {
-            if (g_sb_renderer) SDL_DestroyRenderer(g_sb_renderer);
-            SDL_DestroyWindow(g_sb_window);
-        }
-    }
-
+    if (g_sb_blit_surface) SDL_FreeSurface(g_sb_blit_surface);
     if (g_screen_blitter) SDL_FreeSurface(g_screen_blitter);
     if (g_leds_surface) SDL_FreeSurface(g_leds_surface);
 
@@ -593,6 +612,7 @@ SDL_Surface *load_one_bmp(const char *filename)
 bool draw_led(int value, int x, int y)
 {
     g_sb_surface = g_led_bmps[value];
+    static char led = 0;
 
     SDL_Rect dest;
     dest.x = (short) x;
@@ -600,10 +620,21 @@ bool draw_led(int value, int x, int y)
     dest.w = (unsigned short) g_sb_surface->w;
     dest.h = (unsigned short) g_sb_surface->h;
 
-    g_sb_texture = SDL_CreateTextureFromSurface(g_sb_renderer, g_sb_surface);
-    SDL_RenderCopy(g_sb_renderer, g_sb_texture, NULL, &dest);
-    g_softsboard_needs_update = true;
+    SDL_BlitSurface(g_sb_surface, NULL, g_sb_blit_surface, &dest);
 
+    if (led == 0xf) {
+        if (g_sb_bezel)
+            g_sb_texture = SDL_CreateTextureFromSurface(g_renderer,
+                               g_sb_blit_surface);
+        else {
+            g_sb_texture = SDL_CreateTextureFromSurface(g_sb_renderer,
+                               g_sb_blit_surface);
+            SDL_RenderCopy(g_sb_renderer, g_sb_texture, NULL,  NULL);
+            g_softsboard_needs_update = true;
+        }
+        led = -1;
+    }
+    led++;
     return true;
 }
 
@@ -765,7 +796,7 @@ bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
 {
     g_sb_surface = g_other_bmps[which];
 
-    if (which == B_DL_PLAYER1)
+    if (g_sb_renderer && which == B_DL_PLAYER1)
         SDL_RenderClear(g_sb_renderer);
 
     SDL_Rect dest;
@@ -774,9 +805,7 @@ bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
     dest.w = (unsigned short) g_sb_surface->w;
     dest.h = (unsigned short) g_sb_surface->h;
 
-    g_sb_texture = SDL_CreateTextureFromSurface(g_sb_renderer, g_sb_surface);
-    SDL_RenderCopy(g_sb_renderer, g_sb_texture, NULL, &dest);
-    g_softsboard_needs_update = true;
+    SDL_BlitSurface(g_sb_surface, NULL, g_sb_blit_surface, &dest);
 
     return true;
 }
@@ -855,6 +884,8 @@ void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
+void set_score_bezel(bool bEnabled) { g_sb_bezel = bEnabled; }
+void set_score_bezel_alpha(bool bEnabled) { g_sb_bezel_alpha = bEnabled; }
 
 void set_scalefactor(int value)
 {
@@ -966,7 +997,8 @@ void vid_toggle_fullscreen()
     }
     if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
         SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
-        g_bezel_toggle = true;
+        if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
+            g_bezel_toggle = true;
         return;
     }
     SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
@@ -1173,7 +1205,7 @@ void vid_blit () {
     // Sadly, we have to RenderCopy the YUV texture on every blitting strike, because
     // the image on the renderer gets "dirty" with previous overlay frames on top of the yuv.
     if (g_yuv_texture) {
-        if (SDL_RectEmpty(&g_scaling_rect))
+        if (!g_scale_view)
             SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, NULL);
         else
             SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, &g_scaling_rect);
@@ -1182,7 +1214,7 @@ void vid_blit () {
     // If there's an overlay texture, it means we are using some kind of overlay,
     // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
     if (g_overlay_texture) {
-        if (SDL_RectEmpty(&g_scaling_rect))
+        if (!g_scale_view)
             SDL_RenderCopy(g_renderer, g_overlay_texture, &g_render_size_rect, NULL);
         else
             SDL_RenderCopy(g_renderer, g_overlay_texture, &g_render_size_rect, &g_scaling_rect);
@@ -1204,19 +1236,26 @@ void vid_blit () {
         if (g_overlay_texture)
             SDL_RenderCopyEx(g_renderer, g_overlay_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
-    } else if (g_game->get_sinden_border() && !g_bezel_texture)
-            draw_border(g_game->get_sinden_border(),
+    } else if (g_game->get_sinden_border())
+	    if (!g_bezel_texture)
+                draw_border(g_game->get_sinden_border(),
                       g_game->get_sinden_border_color());
 
-    if (g_bezel_texture && g_bezel_toggle) {
+    if (g_bezel_toggle) {
         SDL_RenderSetViewport(g_renderer, NULL);
-        SDL_RenderCopy(g_renderer, g_bezel_texture, NULL, NULL);
+
+        if (g_bezel_texture)
+            SDL_RenderCopy(g_renderer, g_bezel_texture, NULL, NULL);
+
+        if (g_sb_bezel) {
+            SDL_RenderCopy(g_renderer, g_sb_texture, NULL, &g_sb_bezel_rect);
+        }
         SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
     }
 
     SDL_RenderPresent(g_renderer);
 
-    if (g_sb_renderer && g_softsboard_needs_update) {
+    if (g_softsboard_needs_update) {
         SDL_RenderPresent(g_sb_renderer);
         g_softsboard_needs_update = false;
     }
