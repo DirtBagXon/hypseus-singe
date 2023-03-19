@@ -120,7 +120,7 @@ void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y,
                        SDL_Surface *overlay);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
 void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay);
-bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter = true);
+bool draw_othergfx(int which, int x, int y);
 void free_bmps();
 SDL_Surface *load_one_bmp(const char *);
 void free_one_bmp(SDL_Surface *);

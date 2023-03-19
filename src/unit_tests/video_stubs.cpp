@@ -12,7 +12,7 @@ bool draw_led(int, int, int)
 	return true;
 }
 
-bool draw_othergfx(int, int, int, bool)
+bool draw_othergfx(int, int, int)
 {
 	return true;
 }
