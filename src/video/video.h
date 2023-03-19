@@ -116,8 +116,7 @@ void vid_blank();
 void display_repaint();
 bool load_bmps();
 bool draw_led(int, int, int);
-void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y,
-                       SDL_Surface *overlay);
+void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
 void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
