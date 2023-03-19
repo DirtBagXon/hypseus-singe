@@ -795,7 +795,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surfa
 
 //  used to draw non LED stuff like scoreboard text
 //  'which' corresponds to enumerated values
-bool draw_othergfx(int which, int x, int y, bool bSendToScreenBlitter)
+bool draw_othergfx(int which, int x, int y)
 {
     g_sb_surface = g_other_bmps[which];
 
