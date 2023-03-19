@@ -31,7 +31,6 @@
 #define SDL_ERROR_SCORERENDERER  0x99
 #define SDL_ERROR_FONT           0x9A
 #define SDL_ERROR_SCREENSHOT     0x9B
-#define SDL_ERROR_ROTATION       0x9C
 
 // global definitions ...
 

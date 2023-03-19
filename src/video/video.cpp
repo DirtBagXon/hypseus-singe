@@ -124,7 +124,6 @@ string g_bezel_file = "";
 
 // degrees in clockwise rotation
 SDL_RendererFlip g_flipState = SDL_FLIP_NONE;
-int sdl_max_rotate_width = NOSQUARE;
 float g_fRotateDegrees = 0.0;
 
 // YUV structure
@@ -239,19 +238,9 @@ bool init_display()
         if (g_window) resize_cleanup();
 
         if (g_fRotateDegrees != 0) {
-            if ((int)g_ldp->get_discvideo_width() <= sdl_max_rotate_width) {
-                if (g_fRotateDegrees != 180.0) {
-                    LOGW << "Screen rotation enabled, aspect ratios will be ignored";
-                    g_viewport_width = g_vid_width;
-                    g_viewport_height = g_vid_width;
-                }
-                if (g_game->get_game_type() != 10)
-                    g_yuv_video_needs_update = true;
-
-            } else {
-                LOGE << "Screen rotation not supported at this resolution";
-                g_game->set_game_errors(SDL_ERROR_ROTATION);
-                set_quitflag();
+            if (g_fRotateDegrees != 180.0) {
+                LOGW << "Screen rotation enabled, aspect ratios will be ignored";
+                g_viewport_height = g_viewport_width;
             }
 	}
 
@@ -746,8 +735,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y)
     g_scoreboard_needs_update = true;
 
     if (g_aspect_ratio == ASPECTSD &&
-             g_draw_width == NOSQUARE &&
-             g_fRotateDegrees == 0)
+             g_draw_width == NOSQUARE)
         start_x = (start_x - (start_x / 4));
 
     dest.x = start_x;
@@ -1237,9 +1225,16 @@ void vid_blit () {
         if (g_yuv_texture)
             SDL_RenderCopyEx(g_renderer, g_yuv_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
-        if (g_overlay_texture)
-            SDL_RenderCopyEx(g_renderer, g_overlay_texture, NULL, NULL,
+        if (g_overlay_texture) {
+            char ar = 2;
+            SDL_Rect rotate_rect;
+            if (g_aspect_ratio == ASPECTWS && g_overlay_resize) ar--;
+            rotate_rect.w = g_render_size_rect.h + (g_render_size_rect.w >> ar);
+            rotate_rect.h = g_render_size_rect.h;
+            rotate_rect.x = rotate_rect.y = 0;
+            SDL_RenderCopyEx(g_renderer, g_overlay_texture, &rotate_rect, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
+        }
     } else if (g_game->get_sinden_border())
 	    if (!g_bezel_texture)
                 draw_border(g_game->get_sinden_border(),
