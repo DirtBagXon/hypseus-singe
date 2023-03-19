@@ -739,6 +739,16 @@ bool parse_cmd_line(int argc, char **argv)
                     printline("NOTE: Scoreboard bezel is not available");
                 }
             }
+            else if (strcasecmp(s, "-scorebezel_scale") == 0) {
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+                if (i >= 1 && i <= 20) {
+                    video::set_score_bezel_scale(i);
+                } else {
+                    printerror("Scale values: 1-20");
+                    result = false;
+                }
+            }
             else if (strcasecmp(s, "-scorebezel_alpha") == 0) {
                     video::set_score_bezel_alpha(true);
             }

@@ -114,6 +114,7 @@ int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
 int sboverlay_characterset = 2;
 int g_texture_access = SDL_TEXTUREACCESS_TARGET;
+int g_sb_bezel_scale = 14;
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
@@ -312,9 +313,11 @@ bool init_display()
 
                     if (g_sb_bezel) {
 
+                        double scale = 9.0f - double((g_sb_bezel_scale << 1) / 10.0f);
+
                         g_sb_bezel_rect.x = sb_window_pos_x;
                         g_sb_bezel_rect.y = sb_window_pos_y;
-                        g_sb_bezel_rect.w = (g_viewport_width / 6.3f);
+                        g_sb_bezel_rect.w = (g_viewport_width / scale);
                         g_sb_bezel_rect.h = (g_sb_bezel_rect.w * 1.411f); // 17:24
 
                         if (!g_sb_bezel_alpha)
@@ -886,6 +889,7 @@ void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
 void set_score_bezel(bool bEnabled) { g_sb_bezel = bEnabled; }
 void set_score_bezel_alpha(bool bEnabled) { g_sb_bezel_alpha = bEnabled; }
+void set_score_bezel_scale(int value) { g_sb_bezel_scale = value; }
 
 void set_scalefactor(int value)
 {
