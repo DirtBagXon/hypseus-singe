@@ -681,7 +681,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
 }
 
 // Draw LDP1450 overlay characters to the screen - rewrite for SDL2 (DBX)
-void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
+void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y)
 {
     float x;
     int i, j = 0;
@@ -736,7 +736,7 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface
     }
 }
 
-void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y, SDL_Surface *overlay)
+void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y)
 {
     SDL_Rect src, dest;
 

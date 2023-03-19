@@ -272,10 +272,10 @@ void write(unsigned char value)
 
                         if (g_game->get_use_old_overlay()) {
                             video::draw_singleline_LDP1450(g_LDP1450_Strings[i].String,
-                                                overlay_ldp1450_x, overlay_ldp1450_y, overlay);
+                                                overlay_ldp1450_x, overlay_ldp1450_y);
                         } else {
                             video::draw_charline_LDP1450(g_LDP1450_Strings[i].String,
-                                                overlay_ldp1450_x, overlay_ldp1450_y, overlay);
+                                                overlay_ldp1450_x, overlay_ldp1450_y);
                         }
                         overlay_ldp1450_y += video::OVERLAY_LDP1450_LINE_SPACING; // line spacing
                     }
