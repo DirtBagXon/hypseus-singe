@@ -643,8 +643,8 @@ bool draw_led(int value, int x, int y)
 
 
 // Update scoreboard surface
-void draw_overlay_leds(unsigned int values[], int num_digits, int start_x,
-                       int y, SDL_Surface *overlay)
+void draw_overlay_leds(unsigned int values[], int num_digits,
+                       int start_x, int y)
 {
     SDL_Rect src, dest;
 
