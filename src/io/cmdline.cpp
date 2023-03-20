@@ -742,10 +742,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-scorebezel_scale") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                if (i >= 1 && i <= 20) {
+                if (i >= 1 && i <= 25) {
                     video::set_score_bezel_scale(i);
                 } else {
-                    printerror("Scale values: 1-20");
+                    printerror("Scale values: 1-25");
                     result = false;
                 }
             }
