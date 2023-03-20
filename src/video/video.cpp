@@ -80,7 +80,8 @@ SDL_Texture *g_sb_texture          = NULL;
 SDL_Surface *g_sb_blit_surface     = NULL;
 SDL_Texture *g_bezel_texture       = NULL;
 
-SDL_Rect g_overlay_size_rect; 
+SDL_Rect g_rotate_rect;
+SDL_Rect g_overlay_size_rect;
 SDL_Rect g_scaling_rect = {0, 0, 0, 0};
 SDL_Rect g_sb_bezel_rect = {0, 0, 0, 0};
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
@@ -109,6 +110,7 @@ bool g_bezel_toggle = false;
 bool g_scale_view = false;
 bool g_sb_bezel_alpha = false;
 bool g_sb_bezel = false;
+bool g_rotate = false;
 
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
@@ -503,6 +505,8 @@ void resize_cleanup()
 {
     SDL_SetWindowGrab(g_window, SDL_FALSE);
 
+    g_rotate = false;
+
     if (g_sb_blit_surface) SDL_FreeSurface(g_sb_blit_surface);
     if (g_screen_blitter) SDL_FreeSurface(g_screen_blitter);
     if (g_leds_surface) SDL_FreeSurface(g_leds_surface);
@@ -513,7 +517,6 @@ void resize_cleanup()
     if (g_renderer) SDL_DestroyRenderer(g_renderer);
 
     SDL_DestroyWindow(g_window);
-
 }
 
 // shuts down video display
@@ -1226,13 +1229,15 @@ void vid_blit () {
             SDL_RenderCopyEx(g_renderer, g_yuv_texture, NULL, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
         if (g_overlay_texture) {
-            char ar = 2;
-            SDL_Rect rotate_rect;
-            if (g_aspect_ratio == ASPECTWS && g_overlay_resize) ar--;
-            rotate_rect.w = g_render_size_rect.h + (g_render_size_rect.w >> ar);
-            rotate_rect.h = g_render_size_rect.h;
-            rotate_rect.x = rotate_rect.y = 0;
-            SDL_RenderCopyEx(g_renderer, g_overlay_texture, &rotate_rect, NULL,
+            if (!g_rotate) {
+                int8_t ar = 2;
+                if (g_aspect_ratio == ASPECTWS && g_overlay_resize) ar--;
+                g_rotate_rect.w = g_render_size_rect.h + (g_render_size_rect.w >> ar);
+                g_rotate_rect.h = g_render_size_rect.h;
+                g_rotate_rect.x = g_rotate_rect.y = 0;
+                g_rotate = true;
+            }
+            SDL_RenderCopyEx(g_renderer, g_overlay_texture, &g_rotate_rect, NULL,
                       g_fRotateDegrees, NULL, g_flipState);
         }
     } else if (g_game->get_sinden_border())
