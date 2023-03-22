@@ -1078,6 +1078,9 @@ void lair::input_enable(Uint8 move, Sint8 mouseID)
                                // diagnostics)
         }
         break;
+    case SWITCH_TILT:
+        game::switch_scoreboard_display();
+        break;
     default:
         // unused key, take no action
 
@@ -1128,6 +1131,8 @@ void lair::input_disable(Uint8 move, Sint8 mouseID)
         break;
     case SWITCH_SKILL3:                        // space ace
         m_joyskill_val |= (unsigned char)0x80; // set bit 7
+        break;
+    case SWITCH_TILT:
         break;
     default:
         // unused key, take no action

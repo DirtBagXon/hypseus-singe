@@ -218,6 +218,8 @@ class game
     virtual void set_sinden_border(int);
     virtual void set_sinden_border_color(int);
 
+    virtual void switch_scoreboard_display();
+
     virtual void set_prefer_samples(bool);
     virtual void set_fastboot(bool);
     virtual void set_preset(int);  // set up dip switches/rom names, etc with

@@ -628,6 +628,8 @@ void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
 
 void game::set_manymouse(bool value) { m_manymouse = value; }
 
+void game::switch_scoreboard_display() { video::vid_scoreboard_switch(); }
+
 void game::set_fullsize_overlay(bool value) { m_fullsize_overlay = value; }
 
 void game::set_32bit_overlay(bool value)
