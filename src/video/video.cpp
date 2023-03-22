@@ -302,6 +302,12 @@ bool init_display()
                     g_sb_blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_sb_w, g_sb_h,
                                             surfacebpp, Rmask, Gmask, Bmask, Amask);
 
+                    int displays = SDL_GetNumVideoDisplays();
+                    SDL_Rect displayDimensions[displays];
+
+                    for (int i = 0; i < displays; i++)
+                        SDL_GetDisplayBounds(i, &displayDimensions[i]);
+
                     if (g_sb_bezel) {
 
                         double scale = 9.0f - double((g_sb_bezel_scale << 1) / 10.0f);
@@ -324,6 +330,11 @@ bool init_display()
                             g_game->set_game_errors(SDL_ERROR_SCOREWINDOW);
                             set_quitflag();
                         }
+
+			if (displays > 1)
+                            SDL_SetWindowPosition(g_sb_window,
+                               displayDimensions[1].x + sb_window_pos_x,
+                                  displayDimensions[1].y + sb_window_pos_y);
 
                         g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, sdl_sb_render_flags);
 
@@ -1014,6 +1025,27 @@ void vid_toggle_scanlines()
     } else g_scanlines = true;
 }
 
+void vid_scoreboard_switch()
+{
+    if (!g_sb_window) return;
+
+    int displays = SDL_GetNumVideoDisplays();
+
+    if (displays > 1) {
+        SDL_Rect displayDimensions[displays];
+        int winId = SDL_GetWindowDisplayIndex(g_sb_window);
+
+        for (int i = 0; i < displays; i++)
+            SDL_GetDisplayBounds(i, &displayDimensions[i]);
+
+        if (++winId == displays) winId = 0;
+
+        SDL_SetWindowPosition(g_sb_window,
+           displayDimensions[winId].x + sb_window_pos_x,
+              displayDimensions[winId].y + sb_window_pos_y);
+    }
+}
+
 void vid_setup_yuv_overlay (int width, int height) {
     // Prepare the YUV overlay, wich means setting up both the YUV surface and YUV texture.
 
@@ -1184,14 +1216,14 @@ void vid_blit () {
     }
 
     // Does OVERLAY texture need update from the scoreboard surface?
-    if(g_scoreboard_needs_update) {
-	SDL_UpdateTexture(g_overlay_texture, &g_leds_size_rect,
+    if (g_scoreboard_needs_update) {
+        SDL_UpdateTexture(g_overlay_texture, &g_leds_size_rect,
 	    (void *)g_leds_surface->pixels, g_leds_surface->pitch);
     }
 
     // Does OVERLAY texture need update from the overlay surface?
-    if(g_overlay_needs_update) {
-	SDL_UpdateTexture(g_overlay_texture, &g_overlay_size_rect,
+    if (g_overlay_needs_update) {
+        SDL_UpdateTexture(g_overlay_texture, &g_overlay_size_rect,
 	    (void *)g_screen_blitter->pixels, g_screen_blitter->pitch);
 
 	g_overlay_needs_update = false;

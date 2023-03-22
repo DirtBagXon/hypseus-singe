@@ -648,6 +648,10 @@ void thayers::process_keydown(SDL_Keycode key)
             g_ldp->request_screenshot();
             break;
 
+        case SDLK_HOME:
+            game::switch_scoreboard_display();
+            break;
+
         case SDLK_PAGEUP:
             if (sound::is_enabled()) {
                 // speech volume up

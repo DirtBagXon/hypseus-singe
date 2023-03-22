@@ -170,6 +170,7 @@ void draw_subtitle(char *, bool ins);
 void draw_LDP1450_overlay();
 void vid_toggle_fullscreen();
 void vid_toggle_scanlines();
+void vid_scoreboard_switch();
 void set_aspect_ratio(int fRatio);
 void set_detected_height(int pHeight);
 void set_detected_width(int pWidth);
