@@ -299,8 +299,9 @@ bool init_display()
 
                 if (g_game->m_sdl_software_scoreboard) {
 
-                    g_sb_blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_sb_w, g_sb_h,
-                                            surfacebpp, Rmask, Gmask, Bmask, Amask);
+                    if (!g_sb_blit_surface)
+                        g_sb_blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_sb_w, g_sb_h,
+                                               surfacebpp, Rmask, Gmask, Bmask, Amask);
 
                     int displays = SDL_GetNumVideoDisplays();
                     SDL_Rect displayDimensions[displays];
@@ -359,7 +360,6 @@ bool init_display()
                     if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
                         g_bezel_toggle = true;
                 }
-
 
 		// Always hide the mouse cursor
                 SDL_ShowCursor(SDL_DISABLE);
@@ -518,7 +518,6 @@ void resize_cleanup()
 
     g_rotate = false;
 
-    if (g_sb_blit_surface) SDL_FreeSurface(g_sb_blit_surface);
     if (g_screen_blitter) SDL_FreeSurface(g_screen_blitter);
     if (g_leds_surface) SDL_FreeSurface(g_leds_surface);
 
@@ -1380,6 +1379,15 @@ void take_screenshot()
 
                 boardrect.x = (mode.w / screenshot.w) * sb_window_pos_x;
                 boardrect.y = (mode.h / screenshot.h) * sb_window_pos_y;
+
+                if (!fullscreen) {
+                    mode.w = screenshot.w;
+                    mode.h = screenshot.h;
+                }
+
+                if (boardrect.x > (mode.w - g_sb_w)) boardrect.x = mode.w - g_sb_w;
+                if (boardrect.y > (mode.h - g_sb_h)) boardrect.y = mode.h - g_sb_h;
+
                 SDL_BlitSurface(scoreboard, NULL, surface, &boardrect);
             }
         }

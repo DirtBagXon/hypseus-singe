@@ -128,7 +128,8 @@ Full details of the USB scoreboard [here](https://github.com/DirtBagXon/hypseus_
 
 ## Software Scoreboard
 
-Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-scorepanel`
+Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-scorepanel`.  
+Use `KEY_TILT` to switch displays when using multiple screens.
 
 A *bezel* based alternate is also available via: `-scorebezel`
 
