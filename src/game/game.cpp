@@ -615,6 +615,8 @@ bool game::get_fullsize_overlay() { return m_fullsize_overlay; }
 
 bool game::get_manymouse() { return m_manymouse; }
 
+bool game::get_fastboot() { return m_fastboot; }
+
 void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
 
 void game::set_fastboot(bool value) { m_fastboot = value; }

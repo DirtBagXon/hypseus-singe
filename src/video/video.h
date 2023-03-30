@@ -56,6 +56,8 @@ static const uint8_t OVERLAY_LDP1450_CHARACTER_SPACING = 15;
 // spacing between LDP1450 overlay lines
 static const uint8_t OVERLAY_LDP1450_LINE_SPACING = 16;
 static const uint8_t OVERLAY_LDP1450_LINES = 16;
+static const uint8_t ANUN_CHAR_HEIGHT = 15;
+static const uint8_t ANUN_LEVELS = 3;
 
 typedef struct LDP1450_CharStruct {
     bool enable = false;
@@ -73,12 +75,13 @@ enum {
     B_GAMENOWOOK,
     B_OVERLAY_LEDS,
     B_OVERLAY_LDP1450,
+    B_ANUN_OFF,
+    B_ANUN_ON,
+    B_ACE_SPACE,
+    B_ACE_CAPTAIN,
+    B_ACE_CADET,
     B_EMPTY
 }; // bitmaps
-enum {
-    FONT_SMALL,
-    FONT_BIG
-}; // font enumeration, dependent on which order font .bmp's are loaded in
 
 bool init_display();
 
@@ -122,6 +125,7 @@ void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
 void free_bmps();
 SDL_Surface *load_one_bmp(const char *);
+SDL_Surface *load_one_png(const char *);
 void free_one_bmp(SDL_Surface *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,
                     unsigned char red, unsigned char green, unsigned char blue);
@@ -180,10 +184,17 @@ void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
 void set_aspect_change(int aspectWidth, int aspectHeight);
-void set_sb_window(int, int);
+void set_sb_window_position(int, int);
+void set_annun_bezel_position(int, int);
 void set_score_bezel(bool bEnabled);
 void set_score_bezel_alpha(bool bEnabled);
 void set_score_bezel_scale(int value);
+void set_ace_annun_scale(int value);
+void set_tq_keyboard(bool bEnabled);
+void set_annun_bezel(bool bEnabled);
+
+bool draw_ranks();
+bool draw_annunciator(int which);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);

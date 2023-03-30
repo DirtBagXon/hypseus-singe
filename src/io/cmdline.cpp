@@ -739,11 +739,20 @@ bool parse_cmd_line(int argc, char **argv)
                     printline("NOTE: Scoreboard bezel is not available");
                 }
             }
-            else if (strcasecmp(s, "-scorebezel_scale") == 0) {
+            else if (strcasecmp(s, "-scorebezel_scale") == 0 ||
+                         strcasecmp(s, "-annunbezel_scale") == 0) {
+                bool annun = false;
+
+                if (strcasecmp(s, "-annunbezel_scale") == 0)
+                    annun = true;
+
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 if (i >= 1 && i <= 25) {
-                    video::set_score_bezel_scale(i);
+                    if (annun)
+                        video::set_ace_annun_scale(i);
+                    else
+                        video::set_score_bezel_scale(i);
                 } else {
                     printerror("Scale values: 1-25");
                     result = false;
@@ -765,10 +774,15 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             else if (strcasecmp(s, "-scorepanel_position") == 0 ||
-                         strcasecmp(s, "-scorebezel_position") == 0) {
+                         strcasecmp(s, "-scorebezel_position") == 0 ||
+                            strcasecmp(s, "-annunbezel_position") == 0) {
                 const int vMax = 3840 + 1; // This should handle 4k
                 int xVal = 0;
                 int yVal = 0;
+                bool annun = false;
+
+                if (strcasecmp(s, "-annunbezel_position") == 0)
+                    annun = true;
 
                 get_next_word(s, sizeof(s));
                 if (strcasecmp(s, "0") == 0) xVal = 1;
@@ -783,10 +797,27 @@ bool parse_cmd_line(int argc, char **argv)
                 }
 
                 if ((xVal > 0) && (xVal <= vMax) && (yVal > 0) && (yVal <= vMax)) {
-                    video::set_sb_window(xVal-1, yVal-1);
+                    if (annun)
+                        video::set_annun_bezel_position(xVal-1, yVal-1);
+                    else
+                        video::set_sb_window_position(xVal-1, yVal-1);
                 } else {
-                    printerror("Scoreboard position requires x and y values");
+                    printerror("Positions requires x and y values");
                     result = false;
+                }
+            }
+            else if (strcasecmp(s, "-tq_keyboard") == 0) {
+                thayers *game_thayers = dynamic_cast<thayers *>(g_game);
+
+                if (game_thayers)
+                    video::set_tq_keyboard(true);
+            }
+            else if (strcasecmp(s, "-annunbezel") == 0) {
+                lair *game_ace = dynamic_cast<ace *>(g_game);
+
+                if (game_ace) {
+                    video::set_annun_bezel(true);
+                    enable_bannun(true);
                 }
             }
             // used to modify the dip switch settings of the game in question
@@ -802,7 +833,6 @@ bool parse_cmd_line(int argc, char **argv)
 
                 result = g_game->set_bank((unsigned char)i, (unsigned char)value);
             }
-
             else if (strcasecmp(s, "-latency") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);

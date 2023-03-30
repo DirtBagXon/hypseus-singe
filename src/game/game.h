@@ -206,6 +206,8 @@ class game
 
     bool get_manymouse();
 
+    bool get_fastboot();
+
     virtual void set_manymouse(bool);
 
     virtual void set_32bit_overlay(bool);

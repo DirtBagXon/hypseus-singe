@@ -50,6 +50,7 @@ using namespace std;
 #endif
 
 #include <SDL_main.h>
+#include <SDL_image.h>
 
 #ifdef WIN32
 // win32 doesn't have regular chdir apparently
@@ -154,6 +155,7 @@ void set_cur_dir(const char *exe_loc)
 int main(int argc, char **argv)
 {
     int result_code = 1; // assume an error unless we find otherwise
+    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
 
     set_cur_dir(argv[0]); // set active directory
 
@@ -162,6 +164,16 @@ int main(int argc, char **argv)
     // 2 - we can trace segfaults using a debugger
     if (SDL_Init(SDL_INIT_NOPARACHUTE) < 0) {
         printerror("Could not initialize SDL!");
+        exit(1);
+    }
+
+    if (IMG_Init(imgflags) != imgflags) {
+        printerror("Could not initialize SDL IMG!");
+        exit(1);
+    }
+
+    if (TTF_Init() != 0) {
+        printerror("Could not initialize SDL TTF!");
         exit(1);
     }
 
@@ -288,7 +300,8 @@ int main(int argc, char **argv)
 
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)
-
+    IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
     exit(result_code);
 }

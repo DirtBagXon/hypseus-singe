@@ -53,6 +53,12 @@ bool USBScoreboard::USBInit() {
   unsigned char port = get_usb_port();
   unsigned int baud = get_usb_baud();
 
+  if (g_game_sae())
+  {
+      if (g_game_fastboot()) return false;
+      g_serial_saeboot = true;
+  }
+
   if (g_usb_serial.SupportedBaud(baud)) {
      LOGI << "Setting BAUD rate: " << baud;
   } else {
@@ -90,8 +96,6 @@ bool USBScoreboard::USBInit() {
   }
 
   LOGI << "Opened: " << device;
-
-  if (g_game_sae()) g_serial_saeboot = true;
 
   g_usb_serial.DTR(false);
   g_usb_serial.RTS(true);
