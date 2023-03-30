@@ -31,12 +31,15 @@
 #include "config.h"
 
 #include "led.h"
+#include "video.h"
+
 #include "../game/lair_util.h"
 #include "../scoreboard/usb_util.h"
 
 bool g_save_numlock = false, g_save_capital = false, g_save_scroll = false;
 bool g_leds_enabled = false; // LEDs are disabled by default since they don't
                              // work on all platforms
+bool g_bannun_enabled = false;
 
 #ifdef LINUX
 #include <fcntl.h>
@@ -138,7 +141,6 @@ int CloseKeyboardDevice(HANDLE hndKbdDev)
 
 void change_led(bool num_lock, bool caps_lock, bool scroll_lock)
 {
-
     if (g_game_annun()) {
 
         USBUtil serial;
@@ -156,6 +158,15 @@ void change_led(bool num_lock, bool caps_lock, bool scroll_lock)
             serial.write_usb(ds);
             return;
         }
+    }
+
+    if (g_bannun_enabled) {
+
+            if (scroll_lock) video::draw_annunciator(1);
+            if (caps_lock) video::draw_annunciator(2);
+            if (num_lock) video::draw_annunciator(3);
+
+            return;
     }
 
     // are the LED's enabled
@@ -234,3 +245,4 @@ void restore_leds()
 
 // enables the LEDs for use since they are disabled by default
 void enable_leds(bool value) { g_leds_enabled = value; }
+void enable_bannun(bool value) { g_bannun_enabled = value; }

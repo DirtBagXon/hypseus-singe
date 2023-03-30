@@ -61,6 +61,7 @@ void change_led(bool, bool, bool);
 void remember_leds();
 void restore_leds();
 void enable_leds(bool value);
+void enable_bannun(bool value);
 
 #ifdef WIN32
 

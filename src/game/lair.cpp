@@ -1176,3 +1176,5 @@ bool g_game_sae()
 }
 
 bool g_game_annun() { return g_bUsbAnnunciator; }
+
+bool g_game_fastboot() { return g_game->get_fastboot(); }

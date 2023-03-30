@@ -26,5 +26,6 @@
 
 bool g_game_annun();
 bool g_game_sae();
+bool g_game_fastboot();
 
 #endif
