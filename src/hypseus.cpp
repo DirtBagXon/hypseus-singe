@@ -169,11 +169,14 @@ int main(int argc, char **argv)
 
     if (IMG_Init(imgflags) != imgflags) {
         printerror("Could not initialize SDL IMG!");
+        SDL_Quit();
         exit(1);
     }
 
     if (TTF_Init() != 0) {
         printerror("Could not initialize SDL TTF!");
+        IMG_Quit();
+        SDL_Quit();
         exit(1);
     }
 
@@ -300,8 +303,9 @@ int main(int argc, char **argv)
 
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)
-    IMG_Quit();
+
     TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
     exit(result_code);
 }
