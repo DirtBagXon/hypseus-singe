@@ -130,7 +130,7 @@ void set_buf_size(Uint16 newbufsize)
     // re-allocate all sound buffers since the size has changed
     struct chip *cur = g_chip_head;
     while (cur) {
-        delete cur->buffer;
+        delete[] cur->buffer;
         cur->buffer = new Uint8[g_uSoundChipBufSize];
         memset(cur->buffer, 0, g_uSoundChipBufSize);
         cur->buffer_pointer = cur->buffer;
