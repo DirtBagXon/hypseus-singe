@@ -23,6 +23,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <string.h>
 
 static unsigned char g_retropath = 0;
 
@@ -34,38 +35,17 @@ void lua_retropath(const char *src, char *dst, int len)
 {
     unsigned char r = 0;
     for (int i = 0; i < len; src++, i++) {
-
         if (i == 6) {
-            *dst   =  47;
-            dst++;
-            *dst   =  46;
-            dst++;
-            *dst   =  46;
-            dst++;
-            *dst   =  47;
-            dst++;
+            memcpy(dst, "/../", 4);
+            dst += 4;
         }
-        if (*src == 0x2F && r<0x10) {
+        if (*src == '/' && r < 0x10) {
             r++;
             continue;
         }
         if (r == 2) {
-            *dst   =  46;
-            dst++;
-            *dst   = 100;
-            dst++;
-            *dst   =  97;
-            dst++;
-            *dst   = 112;
-            dst++;
-            *dst   = 104;
-            dst++;
-            *dst   = 110;
-            dst++;
-            *dst   = 101;
-            dst++;
-            *dst   =  47;
-            dst++;
+            memcpy(dst, ".daphne/", 8);
+            dst += 8;
             r = 0x10;
         }
         *dst = *src;

@@ -45,6 +45,18 @@
 
 using namespace std;
 
+namespace {
+
+// Convert surface to specified pixel format and free the original surface.
+void ConvertSurface(SDL_Surface **surface, const SDL_PixelFormat *fmt)
+{
+    SDL_Surface *tmpSurface = SDL_ConvertSurface(*surface, fmt, 0);
+    SDL_FreeSurface(*surface);
+    *surface = tmpSurface;
+}
+
+}
+
 namespace video
 {
 int g_vid_width = 640, g_vid_height = 480; // default video dimensions
@@ -498,18 +510,17 @@ bool init_display()
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, 320, 240,
 					surfacebpp, Rmask, Gmask, Bmask, Amask);
 
-                // Convert the LEDs surface to the destination surface format for faster blitting,
-                // and set it's color key to NOT copy 0x000000ff pixels.
-                // We couldn't do it earlier in load_bmps() because we need the g_screen_blitter format.
-                g_other_bmps[B_OVERLAY_LEDS] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LEDS],
-                                    g_screen_blitter->format, 0);
-                SDL_SetColorKey (g_other_bmps[B_OVERLAY_LEDS], SDL_TRUE, 0x000000ff);
+                // Convert the LEDs surface to the destination surface format for faster
+                // blitting, and set it's color key to NOT copy 0x000000ff pixels. We
+                // couldn't do it earlier in load_bmps() because we need the
+                // g_screen_blitter format.
+                ConvertSurface(&g_other_bmps[B_OVERLAY_LEDS], g_screen_blitter->format);
+                SDL_SetColorKey(g_other_bmps[B_OVERLAY_LEDS], SDL_TRUE, 0x000000ff);
 
                 if (g_game->get_use_old_overlay()) {
-                    g_other_bmps[B_OVERLAY_LDP1450] = SDL_ConvertSurface(g_other_bmps[B_OVERLAY_LDP1450],
-                                    g_screen_blitter->format, 0);
-                    SDL_SetColorKey (g_other_bmps[B_OVERLAY_LDP1450], SDL_TRUE, 0x000000ff);
-
+                    ConvertSurface(&g_other_bmps[B_OVERLAY_LDP1450],
+                                   g_screen_blitter->format);
+                    SDL_SetColorKey(g_other_bmps[B_OVERLAY_LDP1450], SDL_TRUE, 0x000000ff);
                 }
 
                 // MAC: If the game uses an overlay, create a texture for it.

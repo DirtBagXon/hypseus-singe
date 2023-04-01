@@ -10,6 +10,7 @@ option(VLDP_DEBUG       "VLDP Debug"            OFF)
 option(CPU_DEBUG        "CPU Debug"             OFF)
 option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
+option(ASAN             "Address Sanitizer"     OFF)
 
 if( NOT CMAKE_BUILD_TYPE )
     set(CMAKE_BUILD_TYPE "Release")
@@ -23,6 +24,9 @@ if ( UNIX )
 endif()
 
 add_compile_options(-Wall)
+if(ASAN)
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
@@ -113,6 +117,9 @@ find_package(Vorbis REQUIRED)
 
 add_executable( hypseus hypseus.cpp globals.h )
 target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY} )
+if(ASAN)
+    target_link_options(hypseus PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
+endif()
 
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
