@@ -26,6 +26,7 @@
 #include "../../video/video.h"
 #include "../../sound/sound.h"
 
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -839,42 +840,35 @@ static int sep_debug_say(lua_State *L)
 
 static int sep_font_load(lua_State *L)
 {
-  int n = lua_gettop(L);
-  int result = -1;
-  const char *font = NULL;
-  int points = 0;
-  
-  if (n == 2)
-    if (lua_isstring(L, 1))
-      if (lua_isnumber(L, 2))
-      {
-          font = lua_tostring(L, 1);
-          int len = strlen(font) + RETRO_PAD;
-          char filepath[RETRO_MAXPATH];
+    int n      = lua_gettop(L);
+    int result = -1;
 
-          if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+    if (n == 2 && lua_type(L, 1) == LUA_TSTRING && lua_type(L, 2) == LUA_TNUMBER) {
+        std::string fontpath = lua_tostring(L, 1);
 
-          if (g_pSingeIn->get_retro_path())
-              lua_retropath(font, filepath, len);
-          else
-              memcpy(filepath, font, len);
+        if (g_pSingeIn->get_retro_path()) {
+            char filepath[RETRO_MAXPATH]{};
+            int len = std::min((int)fontpath.size() + RETRO_PAD, RETRO_MAXPATH);
+            lua_retropath(fontpath.c_str(), filepath, len);
+            fontpath = filepath;
+        }
 
-          points = lua_tonumber(L, 2);
-          TTF_Font *temp = NULL;
+        int points = lua_tonumber(L, 2);
 
-          // Load this font.
-          temp = TTF_OpenFont(filepath, points);
-          if (temp != NULL) {
-               // Make it the current font and mark it as loaded.
-               g_fontList.push_back(temp);
-               g_fontCurrent = g_fontList.size() - 1;
-               result = g_fontCurrent;
-          } else
-              sep_die("Unable to load font: %s", filepath);
-      }
+        // Load this font.
+        TTF_Font *temp = TTF_OpenFont(fontpath.c_str(), points);
+        if (temp) {
+            // Make it the current font and mark it as loaded.
+            g_fontList.push_back(temp);
+            g_fontCurrent = g_fontList.size() - 1;
+            result        = g_fontCurrent;
+        } else {
+            sep_die("Unable to load font: %s", fontpath.c_str());
+        }
+    }
 
-  lua_pushnumber(L, result);
-  return 1;
+    lua_pushnumber(L, result);
+    return 1;
 }
 
 static int sep_font_quality(lua_State *L)
@@ -1330,35 +1324,32 @@ static int sep_skip_to_frame(lua_State *L)
 
 static int sep_sound_load(lua_State *L)
 {
-  int n = lua_gettop(L);
-  int result = -1;
+    int n = lua_gettop(L);
+    int result = -1;
 
-  if (n == 1)
-    if (lua_isstring(L, 1))
-		{
-			const char *file = lua_tostring(L, 1);
-			int len = strlen(file) + RETRO_PAD;
-			char filepath[RETRO_MAXPATH] ;
+    if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
+    {
+        std::string filepath = lua_tostring(L, 1);
 
-			if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+        if (g_pSingeIn->get_retro_path())
+        {
+            char tmpPath[RETRO_MAXPATH];
+            int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
+            lua_retropath(filepath.c_str(), tmpPath, len);
+            filepath = tmpPath;
+        }
 
-			if (g_pSingeIn->get_retro_path()) {
-                            lua_retropath(file, filepath, len);
-			} else
-                            memcpy(filepath, file, len);
+        g_soundT temp;
+        if (SDL_LoadWAV(filepath.c_str(), &temp.audioSpec, &temp.buffer, &temp.length) == NULL) {
+            sep_die("Could not open %s: %s", filepath.c_str(), SDL_GetError());
+        } else {
+            g_soundList.push_back(temp);
+            result = g_soundList.size() - 1;
+        }
+    }
 
-			g_soundT temp;
-			if (SDL_LoadWAV(filepath, &temp.audioSpec, &temp.buffer, &temp.length) == NULL)
-			{
-				sep_die("Could not open %s: %s", filepath, SDL_GetError());
-			} else {
-				g_soundList.push_back(temp);
-				result = g_soundList.size() - 1;
-			}
-		}
-      
-  lua_pushnumber(L, result);
-  return 1;
+    lua_pushnumber(L, result);
+    return 1;
 }
 
 static int sep_sound_play(lua_State *L)
@@ -1450,38 +1441,36 @@ static int sep_sprite_height(lua_State *L)
 
 static int sep_sprite_load(lua_State *L)
 {
-  int n = lua_gettop(L);
-  int result = -1;
-	
-  if (n == 1)
-    if (lua_isstring(L, 1))
-		{
-			const char *sprite = lua_tostring(L, 1);
-			int len = strlen(sprite) + RETRO_PAD;
-			char filepath[RETRO_MAXPATH];
+    int n = lua_gettop(L);
+    int result = -1;
 
-			if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+    if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
+    {
+        std::string filepath = lua_tostring(L, 1);
 
-			if (g_pSingeIn->get_retro_path()) {
-                            lua_retropath(sprite, filepath, len);
-			} else
-                            memcpy(filepath, sprite, len);
+        if (g_pSingeIn->get_retro_path())
+        {
+            char tmpPath[RETRO_MAXPATH]{};
+            int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
+            lua_retropath(filepath.c_str(), tmpPath, len);
+            filepath = tmpPath;
+        }
 
-			SDL_Surface *temp = IMG_Load(filepath);
+        SDL_Surface *temp = IMG_Load(filepath.c_str());
 
-			if (temp != NULL)
-			{
-				temp = SDL_ConvertSurface(temp, g_se_surface->format, 0);
-				SDL_SetSurfaceRLE(temp, SDL_TRUE);
-				SDL_SetColorKey(temp, SDL_TRUE, 0x0);
-				g_spriteList.push_back(temp);
-				result = g_spriteList.size() - 1;
-			} else
-				sep_die("Unable to load sprite %s!", filepath);
-		}
-	
-	lua_pushnumber(L, result);
-  return 1;
+        if (temp) {
+            temp = SDL_ConvertSurface(temp, g_se_surface->format, 0);
+            SDL_SetSurfaceRLE(temp, SDL_TRUE);
+            SDL_SetColorKey(temp, SDL_TRUE, 0x0);
+            g_spriteList.push_back(temp);
+            result = g_spriteList.size() - 1;
+        } else {
+            sep_die("Unable to load sprite %s!", filepath.c_str());
+        }
+    }
+
+    lua_pushnumber(L, result);
+    return 1;
 }
 
 static int sep_sprite_width(lua_State *L)
