@@ -39,14 +39,14 @@ void lua_retropath(const char *src, char *dst, int len)
             memcpy(dst, "/../", 4);
             dst += 4;
         }
-        if (*src == '/' && r < 0x10) {
+        if (*src == '/' && r < 0xf) {
             r++;
             continue;
         }
         if (r == 2) {
             memcpy(dst, ".daphne/", 8);
             dst += 8;
-            r = 0x10;
+            r = 0xf; //bool
         }
         *dst = *src;
         dst++;
