@@ -1551,7 +1551,6 @@ void take_screenshot()
     int flags = SDL_GetWindowFlags(g_window);
     SDL_Rect     screenshot;
     SDL_Surface  *surface      = NULL;
-    SDL_Surface  *scoreboard   = NULL;
 
     if (flags & SDL_WINDOW_FULLSCREEN_DESKTOP || flags & SDL_WINDOW_MAXIMIZED)
         fullscreen = true;
@@ -1597,9 +1596,6 @@ void take_screenshot()
     } else {
         LOGE <<  fmt("Could not write screenshot: %s !!", filename);
     }
-
-    if (scoreboard)
-        SDL_FreeSurface(scoreboard);
 
     SDL_FreeSurface(surface);
 }
