@@ -1575,38 +1575,6 @@ void take_screenshot()
             { LOGE << fmt("Cannot ReadPixels - Something bad happened: %s", SDL_GetError());
                  g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
                  set_quitflag(); }
-
-        if (g_sb_window) {
-
-            SDL_DisplayMode mode;
-            if (SDL_GetCurrentDisplayMode(SDL_GetWindowDisplayIndex(g_window), &mode) != 0)
-                { LOGE << fmt("Cannot GetDisplayMode: %s", SDL_GetError());
-                 g_game->set_game_errors(SDL_ERROR_SCREENSHOT);
-                 set_quitflag(); }
-
-            SDL_Rect     boardrect;
-            SDL_RenderGetViewport(g_sb_renderer, &boardrect);
-            scoreboard = SDL_CreateRGBSurface(0, boardrect.w, boardrect.h, 32, 0, 0, 0, 0);
-
-            if (scoreboard) {
-                SDL_RenderReadPixels(g_sb_renderer, &boardrect, scoreboard->format->format,
-                       scoreboard->pixels, scoreboard->pitch);
-
-                boardrect.x = (mode.w / screenshot.w) * sb_window_pos_x;
-                boardrect.y = (mode.h / screenshot.h) * sb_window_pos_y;
-
-                if (!fullscreen) {
-                    mode.w = screenshot.w;
-                    mode.h = screenshot.h;
-                }
-
-                if (boardrect.x > (mode.w - g_sb_w)) boardrect.x = mode.w - g_sb_w;
-                if (boardrect.y > (mode.h - g_sb_h)) boardrect.y = mode.h - g_sb_h;
-
-                SDL_BlitSurface(scoreboard, NULL, surface, &boardrect);
-            }
-        }
-
     } else {
         LOGE << "Could not allocate renderer";
         return;
