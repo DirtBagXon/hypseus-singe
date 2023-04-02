@@ -32,9 +32,19 @@
 #include <SDL.h>
 #include <plog/Log.h>
 
+#include "../sound/sound.h"
+
 // notifies the user of an error that has occurred
 void printerror(const char *s)
 {
+    static bool alert = true;
+
+    if (alert && sound::get_initialized()) {
+        sound::play_saveme();
+        SDL_Delay(1000);
+        alert = false;
+    }
+
 #ifdef WIN32
     MessageBox(NULL, s, "Encountered an error", MB_OK | MB_ICONERROR);
 #else
