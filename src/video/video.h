@@ -71,8 +71,6 @@ enum {
     B_DL_PLAYER2,
     B_DL_LIVES,
     B_DL_CREDITS,
-    B_HYPSEUS_SAVEME,
-    B_GAMENOWOOK,
     B_OVERLAY_LEDS,
     B_OVERLAY_LDP1450,
     B_ANUN_OFF,
@@ -124,7 +122,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
 void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
 void free_bmps();
-SDL_Surface *load_one_bmp(const char *);
+SDL_Surface *load_one_bmp(const char *, bool);
 SDL_Surface *load_one_png(const char *);
 void free_one_bmp(SDL_Surface *);
 void draw_rectangle(short x, short y, unsigned short w, unsigned short h,

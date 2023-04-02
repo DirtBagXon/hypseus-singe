@@ -655,9 +655,9 @@ bool load_bmps()
     char filename[81];
 
     for (; index < LED_RANGE; index++) {
-        snprintf(filename, sizeof(filename), "pics/led%d.bmp", index);
+        snprintf(filename, sizeof(filename), "led%d.bmp", index);
 
-        g_led_bmps[index] = load_one_bmp(filename);
+        g_led_bmps[index] = load_one_bmp(filename, false);
 
         // If the bit map did not successfully load
         if (g_led_bmps[index] == 0) {
@@ -665,23 +665,21 @@ bool load_bmps()
         }
     }
 
-    g_other_bmps[B_DL_PLAYER1]     = load_one_bmp("pics/player1.bmp");
-    g_other_bmps[B_DL_PLAYER2]     = load_one_bmp("pics/player2.bmp");
-    g_other_bmps[B_DL_LIVES]       = load_one_bmp("pics/lives.bmp");
-    g_other_bmps[B_DL_CREDITS]     = load_one_bmp("pics/credits.bmp");
-    g_other_bmps[B_HYPSEUS_SAVEME] = load_one_bmp("pics/saveme.bmp");
-    g_other_bmps[B_GAMENOWOOK]     = load_one_bmp("pics/gamenowook.bmp");
+    g_other_bmps[B_DL_PLAYER1]     = load_one_bmp("player1.bmp", false);
+    g_other_bmps[B_DL_PLAYER2]     = load_one_bmp("player2.bmp", false);
+    g_other_bmps[B_DL_LIVES]       = load_one_bmp("lives.bmp", false);
+    g_other_bmps[B_DL_CREDITS]     = load_one_bmp("credits.bmp", false);
 
     if (sboverlay_characterset != 2)
-	g_other_bmps[B_OVERLAY_LEDS] = load_one_bmp("pics/overlayleds1.bmp");
+	g_other_bmps[B_OVERLAY_LEDS] = load_one_bmp("overlayleds1.bmp", false);
     else
-	g_other_bmps[B_OVERLAY_LEDS] = load_one_bmp("pics/overlayleds2.bmp");
+	g_other_bmps[B_OVERLAY_LEDS] = load_one_bmp("overlayleds2.bmp", false);
    
-    g_other_bmps[B_OVERLAY_LDP1450] = load_one_bmp("pics/ldp1450font.bmp");
+    g_other_bmps[B_OVERLAY_LDP1450] = load_one_bmp("ldp1450font.bmp", false);
 
-    g_other_bmps[B_ACE_CADET]   = load_one_bmp("pics/cadet.bmp");
-    g_other_bmps[B_ACE_CAPTAIN] = load_one_bmp("pics/captain.bmp");
-    g_other_bmps[B_ACE_SPACE]   = load_one_bmp("pics/spaceace.bmp");
+    g_other_bmps[B_ACE_CADET]   = load_one_bmp("cadet.bmp", true);
+    g_other_bmps[B_ACE_CAPTAIN] = load_one_bmp("captain.bmp", true);
+    g_other_bmps[B_ACE_SPACE]   = load_one_bmp("spaceace.bmp", true);
 
     g_other_bmps[B_ANUN_ON]     = load_one_png("annunon.png");
     g_other_bmps[B_ANUN_OFF]    = load_one_png("annunoff.png");
@@ -696,14 +694,22 @@ bool load_bmps()
     return (result);
 }
 
-SDL_Surface *load_one_bmp(const char *filename)
+SDL_Surface *load_one_bmp(const char *filename, bool bezel)
 {
-    SDL_Surface *result  = SDL_LoadBMP(filename);
+    char filepath[64] = {};
+
+    if (bezel)
+        snprintf(filepath, sizeof(filepath), "bezels/%s", filename);
+
+    if (!mpo_file_exists(filepath))
+        snprintf(filepath, sizeof(filepath), "pics/%s", filename);
+
+    SDL_Surface *result  = SDL_LoadBMP(filepath);
 
     if (!result) {
-        LOGE << fmt("Could not load bitmap: %s", filename);
+        LOGE << fmt("Could not load bitmap: %s", filepath);
     }
- 
+
     return (result);
 }
 
