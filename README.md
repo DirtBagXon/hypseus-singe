@@ -181,7 +181,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -nolinear_scale            [ Disable bilinear scaling                      ]
     -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
-    -scalefactor               [ Scale video image [50-100]%                   ]
+    -scalefactor <50-100>      [ Scale video display area [50-100]%            ]
     -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
     -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
     -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
@@ -211,6 +211,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     Alt-Backspace              [ Toggle scanlines                              ]
     [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
     [KEY_COIN1]=|[KEY_START1]  [ Joystick hotkey combination for [KEY_QUIT]    ]
+    [KEY_TILT]                 [ Switch scorepanel display screen lair/ace/tq  ]
 
 
 Enforce SDL Window context when Renderer auto-detection fails (_no further extensions enabled_):
