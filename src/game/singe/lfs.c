@@ -121,7 +121,7 @@ static int change_dir (lua_State *L) {
 
 	if (get_retropath()) {
 	    lua_retropath(path, filepath, len);
-	} else memcpy(filepath, path, len);
+	} else strncpy(filepath, path, len);
 
 	if (chdir(filepath)) {
 		lua_pushnil (L);
@@ -502,7 +502,7 @@ static int dir_iter_factory (lua_State *L) {
 
 	if (get_retropath()) {
 	    lua_retropath(path, dirpath, len);
-	} else memcpy(dirpath, path, len);
+	} else strncpy(dirpath, path, len);
 
 	dir_data *d;
 	lua_pushcfunction (L, dir_iter);
@@ -744,7 +744,7 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 
 	if (get_retropath()) {
 	    lua_retropath(file, retrofile, len);
-	} else memcpy(retrofile, file, len);
+	} else strncpy(retrofile, file, len);
 
 	if (st(retrofile, &info)) {
 		lua_pushnil (L);
