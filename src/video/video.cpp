@@ -475,7 +475,8 @@ bool init_display()
                 char fixfont[32] = "fonts/timewarp.ttf";
                 char ttfont[32];
 
-                if (g_game->get_use_old_overlay()) strncpy(ttfont, "fonts/daphne.ttf", sizeof(ttfont));
+                if (g_game->get_use_old_overlay())
+                    strncpy(ttfont, "fonts/daphne.ttf", sizeof(ttfont));
                 else strncpy(ttfont, "fonts/digital.ttf", sizeof(ttfont));
 
                 g_font = FC_CreateFont();
