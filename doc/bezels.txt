@@ -1,0 +1,34 @@
+Arguments related to bezels
+---------------------------
+
+-bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
+-scalefactor               [ Scale video image [50-100]%                   ]
+
+
+Built-in bezels relating to 'lair/ace/tq'
+-----------------------------------------
+
+-annunbezel                [ Built-in bezel: ace annunciator               ]
+-annunbezel_scale <1-25>   [ Built-in bezel: scale option                  ]
+-annunbezel_position <x y> [ Built-in bezel: position options              ]
+-scorebezel                [ Built-in bezel: ace/lair/tq scoreboard        ]
+-scorebezel_scale <1-25>   [ Built-in bezel: scale option                  ]
+-scorebezel_position <x y> [ Built-in bezel: position options              ]
+-tq_keyboard               [ Built-in bezel: tq keyboard displayed         ]
+
+
+-scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
+-scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
+
+[KEY_TILT]                 [ Switch scorepanel display screen lair/ace/tq  ]
+
+
+Built-in overrides
+------------------
+
+- bezels/annunoff.png
+- bezels/annunon.png
+- bezels/cadet.bmp
+- bezels/captain.bmp
+- bezels/spaceace.bmp
+- bezels/tqkeys.png
