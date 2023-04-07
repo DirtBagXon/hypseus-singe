@@ -27,6 +27,11 @@
 #include "vldp.h"
 #include "vldp_common.h"
 
+#ifdef VLDP_DEBUG
+#include "../io/conout.h"
+#include <plog/Log.h>
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 VLDP_BOOL vldp_cmd(int cmd);
@@ -275,16 +280,16 @@ int vldp_skip(Uint32 frame)
                                // that there is no minimum skip delay
         result = vldp_cmd(VLDP_REQ_SKIP);
 #ifdef VLDP_DEBUG
-        if (!result) fprintf(stderr, "vldp_cmd rejected SKIP request!\n");
+        if (!result) { LOGW << "vldp_cmd rejected SKIP request!"; }
 #endif
     }
 
 #ifdef VLDP_DEBUG
     // remove me once this bug is discovered
     else {
-        fprintf(stderr, "VLDP skip failed because one of these happened: \n");
-        fprintf(stderr, "p_initialized is %d\n", p_initialized);
-        fprintf(stderr, "g_out_info.status == %d\n", g_out_info.status);
+        LOGW << "VLDP skip failed because one of these happened: ";
+        LOGW << fmt("p_initialized is %d\n", p_initialized);
+        LOGW << fmt("g_out_info.status == %d\n", g_out_info.status);
     }
 #endif // VLDP_DEBUG
 

@@ -63,10 +63,15 @@ Sample mpeg2 byte sequence: 00 00 01 B5 25 06 06 06 0B 42 0F 00
 #include "mpegscan.h"
 #include "vldp_internal.h"
 
+#ifdef VLDP_DEBUG
+#include "../io/conout.h"
+#include <plog/Log.h>
+#endif
+
 namespace mpegscan
 {
 unsigned char g_last_three[3]    = {0}; // the last 3 bytes read
-unsigned int g_last_three_loc[3] = {0}; // the position of the last 3 bytes read
+uint64_t g_last_three_loc[3]     = {0}; // the position of the last 3 bytes read
 
 int g_last_three_pos           = 0;
 int g_iframe_count             = 0;
@@ -74,10 +79,10 @@ int g_pframe_count             = 0;
 int g_bframe_count             = 0;
 int g_gop_count                = 0; // group of picture count
 int g_curframe                 = 0;
-unsigned int g_goppos          = 0;
-unsigned int g_filepos         = 0; // where we are in the file
+uint64_t g_goppos              = 0;
+uint64_t g_filepos             = 0; // where we are in the file
 unsigned int g_frame_type      = 0; // I, P, B frame, etc
-unsigned int g_last_header_pos = 0; // the position of the last header we've
+uint64_t g_last_header_pos     = 0; // the position of the last header we've
                                     // parsed
 
 int g_fields_detected = 0; // whether the stream uses fields
@@ -143,7 +148,7 @@ void skip_bytes (FILE *F, long bytes_to_skip)
 // a is the most recent byte, c is the oldest
 // for example, a header of 0 0 1 would be a = 1, b = 0, c = 0
 // header is the position of the 'c' byte (oldest byte)
-void get_last_three(unsigned char *a, unsigned char *b, unsigned char *c, unsigned int *header)
+void get_last_three(unsigned char *a, unsigned char *b, unsigned char *c, uint64_t *header)
 {
 
     int count               = 0;
@@ -169,7 +174,7 @@ void get_last_three(unsigned char *a, unsigned char *b, unsigned char *c, unsign
 
 // updates the last 3 values that we've read, replacing the oldest one with
 // 'val' pos is the position of the 'val' in the file
-void add_to_last_three(unsigned char val, unsigned int pos)
+void add_to_last_three(unsigned char val, uint64_t pos)
 {
     g_last_three[g_last_three_pos]     = val;
     g_last_three_loc[g_last_three_pos] = pos;
@@ -184,13 +189,13 @@ void add_to_last_three(unsigned char val, unsigned int pos)
 // returns stat codes
 int parse(FILE *datafile, unsigned int length)
 {
-    int result             = IN_PROGRESS;
-    int ch                 = 0;
-    unsigned int start_pos = g_filepos;
-    const int minus_one    = -1;
-    unsigned int buf_index = 0;
-    size_t bytes_read      = 0;
-    unsigned char *buf     = (unsigned char *)malloc(length); // allocate a chunk of
+    int result               = IN_PROGRESS;
+    int ch                   = 0;
+    uint64_t start_pos       = g_filepos;
+    const int64_t minus_one  = -1;
+    unsigned int buf_index   = 0;
+    size_t bytes_read        = 0;
+    unsigned char *buf       = (unsigned char *)malloc(length); // allocate a chunk of
                                                           // memory to read in
                                                           // file
 
@@ -201,7 +206,7 @@ int parse(FILE *datafile, unsigned int length)
     bytes_read = io_read(buf, length); // read in a chunk
 
     // parse this chunk of video
-    while (g_filepos - start_pos < length) {
+    while ((unsigned int)(g_filepos - start_pos) < length) {
         // this should always be true unless we hit EOF
         if (buf_index < bytes_read) {
             g_filepos++;
@@ -248,15 +253,15 @@ int parse(FILE *datafile, unsigned int length)
                     g_iframe_count++;
                     fwrite(&g_last_header_pos, sizeof(g_last_header_pos), 1, datafile); // actual beginning of I frame
 #ifdef VLDP_DEBUG
-                    // fprintf(stderr, "Found an I frame at %x\n",
-                    //         g_last_header_pos);
+                    LOGI << fmt("Found an I frame at %ld",
+                             g_last_header_pos);
 #endif
                     break;
                 default: // if it's not an I frame, just write -1
                     fwrite(&minus_one, sizeof(minus_one), 1, datafile);
 #ifdef VLDP_DEBUG
-                    // fprintf(stderr, "Found a non I frame at %x\n",
-                    //         g_last_header_pos);
+                    LOGI << fmt("Found a non I frame at %ld",
+                             g_last_header_pos);
 #endif
                     break;
                 }
@@ -349,7 +354,7 @@ int parse(FILE *datafile, unsigned int length)
                     g_goppos = g_last_header_pos;
                     g_gop_count++;
 #ifdef VLDP_DEBUG
-                    fprintf(stderr, "Got GOP at %x\n", g_goppos);
+                    LOGI << fmt("Got GOP at %ld", g_goppos);
 #endif
                     break;
                 default:

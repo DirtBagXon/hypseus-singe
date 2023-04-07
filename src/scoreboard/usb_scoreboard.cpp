@@ -49,7 +49,7 @@ IScoreboard *USBScoreboard::GetInstance() {
 
 bool USBScoreboard::USBInit() {
 
-  char device[20] = {};
+  char device[20] = {0};
   unsigned char port = get_usb_port();
   unsigned int baud = get_usb_baud();
 

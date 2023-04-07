@@ -30,14 +30,14 @@
 #include <mpeg2.h>
 
 // this is which version of the .dat file format we are using
-#define DAT_VERSION 2
+#define DAT_VERSION 3
 
 // header for the .DAT files that are generated
 struct dat_header {
-    Uint8 version;     // which version of the DAT file this is
-    Uint8 finished;    // whether the parse finished parsing or was interrupted
-    Uint8 uses_fields; // whether the stream uses fields or frames
-    Uint32 length;     // length of the m2v stream
+    uint8_t version;     // which version of the DAT file this is
+    uint8_t finished;    // whether the parse finished parsing or was interrupted
+    uint8_t uses_fields; // whether the stream uses fields or frames
+    uint64_t length;     // length of the m2v stream
 };
 
 struct precache_entry_s {
@@ -64,16 +64,16 @@ void ivldp_respond_req_speedchange();
 void ivldp_render();
 void idle_handler_search(int skip);
 VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name);
-VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size);
+VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, uint64_t mpeg_size);
 void ivldp_update_progress_indicator(SDL_Surface *indicator, double percentage_completed);
 
 VLDP_BOOL io_open(const char *cpszFilename);
 VLDP_BOOL io_open_precached(uint32_t uIdx);
 unsigned int io_read(void *buf, unsigned int uBytesToRead);
-VLDP_BOOL io_seek(uint32_t uPos);
+VLDP_BOOL io_seek(uint64_t uPos);
 void io_close();
 VLDP_BOOL io_is_open();
-uint32_t io_length();
+uint64_t io_length();
 
 void draw_frame(const mpeg2_info_t *info);
 

@@ -847,7 +847,7 @@ static int sep_font_load(lua_State *L)
         std::string fontpath = lua_tostring(L, 1);
 
         if (g_pSingeIn->get_retro_path()) {
-            char filepath[RETRO_MAXPATH]{};
+            char filepath[RETRO_MAXPATH] = {0};
             int len = std::min((int)fontpath.size() + RETRO_PAD, RETRO_MAXPATH);
             lua_retropath(fontpath.c_str(), filepath, len);
             fontpath = filepath;
@@ -1333,7 +1333,7 @@ static int sep_sound_load(lua_State *L)
 
         if (g_pSingeIn->get_retro_path())
         {
-            char tmpPath[RETRO_MAXPATH];
+            char tmpPath[RETRO_MAXPATH] = {0};
             int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
             lua_retropath(filepath.c_str(), tmpPath, len);
             filepath = tmpPath;
@@ -1450,7 +1450,7 @@ static int sep_sprite_load(lua_State *L)
 
         if (g_pSingeIn->get_retro_path())
         {
-            char tmpPath[RETRO_MAXPATH]{};
+            char tmpPath[RETRO_MAXPATH] = {0};
             int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
             lua_retropath(filepath.c_str(), tmpPath, len);
             filepath = tmpPath;
