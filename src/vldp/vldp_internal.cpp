@@ -35,10 +35,17 @@
 #include "vldp_common.h"
 #include "mpegscan.h"
 #include "../video/video.h"
+#include "../io/conout.h"
+
+#include <plog/Log.h>
 
 #include <inttypes.h>
 
 #include <mpeg2.h>
+
+#ifdef VLDP_DEBUG
+#define FRAMELOG "frame_report.txt"
+#endif
 
 // NOTICE : these variables should only be used by the private thread
 // !!!!!!!!!!!!
@@ -96,7 +103,7 @@ struct precache_entry_s s_sPreCacheEntries[MAX_PRECACHE_FILES]; // struct array
 
 static FILE *g_mpeg_handle     = NULL; // mpeg file we currently have open
 static mpeg2dec_t *g_mpeg_data = NULL; // structure for libmpeg2's state
-static Uint32 g_frame_position[MAX_LDP_FRAMES] = {0}; // the file position of
+static uint64_t g_frame_position[MAX_LDP_FRAMES] = {0}; // the file position of
                                                       // each I frame
 static Uint32 g_totalframes = 0; // total # of frames in the current mpeg
 
@@ -162,8 +169,8 @@ int idle_handler(void *surface)
                 ivldp_lock_handler();
                 break;
             default:
-                fprintf(stderr, "VLDP WARNING : Idle handler received command "
-                                "which it is ignoring\n");
+                LOGW << "VLDP WARNING : Idle handler received command "
+                                "which it is ignoring";
                 break;
             }             // end switch
             SDL_Delay(0); // give other threads some breathing room (but not
@@ -234,7 +241,7 @@ void ivldp_ack_command()
 void ivldp_lock_handler()
 {
 #ifdef VLDP_DEBUG
-    fprintf(stderr, "DBG: VLDP REQ LOCK RECEIVED!!!\n");
+    LOGI << "DBG: VLDP REQ LOCK RECEIVED!!!";
 #endif
     ivldp_ack_command();
     {
@@ -248,14 +255,14 @@ void ivldp_lock_handler()
                 switch (g_req_cmdORcount & 0xF0) {
                 case VLDP_REQ_UNLOCK:
 #ifdef VLDP_DEBUG
-                    fprintf(stderr, "DBG: VLDP REQ UNLOCK RECEIVED!!!\n");
+                    LOGI << "DBG: VLDP REQ UNLOCK RECEIVED!!!";
 #endif
                     ivldp_ack_command();
                     bLocked = VLDP_FALSE;
                     break;
                 default:
-                    fprintf(stderr, "WARNING : lock handler received a command "
-                                    "%x that wasn't to unlock it\n",
+                    LOGW << fmt("WARNING : lock handler received a command "
+                                    "%x that wasn't to unlock it",
                             g_req_cmdORcount);
                     break;
                 }
@@ -280,8 +287,8 @@ void paused_handler()
         s_uFramesShownSinceTimer = 1;  // this gives us a little breathing room
 
 #ifdef VLDP_DEBUG
-        printf(
-            "paused_handler() : status set to STAT_PAUSED, s_timer set to %u\n",
+        LOGI << fmt(
+            "paused_handler() : status set to STAT_PAUSED, s_timer set to %u",
             g_in_info->uMsTimer);
 #endif
     }
@@ -316,8 +323,8 @@ void paused_handler()
             break;
         default: // else if we get a pause command or another command we don't
                  // know how to handle, just ignore it
-            fprintf(stderr, "WARNING : pause handler received command %x that "
-                            "it is ignoring\n",
+            LOGW << fmt("WARNING : pause handler received command %x that "
+                            "it is ignoring",
                     g_req_cmdORcount);
             ivldp_ack_command(); // acknowledge the command
             break;
@@ -356,8 +363,8 @@ void play_handler()
             break;
         default: // unknown or redundant command, just ignore
             ivldp_ack_command();
-            fprintf(stderr, "WARNING : play handler received command which it "
-                            "is ignoring\n");
+            LOGW << "WARNING : play handler received command which it "
+                            "is ignoring";
             break;
         }
     } // end if we got a new command
@@ -396,7 +403,7 @@ void ivldp_set_framerate(Uint8 frame_rate_code)
         break;
     default:
         // else we got an invalid frame rate code
-        fprintf(stderr, "ERROR : Invalid frame rate code!\n");
+        LOGE << "ERROR : Invalid frame rate code!";
         g_out_info.uFpks = 1000; // to avoid divide by 0 error
         break;
     } // end switch
@@ -444,8 +451,8 @@ static void decode_mpeg2(uint8_t *current, uint8_t *end)
 // NOTE: this does change the file position
 void vldp_cache_sequence_header()
 {
-    Uint32 val         = 0;
-    uint32_t index = 0;
+    uint32_t val       = 0;
+    uint32_t index     = 0;
 
     io_seek(0);                             // start at beginning
     io_read(g_header_buf, HEADER_BUF_SIZE); // assume that we must find the
@@ -459,8 +466,8 @@ void vldp_cache_sequence_header()
         val |= g_header_buf[index]; // add newest byte to bottom of val
         index++;                    // advance the end pointer
         if (index > HEADER_BUF_SIZE) {
-            fprintf(stderr, "VLDP : Could not find first frame in 0x%x bytes.  "
-                            "Modify source code to increase buffer!\n",
+            LOGE << fmt("VLDP : Could not find first frame in 0x%x bytes.  "
+                            "Modify source code to increase buffer!",
                     HEADER_BUF_SIZE);
             break;
         }
@@ -580,8 +587,7 @@ void idle_handler_open()
                                                   // we're ready to play
             } else {
                 io_close();
-                fprintf(stderr,
-                        "VLDP PARSE ERROR : Is the video stream damaged?\n");
+                LOGE << "VLDP PARSE ERROR : Is the video stream damaged?";
                 g_out_info.status = STAT_ERROR; // change from BUSY to ERROR
             }
         } // end if a proper mpeg header was found
@@ -589,17 +595,17 @@ void idle_handler_open()
         // if the file had a bad header
         else {
             io_close();
-            fprintf(stderr, "VLDP ERROR : Did not find expected header.  Is "
-                            "this mpeg stream demultiplexed??\n");
+            LOGE << "VLDP ERROR : Did not find expected header.  Is "
+                            "this mpeg stream demultiplexed??";
             g_out_info.status = STAT_ERROR;
         }
     } // end if file exists
     else {
-        fprintf(stderr, "VLDP ERROR : Could not open file!\n");
+        LOGE << "VLDP ERROR : Could not open file!";
         g_out_info.status = STAT_ERROR;
     }
 #ifdef VLDP_DEBUG
-    printf("idle_handler_open returning ...\n");
+    LOGI << "idle_handler_open returning ...";
 #endif
 }
 
@@ -716,8 +722,8 @@ void ivldp_respond_req_play()
 {
     s_timer = g_req_timer;
 #ifdef VLDP_DEBUG
-    fprintf(stderr, "ivldp_respond_req_play() : g_req_timer is %u, and "
-                    "uMstimer is %u\n",
+    LOGI << fmt("ivldp_respond_req_play() : g_req_timer is %u, and "
+                    "uMstimer is %u",
             g_req_timer, g_in_info->uMsTimer);   // REMOVE ME
 #endif                                           // VLDP_DEBUG
     s_uFramesShownSinceTimer = PLAY_FRAME_STALL; // we want to render the
@@ -745,7 +751,7 @@ void ivldp_respond_req_pause_or_step()
     // called, so we leave it at PLAYING for now
     ivldp_ack_command();
 #ifdef VLDP_DEBUG
-    printf("VLDP_REQ_PAUSED received when frame is %u, uMsTimer is %u\n",
+    LOGI << fmt("VLDP_REQ_PAUSED received when frame is %u, uMsTimer is %u",
            g_out_info.current_frame,
            g_in_info->uMsTimer); // DBG REMOVE ME!@
 #endif                           // VLDP_DEBUG
@@ -785,14 +791,14 @@ void ivldp_render()
                     // paused handler orders it
 
 #ifdef VLDP_DEBUG
-    printf("s_skip_all skipped %u frames.\n", s_uSkipAllCount);
+    LOGI << fmt("s_skip_all skipped %u frames.", s_uSkipAllCount);
 #endif // VLDP_DEBUG
 
     // check to make sure a file has been opened
     if (!io_is_open()) {
         render_finished = 1;
-        fprintf(stderr, "VLDP RENDER ERROR : we tried to render an mpeg but "
-                        "none was open!\n");
+        LOGE << "VLDP RENDER ERROR : we tried to render an mpeg but "
+                        "none was open!";
         g_out_info.status = STAT_ERROR;
     }
 
@@ -866,7 +872,7 @@ void ivldp_render()
 // and not adjust any timers)
 void idle_handler_search(int skip)
 {
-    Uint32 proposed_pos = 0;
+    uint64_t proposed_pos = 0;
     Uint32 req_frame    = g_req_frame; // after we acknowledge the command,
                                        // g_req_frame could become clobbered
     Uint32 min_seek_ms = g_req_min_seek_ms; // g_req_min_seek_ms can be
@@ -908,15 +914,15 @@ void idle_handler_search(int skip)
 #ifdef VLDP_DEBUG
         // break into debugger if this happens so we can examine what's going on
         if (uNewFramesShownSinceTimer != s_uFramesShownSinceTimer) {
-            printf("skip timing off: uNewFramesShownSinceTimer is %u, "
-                   "s_uFramesShownSinceTimer is %u\n",
+            LOGW << fmt("skip timing off: uNewFramesShownSinceTimer is %u, "
+                   "s_uFramesShownSinceTimer is %u",
                    uNewFramesShownSinceTimer, s_uFramesShownSinceTimer);
 
             // this shouldn't ever happen
             if (s_uFramesShownSinceTimer > uNewFramesShownSinceTimer) {
-                fprintf(stderr, "!!! s_uFramesShownSinceTimer > "
+                LOGE << "!!! s_uFramesShownSinceTimer > "
                                 "uNewFramesShownSinceTimer, this shouldn't "
-                                "happen!\n");
+                                "happen!";
 #ifdef UNIX
                 raise(SIGTRAP); // we wanna know what's going on ...
 #endif                          // UNIX
@@ -991,7 +997,7 @@ void idle_handler_search(int skip)
                                                             // position
 
 #ifdef VLDP_DEBUG
-        printf("Initial proposed position is : %x\n", proposed_pos);
+        LOGI << fmt("Initial proposed position is : %ld", proposed_pos);
 #endif
 
         s_frames_to_skip = s_frames_to_skip_with_inc =
@@ -1001,7 +1007,7 @@ void idle_handler_search(int skip)
         for (;;) {
             // if the frame we want is not an I frame, go backward until we find
             // an I frame, and increase # of frames to skip forward
-            while ((proposed_pos == 0xFFFFFFFF) && (actual_frame > 0)) {
+            while ((proposed_pos == 0xFFFFFFFFFFFFFFFF) && (actual_frame > 0)) {
                 s_frames_to_skip++;
                 actual_frame--;
                 proposed_pos = g_frame_position[actual_frame];
@@ -1012,21 +1018,15 @@ void idle_handler_search(int skip)
             // corrupted image and need to go back to
             // the I frame before this one
             if ((skipped_I < 2) && (s_frames_to_skip < 3) && (actual_frame > 0)) {
-                proposed_pos = 0xFFFFFFFF;
+                proposed_pos = 0xFFFFFFFFFFFFFFFF;
             } else {
-#ifdef VLDP_DEBUG
-//				printf("We've decided on a position within the file.\n");
-//				printf("skipped_I is %d\n", skipped_I);
-//				printf("s_frames_to_skip is %d\n", s_frames_to_skip);
-//				printf("actual_frame is %d\n", actual_frame);
-#endif
                 break;
             }
         }
 
 #ifdef VLDP_DEBUG
-        printf("frames_to_skip is %d, skipped_I is %d\n", s_frames_to_skip, skipped_I);
-        printf("position in mpeg2 stream we are seeking to : %x\n", proposed_pos);
+        LOGI << fmt("frames_to_skip is %d, skipped_I is %d", s_frames_to_skip, skipped_I);
+        LOGI << fmt("position in mpeg2 stream we are seeking to : %ld", proposed_pos);
 #endif
 
         io_seek(proposed_pos);
@@ -1051,8 +1051,8 @@ void idle_handler_search(int skip)
         ivldp_render();
     } // end if the bounds check passed
     else {
-        fprintf(stderr, "SEARCH ERROR : frame %u was requested, but it is out "
-                        "of bounds\n",
+        LOGE << fmt("SEARCH ERROR : frame %u was requested, but it is out "
+                        "of bounds",
                 req_frame);
         g_out_info.status = STAT_ERROR;
     }
@@ -1066,7 +1066,7 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
     VLDP_BOOL mpeg_datafile_good = VLDP_FALSE;
     FILE *data_file              = NULL;
     VLDP_BOOL result             = VLDP_TRUE;
-    unsigned int mpeg_size       = 0;
+    uint64_t mpeg_size           = 0;
     struct dat_header header;
 
     // GET LENGTH OF ACTUAL FILE
@@ -1101,19 +1101,18 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
             // good and has to be regenerated
             if ((sizeRead != 1) || (header.length != mpeg_size) ||
                 (header.version != DAT_VERSION) || (header.finished != 1)) {
-                // printf("*** Alleged mpeg size is %u, actual size is"
-                //        "%u\n", header.length, mpeg_size);
-                // printf("Finished flag is %x\n",
-                //        header.finished);
-                // printf("DAT version is %x\n", header.version);
-                printf("NOTICE : MPEG data file has to be created again!\n");
+#ifdef VLDP_DEBUG
+                LOGI << fmt("DAT version is %d", header.version);
+#endif
+                LOGW << fmt("MPEG data file %s is outdated and has "
+                            "to be created again!", datafilename);
                 fclose(data_file);
                 data_file = NULL;
 
                 // try to delete obsolete .DAT file so we can create a modern
                 // one
                 if (remove(datafilename) == -1) {
-                    fprintf(stderr, "Couldn't delete obsolete .DAT file!\n");
+                    LOGE << "Couldn't delete obsolete .DAT file!";
                     result = VLDP_FALSE;
                 }
             } else {
@@ -1129,17 +1128,17 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
         g_totalframes = 0;
 
 #ifdef VLDP_DEBUG
-//		unlink("frame_report.txt");
+        unlink(FRAMELOG);
 #endif
 
         // read all the frame positions
-        // if we don't read 4 bytes, it means we've hit the EOF and we're done
-        while (fread(&g_frame_position[g_totalframes], 4, 1, data_file) == 1) {
+        // if we don't read 8 bytes, it means we've hit the EOF and we're done
+        while (fread(&g_frame_position[g_totalframes], 8, 1, data_file) == 1) {
 #ifdef VLDP_DEBUG
-// FILE *tmp_F = fopen("frame_report.txt", "ab");
-// fprintf(tmp_F, "Frame %d has offset of %x\n", g_totalframes,
-//         g_frame_position[g_totalframes]);
-// fclose(tmp_F);
+        FILE *tmp_F = fopen(FRAMELOG, "ab");
+        fprintf(tmp_F, "Frame %d has offset of %ld\n", g_totalframes,
+                g_frame_position[g_totalframes]);
+        fclose(tmp_F);
 #endif
             g_totalframes++;
 
@@ -1148,15 +1147,15 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
             // (in fact I did this, and it caused a lot of problems in the debug
             // stages hehe)
             if (g_totalframes >= MAX_LDP_FRAMES) {
-                fprintf(stderr, "ERROR : Current mpeg has a huge number of frames, "
-                                "VLDP will ignore any frame above %u\n",
+                LOGE << fmt("ERROR : Current mpeg has a huge number of frames, "
+                                "VLDP will ignore any frame above %u",
                                 MAX_LDP_FRAMES);
                 break;
             }
         }
 #ifdef VLDP_DEBUG
-        printf("*** g_totalframes is %u\n", g_totalframes);
-        printf("And frame 0's offset is %x\n", g_frame_position[0]);
+        LOGI << fmt("*** g_totalframes is %u", g_totalframes);
+        LOGI << fmt("And frame 0's offset is %ld", g_frame_position[0]);
 #endif
     }
 
@@ -1168,7 +1167,7 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
     return result;
 }
 
-VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
+VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, uint64_t mpeg_size)
 {
     VLDP_BOOL result = VLDP_TRUE;
     FILE *data_file  = fopen(datafilename, "wb"); // create file
@@ -1176,7 +1175,7 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
 
     // if we could create the file successfully, then we need to populate it
     if (data_file) {
-        Uint32 pos       = 0; // position in the file
+        uint64_t pos     = 0; // position in the file
         int count        = 0;
         int parse_result = 0;
 
@@ -1236,10 +1235,10 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
          * file gets closed
          */
         if (parse_result == mpegscan::ERROR) {
-            fprintf(stderr, "There was an error parsing the MPEG file.\n");
-            fprintf(stderr, "Either there is a bug in the parser or the MPEG "
-                            "file is corrupt.\n");
-            fprintf(stderr, "OR the user aborted the decoding process :)\n");
+            LOGE << "There was an error parsing the MPEG file.";
+            LOGE << "Either there is a bug in the parser or the MPEG "
+                            "file is corrupt.";
+            LOGE << "OR the user aborted the decoding process :)";
             result = VLDP_FALSE;
             remove(datafilename);
         }
@@ -1248,9 +1247,9 @@ VLDP_BOOL ivldp_parse_mpeg_frame_offsets(char *datafilename, Uint32 mpeg_size)
     // we couldn't create data file which means no write permission probably
     // this is probably a good time to shut VLDP down =]
     else {
-        fprintf(stderr, "Could not create file %s\n", datafilename);
-        fprintf(stderr, "This probably means you don't have permission to "
-                        "create the file\n");
+        LOGE << fmt("Could not create file %s", datafilename);
+        LOGE << "This probably means you don't have permission to "
+                        "create the file";
         result = VLDP_FALSE;
     }
 
@@ -1314,7 +1313,7 @@ unsigned int io_read(void *buf, unsigned int uBytesToRead)
     return uBytesRead;
 }
 
-VLDP_BOOL io_seek(uint32_t uPos)
+VLDP_BOOL io_seek(uint64_t uPos)
 {
     VLDP_BOOL bResult = VLDP_FALSE;
 
@@ -1360,9 +1359,9 @@ VLDP_BOOL io_is_open()
     return bResult;
 }
 
-uint32_t io_length()
+uint64_t io_length()
 {
-    uint32_t uResult = 0;
+    uint64_t uResult = 0;
 
     if (g_mpeg_handle) {
         struct stat the_stat;

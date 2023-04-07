@@ -184,7 +184,7 @@ bool init_display()
     Uint8  sdl_render_flags = 0;
     Uint8  sdl_sb_render_flags = 0;
     static bool notify = false;
-    char bezelpath[96] = {};
+    char bezelpath[96] = {0};
     char title[50] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
     SDL_SysWMinfo info;
@@ -300,7 +300,7 @@ bool init_display()
 
                 if (g_keyboard_bezel) {
 
-                    char tqkeys[18] = {};
+                    char tqkeys[18];
                     char png[11] = "tqkeys.png";
 
                     snprintf(tqkeys, sizeof(tqkeys), "bezels/%s", png);
@@ -697,7 +697,7 @@ bool load_bmps()
 
 SDL_Surface *load_one_bmp(const char *filename, bool bezel)
 {
-    char filepath[64] = {};
+    char filepath[64] = {0};
 
     if (bezel)
         snprintf(filepath, sizeof(filepath), "bezels/%s", filename);
@@ -716,7 +716,7 @@ SDL_Surface *load_one_bmp(const char *filename, bool bezel)
 
 SDL_Surface *load_one_png(const char *filename)
 {
-    char filepath[64] = {};
+    char filepath[64];
 
     snprintf(filepath, sizeof(filepath), "bezels/%s", filename);
 
