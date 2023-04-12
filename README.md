@@ -161,7 +161,7 @@ This argument enables *absolute* (``EV_ABS``) mouse input event codes.
 
 Singe now automatically interprets **joystick axis** change as mouse movement (*Gun Games*).
 
-Adjust sensitivity via `-js_range <1-20>` in Singe arguments.
+Adjust sensitivity via `-js_range <1-20>` in Singe arguments, or disable with `-nojoymouse`
 
 Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [GameController](doc/hypinput_gamepad.ini)
 

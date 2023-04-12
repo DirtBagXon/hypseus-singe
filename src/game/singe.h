@@ -43,10 +43,19 @@ using namespace std;
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
 
-#define SINGE_ABS_OVERLAY_W 0x168
-#define SINGE_ABS_OVERLAY_H 0x0f0
-
 enum { KEYBD_NORMAL, KEYBD_FULL };
+
+typedef struct singeJoyStruct {
+    int8_t slide = 5;
+    int16_t xpos;
+    int16_t ypos;
+    int16_t jrelx;
+    int16_t jrely;
+    int16_t xmov; // signed
+    int16_t ymov; // ...
+    bool bjx = false;
+    bool bjy = false;
+} singeJoyStruct;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,18 +73,6 @@ class singe : public game
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();
     void repaint();
-
-    unsigned char overlay_size = 0;
-
-    bool singe_alt_pressed = false;
-    bool upgrade_overlay = false;
-    bool fullsize_overlay = false;
-    bool muteinit = false;
-    bool notarget = false;
-    bool singe_ocv = false;
-    bool singe_oc = false;
-    double singe_xratio = 0.0;
-    double singe_yratio = 0.0;
 
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }
@@ -174,6 +171,30 @@ class singe : public game
         return pSingeInstance->get_yratio();
     }
 
+    static uint8_t gfm_get_overlaysize(void *pInstance)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        return pSingeInstance->get_overlaysize();
+    }
+
+    static void gfm_set_overlaysize(void *pInstance, uint8_t thisVal)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->set_overlaysize(thisVal);
+    }
+
+    static void gfm_set_upgradeoverlay(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->set_upgradeoverlay(bEnable);
+    }
+
+    static void gfm_set_custom_overlay(void *pInstance, uint16_t w, uint16_t h)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->set_custom_overlay(w, h);
+    }
+
     void set_keyboard_mode(int); // Sets value of private member i_keyboard_mode
     int get_keyboard_mode();     // Retrieves the value of i_keyboard_mode
 
@@ -182,8 +203,6 @@ class singe : public game
     void process_keydown(SDL_Keycode, int[][2]);
     void process_keyup(SDL_Keycode, int[][2]);
 
-    double get_xratio();
-    double get_yratio();
 
   private:
     // callback function for singe to pass error messages to us
@@ -194,6 +213,33 @@ class singe : public game
 
     DLL_INSTANCE m_dll_instance; // pointer to DLL we load (if we aren't
                                  // statically linked)
+
+    // by DBX
+    double get_xratio();
+    double get_yratio();
+    double singe_xratio = 0.0;
+    double singe_yratio = 0.0;
+
+    struct singeJoyStruct g_js;
+
+    void set_upgradeoverlay(bool);
+    void set_overlaysize(uint8_t);
+    void set_custom_overlay(uint16_t, uint16_t);
+
+    uint8_t get_overlaysize();
+
+    uint8_t m_overlay_size = 0;
+    uint16_t m_custom_overlay_w;
+    uint16_t m_custom_overlay_h;
+
+    bool m_fullsize_overlay = false;
+    bool m_upgrade_overlay = false;
+    bool singe_alt_pressed = false;
+    bool singe_joymouse = true;
+    bool m_muteinit = false;
+    bool m_notarget = false;
+    bool singe_ocv = false;
+    bool singe_oc = false;
 
     // by RDG2010
 

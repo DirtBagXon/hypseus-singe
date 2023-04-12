@@ -139,3 +139,4 @@ static int sep_singe_wants_crosshair(lua_State *L);
 static int sep_get_number_of_mice(lua_State *L);
 static int sep_get_xratio(lua_State *L);
 static int sep_get_yratio(lua_State *L);
+static int sep_set_overlaysize(lua_State *L);

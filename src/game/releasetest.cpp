@@ -46,10 +46,6 @@
 
 extern struct yuv_buf g_blank_yuv_buf; // to do overlay tests
 extern Sint32 g_vertical_offset;       // to do overlay tests
-extern Uint8 *g_line_buf;  // temp sys RAM for doing calculations so we can do
-                           // fastest copies to slow video RAM
-extern Uint8 *g_line_buf2; // 2nd buf
-extern Uint8 *g_line_buf3; // 3rd buf
 extern unsigned int g_filter_type;
 extern SDL_Surface *g_screen; // to test video modes
 
