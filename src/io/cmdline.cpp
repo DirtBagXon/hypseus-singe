@@ -1010,7 +1010,28 @@ bool parse_cmd_line(int argc, char **argv)
                 printline(s);
                 video::set_scalefactor((Uint16)i);
             }
+            else if ((strcasecmp(s, "-scale_shiftx") == 0) ||
+                       (strcasecmp(s, "-scale_shifty") == 0)) {
+                bool xaxis = false;
+                if (strcasecmp(s, "-scale_shiftx") == 0)
+                    xaxis = true;
 
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+                if (i >= -100 && i <= 100) {
+
+                    i = i + 100;
+                    if (i == 0) i = 1;
+
+                    if (xaxis)
+                        video::set_scale_h_shift((int)i);
+                    else
+                        video::set_scale_v_shift((int)i);
+                } else {
+                    printerror("Shift values: -100 to 100");
+                    result = false;
+                }
+            }
             else if (strcasecmp(s, "-pal_dl") == 0) {
                 set_frame_modifier(MOD_PAL_DL);
                 printline("Setting up for the PAL Dragon's Lair disc");

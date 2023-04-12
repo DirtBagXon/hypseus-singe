@@ -188,6 +188,8 @@ void set_score_bezel_scale(int value);
 void set_ace_annun_scale(int value);
 void set_tq_keyboard(bool bEnabled);
 void set_annun_bezel(bool bEnabled);
+void set_scale_h_shift(int value);
+void set_scale_v_shift(int value);
 
 bool draw_ranks();
 bool draw_annunciator(int which);

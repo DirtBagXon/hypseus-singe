@@ -1062,15 +1062,8 @@ static int sep_set_overlaysize(lua_State *L)
 
                switch (size) {
                case SINGE_OVERLAY_FULL:
-                   g_fullsize_overlay = true;
-                   g_se_overlay_width = g_pSingeIn->get_video_width();
-                   g_se_overlay_height = g_pSingeIn->get_video_height();
-                   g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
-                   break;
                case SINGE_OVERLAY_HALF:
                    g_fullsize_overlay = true;
-                   g_se_overlay_width = g_pSingeIn->get_video_width() >> 1;
-                   g_se_overlay_height = g_pSingeIn->get_video_height() >> 1;
                    g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
                    break;
                case SINGE_OVERLAY_OVERSIZE:
@@ -1083,12 +1076,11 @@ static int sep_set_overlaysize(lua_State *L)
                            if (lua_isnumber(L, 3)) {
                                double f = 0;
                                f = lua_tonumber(L, 2);
-                               g_se_overlay_width = (int)f;
+                               int w = (int)f;
                                f = lua_tonumber(L, 3);
-                               g_se_overlay_height = (int)f;
-                               if (g_se_overlay_width && g_se_overlay_height) {
-                                   g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance,
-                                             g_se_overlay_width, g_se_overlay_height);
+                               int h = (int)f;
+                               if (w && h) {
+                                   g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance, w, h);
                                    g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
                                } else size = SINGE_OVERLAY_EMPTY;
                            }
@@ -1098,7 +1090,6 @@ static int sep_set_overlaysize(lua_State *L)
                }
 
                if (size > 0 && size < SINGE_OVERLAY_EMPTY) {
-                   sep_set_surface(g_se_overlay_width, g_se_overlay_height);
                    g_pSingeIn->cfm_set_overlaysize(g_pSingeIn->pSingeInstance, size);
                }
            }

@@ -14,7 +14,7 @@ Features:
 * Updated MPEG2 decoder
 * Integrated bezel support
 * Daphne VLDP 32bit upgrade
-* Daphne and Singe 4k M2V support
+* Daphne and Singe 4k 4Gb+ M2V support
 * Singe libretro emulation path integration
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
 * Singe 2 full 32bit overlay support (details below)
