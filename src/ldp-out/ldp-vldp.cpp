@@ -77,10 +77,6 @@ SDL_Rect *g_screen_clip_rect = NULL;
 
 // this will contain a blank YUV overlay suitable for search/seek blanking
 struct yuv_buf g_blank_yuv_buf;
-Uint8 *g_line_buf = NULL;  // temp sys RAM for doing calculations so we can do
-                           // fastest copies to slow video RAM
-Uint8 *g_line_buf2 = NULL; // 2nd buf
-Uint8 *g_line_buf3 = NULL; // 3rd buf
 
 ////////////////////////////////////////
 

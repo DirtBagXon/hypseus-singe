@@ -740,7 +740,8 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             else if (strcasecmp(s, "-scorebezel_scale") == 0 ||
-                         strcasecmp(s, "-annunbezel_scale") == 0) {
+                         strcasecmp(s, "-scorepanel_scale") == 0 ||
+                             strcasecmp(s, "-annunbezel_scale") == 0) {
                 bool annun = false;
 
                 if (strcasecmp(s, "-annunbezel_scale") == 0)

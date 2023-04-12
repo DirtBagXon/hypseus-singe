@@ -373,8 +373,11 @@ bool init_display()
 
                     } else if (SDL_GetWindowWMInfo(g_window, &info) && !g_sb_window) {
 
+                        double scale = double((g_sb_bezel_scale >> 1) / 7.0f);
+
                         g_sb_window = SDL_CreateWindow(NULL, sb_window_pos_x,
-                                          sb_window_pos_y, g_sb_w, g_sb_h, sdl_sb_flags);
+                                          sb_window_pos_y, (scale * g_sb_w), (scale * g_sb_h),
+                                              sdl_sb_flags);
 
                         if (!g_sb_window) {
                             LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());

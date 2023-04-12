@@ -51,12 +51,6 @@ const struct singe_out_info *g_pSingeOut = NULL;
 // info that we provide to the SINGE PROXY DLL
 struct singe_in_info g_SingeIn;
 
-// joystick
-static Sint16 g_singe_xpos, g_singe_ypos, g_singe_jrelx,
-              g_singe_jrely, g_singe_xmov, g_singe_ymov;
-static Sint16 g_singe_js_sen = 5;
-static bool   g_singe_bjx = false, g_singe_bjy = false;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // by RDG2010
@@ -76,7 +70,7 @@ singe::singe()
     m_strGameScript           = "";
     m_shortgamename           = "singe";
     m_strName                 = "[Undefined scripted game]";
-    m_video_overlay_width     = 320; // sensible default
+    m_video_overlay_width     = SINGE_OVERLAY_STD; // sensible default
     m_video_overlay_height    = 240; // " " "
     m_palette_color_count     = 256;
     m_overlay_size_is_dynamic = true; // this 'game' does reallocate the size of
@@ -165,6 +159,10 @@ bool singe::init()
         // Extended args
         g_SingeIn.cfm_get_xratio         = gfm_get_xratio;
         g_SingeIn.cfm_get_yratio         = gfm_get_yratio;
+        g_SingeIn.cfm_get_overlaysize    = gfm_get_overlaysize;
+        g_SingeIn.cfm_set_overlaysize    = gfm_set_overlaysize;
+        g_SingeIn.cfm_set_upgradeoverlay = gfm_set_upgradeoverlay;
+        g_SingeIn.cfm_set_custom_overlay = gfm_set_custom_overlay;
 
         /*
         Why a wrapper?
@@ -219,10 +217,10 @@ void singe::start()
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
-    if (upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
-    if (fullsize_overlay) g_pSingeOut->sep_overlay_resize();
-    if (muteinit) g_pSingeOut->sep_mute_vldp_init();
-    if (notarget) g_pSingeOut->sep_no_crosshair();
+    if (m_upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
+    if (m_fullsize_overlay) g_pSingeOut->sep_overlay_resize();
+    if (m_muteinit) g_pSingeOut->sep_mute_vldp_init();
+    if (m_notarget) g_pSingeOut->sep_no_crosshair();
     if (singe_oc) g_pSingeOut->sep_alter_lua_clock(singe_ocv);
 
     // if singe didn't get an error during startup...
@@ -234,7 +232,7 @@ void singe::start()
                 m_video_overlay_needs_update = true;
             }
 
-            if (g_singe_bjx||g_singe_bjy) {
+            if (g_js.bjx||g_js.bjy) {
                 JoystickMotion();
             }
 
@@ -265,27 +263,29 @@ void singe::shutdown() {}
 
 void singe::input_enable(Uint8 input, Sint8 mouseID)
 {
-    switch (input) {
-    case SWITCH_UP:
-       g_singe_ypos = -abs(g_singe_js_sen);
-       g_singe_jrely--;
-       g_singe_bjy = true;
-       break;
-    case SWITCH_DOWN:
-       g_singe_ypos = g_singe_js_sen;
-       g_singe_jrely++;
-       g_singe_bjy = true;
-       break;
-    case SWITCH_LEFT:
-       g_singe_xpos = -abs(g_singe_js_sen);
-       g_singe_jrelx--;
-       g_singe_bjx = true;
-       break;
-    case SWITCH_RIGHT:
-       g_singe_xpos = g_singe_js_sen;
-       g_singe_jrelx++;
-       g_singe_bjx = true;
-       break;
+    if (singe_joymouse) {
+        switch (input) {
+        case SWITCH_UP:
+           g_js.ypos = -abs(g_js.slide);
+           g_js.jrely--;
+           g_js.bjy = true;
+           break;
+        case SWITCH_DOWN:
+           g_js.ypos = g_js.slide;
+           g_js.jrely++;
+           g_js.bjy = true;
+           break;
+        case SWITCH_LEFT:
+           g_js.xpos = -abs(g_js.slide);
+           g_js.jrelx--;
+           g_js.bjx = true;
+           break;
+        case SWITCH_RIGHT:
+           g_js.xpos = g_js.slide;
+           g_js.jrelx++;
+           g_js.bjx = true;
+           break;
+        }
     }
 
     if (g_pSingeOut) // by RDG2010
@@ -294,19 +294,21 @@ void singe::input_enable(Uint8 input, Sint8 mouseID)
 
 void singe::input_disable(Uint8 input, Sint8 mouseID)
 {
-    switch (input) {
-    case SWITCH_UP:
-    case SWITCH_DOWN:
-       g_singe_ypos = 0;
-       g_singe_jrely = 0;
-       g_singe_bjy = false;
-       break;
-    case SWITCH_LEFT:
-    case SWITCH_RIGHT:
-       g_singe_xpos = 0;
-       g_singe_jrelx = 0;
-       g_singe_bjx = false;
-       break;
+    if (singe_joymouse) {
+        switch (input) {
+        case SWITCH_UP:
+        case SWITCH_DOWN:
+           g_js.ypos = 0;
+           g_js.jrely = 0;
+           g_js.bjy = false;
+           break;
+        case SWITCH_LEFT:
+        case SWITCH_RIGHT:
+           g_js.xpos = 0;
+           g_js.jrelx = 0;
+           g_js.bjx = false;
+           break;
+        }
     }
 
     if (g_pSingeOut) // by RDG2010
@@ -326,18 +328,18 @@ void singe::JoystickMotion()
     Uint16 cur_h = g_SingeIn.get_video_height();
     static bool s = false;
 
-    if (!s) { g_singe_xmov = cur_w/4; g_singe_ymov = cur_h/4; s = true; }
+    if (!s) { g_js.xmov = cur_w/4; g_js.ymov = cur_h/4; s = true; }
 
-    g_singe_xmov = g_singe_xpos + g_singe_xmov;
-    g_singe_ymov = g_singe_ypos + g_singe_ymov;
+    g_js.xmov = g_js.xpos + g_js.xmov;
+    g_js.ymov = g_js.ypos + g_js.ymov;
 
-    if (g_singe_xmov > cur_w) { g_singe_xmov = cur_w; g_singe_jrelx = 0; }
-    if (g_singe_ymov > cur_h) { g_singe_ymov = cur_h; g_singe_jrely = 0; }
-    if (g_singe_xmov < 0) { g_singe_xmov = abs(g_singe_xmov); g_singe_jrelx = 0; }
-    if (g_singe_ymov < 0) { g_singe_ymov = abs(g_singe_ymov); g_singe_jrely = 0; }
+    if (g_js.xmov > cur_w) { g_js.xmov = cur_w; g_js.jrelx = 0; }
+    if (g_js.ymov > cur_h) { g_js.ymov = cur_h; g_js.jrely = 0; }
+    if (g_js.xmov < 0) { g_js.xmov = abs(g_js.xmov); g_js.jrelx = 0; }
+    if (g_js.ymov < 0) { g_js.ymov = abs(g_js.ymov); g_js.jrely = 0; }
 
     if (g_pSingeOut) {
-        g_pSingeOut->sep_do_mouse_move(g_singe_xmov, g_singe_ymov, g_singe_jrelx, g_singe_jrely, NOMOUSE);
+        g_pSingeOut->sep_do_mouse_move(g_js.xmov, g_js.ymov, g_js.jrelx, g_js.jrely, NOMOUSE);
     }
 }
 
@@ -353,7 +355,7 @@ bool singe::handle_cmdline_arg(const char *arg)
 
     if (!bInit) {
         game::set_32bit_overlay(true);
-        upgrade_overlay = bInit = true;
+        m_upgrade_overlay = bInit = true;
     }
 
     if (strcasecmp(arg, "-script") == 0) {
@@ -383,7 +385,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         bResult = true;
     }
     else if (strcasecmp(arg, "-bootsilent") == 0) {
-        muteinit = true;
+        m_muteinit = true;
         bResult = true;
     }
     else if (strcasecmp(arg, "-overclock") == 0) {
@@ -397,43 +399,43 @@ bool singe::handle_cmdline_arg(const char *arg)
     }
     else if (strcasecmp(arg, "-oversize_overlay") == 0) {
 
-        if (overlay_size) {
+        if (m_overlay_size) {
             printerror("SINGE: Only one overlay argument allowed");
             return false;
         }
-        printline("NOTE : -oversize_overlay deprecated use '-set_overlay oversize'");
-        overlay_size = 3;
+        printline("NOTE : -oversize_overlay is obsolete use '-set_overlay oversize'");
+        m_overlay_size = SINGE_OVERLAY_OVERSIZE;
         bResult = true;
     }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
         game::set_32bit_overlay(false);
-        upgrade_overlay = false;
+        m_upgrade_overlay = false;
         bResult = true;
     }
     else if (strcasecmp(arg, "-set_overlay") == 0) {
 
-        if (overlay_size) {
+        if (m_overlay_size) {
             printerror("SINGE: Only one overlay argument allowed");
             return false;
         }
 
-        unsigned char r = 0;
+        uint8_t r = 0;
         get_next_word(s, sizeof(s));
 
-        if (strcasecmp(s, "half") == 0)     r = 1;
-        if (strcasecmp(s, "full") == 0)     r = 2;
-        if (strcasecmp(s, "oversize") == 0) r = 3;
+        if (strcasecmp(s, "half") == 0)     r = SINGE_OVERLAY_HALF;
+        if (strcasecmp(s, "full") == 0)     r = SINGE_OVERLAY_FULL;
+        if (strcasecmp(s, "oversize") == 0) r = SINGE_OVERLAY_OVERSIZE;
 
         switch(r) {
-        case 1:
-        case 2:
-           overlay_size = r;
+        case SINGE_OVERLAY_HALF:
+        case SINGE_OVERLAY_FULL:
+           m_overlay_size = r;
            game::set_fullsize_overlay(true);
-           fullsize_overlay = true;
+           m_fullsize_overlay = true;
            bResult = true;
            break;
-        case 3:
-           overlay_size = r;
+        case SINGE_OVERLAY_OVERSIZE:
+           m_overlay_size = r;
            bResult = true;
            break;
         default:
@@ -442,7 +444,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         }
     }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {
-        notarget = true;
+        m_notarget = true;
         bResult = true;
     }
     else if (strcasecmp(arg, "-sinden") == 0) {
@@ -487,12 +489,17 @@ bool singe::handle_cmdline_arg(const char *arg)
         } else
             printerror("SINGE: ratio should be a float");
     }
+    else if (strcasecmp(arg, "-nojoymouse") == 0) {
+        printline("Disabling Singe Joystick mouse actions...");
+        singe_joymouse = false;
+        bResult = true;
+    }
     else if (strcasecmp(arg, "-js_range") == 0) {
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
         if ((i > 0) && (i < 21)) {
-           g_singe_js_sen = i;
+           g_js.slide = i;
            bResult = true;
         } else {
            printerror("SINGE: js_range out of scope: <1-20>");
@@ -534,14 +541,18 @@ void singe::repaint()
     Uint32 cur_w;
     Uint32 cur_h;
 
-    switch(overlay_size) {
-    case 2:
+    switch(m_overlay_size) {
+    case SINGE_OVERLAY_FULL:
        cur_w = g_ldp->get_discvideo_width();
        cur_h = g_ldp->get_discvideo_height();
        break;
-    case 3:
+    case SINGE_OVERLAY_OVERSIZE:
        cur_w = SINGE_ABS_OVERLAY_W;
        cur_h = SINGE_ABS_OVERLAY_H;
+       break;
+    case SINGE_OVERLAY_CUSTOM:
+       cur_w = m_custom_overlay_w;
+       cur_h = m_custom_overlay_h;
        break;
     default:
        cur_w = g_ldp->get_discvideo_width()  >> 1;
@@ -597,6 +608,20 @@ void singe::set_keyboard_mode(int thisVal)
 
 double singe::get_xratio() { return singe_xratio; }
 double singe::get_yratio() { return singe_yratio; }
+
+uint8_t singe::get_overlaysize() { return m_overlay_size; }
+void singe::set_upgradeoverlay(bool bEnable) { game::set_fullsize_overlay(bEnable); }
+void singe::set_overlaysize(uint8_t thisVal) { m_overlay_size = thisVal; }
+
+void singe::set_custom_overlay(uint16_t w, uint16_t h)
+{
+    char s1[64];
+    snprintf(s1, sizeof(s1), "Setting Overlay resolution: %dx%d", w, h);
+    printline(s1);
+
+    m_custom_overlay_w = (int)(w / OVERLAY_RATIO);
+    m_custom_overlay_h = h;
+}
 
 int singe::get_keyboard_mode() { return i_keyboard_mode; }
 

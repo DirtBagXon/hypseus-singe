@@ -2,11 +2,23 @@
 #define SINGE_INTERFACE_H
 
 // increase this number every time you change something in this file!!!
-#define SINGE_INTERFACE_API_VERSION 6
+#define SINGE_INTERFACE_API_VERSION 7
 
 #define SINGE_ERROR_INIT      0xA0
 #define SINGE_ERROR_RUNTIME   0xA1
-#define SINGE_OW              0x140
+
+#define SINGE_OVERLAY_STD     320
+#define SINGE_ABS_OVERLAY_W   360
+#define SINGE_ABS_OVERLAY_H   240
+#define OVERLAY_RATIO         1.12
+
+enum {
+    SINGE_OVERLAY_FULL = 1,
+    SINGE_OVERLAY_HALF,
+    SINGE_OVERLAY_OVERSIZE,
+    SINGE_OVERLAY_CUSTOM,
+    SINGE_OVERLAY_EMPTY
+}; // overlay sizes
 
 // info provided to Singe from Hypseus
 struct singe_in_info
@@ -59,6 +71,11 @@ struct singe_in_info
 
 	double (*cfm_get_xratio)(void *);
 	double (*cfm_get_yratio)(void *);
+
+	uint8_t (*cfm_get_overlaysize)(void *);
+	void (*cfm_set_overlaysize)(void *, uint8_t);
+	void (*cfm_set_upgradeoverlay)(void *, bool);
+	void (*cfm_set_custom_overlay)(void *, uint16_t, uint16_t);
 
 	//by RDG2010
 	void *pSingeInstance;

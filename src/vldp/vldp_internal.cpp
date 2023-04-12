@@ -1135,10 +1135,10 @@ VLDP_BOOL ivldp_get_mpeg_frame_offsets(char *mpeg_name)
         // if we don't read 8 bytes, it means we've hit the EOF and we're done
         while (fread(&g_frame_position[g_totalframes], 8, 1, data_file) == 1) {
 #ifdef VLDP_DEBUG
-        FILE *tmp_F = fopen(FRAMELOG, "ab");
-        fprintf(tmp_F, "Frame %d has offset of %ld\n", g_totalframes,
-                g_frame_position[g_totalframes]);
-        fclose(tmp_F);
+            FILE *tmp_F = fopen(FRAMELOG, "ab");
+            fprintf(tmp_F, "Frame %d has offset of %ld\n", g_totalframes,
+                    g_frame_position[g_totalframes]);
+            fclose(tmp_F);
 #endif
             g_totalframes++;
 
