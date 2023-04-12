@@ -72,6 +72,7 @@ int g_aspect_width = 0, g_aspect_height = 0;
 
 int sb_window_pos_x = 0, sb_window_pos_y = 0;
 int ann_bezel_pos_x = 0, ann_bezel_pos_y = 0;
+int g_scale_h_shift = 100, g_scale_v_shift = 100;
 
 // the current game overlay dimensions
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
@@ -255,6 +256,10 @@ bool init_display()
 
             if (g_keyboard_bezel)
                 g_scaling_rect.y = g_scaling_rect.y >> 2;
+            else {
+                g_scaling_rect.x = (g_scaling_rect.x * g_scale_h_shift) / 100;
+                g_scaling_rect.y = (g_scaling_rect.y * g_scale_v_shift) / 100;
+            }
         }
 
         if (!SDL_RectEmpty(&g_scaling_rect)) g_scale_view = true;
@@ -1066,6 +1071,8 @@ void set_score_bezel(bool bEnabled) { g_sb_bezel = bEnabled; }
 void set_score_bezel_alpha(bool bEnabled) { g_sb_bezel_alpha = bEnabled; }
 void set_score_bezel_scale(int value) { g_sb_bezel_scale = value; }
 void set_ace_annun_scale(int value) { g_an_bezel_scale = value; }
+void set_scale_h_shift(int value) { g_scale_h_shift = value; }
+void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 
 void set_annun_bezel(bool bEnabled)
 {
