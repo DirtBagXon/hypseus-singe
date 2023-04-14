@@ -1021,7 +1021,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 int iLen = strlen(s);
                 for (int i = 0; i < iLen; i++) {
-                     if (!isdigit(s[i]) && s[i] != int('-'))
+                     if (!isdigit(s[i]) && s[0] != int('-'))
                          f = true; // print help
                 }
                 i = atoi(s);

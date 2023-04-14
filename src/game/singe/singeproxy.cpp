@@ -532,9 +532,7 @@ bool sep_format_srf32(SDL_Surface *src, SDL_Surface *dst)
 				if (u32A > 0x7F)
 				{
 					if (u32Idx == 0)
-					{
 						u32Idx = 1;
-					}
 				}
 				else
 				{
@@ -542,21 +540,17 @@ bool sep_format_srf32(SDL_Surface *src, SDL_Surface *dst)
 				}
 
 				*p32DstPix = u32Idx;
-
 				++p32DstPix;
 				++p32SrcPix;
 			}
-
 			pSrcLine = ((Uint8 *) pSrcLine) + src->pitch;
 			pDstLine = ((Uint8 *) pDstLine) + dst->pitch;
 		}
-
 		SDL_UnlockSurface(src);
 		SDL_UnlockSurface(dst);
 
 		bResult = true;
 	}
-
 	return bResult;
 }
 
