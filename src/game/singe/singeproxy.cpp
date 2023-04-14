@@ -1067,8 +1067,6 @@ static int sep_set_overlaysize(lua_State *L)
                    g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
                    break;
                case SINGE_OVERLAY_OVERSIZE:
-                   g_se_overlay_width = SINGE_ABS_OVERLAY_W;
-                   g_se_overlay_height = SINGE_ABS_OVERLAY_H;
                    break;
                case SINGE_OVERLAY_CUSTOM:
                    if (n == 3) {
