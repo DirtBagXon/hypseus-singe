@@ -1012,21 +1012,26 @@ bool parse_cmd_line(int argc, char **argv)
             }
             else if ((strcasecmp(s, "-scale_shiftx") == 0) ||
                        (strcasecmp(s, "-scale_shifty") == 0)) {
-                bool xaxis = false;
+
+                bool x = false, f = false;
+
                 if (strcasecmp(s, "-scale_shiftx") == 0)
-                    xaxis = true;
+                    x = true;
 
                 get_next_word(s, sizeof(s));
+                int iLen = strlen(s);
+                for (int i = 0; i < iLen; i++) {
+                     if (!isdigit(s[i]) && s[i] != int('-'))
+                         f = true; // print help
+                }
                 i = atoi(s);
-                if (i >= -100 && i <= 100) {
-
+                if (i >= -100 && i <= 100 && !f) {
                     i = i + 100;
                     if (i == 0) i = 1;
-
-                    if (xaxis)
-                        video::set_scale_h_shift((int)i);
+                    if (x)
+                        video::set_scale_h_shift(i);
                     else
-                        video::set_scale_v_shift((int)i);
+                        video::set_scale_v_shift(i);
                 } else {
                     printerror("Shift values: -100 to 100");
                     result = false;
