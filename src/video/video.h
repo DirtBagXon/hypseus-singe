@@ -183,11 +183,12 @@ void set_aspect_change(int aspectWidth, int aspectHeight);
 void set_sb_window_position(int, int);
 void set_annun_bezel_position(int, int);
 void set_score_bezel(bool bEnabled);
-void set_score_bezel_alpha(bool bEnabled);
+void set_score_bezel_alpha(int8_t value);
 void set_score_bezel_scale(int value);
 void set_ace_annun_scale(int value);
 void set_tq_keyboard(bool bEnabled);
 void set_annun_bezel(bool bEnabled);
+void set_annun_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
 

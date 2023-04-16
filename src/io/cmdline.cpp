@@ -759,8 +759,25 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-            else if (strcasecmp(s, "-scorebezel_alpha") == 0) {
-                    video::set_score_bezel_alpha(true);
+            else if (strcasecmp(s, "-scorebezel_alpha") == 0 ||
+                         strcasecmp(s, "-annunbezel_alpha") == 0) {
+
+                bool annun = false;
+                if (strcasecmp(s, "-annunbezel_alpha") == 0)
+                    annun = true;
+
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+
+                if (i >= 1 && i <= 2) {
+                    if (annun)
+                        video::set_annun_bezel_alpha((int8_t)i);
+                    else
+                        video::set_score_bezel_alpha((int8_t)i);
+                } else {
+                    printerror("alpha values: 1 - 2");
+                    result = false;
+                }
             }
             else if (strcasecmp(s, "-scorepanel") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
@@ -1006,9 +1023,14 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-scalefactor") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                snprintf(s, sizeof(s), "Scaling image by %d%%", i);
-                printline(s);
-                video::set_scalefactor((Uint16)i);
+                if (i >= 50 && i <= 100) {
+                    snprintf(s, sizeof(s), "Scaling video by %d%%", i);
+                    printline(s);
+                    video::set_scalefactor((Uint16)i);
+                } else {
+                    printerror("Scaling values: 50 to 100");
+                    result = false;
+                }
             }
             else if ((strcasecmp(s, "-scale_shiftx") == 0) ||
                        (strcasecmp(s, "-scale_shifty") == 0)) {
@@ -1026,8 +1048,8 @@ bool parse_cmd_line(int argc, char **argv)
                 }
                 i = atoi(s);
                 if (i >= -100 && i <= 100 && !f) {
-                    i = i + 100;
-                    if (i == 0) i = 1;
+                    i = i + 0x64;
+                    if (i == 0x0) i = 0x1;
                     if (x)
                         video::set_scale_h_shift(i);
                     else
