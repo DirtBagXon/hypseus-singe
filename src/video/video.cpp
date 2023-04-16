@@ -127,7 +127,6 @@ bool g_LDP1450_overlay = false;
 bool g_fullscreen = false; // initialize video in fullscreen
 bool g_bezel_toggle = false;
 bool g_scale_view = false;
-bool g_sb_bezel_alpha = false;
 bool g_sb_bezel = false;
 bool g_rotate = false;
 bool g_keyboard_bezel = false;
@@ -137,6 +136,9 @@ int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
 int sboverlay_characterset = 2;
 int g_texture_access = SDL_TEXTUREACCESS_TARGET;
+
+int8_t g_sb_bezel_alpha = 0;
+int8_t g_annun_bezel_alpha = 0;
 
 int g_sb_bezel_scale = 14;
 int g_an_bezel_scale = 12;
@@ -320,10 +322,16 @@ bool init_display()
                                           tqkeys, SDL_GetError());
                         set_quitflag();
                     }
-                }
-                else if (g_annun_bezel)
+                } else if (g_annun_bezel) {
                     g_aux_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
                                        g_texture_access, g_an_w, g_an_h);
+
+                    if (!g_aux_texture) {
+                        LOGE << fmt("Failed on annunciator texture: %s", SDL_GetError());
+                        set_quitflag();
+                    } else if (g_annun_bezel_alpha)
+                        SDL_SetTextureBlendMode(g_aux_texture, SDL_BLENDMODE_BLEND);
+                }
 
                 if (g_bezel_file.length() > 0) {
                     snprintf(bezelpath, sizeof(bezelpath), "bezels/%s", g_bezel_file.c_str());
@@ -356,6 +364,9 @@ bool init_display()
                     if (!g_sb_blit_surface)
                         g_sb_blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_sb_w, g_sb_h,
                                                surfacebpp, Rmask, Gmask, Bmask, Amask);
+
+                    if (g_sb_bezel_alpha > 1)
+                        SDL_SetColorKey(g_sb_blit_surface, SDL_TRUE, 0x000000ff);
 
                     int displays = SDL_GetNumVideoDisplays();
                     SDL_Rect displayDimensions[displays];
@@ -449,6 +460,9 @@ bool init_display()
                             set_quitflag();
                         }
 
+                        if (g_annun_bezel_alpha > 1)
+                            SDL_SetColorKey(g_aux_blit_surface, SDL_TRUE, 0x000000ff);
+
                         g_aux_rect.x = 0;
                         g_aux_rect.y = (g_viewport_height * 80) / 100;
                         g_aux_rect.w = (g_viewport_width / scale);
@@ -526,6 +540,10 @@ bool init_display()
                 ConvertSurface(&g_other_bmps[B_OVERLAY_LEDS], g_screen_blitter->format);
                 SDL_SetColorKey(g_other_bmps[B_OVERLAY_LEDS], SDL_TRUE, 0x000000ff);
 
+                if (g_aux_blit_surface) {
+                    ConvertSurface(&g_aux_blit_surface, g_screen_blitter->format);
+                }
+
                 if (g_game->get_use_old_overlay()) {
                     ConvertSurface(&g_other_bmps[B_OVERLAY_LDP1450],
                                    g_screen_blitter->format);
@@ -596,6 +614,7 @@ bool deinit_display()
 
     FC_FreeFont(g_font);
     FC_FreeFont(g_fixfont);
+    TTF_CloseFont(g_ttfont);
 
     if (g_bezel_texture)
         SDL_DestroyTexture(g_bezel_texture);
@@ -789,7 +808,7 @@ bool draw_annunciator(int which)
 
     for (int i = 0; i < ANUN_LEVELS; i++) {
        dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * i) + spacer;
-       SDL_FillRect(g_aux_blit_surface, &dest, 0x000000ff);
+       SDL_FillRect(g_aux_blit_surface, &dest, 0x00000000);
        SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
     }
 
@@ -1068,11 +1087,13 @@ void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
 void set_score_bezel(bool bEnabled) { g_sb_bezel = bEnabled; }
-void set_score_bezel_alpha(bool bEnabled) { g_sb_bezel_alpha = bEnabled; }
+void set_score_bezel_alpha(int8_t value) { g_sb_bezel_alpha = value; }
 void set_score_bezel_scale(int value) { g_sb_bezel_scale = value; }
 void set_ace_annun_scale(int value) { g_an_bezel_scale = value; }
+void set_annun_bezel_alpha(int8_t value) { g_annun_bezel_alpha = value; }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
+void set_scalefactor(int value) { g_scalefactor = value; }
 
 void set_annun_bezel(bool bEnabled)
 {
@@ -1091,19 +1112,6 @@ void set_tq_keyboard(bool bEnabled)
          g_game->m_sdl_software_scoreboard = true;
      }
      g_keyboard_bezel = bEnabled;
-}
-
-void set_scalefactor(int value)
-{
-    if (value > 100 || value < 50) // Validating in case user inputs crazy
-                                   // values.
-    {
-        printline("Invalid scale value. Ignoring -scalefactor parameter.");
-        g_scalefactor = 100;
-
-    } else {
-        g_scalefactor = value;
-    }
 }
 
 // position annunicator bezel
