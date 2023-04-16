@@ -1071,6 +1071,7 @@ static int sep_set_overlaysize(lua_State *L)
                                f = lua_tonumber(L, 3);
                                int h = (int)f;
                                if (w && h) {
+                                   g_fullsize_overlay = true;
                                    g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance, w, h);
                                    g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
                                } else size = SINGE_OVERLAY_EMPTY;

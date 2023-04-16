@@ -10,7 +10,6 @@
 #define SINGE_OVERLAY_STD     320
 #define SINGE_ABS_OVERLAY_W   360
 #define SINGE_ABS_OVERLAY_H   240
-#define OVERLAY_RATIO         1.12
 
 enum {
     SINGE_OVERLAY_FULL = 1,
