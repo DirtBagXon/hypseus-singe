@@ -246,9 +246,11 @@ class game
     int get_video_row_offset();
     int get_video_col_offset();
     unsigned get_video_visible_lines(); // returns m_uVideoOverlayVisibleLines
+
     SDL_Surface *get_video_overlay(int index); // returns pointer to video
                                                // overlay specified, or NULL if
                                                // index is out of range
+
     SDL_Surface *get_active_video_overlay(); // returns the current active video
                                              // overlay (that is currently being
                                              // drawn)
@@ -256,11 +258,6 @@ class game
                                                // video overlay (that isn't
                                                // currently being drawn)
     bool is_overlay_size_dynamic(); // returns m_overlay_size_is_dynamic
-    SDL_Surface *get_scaled_video_overlay(); // returns pointer to the video
-                                             // overlay which is used for
-                                             // scaling
-    bool IsFullScaleEnabled();               // returns m_bFullScale
-    void SetFullScale(bool bEnabled);        // sets m_bFullScale
 
     void enable_cheat();
     unsigned int get_disc_fpks(); // return # of frames per kilosecond (to avoid
@@ -361,16 +358,6 @@ class game
                                                              // to hold
                                                              // ROM-generated
                                                              // video
-
-    // fullscale variables
-    SDL_Surface *m_video_overlay_scaled; // temporary graphic buffer which
-                                         // receives the scaled game graphics
-                                         // from m_video_overlay[...]
-    long *m_video_overlay_matrix; // the precalculated matrix used for scaling
-                                  // the game graphics to the target screen
-                                  // dimension
-    bool m_bFullScale;          // whether fullscale is enabled or not
-    // end fullscale variables
 
     int m_video_overlay_count;  // how many video overlay buffers we have
     int m_active_video_overlay; // index of the active SDL_Surface that serves

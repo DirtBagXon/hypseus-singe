@@ -989,12 +989,11 @@ bool ldp_vldp::handle_cmdline_arg(const char *arg)
 bool ldp_vldp::read_frame_conversions()
 {
     struct mpo_io *p_ioFileConvert;
-    string s            = "";
-    string frame_string = "";
-    bool result         = false;
-    string framefile_path;
+    string s;
+    string frame_string;
+    bool result = false;
 
-    framefile_path = m_framefile;
+    string framefile_path = m_framefile;
 
     p_ioFileConvert = mpo_open(framefile_path.c_str(), MPO_OPEN_READONLY);
 
@@ -1007,50 +1006,52 @@ bool ldp_vldp::read_frame_conversions()
         p_ioFileConvert = mpo_open(framefile_path.c_str(), MPO_OPEN_READONLY);
     }
 
-    // if the framefile was opened successfully
-    if (p_ioFileConvert) {
-        MPO_BYTES_READ bytes_read = 0;
-        char *ff_buf              = (char *)MPO_MALLOC((unsigned int)(p_ioFileConvert->size + 1)); // add an extra byte to null terminate
-        if (ff_buf != NULL) {
-            if (mpo_read(ff_buf, (unsigned int)p_ioFileConvert->size,
-                         &bytes_read, p_ioFileConvert)) {
-                // if we successfully read in the whole framefile
-                if (bytes_read == p_ioFileConvert->size) {
-                    string err_msg = "";
-
-                    ff_buf[bytes_read] = 0; // NULL terminate the end of the
-                                            // file to be safe
-
-                    // if parse was successful
-                    if (parse_framefile((const char *)ff_buf, framefile_path.c_str(),
-                                        m_mpeg_path, &m_mpeginfo[0], m_file_index,
-                                        sizeof(m_mpeginfo) / sizeof(struct fileframes),
-                                        err_msg)) {
-                        LOGI << fmt("Framefile parse succeeded. Video/Audio "
-                                    "directory is: %s",
-                                    m_mpeg_path.c_str());
-                        result = true;
-                    } else {
-                        LOGW << fmt("Framefile Parse Error: %s", err_msg.c_str());
-                        LOGW << fmt("Mpeg Path: %s", m_mpeg_path.c_str());
-                        // print the entire contents of the framefile to make it
-                        // easier to us to debug newbie problems using their
-                        // hypseus.log
-                        LOGW << fmt("---BEGIN FRAMEFILE CONTENTS---\n%s---END "
-                                    "FRAMEFILE CONTENTS---",
-                                    ff_buf);
-                    }
-                } else
-                    LOGW << "framefile read error";
-            } else
-                LOGW << "framefile read error";
-        } else
-            LOGW << "mem alloc error";
-        mpo_close(p_ioFileConvert);
-    } else {
+    if (!p_ioFileConvert) {
         LOGW << fmt("Could not open framefile: %s", m_framefile.c_str());
+        return false;
     }
 
+    string err_msg;
+
+    MPO_BYTES_READ bytes_read = 0;
+    std::vector<char> ff_buf((unsigned int)(p_ioFileConvert->size + 1)); // add an extra byte to null terminate
+
+    if (!mpo_read(ff_buf.data(), (unsigned int)p_ioFileConvert->size, &bytes_read, p_ioFileConvert)) {
+        LOGW << "framefile read error";
+        goto exit;
+    }
+
+    if (bytes_read != p_ioFileConvert->size) {
+        LOGW << "framefile read error";
+        goto exit;
+    }
+
+    // at this point, we've successfully read in the whole framefile
+    ff_buf[bytes_read] = 0; // NULL terminate the end of the
+                            // file to be safe
+
+    // if parse was successful
+    if (parse_framefile(ff_buf.data(), framefile_path.c_str(),
+                        m_mpeg_path, &m_mpeginfo[0], m_file_index,
+                        sizeof(m_mpeginfo) / sizeof(struct fileframes), err_msg)) {
+        LOGI << fmt("Framefile parse succeeded. Video/Audio "
+                    "directory is: %s",
+                    m_mpeg_path.c_str());
+        result = true;
+    } else {
+        LOGW << fmt("Framefile Parse Error: %s", err_msg.c_str());
+        LOGW << fmt("Mpeg Path: %s", m_mpeg_path.c_str());
+        // print the entire contents of the framefile to make it
+        // easier to us to debug newbie problems using their
+        // hypseus.log
+        LOGW << fmt("---BEGIN FRAMEFILE CONTENTS---\n"
+                    "%s"
+                    "---END FRAMEFILE CONTENTS---",
+                    ff_buf.data());
+    }
+
+exit:
+    mpo_close(p_ioFileConvert);
     return result;
 }
 
