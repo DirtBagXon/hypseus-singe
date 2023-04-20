@@ -82,9 +82,6 @@ game::game()
       m_game_uses_video_overlay(true), // since most games do use video overlay,
                                        // we'll default this to true
       m_overlay_size_is_dynamic(false), // the overlay size is usually static
-      m_video_overlay_scaled(0),        // " " "
-      m_video_overlay_matrix(0),        //
-      m_bFullScale(false),              // full-scale is disabled by default
       m_video_overlay_count(2),  // default to double buffering because it is
                                  // conservative
       m_active_video_overlay(0), // the first overlay (0) starts out as the
@@ -348,21 +345,10 @@ bool game::init_video()
 {
     bool result = false;
     int index   = 0;
-    int w;
-    int h;
-    int x;
-    int y;
-    float dx;
-    float dy;
-    float srcx;
-    float srcy;
 
     // Set up SDL display (create window, renderer, surfaces, textures...)
     video::init_display();
-    // set instance variables and local variables to the actual screen (or
-    // window) dimension
-    w = video::get_screen_blitter()->w;
-    h = video::get_screen_blitter()->h;
+
     // if this particular game uses video overlay (most do)
     if (m_game_uses_video_overlay) {
         // safety check, make sure variables are initialized like we expect them
@@ -371,46 +357,6 @@ bool game::init_video()
             (m_palette_color_count != 0)) {
             result = true; // it's easier to assume true here and find out
                            // false, than the reverse
-
-            if (m_bFullScale) {
-                m_video_overlay_scaled =
-                    SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, m_overlay_depth, 0, 0, 0, 0); // create a surface
-
-                // create matrix for scaling the overlay pixmap to the physical
-                // surface
-                // - size of overlay pixmap m_video_overlay_width x
-                // m_video_overlay_height
-                // - size of physical surface is get_screen()->w x
-                // get_screen()->h
-                // - matrix is created as 2dimensional array of "long" values,
-                // with size of
-                //   the physical surface
-                // each entry in the matrix holds an offset into the overlay
-                // pixmap array from
-                // which the pixel is copied into to the corresponding surface
-                // pixmap
-                if ((m_video_overlay_matrix =
-                         (long *)MPO_MALLOC(sizeof(long) * w * h)) == NULL) {
-                    LOGW << "MEM ERROR : malloc failed in init_video!";
-                    return false;
-                } /*endif*/
-
-                dx = (float)m_video_overlay_width / (float)w;  // 256/640=0.4
-                dy = (float)m_video_overlay_height / (float)h; // 256/480=0.5333
-
-                srcx = 0;
-                srcy = 0;
-
-                for (y = 0; y < h; y++) {
-                    srcx = 0;
-                    for (x = 0; x < w; x++) {
-                        m_video_overlay_matrix[x + (y * w)] =
-                            (long)srcx + ((long)srcy * m_video_overlay_width);
-                        srcx += dx;
-                    } /*endfor*/
-                    srcy += dy;
-                } /*endfor*/
-            }     // end if fullscale is enabled
 
             // create each buffer
             for (index = 0; index < m_video_overlay_count; index++) {
@@ -469,13 +415,6 @@ void game::shutdown_video()
             m_video_overlay[index] = NULL;
         }
     }
-
-    if (m_video_overlay_scaled != NULL) {
-        SDL_FreeSurface(m_video_overlay_scaled);
-        m_video_overlay_scaled = NULL;
-    }
-
-    MPO_FREE(m_video_overlay_matrix);
 }
 
 // Note: The way it is implemented works only for UPscaling the game-graphics.
@@ -1020,11 +959,6 @@ SDL_Surface *game::get_finished_video_overlay()
 // overlay's size is dynamic
 bool game::is_overlay_size_dynamic() { return m_overlay_size_is_dynamic; }
 
-SDL_Surface *game::get_scaled_video_overlay() { return m_video_overlay_scaled; }
-
-bool game::IsFullScaleEnabled() { return m_bFullScale; }
-
-void game::SetFullScale(bool bEnabled) { m_bFullScale = bEnabled; }
 // end-add
 
 // enables a cheat (any cheat) in the current game.  Unlimited lives is probably

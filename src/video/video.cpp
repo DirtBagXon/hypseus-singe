@@ -274,13 +274,12 @@ bool init_display()
 
         if (g_fRotateDegrees != 0) {
             if (g_fRotateDegrees != 180.0) {
-                LOGW << "Screen rotation enabled, aspect ratios will be ignored";
+                if (!notify) { LOGW << "Screen rotation enabled, aspect ratios will be ignored"; }
                 g_viewport_height = g_viewport_width;
             }
 	}
 
-	g_window =
-            SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+	g_window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                          g_viewport_width, g_viewport_height, sdl_flags);
 
         if (!g_window) {
@@ -1086,7 +1085,6 @@ void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_bezel_file(const char *bezelFile) { g_bezel_file = bezelFile; }
-void set_score_bezel(bool bEnabled) { g_sb_bezel = bEnabled; }
 void set_score_bezel_alpha(int8_t value) { g_sb_bezel_alpha = value; }
 void set_score_bezel_scale(int value) { g_sb_bezel_scale = value; }
 void set_ace_annun_scale(int value) { g_an_bezel_scale = value; }
@@ -1094,6 +1092,14 @@ void set_annun_bezel_alpha(int8_t value) { g_annun_bezel_alpha = value; }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 void set_scalefactor(int value) { g_scalefactor = value; }
+
+void set_score_bezel(bool bEnabled)
+{
+     if (bEnabled) {
+         g_fullscreen = true;
+     }
+     g_sb_bezel = bEnabled;
+}
 
 void set_annun_bezel(bool bEnabled)
 {

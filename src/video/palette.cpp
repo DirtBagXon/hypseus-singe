@@ -158,11 +158,6 @@ void finalize()
                 break;
             }
         }
-
-        if (g_game->IsFullScaleEnabled()) {
-            SDL_SetPaletteColors(g_game->get_scaled_video_overlay()->format->palette,
-                                 g_rgb, 0, g_size);
-        }
     }
 
     g_modified = false;
