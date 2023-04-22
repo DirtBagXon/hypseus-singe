@@ -55,6 +55,14 @@ void ConvertSurface(SDL_Surface **surface, const SDL_PixelFormat *fmt)
     *surface = tmpSurface;
 }
 
+void LogicalPosition(SDL_Rect *port, SDL_Rect *dst, int x, int y)
+{
+    SDL_Rect tmpRect = {0, 0, dst->w, dst->h};
+    tmpRect.x = (((port->w - dst->w) * x) / 100);
+    tmpRect.y = (((port->h - dst->h) * y) / 100);
+
+    *dst = tmpRect;
+}
 }
 
 namespace video
@@ -69,6 +77,7 @@ int s_shunt = 2;
 
 int g_viewport_width = g_vid_width, g_viewport_height = g_vid_height;
 int g_aspect_width = 0, g_aspect_height = 0;
+int g_score_screen = 0;
 
 int sb_window_pos_x = 0, sb_window_pos_y = 0;
 int ann_bezel_pos_x = 0, ann_bezel_pos_y = 0;
@@ -101,6 +110,7 @@ SDL_Rect g_aux_rect;
 SDL_Rect g_rotate_rect;
 SDL_Rect g_overlay_size_rect;
 SDL_Rect g_scaling_rect = {0, 0, 0, 0};
+SDL_Rect g_logical_rect = {0, 0, 0, 0};
 SDL_Rect g_sb_bezel_rect = {0, 0, 0, 0};
 SDL_Rect g_leds_size_rect = {0, 0, 320, 240}; 
 SDL_Rect g_render_size_rect = g_leds_size_rect;
@@ -284,7 +294,9 @@ bool init_display()
 
         if (!g_window) {
             LOGE << fmt("Could not initialize window: %s", SDL_GetError());
-            exit(SDL_ERROR_INIT);
+            g_game->set_game_errors(SDL_ERROR_INIT);
+            set_quitflag();
+            goto exit;
         } else {
             if (g_game->m_sdl_software_rendering) {
                 sdl_render_flags |= SDL_RENDERER_SOFTWARE;
@@ -301,7 +313,9 @@ bool init_display()
 
             if (!g_renderer) {
                 LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
-                exit(SDL_ERROR_MAINRENDERER);
+                g_game->set_game_errors(SDL_ERROR_MAINRENDERER);
+                set_quitflag();
+                goto exit;
             } else {
 
                 if (g_keyboard_bezel) {
@@ -400,10 +414,16 @@ bool init_display()
                             set_quitflag();
                         }
 
-			if (displays > 1)
+			if (displays > 1) {
+
+                            int s = 1;
+                            if (g_score_screen > 0 && g_score_screen <= displays)
+                                s = g_score_screen;
+
                             SDL_SetWindowPosition(g_sb_window,
-                               displayDimensions[1].x + sb_window_pos_x,
-                                  displayDimensions[1].y + sb_window_pos_y);
+                               displayDimensions[s].x + sb_window_pos_x,
+                                  displayDimensions[s].y + sb_window_pos_y);
+                        }
 
                         g_sb_renderer = SDL_CreateRenderer(g_sb_window, -1, sdl_sb_render_flags);
 
@@ -425,6 +445,11 @@ bool init_display()
 
                     SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
 
+                    // Get and store logical viewport dimensions
+                    SDL_RenderSetViewport(g_renderer, NULL);
+                    SDL_RenderGetViewport(g_renderer, &g_logical_rect);
+                    SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
+
                     if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
                         g_bezel_toggle = true;
                 }
@@ -437,12 +462,11 @@ bool init_display()
                         SDL_QueryTexture(g_aux_texture, NULL, NULL, &size.x, &size.y);
 
                         double ratio = (float)size.y / (float)size.x;
-                        const int hpos = 77;
 
                         g_aux_rect.w = (g_viewport_width / 2.25f);
                         g_aux_rect.h = (g_aux_rect.w * ratio);
-                        g_aux_rect.x = (g_viewport_width >> 1) - (g_aux_rect.w >> 3);
-                        g_aux_rect.y = (g_viewport_height * hpos) / 100;
+
+                        LogicalPosition(&g_logical_rect, &g_aux_rect, 50, 100);
 
                     }
 
@@ -462,10 +486,10 @@ bool init_display()
                         if (g_annun_bezel_alpha > 1)
                             SDL_SetColorKey(g_aux_blit_surface, SDL_TRUE, 0x000000ff);
 
-                        g_aux_rect.x = 0;
-                        g_aux_rect.y = (g_viewport_height * 80) / 100;
                         g_aux_rect.w = (g_viewport_width / scale);
                         g_aux_rect.h = (g_aux_rect.w * ratio);
+
+                        LogicalPosition(&g_logical_rect, &g_aux_rect, 100, 90);
 
                         // argument override
                         if (ann_bezel_pos_x || ann_bezel_pos_y) {
@@ -515,9 +539,9 @@ bool init_display()
 
                 if (g_ttfont == NULL) {
                     LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
-                    deinit_display();
-                    shutdown_display();
-                    exit(SDL_ERROR_FONT);
+                    g_game->set_game_errors(SDL_ERROR_FONT);
+                    set_quitflag();
+                    goto exit;
                 }
 
 		g_screen_blitter =
@@ -570,9 +594,12 @@ bool init_display()
         }
     } else {
         LOGE << fmt("Could not initialize SDL: %s", SDL_GetError());
-        exit(SDL_ERROR_INIT);
+        g_game->set_game_errors(SDL_ERROR_INIT);
+        set_quitflag();
+        goto exit;
     }
 
+exit:
     notify = true;
     return (result);
 }
@@ -1092,6 +1119,7 @@ void set_annun_bezel_alpha(int8_t value) { g_annun_bezel_alpha = value; }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 void set_scalefactor(int value) { g_scalefactor = value; }
+void set_score_screen(int value) { g_score_screen = value; }
 
 void set_score_bezel(bool bEnabled)
 {
@@ -1230,7 +1258,14 @@ void vid_toggle_fullscreen()
         return;
     }
     if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+
+        if (SDL_RectEmpty(&g_logical_rect)) {
+            SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
+            SDL_RenderSetViewport(g_renderer, NULL);
+            SDL_RenderGetViewport(g_renderer, &g_logical_rect);
+        }
         SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
+
         if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
             g_bezel_toggle = true;
         return;

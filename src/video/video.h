@@ -191,6 +191,7 @@ void set_annun_bezel(bool bEnabled);
 void set_annun_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
+void set_score_screen(int value);
 
 bool draw_ranks();
 bool draw_annunciator(int which);

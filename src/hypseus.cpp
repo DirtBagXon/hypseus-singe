@@ -239,9 +239,6 @@ int main(int argc, char **argv)
                                     // without internet connection.
                                     // net_send_data_to_server();
 
-                                    result_code = g_game->get_game_errors();
-                                                          // hypseus will exit with
-                                                          // error codes
                                 } else {
                                     // exit if returns an error but don't print
                                     // error message to avoid repetition
@@ -287,6 +284,7 @@ int main(int argc, char **argv)
     // if our g_game class was allocated
     if (g_game) {
         if (g_game->get_manymouse()) ManyMouse_Quit();
+        result_code = g_game->get_game_errors();
         delete (g_game);
     }
 
