@@ -829,7 +829,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
 
-                if (i >= 1 && i <= 255)
+                if (i >= 2 && i <= 255)
                     video::set_score_screen(i);
             }
             else if (strcasecmp(s, "-tq_keyboard") == 0) {

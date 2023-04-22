@@ -417,7 +417,7 @@ bool init_display()
 			if (displays > 1) {
 
                             int s = 1;
-                            if (g_score_screen > 0 && g_score_screen <= displays)
+                            if (g_score_screen > s && g_score_screen <= displays)
                                 s = g_score_screen;
 
                             SDL_SetWindowPosition(g_sb_window,
@@ -446,9 +446,11 @@ bool init_display()
                     SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
 
                     // Get and store logical viewport dimensions
-                    SDL_RenderSetViewport(g_renderer, NULL);
-                    SDL_RenderGetViewport(g_renderer, &g_logical_rect);
-                    SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
+                    if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
+                        SDL_RenderSetViewport(g_renderer, NULL);
+                        SDL_RenderGetViewport(g_renderer, &g_logical_rect);
+                        SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
+                    }
 
                     if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
                         g_bezel_toggle = true;
