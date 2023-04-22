@@ -25,6 +25,7 @@ Built-in bezels relating to 'lair/ace/tq'
 -scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
 -scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
 -scorepanel_scale <1-25>   [ software_scorepanel scale option              ]
+-scorescreen <x>           [ Specify an initial score display screen       ]
 
 [KEY_TILT]                 [ Switch scorepanel display screen lair/ace/tq  ]
 
