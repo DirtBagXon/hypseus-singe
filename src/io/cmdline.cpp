@@ -825,6 +825,13 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
+            else if (strcasecmp(s, "-scorescreen") == 0) {
+                get_next_word(s, sizeof(s));
+                i = atoi(s);
+
+                if (i >= 1 && i <= 255)
+                    video::set_score_screen(i);
+            }
             else if (strcasecmp(s, "-tq_keyboard") == 0) {
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
