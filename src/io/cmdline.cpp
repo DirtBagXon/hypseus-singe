@@ -685,7 +685,7 @@ bool parse_cmd_line(int argc, char **argv)
                 snprintf(s, sizeof(s), "Setting scoreboard port to %x", u);
                 printline(s);
             } else if (strcasecmp(s, "-usbscoreboard") == 0) {
-                if (g_game->m_sdl_software_scoreboard) return false;
+                if (g_game->m_software_scoreboard) return false;
                 int baud = 0;
                 int impl = 0;
                 char e[100];
@@ -734,7 +734,7 @@ bool parse_cmd_line(int argc, char **argv)
 
                 if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
                     video::set_score_bezel(true);
-                    g_game->m_sdl_software_scoreboard = true;
+                    g_game->m_software_scoreboard = true;
                     printline("Enabling Scoreboard bezel...");
                 } else {
                     printline("NOTE: Scoreboard bezel is not available");
@@ -786,7 +786,7 @@ bool parse_cmd_line(int argc, char **argv)
 
                 if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
                     video::set_score_bezel(false);
-                    g_game->m_sdl_software_scoreboard = true;
+                    g_game->m_software_scoreboard = true;
                     printline("Enabling Software scoreboard...");
                 } else {
                     printline("NOTE: Software scoreboard is not available");

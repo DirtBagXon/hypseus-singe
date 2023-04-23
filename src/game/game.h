@@ -289,7 +289,7 @@ class game
     // some platforms have problems with SDL acceleration.
     bool m_sdl_software_rendering;
 
-    bool m_sdl_software_scoreboard;
+    bool m_software_scoreboard;
 
     bool m_use_old_overlay;
 
@@ -385,6 +385,8 @@ class game
     // m_video_overlay_needs_update's purpose.
     // The game is responsible for setting this value to true when it knows that
     // the repaint needs to be called
+
+    bool m_video_no_overlay;
 
     // how many lines are visible in the video overlay
     // (usually 240 for almost all games, that is, half the resolution of the

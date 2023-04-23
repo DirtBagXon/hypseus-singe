@@ -56,6 +56,7 @@ class lair : public game
     void set_preset(int);
     bool set_bank(unsigned char, unsigned char);
     void set_version(int);
+    bool handle_cmdline_arg(const char *arg);
 
     // what follows are functions specific to this class
     Uint8 read_C010();

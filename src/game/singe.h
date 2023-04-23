@@ -217,8 +217,8 @@ class singe : public game
     // by DBX
     double get_xratio();
     double get_yratio();
-    double singe_xratio = 0.0;
-    double singe_yratio = 0.0;
+    double singe_xratio;
+    double singe_yratio;
 
     struct singeJoyStruct g_js;
 
@@ -228,18 +228,18 @@ class singe : public game
 
     uint8_t get_overlaysize();
 
-    uint8_t m_overlay_size = 0;
+    uint8_t m_overlay_size;
     uint16_t m_custom_overlay_w;
     uint16_t m_custom_overlay_h;
 
-    bool m_fullsize_overlay = false;
-    bool m_upgrade_overlay = false;
-    bool singe_alt_pressed = false;
-    bool singe_joymouse = true;
-    bool m_muteinit = false;
-    bool m_notarget = false;
-    bool singe_ocv = false;
-    bool singe_oc = false;
+    bool m_fullsize_overlay;
+    bool m_upgrade_overlay;
+    bool singe_alt_pressed;
+    bool singe_joymouse;
+    bool m_muteinit;
+    bool m_notarget;
+    bool singe_ocv;
+    bool singe_oc;
 
     // by RDG2010
 

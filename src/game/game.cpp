@@ -133,7 +133,7 @@ game::game()
     m_sdl_software_rendering = false;
 
     // Software scoreboard for lair/ace
-    m_sdl_software_scoreboard = false;
+    m_software_scoreboard = false;
 
     // old style overlays
     m_use_old_overlay = false;

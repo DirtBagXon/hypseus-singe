@@ -16,6 +16,7 @@ public:
 		OVERLAY,   // overlay graphics drawn over VLDP video
 		HARDWARE,  // hardware scoreboard controlled via parallel port
 	        USB,	   // hardware scoreboard controlled via USB
+	        NONE
 	} ScoreboardType;
 
 	// call this to get a new scoreboard instance

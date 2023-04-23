@@ -75,11 +75,25 @@ singe::singe()
     m_palette_color_count     = 256;
     m_overlay_size_is_dynamic = true; // this 'game' does reallocate the size of
                                       // its overlay
-    m_bMouseEnabled = true;
-    m_dll_instance  = NULL;
+    m_bMouseEnabled           = true;
+    m_dll_instance            = NULL;
+
+    m_overlay_size            = 0;
+    m_fullsize_overlay        = false;
+    m_upgrade_overlay         = false;
+    m_muteinit                = false;
+    m_notarget                = false;
+
+    singe_oc                  = false;
+    singe_ocv                 = false;
+    singe_xratio              = 0.0;
+    singe_yratio              = 0.0;
+    singe_alt_pressed         = false;
+    singe_joymouse            = true;
+
     // by RDG2010
-    m_game_type     = GAME_SINGE;
-    i_keyboard_mode = KEYBD_NORMAL;
+    m_game_type               = GAME_SINGE;
+    i_keyboard_mode           = KEYBD_NORMAL;
 }
 
 bool singe::init()
