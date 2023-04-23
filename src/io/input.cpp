@@ -464,7 +464,10 @@ int SDL_input_init()
 
             if (mpo_file_exists(strGCdb.c_str())) {
                 LOGI << "Found " << strGCdb;
-                if (SDL_GameControllerAddMappingsFromFile(strGCdb.c_str()) < 0) {
+                int num = SDL_GameControllerAddMappingsFromFile(strGCdb.c_str());
+                if (num > 0) {
+                    LOGI << fmt("Loaded %d Game Controller mappings", num);
+                } else {
                     LOGW << "Loading gamecontrollerdb.txt failed";
                 }
             }
