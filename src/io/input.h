@@ -87,7 +87,7 @@ typedef struct
 
 
 int SDL_input_init();
-int SDL_input_shutdown();
+void SDL_input_shutdown();
 
 // Filters out mouse events if 'bFilteredOut' is true.
 // The purpose is so that games that don't use the mouse don't get a bunch of

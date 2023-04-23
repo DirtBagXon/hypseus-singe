@@ -86,7 +86,6 @@ game::game()
                                  // conservative
       m_active_video_overlay(0), // the first overlay (0) starts out as the
                                  // active one
-      m_finished_video_overlay(0),
       m_palette_color_count(0),           // force game to specify this
       m_video_row_offset(0),              // most games will want this to be 0
       m_video_col_offset(0),              // " " "
@@ -460,7 +459,6 @@ void game::blit()
         // MAC: No software scaling to be done on SDL2, so we just update the texture here,
         // and SDL_RenderCopy() will hw-scale for us.
         video::vid_update_overlay_surface(m_video_overlay[m_active_video_overlay], 0, 0);
-        m_finished_video_overlay = m_active_video_overlay;
     }
     video::vid_blit();
 }
@@ -946,13 +944,6 @@ SDL_Surface *game::get_video_overlay(int index)
 SDL_Surface *game::get_active_video_overlay()
 {
     return m_video_overlay[m_active_video_overlay];
-}
-
-// gets last surface to be completely drawn (so it can be displayed without
-// worrying about tearing or flickering)
-SDL_Surface *game::get_finished_video_overlay()
-{
-    return m_video_overlay[m_finished_video_overlay];
 }
 
 // mainly used by ldp-vldp.cpp so it doesn't print a huge warning message if the

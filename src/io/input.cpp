@@ -161,10 +161,7 @@ int joystick_axis_map[SWITCH_START1][3] = {
 };
 
 // Game controller triggers activated
-int controller_trigger_use[2] = {
-    0,
-    0
-};
+bool controller_trigger_pressed[SDL_CONTROLLER_AXIS_MAX]{};
 
 // Mouse button to key mappings
 // Added by ScottD for Singe
@@ -337,6 +334,7 @@ static void manymouse_init_mice(void)
 
     if (available_mice <= 0) {
         LOGW << "No mice detected!";
+        return;
     }
     else
     {
@@ -464,12 +462,9 @@ int SDL_input_init()
 
             string strGCdb = g_homedir.find_file("gamecontrollerdb.txt", true);
 
-            int n = strGCdb.length();
-            char dbfile[n+1];
-            strcpy(dbfile, strGCdb.c_str());
-            if (mpo_file_exists(dbfile)) {
-                LOGI << "Found a gamecontrollerdb.txt";
-                if (SDL_GameControllerAddMappingsFromFile(dbfile) < 0) {
+            if (mpo_file_exists(strGCdb.c_str())) {
+                LOGI << "Found " << strGCdb;
+                if (SDL_GameControllerAddMappingsFromFile(strGCdb.c_str()) < 0) {
                     LOGW << "Loading gamecontrollerdb.txt failed";
                 }
             }
@@ -559,7 +554,6 @@ void SDL_gamepad_init()
             }
         }
     }
-    return;
 }
 
 void FilterMouseEvents(bool bFilteredOut)
@@ -577,16 +571,16 @@ void FilterMouseEvents(bool bFilteredOut)
 
 // does any shutting down necessary
 // 1 = success, 0 = failure
-int SDL_input_shutdown(void)
+void SDL_input_shutdown(void)
 {
     if (g_use_gamepad) {
-        if (g_gamepad_id)
+        if (g_gamepad_id) {
             SDL_GameControllerClose(g_gamepad_id);
+            g_gamepad_id = NULL;
+        }
         SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
     } else
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-
-    return (1);
 }
 
 // checks to see if there is incoming input, and acts on it
@@ -729,6 +723,7 @@ void process_event(SDL_Event *event)
         process_joystick_motion(event);
         break;
     case SDL_JOYHATMOTION:
+        if (g_use_gamepad) break;
         // only process events for the first hat
         if (event->jhat.hat == 0) {
             reset_idle();
@@ -892,12 +887,14 @@ void process_controller_motion(SDL_Event *event)
         if (event->caxis.axis == joystick_buttons_map[i][1]-AXIS_TRIGGER) {
 
             if ((abs(event->caxis.value) > JOY_AXIS_TRIG)
-			    && i != controller_trigger_use[event->caxis.axis]) {
+			    && !controller_trigger_pressed[event->caxis.axis]) {
                 input_enable(i, NOMOUSE);
-                controller_trigger_use[event->caxis.axis] = i;
+                controller_trigger_pressed[event->caxis.axis] = true;
             } else {
-                input_disable(controller_trigger_use[event->caxis.axis], NOMOUSE);
-                controller_trigger_use[event->caxis.axis] = 0;
+                if (controller_trigger_pressed[event->caxis.axis]) {
+                    input_disable(i, NOMOUSE);
+                    controller_trigger_pressed[event->caxis.axis] = false;
+                }
             }
             return;
         }
