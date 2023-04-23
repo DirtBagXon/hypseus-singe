@@ -30,6 +30,11 @@ bool NullScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 
 bool NullScoreboard::is_repaint_needed()
 {
+	static char repaint = 1;
+	if (repaint < 10) {
+	    repaint++;
+	    return true;
+	}
 	return false;
 }
 

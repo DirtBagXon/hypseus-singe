@@ -134,7 +134,7 @@ bool thayers::init()
 
         if (pScoreboard) {
             // We want software scoreboard, display the image scoreboard
-            if (g_game->m_sdl_software_scoreboard) {
+            if (g_game->m_software_scoreboard) {
                 ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
             }
             // if video overlay is enabled, it means we're using an overlay scoreboard

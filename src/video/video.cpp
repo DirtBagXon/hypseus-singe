@@ -372,7 +372,7 @@ bool init_display()
                 SDL_PixelFormatEnumToMasks(SDL_PIXELFORMAT_RGBA8888, &surfacebpp,
                                 &Rmask, &Gmask, &Bmask, &Amask);
 
-                if (g_game->m_sdl_software_scoreboard) {
+                if (g_game->m_software_scoreboard) {
 
                     if (!g_sb_blit_surface)
                         g_sb_blit_surface = SDL_CreateRGBSurface(SDL_SWSURFACE, g_sb_w, g_sb_h,
@@ -1135,7 +1135,7 @@ void set_annun_bezel(bool bEnabled)
 {
      if (bEnabled) {
          g_fullscreen = g_sb_bezel = true;
-         g_game->m_sdl_software_scoreboard = true;
+         g_game->m_software_scoreboard = true;
      }
      g_annun_bezel = bEnabled;
 }
@@ -1145,7 +1145,7 @@ void set_tq_keyboard(bool bEnabled)
      if (bEnabled) {
          g_scalefactor = 75;
          g_fullscreen = g_sb_bezel = true;
-         g_game->m_sdl_software_scoreboard = true;
+         g_game->m_software_scoreboard = true;
      }
      g_keyboard_bezel = bEnabled;
 }

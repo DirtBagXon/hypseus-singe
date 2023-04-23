@@ -99,6 +99,7 @@ lair::lair() : m_bUseAnnunciator(false), m_pScoreboard(NULL)
     m_game_uses_video_overlay = true; // this game by default now has
                                        // to use video overlay
     m_video_overlay_needs_update = false;
+    m_video_no_overlay = false;
 
     ldv1000::enable_instant_seeking(); // make the LD-V1000 perform instantaneous
                                       // seeks because we can
@@ -802,8 +803,11 @@ bool lair::init()
 
     if (pScoreboard) {
         // We want software scoreboard, display the image scoreboard
-        if (g_game->m_sdl_software_scoreboard) {
+        if (g_game->m_software_scoreboard) {
             ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+        }
+        else if (m_video_no_overlay) {
+            ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::NONE);
         }
         // if video overlay is enabled, it means we're using an overlay scoreboard
         else if (m_game_uses_video_overlay && g_ldp->is_vldp()) {
@@ -972,9 +976,26 @@ bool lair::set_bank(unsigned char which_bank, unsigned char value)
     return result;
 }
 
+bool lair::handle_cmdline_arg(const char *arg)
+{
+    bool bRes = false;
+
+    if (strcasecmp(arg, "-noscoreboard") == 0) {
+        m_video_no_overlay = true;
+        bRes               = true;
+    }
+
+    return bRes;
+}
+
 bool ace::handle_cmdline_arg(const char *arg)
 {
     bool bRes = false;
+
+    if (strcasecmp(arg, "-noscoreboard") == 0) {
+        m_video_no_overlay = true;
+        bRes               = true;
+    }
 
     // annunciator only supported on space ace
     if (strcasecmp(arg, "-use_annunciator") == 0) {
