@@ -2,8 +2,8 @@ Arguments related to bezels
 ---------------------------
 
 -bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
--scalefactor <50-100>      [ Scale video image [50-100]%                   ]
 
+-scalefactor <50-100>      [ Scale video image [50-100]%                   ]
 -scale_shiftx <-100 - 100> [ Position scaled video window - horizontally   ]
 -scale_shifty <-100 - 100> [ Position scaled video window - vertically     ]
 
@@ -25,7 +25,7 @@ Built-in bezels relating to 'lair/ace/tq'
 -scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
 -scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
 -scorepanel_scale <1-25>   [ software_scorepanel scale option              ]
--scorescreen <x>           [ Specify an initial score display screen       ]
+-scorescreen <x>           [ Specify an initial scorepanel display screen  ]
 
 [KEY_TILT]                 [ Switch scorepanel display screen lair/ace/tq  ]
 
