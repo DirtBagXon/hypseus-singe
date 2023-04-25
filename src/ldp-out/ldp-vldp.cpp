@@ -71,10 +71,6 @@ unsigned int g_vertical_stretch = 0;
 // what type of filter to use on our data (if any)
 unsigned int g_filter_type = FILTER_NONE;
 
-// these are globals because they are used by our callback functions
-// used a lot, we only want to calculate once
-SDL_Rect *g_screen_clip_rect = NULL;
-
 // this will contain a blank YUV overlay suitable for search/seek blanking
 struct yuv_buf g_blank_yuv_buf;
 
@@ -350,8 +346,6 @@ bool ldp_vldp::wait_for_status(unsigned int uStatus, const string &strFilename)
             // redraw screen blitter before we display it
             update_parse_meter(strFilename);
             video::vid_blank();
-            // vid_blit(get_screen_blitter(), 0, 0);
-            // video::vid_flip();
             g_bGotParseUpdate = false;
         }
 
@@ -1449,7 +1443,8 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 {
     int result = VLDP_FALSE;
 
-    // MAC: We only update the YUV surface we have invented (because YUV surfaces don't exist in SDL2).
+    // MAC: We only update the YUV surface we have invented (because YUV surfaces
+    // don't exist in SDL2).
     // The corresponding YUV texture is updated by the main thread "hypseus" in vid_blit().
     result = (video::vid_update_yuv_overlay (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
@@ -1467,11 +1462,11 @@ int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 void display_frame_callback()
 {
     // MAC: vid_blit() updates all textures from their corresponding surfaces as needed.
-    // It's not called from here anymore, but from game::blit() instead, because it runs on every frame-complete
-    // emulation loop, and "takes" the yuv "surface" I invented to "mix" it with the other surfaces (using
+    // It's not called from here anymore, but from game::blit() instead,
+    // because it runs on every frame-complete
+    // emulation loop, and "takes" the yuv "surface" I invented to "mix" it with
+    // the other surfaces (using
     // textures and alpha blending) to build each "complete frame" with YUV video and overlay.
-    
-    //video::vid_blit();
 }
 
 ///////////////////
@@ -1508,30 +1503,28 @@ void update_parse_meter(const string &strFilename)
         // always be >= elapsed_s, so no checking necessary here
         remaining_s = total_s - elapsed_s;
 
-        // the main screen that we can draw on ...
-        SDL_Surface *screen = video::get_screen_blitter();
-        SDL_Renderer *renderer = video::get_renderer();
         // erase previous stuff on the screen blitter
-        SDL_FillRect(screen, NULL, 0);
+        SDL_FillRect(video::get_screen_blitter(), NULL, 0x00000000);
 
         // if we have some progress to report ...
         if (remaining_s > 0) {
+            SDL_Renderer *renderer = video::get_renderer();
+            FC_Font *g_font = video::get_font();
+            int h = video::get_draw_height();
+            int w = video::get_draw_width();
             int len;
             char s[160];
             char f[160];
             const char * c = strFilename.c_str();
 
-            len = strlen(c);
             snprintf(f, sizeof(f), "Parsing file: %s\n", c);
             snprintf(s, sizeof(s), "Video parsing is %02.f percent complete, %02.f seconds "
-                       "remaining.\n",
-                    percent_complete, remaining_s);
+                       "remaining.\n", percent_complete, remaining_s);
 
-            FC_Draw(video::get_font(), renderer,
-			    ((video::get_draw_width()/2.5) - ((len*4)*video::get_draw_width()/640)),
-			    (video::get_draw_width()*0.36), f);
-            FC_Draw(video::get_font(), renderer,
-			    (video::get_draw_height()*0.20), (video::get_draw_width()*0.40), s);
+            len = FC_GetWidth(g_font, f);
+            FC_Draw(g_font, renderer, (w - len) >> 1, (h * 50) / 100, f);
+            len = FC_GetWidth(g_font, s);
+            FC_Draw(g_font, renderer, (w - len) >> 1, (h * 55) / 100, s);
             SDL_RenderPresent(renderer);
         }
     }
@@ -1543,7 +1536,9 @@ void report_parse_progress_callback(double percent_complete_01)
 {
     g_dPercentComplete01 = percent_complete_01;
     g_bGotParseUpdate    = true;
-    g_parsed             = true; // so we can know to re-create the overlay
+
+    // so we can know to re-create the overlay
+    if (!video::get_yuv_overlay_ready()) g_parsed = true;
 
     // if a new parse is starting
     if (percent_complete_01 < 0) {
@@ -1567,25 +1562,6 @@ void report_mpeg_dimensions_callback(int width, int height)
     // thread to do so before we continue ...
     while ((g_bGotParseUpdate) && (elapsed_ms_time(uTimer) < 3000)) {
         make_delay(1);
-    }
-
-    // used a lot, we only want to calculate it once
-    g_screen_clip_rect = &video::get_screen_blitter()->clip_rect;
-
-    // if draw width is less than the screen width
-    if (video::get_draw_width() < (unsigned int)g_screen_clip_rect->w) {
-        // center horizontally
-        unsigned int uDiff = g_screen_clip_rect->w - video::get_draw_width();
-        g_screen_clip_rect->x += (uDiff / 2);
-        g_screen_clip_rect->w = video::get_draw_width();
-    }
-
-    // if draw height is less than the screen height
-    if (video::get_draw_height() < (unsigned int)g_screen_clip_rect->h) {
-        // center vertically
-        unsigned int uDiff = g_screen_clip_rect->h - video::get_draw_height();
-        g_screen_clip_rect->y += (uDiff / 2);
-        g_screen_clip_rect->h = video::get_draw_height();
     }
 
     // create overlay, taking into account any letterbox removal we're doing

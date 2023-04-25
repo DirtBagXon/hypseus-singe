@@ -155,7 +155,7 @@ void badlands::do_nmi()
         mc6809_nmi = 1;
     }
 #ifdef LINUX
-    if (!transparent) video::set_yuv_video_blank(true);
+    if (!transparent && video::get_yuv_overlay_ready()) video::set_yuv_video_blank(true);
 #endif
     blit(); // the NMI runs at the same period as the monitor vsync
 }
