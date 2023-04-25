@@ -70,8 +70,8 @@ singe::singe()
     m_strGameScript           = "";
     m_shortgamename           = "singe";
     m_strName                 = "[Undefined scripted game]";
-    m_video_overlay_width     = SINGE_OVERLAY_STD; // sensible default
-    m_video_overlay_height    = 240; // " " "
+    m_video_overlay_width     = SINGE_OVERLAY_STD_W; // sensible default
+    m_video_overlay_height    = SINGE_OVERLAY_STD_H; // " " "
     m_palette_color_count     = 256;
     m_overlay_size_is_dynamic = true; // this 'game' does reallocate the size of
                                       // its overlay
@@ -561,8 +561,8 @@ void singe::repaint()
        cur_h = g_ldp->get_discvideo_height();
        break;
     case SINGE_OVERLAY_OVERSIZE:
-       cur_w = SINGE_ABS_OVERLAY_W;
-       cur_h = SINGE_ABS_OVERLAY_H;
+       cur_w = SINGE_OVERLAY_OVS_W;
+       cur_h = SINGE_OVERLAY_OVS_H;
        break;
     case SINGE_OVERLAY_CUSTOM:
        cur_w = m_custom_overlay_w;

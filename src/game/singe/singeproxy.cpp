@@ -150,24 +150,19 @@ void sep_call_lua(const char *func, const char *sig, ...)
 	narg = 0;
 	while (*sig) {  /* push arguments */
 		switch (*sig++) {
-
-			case 'd':  /* double argument */
-				lua_pushnumber(g_se_lua_context, va_arg(vl, double));
-				break;
-
-			case 'i':  /* int argument */
-				lua_pushnumber(g_se_lua_context, va_arg(vl, int));
-				break;
-
-			case 's':  /* string argument */
-				lua_pushstring(g_se_lua_context, va_arg(vl, char *));
-				break;
-
-			case '>':
-				goto endwhile;
-
-			default:
-				sep_error("invalid option (%c)", *(sig - 1));
+		case 'd':  /* double argument */
+			lua_pushnumber(g_se_lua_context, va_arg(vl, double));
+			break;
+		case 'i':  /* int argument */
+			lua_pushnumber(g_se_lua_context, va_arg(vl, int));
+			break;
+		case 's':  /* string argument */
+			lua_pushstring(g_se_lua_context, va_arg(vl, char *));
+			break;
+		case '>':
+			goto endwhile;
+		default:
+			sep_error("invalid option (%c)", *(sig - 1));
 		}
 		narg++;
 		luaL_checkstack(g_se_lua_context, 1, "too many arguments");
@@ -187,26 +182,23 @@ void sep_call_lua(const char *func, const char *sig, ...)
 	while (*sig) {  /* get results */
 		switch (*sig++) {
 
-			case 'd':  /* double result */
-				if (!lua_isnumber(g_se_lua_context, nres))
-					sep_error("wrong result type");
-				*va_arg(vl, double *) = lua_tonumber(g_se_lua_context, nres);
-				break;
-
-			case 'i':  /* int result */
-				if (!lua_isnumber(g_se_lua_context, nres))
-					sep_error("wrong result type");
-				*va_arg(vl, int *) = (int)lua_tonumber(g_se_lua_context, nres);
-				break;
-
-			case 's':  /* string result */
-				if (!lua_isstring(g_se_lua_context, nres))
-					sep_error("wrong result type");
-				*va_arg(vl, const char **) = lua_tostring(g_se_lua_context, nres);
-				break;
-
-			default:
-				sep_error("invalid option (%c)", *(sig - 1));
+		case 'd':  /* double result */
+			if (!lua_isnumber(g_se_lua_context, nres))
+				sep_error("wrong result type");
+			*va_arg(vl, double *) = lua_tonumber(g_se_lua_context, nres);
+			break;
+		case 'i':  /* int result */
+			if (!lua_isnumber(g_se_lua_context, nres))
+				sep_error("wrong result type");
+			*va_arg(vl, int *) = (int)lua_tonumber(g_se_lua_context, nres);
+			break;
+		case 's':  /* string result */
+			if (!lua_isstring(g_se_lua_context, nres))
+				sep_error("wrong result type");
+			*va_arg(vl, const char **) = lua_tostring(g_se_lua_context, nres);
+			break;
+		default:
+			sep_error("invalid option (%c)", *(sig - 1));
 		}
 		nres++;
 	}
@@ -900,39 +892,36 @@ static int sep_font_sprite(lua_State *L)
 	int result = -1;
 	
   if (n == 1)
-		if (lua_isstring(L, 1))
-			if (g_fontCurrent >= 0) {
-				SDL_Surface *textsurface = NULL;
-				textsurface = SDL_ConvertSurface(textsurface, g_se_surface->format, 0);
-				const char *message = lua_tostring(L, 1);
-				TTF_Font *font = g_fontList[g_fontCurrent];
-				
-				switch (g_fontQuality) {
-					case 1:
-						textsurface = TTF_RenderText_Solid(font, message, g_colorForeground);
-						break;
-					
-					case 2:
-						textsurface = TTF_RenderText_Shaded(font, message, g_colorForeground, g_colorBackground);
-						break;
-					
-					case 3:
-						textsurface = TTF_RenderText_Blended(font, message, g_colorForeground);
-						break;
-				}
-				
-				if (!(textsurface)) {
-					sep_die("Font surface is null!");
-				} else {
+	if (lua_isstring(L, 1))
+		if (g_fontCurrent >= 0) {
+			SDL_Surface *textsurface = NULL;
+			textsurface = SDL_ConvertSurface(textsurface, g_se_surface->format, 0);
+			const char *message = lua_tostring(L, 1);
+			TTF_Font *font = g_fontList[g_fontCurrent];
 
-					SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
-					SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
-
-					g_spriteList.push_back(textsurface);
-					result = g_spriteList.size() - 1;
-				}
+			switch (g_fontQuality) {
+			case 1:
+				textsurface = TTF_RenderText_Solid(font, message, g_colorForeground);
+				break;
+			case 2:
+				textsurface = TTF_RenderText_Shaded(font, message, g_colorForeground, g_colorBackground);
+				break;
+			case 3:
+				textsurface = TTF_RenderText_Blended(font, message, g_colorForeground);
+				break;
 			}
 
+			if (!(textsurface)) {
+				sep_die("Font surface is null!");
+			} else {
+
+				SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
+				SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
+
+				g_spriteList.push_back(textsurface);
+				result = g_spriteList.size() - 1;
+			}
+		}
   lua_pushnumber(L, result);
   return 1;
 }
@@ -1159,66 +1148,65 @@ static int sep_say_font(lua_State *L)
     if (lua_isnumber(L, 1))
       if (lua_isnumber(L, 2))
         if (lua_isstring(L, 3))
-		if (g_fontCurrent >= 0) {
-			SDL_Surface *textsurface = NULL;
-			textsurface = SDL_ConvertSurface(textsurface, g_se_surface->format, 0);
-			const char *message = lua_tostring(L, 3);
-			TTF_Font *font = g_fontList[g_fontCurrent];
+	  if (g_fontCurrent >= 0) {
+		SDL_Surface *textsurface = NULL;
+		textsurface = SDL_ConvertSurface(textsurface, g_se_surface->format, 0);
+		const char *message = lua_tostring(L, 3);
+		TTF_Font *font = g_fontList[g_fontCurrent];
 
-			switch (g_fontQuality) {
-				case 1:
-					textsurface = TTF_RenderText_Solid(font, message, g_colorForeground);
-					break;
-				case 2:
-					textsurface = TTF_RenderText_Shaded(font, message, g_colorForeground, g_colorBackground);
-					break;
-							
-				case 3:
-					textsurface = TTF_RenderText_Blended(font, message, g_colorForeground);
-					break;
-			}
-						
-			if (!(textsurface)) {
-				sep_die("Font surface is null!");
-			} else {
-				SDL_Rect dest;
-				dest.w = textsurface->w;
-				dest.h = textsurface->h;
-
-				if (g_fullsize_overlay) {
-
-				    dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
-				    dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
-
-				} else { // Deal with legacy stuff - TODO: remove
-
-				    dest.x = lua_tonumber(L, 1);
-				    dest.y = lua_tonumber(L, 2);
-
-				    if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
-					dest.x+=20;
-
-				    if (g_se_overlay_width > SINGE_OVERLAY_STD) {
-					if (dest.h == 0x16 && dest.y == 0xcf) { // JR SCOREBOARD
-                                            dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 22);
-                                            if (dest.x <(SINGE_OVERLAY_STD>>2)) dest.x-=4;
-                                                if (dest.x >(SINGE_OVERLAY_STD>>1)) dest.x+=4;
-				    }
-					else
-					    dest.x = dest.x - (double)(((g_se_overlay_width) + (dest.x * 32)
-                                                               + (dest.w * 26)) / SINGE_OVERLAY_STD);
-				    }
-				}
-
-				SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
-				SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
-				if (!video::get_singe_blend_sprite())
-					SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
-
-				SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
-				SDL_FreeSurface(textsurface);
-			}
+		switch (g_fontQuality) {
+		case 1:
+		    textsurface = TTF_RenderText_Solid(font, message, g_colorForeground);
+		    break;
+		case 2:
+		    textsurface = TTF_RenderText_Shaded(font, message, g_colorForeground, g_colorBackground);
+		    break;
+		case 3:
+		    textsurface = TTF_RenderText_Blended(font, message, g_colorForeground);
+		    break;
 		}
+
+		if (!(textsurface)) {
+			sep_die("Font surface is null!");
+		} else {
+			SDL_Rect dest;
+			dest.w = textsurface->w;
+			dest.h = textsurface->h;
+
+			if (g_fullsize_overlay) {
+
+			    dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
+			    dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
+
+			} else { // Deal with legacy stuff - TODO: remove
+
+			    dest.x = lua_tonumber(L, 1);
+			    dest.y = lua_tonumber(L, 2);
+
+			    if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
+				dest.x+=20;
+
+			    if (g_se_overlay_width > SINGE_OVERLAY_STD_W) {
+				if (dest.h == 0x16 && dest.y == 0xcf) { // JR SCOREBOARD
+                                           dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 22);
+                                           if (dest.x <(SINGE_OVERLAY_STD_W>>2)) dest.x-=4;
+                                               if (dest.x >(SINGE_OVERLAY_STD_W>>1)) dest.x+=4;
+			    }
+				else
+				    dest.x = dest.x - (double)(((g_se_overlay_width) + (dest.x * 32)
+                                                              + (dest.w * 26)) / SINGE_OVERLAY_STD_W);
+			    }
+			}
+
+			SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
+			SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
+			if (!video::get_singe_blend_sprite())
+				SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
+
+			SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
+			SDL_FreeSurface(textsurface);
+		}
+	}
   return 0;
 }
 
@@ -1441,12 +1429,12 @@ static int sep_sprite_draw(lua_State *L)
 			    dest.x = lua_tonumber(L, 1);
 			    dest.y = lua_tonumber(L, 2);
 
-			    if (g_se_overlay_width > SINGE_OVERLAY_STD) {
+			    if (g_se_overlay_width > SINGE_OVERLAY_STD_W) {
 				if (g_not_cursor && dest.y > 0xbe && dest.y <= 0xde)
 				    dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
 				else
 				    dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
-						    + (dest.w * 26)) / SINGE_OVERLAY_STD);
+						    + (dest.w * 26)) / SINGE_OVERLAY_STD_W);
 			    }
 			}
 
