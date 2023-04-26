@@ -3,6 +3,8 @@
 
 #include "scoreboard_interface.h"
 
+#define ALLOWREPAINT 10
+
 // fake scoreboard, used for testing
 class NullScoreboard : public IScoreboard
 {

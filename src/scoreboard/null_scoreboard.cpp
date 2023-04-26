@@ -30,8 +30,10 @@ bool NullScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 
 bool NullScoreboard::is_repaint_needed()
 {
+	// We allow initial frames
+	// Enough to trigger resize()
 	static char repaint = 1;
-	if (repaint < 10) {
+	if (repaint < ALLOWREPAINT) {
 	    repaint++;
 	    return true;
 	}
