@@ -342,12 +342,17 @@ void game::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
 // palette_shutdown
 bool game::init_video()
 {
+    static char resize = 0;
     bool result = false;
     int index   = 0;
 
     // Set up SDL display (create window, renderer, surfaces, textures...)
     if (video::get_yuv_overlay_ready()) video::reset_yuv_overlay();
-    video::init_display();
+
+    if (resize < MAXRESIZE) {
+        video::init_display();
+        resize++;
+    }
 
     // if this particular game uses video overlay (most do)
     if (m_game_uses_video_overlay) {
@@ -396,6 +401,9 @@ bool game::init_video()
     else {
         result = true;
     }
+
+    // Log some stats
+    video::notify_stats(m_video_overlay_width, m_video_overlay_height);
 
     return (result);
 }
