@@ -629,10 +629,6 @@ void singe::set_overlaysize(uint8_t thisVal) { m_overlay_size = thisVal; }
 
 void singe::set_custom_overlay(uint16_t w, uint16_t h)
 {
-    char s1[64];
-    snprintf(s1, sizeof(s1), "Setting Overlay resolution: %dx%d", w, h);
-    printline(s1);
-
     m_custom_overlay_w = w;
     m_custom_overlay_h = h;
 }

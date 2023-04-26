@@ -346,6 +346,7 @@ bool game::init_video()
     int index   = 0;
 
     // Set up SDL display (create window, renderer, surfaces, textures...)
+    if (video::get_yuv_overlay_ready()) video::reset_yuv_overlay();
     video::init_display();
 
     // if this particular game uses video overlay (most do)

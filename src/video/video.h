@@ -204,6 +204,7 @@ unsigned int get_draw_height();
 
 int get_yuv_overlay_width();
 int get_yuv_overlay_height();
+void reset_yuv_overlay();
 
 bool get_yuv_overlay_ready();
 

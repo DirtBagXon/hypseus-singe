@@ -32,8 +32,6 @@
 #include "../io/error.h"
 #include "../io/mpo_fileio.h"
 #include "../io/mpo_mem.h"
-#include "../ldp-out/ldp.h"
-#include "palette.h"
 #include "video.h"
 #include <SDL_syswm.h> // rdg2010
 #include <SDL_image.h> // screenshot
@@ -276,10 +274,6 @@ bool init_display()
 
         if (!SDL_RectEmpty(&g_scaling_rect)) g_scale_view = true;
 
-        if (notify) {
-            LOGI << fmt("Viewport resolution: %dx%d", g_viewport_width, g_viewport_height);
-        }
-
         if (g_window) resize_cleanup();
 
         if (g_fRotateDegrees != 0) {
@@ -456,6 +450,14 @@ bool init_display()
                         g_bezel_toggle = true;
                 }
 
+                if (notify) {
+                    LOGI << fmt("Display Stats:|w:%dx%d|v:%dx%d|o:%dx%d|l:%dx%d|",
+                                g_viewport_width, g_viewport_height,
+                                    g_probe_width, g_probe_height,
+                                        g_overlay_width, g_overlay_height,
+                                            g_logical_rect.w, g_logical_rect.h);
+                }
+
                 if (g_aux_texture) {
 
                     if (g_keyboard_bezel) {
@@ -606,6 +608,12 @@ exit:
     return (result);
 }
 
+void reset_yuv_overlay()
+{
+    vid_setup_yuv_overlay(g_viewport_width, g_viewport_height);
+    SDL_Delay(2);
+}
+
 void vid_free_yuv_overlay () {
     // Here we free both the YUV surface and YUV texture.
     SDL_DestroyMutex (g_yuv_surface->mutex);
@@ -616,6 +624,9 @@ void vid_free_yuv_overlay () {
     free(g_yuv_surface);
 
     SDL_DestroyTexture(g_yuv_texture);
+
+    g_yuv_surface = NULL;
+    g_yuv_texture = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -637,8 +648,17 @@ bool deinit_display()
     if (g_sb_blit_surface) SDL_FreeSurface(g_sb_blit_surface);
     if (g_aux_blit_surface) SDL_FreeSurface(g_aux_blit_surface);
 
+    g_sb_texture = NULL;
+    g_sb_renderer = NULL;
+    g_sb_window = NULL;
+    g_sb_blit_surface = NULL;
+    g_aux_blit_surface = NULL;
+
     SDL_FreeSurface(g_screen_blitter);
     SDL_FreeSurface(g_leds_surface);
+
+    g_screen_blitter = NULL;
+    g_leds_surface  = NULL;
 
     FC_FreeFont(g_font);
     FC_FreeFont(g_fixfont);
@@ -650,9 +670,16 @@ bool deinit_display()
     if (g_aux_texture)
         SDL_DestroyTexture(g_aux_texture);
 
+    g_bezel_texture = NULL;
+    g_aux_texture = NULL;
+
     SDL_DestroyTexture(g_overlay_texture);
     SDL_DestroyRenderer(g_renderer);
     SDL_DestroyWindow(g_window);
+
+    g_overlay_texture = NULL;
+    g_renderer = NULL;
+    g_window = NULL;
 
     return (true);
 }
@@ -667,13 +694,24 @@ void resize_cleanup()
     if (g_leds_surface) SDL_FreeSurface(g_leds_surface);
     if (g_aux_blit_surface) SDL_FreeSurface(g_aux_blit_surface);
 
+    g_screen_blitter = NULL;
+    g_leds_surface = NULL;
+    g_aux_blit_surface = NULL;
+
     if (g_bezel_texture) SDL_DestroyTexture(g_bezel_texture);
     if (g_aux_texture) SDL_DestroyTexture(g_aux_texture);
+
+    g_bezel_texture = NULL;
+    g_aux_texture = NULL;
 
     if (g_overlay_texture) SDL_DestroyTexture(g_overlay_texture);
     if (g_renderer) SDL_DestroyRenderer(g_renderer);
 
     SDL_DestroyWindow(g_window);
+
+    g_overlay_texture = NULL;
+    g_renderer = NULL;
+    g_window = NULL;
 }
 
 // shuts down video display
@@ -1267,11 +1305,13 @@ void vid_toggle_fullscreen()
             SDL_RenderGetViewport(g_renderer, &g_logical_rect);
         }
         SDL_RenderSetLogicalSize(g_renderer, g_viewport_width, g_viewport_height);
+        g_fullscreen = true;
 
         if (g_bezel_texture || !SDL_RectEmpty(&g_sb_bezel_rect))
             g_bezel_toggle = true;
         return;
     }
+    g_fullscreen = false;
     SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
     SDL_SetWindowPosition(g_window, SDL_WINDOWPOS_CENTERED,
                           SDL_WINDOWPOS_CENTERED);

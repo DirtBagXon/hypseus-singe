@@ -1583,7 +1583,7 @@ void report_mpeg_dimensions_callback(int width, int height)
     // Delete and create the YUV overlay (YUV surface + YUV texture) if it doesn't have the
     // new dimensions we need, or just create it for the first time if we haven't done so yet, 
     // in wich case the get_* functions will return zero.
-    if (video::get_yuv_overlay_width() != width && video::get_yuv_overlay_height() != height)
+    if (video::get_yuv_overlay_width() != width || video::get_yuv_overlay_height() != height)
     {
             video::vid_setup_yuv_overlay(width, height);
     }
