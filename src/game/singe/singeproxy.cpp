@@ -607,9 +607,9 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "vldpSetVerbose",     sep_ldp_verbose);  
 
   // Singe 2
+  lua_register(g_se_lua_context, "overlaySetResolution",   sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
-  lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
   lua_register(g_se_lua_context, "mouseHowMany",           sep_get_number_of_mice);
 
@@ -617,6 +617,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "ratioGetX",              sep_get_xratio);
   lua_register(g_se_lua_context, "ratioGetY",              sep_get_yratio);
   lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
+  lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
