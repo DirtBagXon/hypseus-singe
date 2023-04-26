@@ -606,9 +606,9 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "vldpSetVerbose",     sep_ldp_verbose);  
 
   // Singe 2
-  lua_register(g_se_lua_context, "overlaySetResolution",   sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
+  lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
   lua_register(g_se_lua_context, "mouseHowMany",           sep_get_number_of_mice);
 
@@ -1029,53 +1029,75 @@ static int sep_singe_two_pseudo_call_true(lua_State *L)
    return 0;
 }
 
+static int sep_set_custom_overlay(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 2) {
+        if (lua_isnumber(L, 1)) {
+            if (lua_isnumber(L, 2)) {
+
+                double f = 0;
+                f = lua_tonumber(L, 1);
+                int w = (int)f;
+                f = lua_tonumber(L, 2);
+                int h = (int)f;
+
+                lua_State* R = luaL_newstate();
+                lua_pushinteger(R, SINGE_OVERLAY_CUSTOM);
+                lua_pushinteger(R, w);
+                lua_pushinteger(R, h);
+
+                sep_set_overlaysize(R);
+            }
+        }
+    }
+    return 0;
+}
+
 static int sep_set_overlaysize(lua_State *L)
 {
-    static bool bOnce = false;
+    int n = lua_gettop(L);
 
-    if (g_pSingeIn->cfm_get_overlaysize(g_pSingeIn->pSingeInstance) == 0 && !bOnce) {
+    if (n > 0) {
+        if (lua_isnumber(L, 1))
+        {
+           int size = lua_tonumber(L, 1);
 
-        int n = lua_gettop(L);
-
-        if (n > 0) {
-            if (lua_isnumber(L, 1))
-            {
-               int size = lua_tonumber(L, 1);
-
-               switch (size) {
-               case SINGE_OVERLAY_FULL:
-               case SINGE_OVERLAY_HALF:
-                   g_fullsize_overlay = true;
-                   g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
-                   break;
-               case SINGE_OVERLAY_OVERSIZE:
-                   break;
-               case SINGE_OVERLAY_CUSTOM:
-                   if (n == 3) {
-                       if (lua_isnumber(L, 2)) {
-                           if (lua_isnumber(L, 3)) {
-                               double f = 0;
-                               f = lua_tonumber(L, 2);
-                               int w = (int)f;
-                               f = lua_tonumber(L, 3);
-                               int h = (int)f;
-                               if (w && h) {
-                                   g_fullsize_overlay = true;
-                                   g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance, w, h);
-                                   g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
-                               } else size = SINGE_OVERLAY_EMPTY;
-                           }
+           switch (size) {
+           case SINGE_OVERLAY_FULL:
+           case SINGE_OVERLAY_HALF:
+               g_fullsize_overlay = true;
+               g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
+               break;
+           case SINGE_OVERLAY_OVERSIZE:
+               g_fullsize_overlay = false;
+               g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, false);
+               break;
+           case SINGE_OVERLAY_CUSTOM:
+               if (n == 3) {
+                   if (lua_isnumber(L, 2)) {
+                       if (lua_isnumber(L, 3)) {
+                           double f = 0;
+                           f = lua_tonumber(L, 2);
+                           int w = (int)f;
+                           f = lua_tonumber(L, 3);
+                           int h = (int)f;
+                           if (w && h) {
+                               g_fullsize_overlay = true;
+                               g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance, w, h);
+                               g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
+                           } else size = SINGE_OVERLAY_EMPTY;
                        }
-                   } else size = SINGE_OVERLAY_EMPTY;
-                   break;
-               }
+                   }
+               } else size = SINGE_OVERLAY_EMPTY;
+               break;
+           }
 
-               if (size > 0 && size < SINGE_OVERLAY_EMPTY) {
-                   g_pSingeIn->cfm_set_overlaysize(g_pSingeIn->pSingeInstance, size);
-               }
+           if (size > 0 && size < SINGE_OVERLAY_EMPTY) {
+               g_pSingeIn->cfm_set_overlaysize(g_pSingeIn->pSingeInstance, size);
            }
        }
-       bOnce = true;
    }
    return 0;
 }
