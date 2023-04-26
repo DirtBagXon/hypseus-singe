@@ -450,14 +450,6 @@ bool init_display()
                         g_bezel_toggle = true;
                 }
 
-                if (notify) {
-                    LOGI << fmt("Display Stats:|w:%dx%d|v:%dx%d|o:%dx%d|l:%dx%d|",
-                                g_viewport_width, g_viewport_height,
-                                    g_probe_width, g_probe_height,
-                                        g_overlay_width, g_overlay_height,
-                                            g_logical_rect.w, g_logical_rect.h);
-                }
-
                 if (g_aux_texture) {
 
                     if (g_keyboard_bezel) {
@@ -1711,6 +1703,14 @@ void draw_scanlines(int w, int h, int l) {
     }
 
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+}
+
+void notify_stats( int overlaywidth, int overlayheight) {
+
+    LOGI << fmt("Display Stats:|w:%dx%d|v:%dx%d|o:%dx%d|l:%dx%d|",
+         g_viewport_width, g_viewport_height, g_probe_width,
+             g_probe_height, overlaywidth, overlayheight,
+                  g_logical_rect.w, g_logical_rect.h);
 }
 
 void draw_border(int s, int c) {

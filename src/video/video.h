@@ -206,6 +206,8 @@ int get_yuv_overlay_width();
 int get_yuv_overlay_height();
 void reset_yuv_overlay();
 
+void notify_stats(int width, int height);
+
 bool get_yuv_overlay_ready();
 
 }
