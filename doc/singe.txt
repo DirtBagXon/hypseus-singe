@@ -1,3 +1,12 @@
+Hypseus API functions
+---------------------
+ratioGetX,              sep_get_xratio
+ratioGetY,              sep_get_yratio
+setOverlaySize,         sep_set_overlaysize
+setOverlayResolution,   sep_set_custom_overlay
+takeScreenshot,         sep_screenshot
+
+
 Singe 1 API functions
 ---------------------
 

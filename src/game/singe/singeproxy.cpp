@@ -125,7 +125,7 @@ unsigned char sep_byte_clip(int value)
 
 void sep_set_retropath()
 {
-       lua_set_retropath(1);
+       lua_set_retropath(true);
 }
 
 void sep_call_lua(const char *func, const char *sig, ...)
@@ -554,9 +554,8 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "colorBackground",    sep_color_set_backcolor);
   lua_register(g_se_lua_context, "colorForeground",    sep_color_set_forecolor);
 
-  lua_register(g_se_lua_context, "hypseusGetHeight",    sep_hypseus_get_height);
-  lua_register(g_se_lua_context, "hypseusGetWidth",     sep_hypseus_get_width);
-  lua_register(g_se_lua_context, "hypseusScreenshot",   sep_screenshot);
+  lua_register(g_se_lua_context, "hypseusGetHeight",   sep_hypseus_get_height);
+  lua_register(g_se_lua_context, "hypseusGetWidth",    sep_hypseus_get_width);
 
   lua_register(g_se_lua_context, "debugPrint",         sep_debug_say);
 
@@ -617,6 +616,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "ratioGetY",              sep_get_yratio);
   lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
   lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
+  lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -1235,11 +1235,17 @@ static int sep_say_font(lua_State *L)
 
 static int sep_screenshot(lua_State *L)
 {
+  static int last = 0;
+  double now = clock() / (double)CLOCKS_PER_SEC;
+
+  if (((int)now - last) < 5) return 1;
+
   int n = lua_gettop(L);
-  
+
   if (n == 0)
   {
     g_pSingeIn->request_screenshot();
+    last = (int)now;
   }
 	
   return 0;

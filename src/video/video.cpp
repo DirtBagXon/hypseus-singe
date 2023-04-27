@@ -1707,7 +1707,7 @@ void draw_scanlines(int w, int h, int l) {
 
 void notify_stats( int overlaywidth, int overlayheight) {
 
-    LOGI << fmt("Display Stats:|w:%dx%d|v:%dx%d|o:%dx%d|l:%dx%d|",
+    LOGI << fmt("Viewport Stats:|w:%dx%d|v:%dx%d|o:%dx%d|l:%dx%d|",
          g_viewport_width, g_viewport_height, g_probe_width,
              g_probe_height, overlaywidth, overlayheight,
                   g_logical_rect.w, g_logical_rect.h);
