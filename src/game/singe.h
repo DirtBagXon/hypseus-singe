@@ -214,6 +214,8 @@ class singe : public game
     DLL_INSTANCE m_dll_instance; // pointer to DLL we load (if we aren't
                                  // statically linked)
 
+    static void request_screenshot() { video::set_queue_screenshot(true); }
+
     // by DBX
     double get_xratio();
     double get_yratio();

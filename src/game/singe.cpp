@@ -135,6 +135,7 @@ bool singe::init()
         g_SingeIn.samples_play_sample = samples::play;
         g_SingeIn.set_last_error      = set_last_error;
         g_SingeIn.get_retro_path      = get_retro_path;
+        g_SingeIn.request_screenshot  = request_screenshot;
 
         // by RDG2010
         g_SingeIn.get_status        = get_status;
