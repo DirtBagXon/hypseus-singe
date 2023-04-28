@@ -1828,17 +1828,15 @@ static int sep_sound_get_flag(lua_State *L)
 static int sep_bezel_enable(lua_State *L)
 {
     int n = lua_gettop(L);
-    bool result;
 
     if (n > 0)
         if (lua_isboolean(L, 1)) {
-            result = lua_toboolean(L, 1);
+            bool result = lua_toboolean(L, 1);
             g_pSingeIn->cfm_bezel_enable(g_pSingeIn->pSingeInstance, result);
 
             if (n == 2)
-                if (lua_isboolean(L, 2)) {
-                    result = lua_toboolean(L, 2);
-                    g_pSingeIn->cfm_bezel_custom(g_pSingeIn->pSingeInstance, result);
+                if (lua_isnumber(L, 2)) {
+                    g_pSingeIn->cfm_bezel_type(g_pSingeIn->pSingeInstance, lua_tonumber(L, 2));
                 }
         }
 

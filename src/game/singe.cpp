@@ -98,15 +98,10 @@ singe::singe() : m_pScoreboard(NULL)
     i_keyboard_mode           = KEYBD_NORMAL;
 }
 
-SDL_Surface *get_active_overlay()
-{
-    return g_game->get_active_video_overlay();
-}
-
 void singe::scoreboard_score(int value, uint8_t player)
 {
-    const uint8_t which = (6 - 1); // six chars
     uint8_t digit;
+    const uint8_t which = (6 - 1); // six chars
     for(int i = which; i >= 0; i--) {
 
         if (value == -1) {
@@ -216,7 +211,7 @@ bool singe::init()
 
         // Active bezel
         g_SingeIn.cfm_bezel_enable       = gfm_bezel_enable;
-        g_SingeIn.cfm_bezel_custom       = gfm_bezel_custom;
+        g_SingeIn.cfm_bezel_type         = gfm_bezel_type;
         g_SingeIn.cfm_second_score       = gfm_second_score;
         g_SingeIn.cfm_bezel_credits      = gfm_bezel_credits;
         g_SingeIn.cfm_player1_score      = gfm_player1_score;
@@ -655,11 +650,13 @@ void singe::repaint()
 
         if (!m_pScoreboard) {
             IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(
-			    get_active_overlay, false, false, 0);
+			                   NULL, false, false, 0);
 
             if (pScoreboard) {
-                if (g_bezelboard.bezel) {
+                if (g_bezelboard.type == 1) {
                     ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::BEZEL);
+                } else if (g_bezelboard.type == 2) {
+                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
                 } else {
                     ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
                 }
@@ -723,7 +720,7 @@ void singe::set_overlaysize(uint8_t thisVal) { m_overlay_size = thisVal; }
 
 
 void singe::bezel_clear(bool bEnable) { g_bezelboard.clear = bEnable; }
-void singe::bezel_custom(bool bEnable) { g_bezelboard.bezel = bEnable; }
+void singe::bezel_type(uint8_t thisVal) { g_bezelboard.type = thisVal; }
 
 void singe::bezel_credits(uint8_t thisVal)
 {

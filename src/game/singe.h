@@ -62,7 +62,7 @@ typedef struct singeJoyStruct {
 typedef struct singeScoreboard {
     int8_t credits = 0;
     bool altscore = false;
-    bool bezel = false;
+    uint8_t type = 0;
     int8_t player1_lives = 0;
     int8_t player2_lives = 0;
     int player1_score = 0;
@@ -218,10 +218,10 @@ class singe : public game
         pSingeInstance->bezel_enable(bEnable);
     }
 
-    static void gfm_bezel_custom(void *pInstance, bool bEnable)
+    static void gfm_bezel_type(void *pInstance, uint8_t thisValue)
     {
         singe *pSingeInstance = (singe *)pInstance;
-        pSingeInstance->bezel_custom(bEnable);
+        pSingeInstance->bezel_type(thisValue);
     }
 
     static void gfm_bezel_clear(void *pInstance, bool bEnable)
@@ -307,7 +307,7 @@ class singe : public game
     uint16_t m_custom_overlay_h;
 
     void bezel_enable(bool);
-    void bezel_custom(bool);
+    void bezel_type(uint8_t);
     void bezel_clear(bool);
     void second_score(bool);
     void bezel_credits(uint8_t);
