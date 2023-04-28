@@ -12,10 +12,11 @@ public:
 	typedef enum
 	{
 		NULLTYPE,  // null scoreboard (used for testing)
-		IMAGE,	   // graphics drawn on the screen (no VLDP)
+		IMAGE,	   // graphics drawn on the screen
 		OVERLAY,   // overlay graphics drawn over VLDP video
 		HARDWARE,  // hardware scoreboard controlled via parallel port
 	        USB,	   // hardware scoreboard controlled via USB
+	        BEZEL,     // untitled score LED drawn on the screen
 	        NONE
 	} ScoreboardType;
 

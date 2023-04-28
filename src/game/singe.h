@@ -32,6 +32,7 @@
 #include "../video/palette.h"
 #include "../video/video.h"
 #include "../vldp/vldp.h" // to get the vldp structs
+#include "../scoreboard/scoreboard_collection.h"
 
 #include <string>
 
@@ -44,6 +45,7 @@ using namespace std;
 #define MANY_MOUSE 200
 
 enum { KEYBD_NORMAL, KEYBD_FULL };
+enum { S_B_PLAYER1, S_B_PLAYER2 };
 
 typedef struct singeJoyStruct {
     int8_t slide = 5;
@@ -56,6 +58,18 @@ typedef struct singeJoyStruct {
     bool bjx = false;
     bool bjy = false;
 } singeJoyStruct;
+
+typedef struct singeScoreboard {
+    int8_t credits = 0;
+    bool altscore = false;
+    bool bezel = false;
+    int8_t player1_lives = 0;
+    int8_t player2_lives = 0;
+    int player1_score = 0;
+    int player2_score = 0;
+    bool repaint;
+    bool clear;
+} singeScoreboard;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -73,6 +87,9 @@ class singe : public game
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();
     void repaint();
+
+    void scoreboard_score(int, uint8_t);
+    void scoreboard_credits(uint8_t);
 
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }
@@ -195,6 +212,60 @@ class singe : public game
         pSingeInstance->set_custom_overlay(w, h);
     }
 
+    static void gfm_bezel_enable(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->bezel_enable(bEnable);
+    }
+
+    static void gfm_bezel_custom(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->bezel_custom(bEnable);
+    }
+
+    static void gfm_bezel_clear(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->bezel_clear(bEnable);
+    }
+
+    static void gfm_second_score(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->second_score(bEnable);
+    }
+
+    static void gfm_bezel_credits(void *pInstance, uint8_t thisVal)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->bezel_credits(thisVal);
+    }
+
+    static void gfm_player1_score(void *pInstance, int thisVal)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->player1_score(thisVal);
+    }
+
+    static void gfm_player2_score(void *pInstance, int thisVal)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->player2_score(thisVal);
+    }
+
+    static void gfm_player1_lives(void *pInstance, uint8_t thisVal)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->player1_lives(thisVal);
+    }
+
+    static void gfm_player2_lives(void *pInstance, uint8_t thisVal)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->player2_lives(thisVal);
+    }
+
     void set_keyboard_mode(int); // Sets value of private member i_keyboard_mode
     int get_keyboard_mode();     // Retrieves the value of i_keyboard_mode
 
@@ -223,6 +294,7 @@ class singe : public game
     double singe_yratio;
 
     struct singeJoyStruct g_js;
+    struct singeScoreboard g_bezelboard;
 
     void set_upgradeoverlay(bool);
     void set_overlaysize(uint8_t);
@@ -234,6 +306,17 @@ class singe : public game
     uint16_t m_custom_overlay_w;
     uint16_t m_custom_overlay_h;
 
+    void bezel_enable(bool);
+    void bezel_custom(bool);
+    void bezel_clear(bool);
+    void second_score(bool);
+    void bezel_credits(uint8_t);
+    void player1_score(int);
+    void player2_score(int);
+    void player1_lives(uint8_t);
+    void player2_lives(uint8_t);
+
+    bool m_bezel_scoreboard;
     bool m_fullsize_overlay;
     bool m_upgrade_overlay;
     bool singe_alt_pressed;
@@ -242,6 +325,8 @@ class singe : public game
     bool m_notarget;
     bool singe_ocv;
     bool singe_oc;
+
+    IScoreboard *m_pScoreboard;
 
     // by RDG2010
 

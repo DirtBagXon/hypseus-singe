@@ -77,6 +77,16 @@ struct singe_in_info
 	void (*cfm_set_upgradeoverlay)(void *, bool);
 	void (*cfm_set_custom_overlay)(void *, uint16_t, uint16_t);
 
+	void (*cfm_bezel_enable)(void *, bool);
+	void (*cfm_bezel_custom)(void *, bool);
+	void (*cfm_bezel_clear)(void *, bool);
+	void (*cfm_second_score)(void *, bool);
+	void (*cfm_bezel_credits)(void *, uint8_t);
+	void (*cfm_player1_score)(void *, int);
+	void (*cfm_player2_score)(void *, int);
+	void (*cfm_player1_lives)(void *, uint8_t);
+	void (*cfm_player2_lives)(void *, uint8_t);
+
 	//by RDG2010
 	void *pSingeInstance;
 	void (*cfm_set_keyboard_mode)(void *, int);
