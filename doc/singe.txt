@@ -6,7 +6,7 @@ setOverlaySize,         sep_set_overlaysize
 setOverlayResolution,   sep_set_custom_overlay
 takeScreenshot,         sep_screenshot
 
-scoreBezelEnable,       sep_bezel_enable         (bool, bool)
+scoreBezelEnable,       sep_bezel_enable         (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
 scoreBezelClear,        sep_bezel_clear          (void)
 scoreBezelCredits,      sep_bezel_credits        (credits)
 scoreBezelTwinScoreOn,  sep_bezel_second_score   (bool)

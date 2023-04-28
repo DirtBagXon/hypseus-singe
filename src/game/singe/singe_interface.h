@@ -78,7 +78,7 @@ struct singe_in_info
 	void (*cfm_set_custom_overlay)(void *, uint16_t, uint16_t);
 
 	void (*cfm_bezel_enable)(void *, bool);
-	void (*cfm_bezel_custom)(void *, bool);
+	void (*cfm_bezel_type)(void *, uint8_t);
 	void (*cfm_bezel_clear)(void *, bool);
 	void (*cfm_second_score)(void *, bool);
 	void (*cfm_bezel_credits)(void *, uint8_t);
