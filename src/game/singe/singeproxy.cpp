@@ -618,6 +618,13 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
   lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
 
+  lua_register(g_se_lua_context, "scoreBezelEnable",       sep_bezel_enable);
+  lua_register(g_se_lua_context, "scoreBezelClear",        sep_bezel_clear);
+  lua_register(g_se_lua_context, "scoreBezelCredits",      sep_bezel_credits);
+  lua_register(g_se_lua_context, "scoreBezelTwinScoreOn",  sep_bezel_second_score);
+  lua_register(g_se_lua_context, "scoreBezelScore",        sep_bezel_player_score);
+  lua_register(g_se_lua_context, "scoreBezelLives",        sep_bezel_player_lives);
+
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
   lua_register(g_se_lua_context, "keyboardSetMode",    sep_keyboard_set_mode);
@@ -1818,3 +1825,91 @@ static int sep_sound_get_flag(lua_State *L)
 	return 1;
 }
 
+static int sep_bezel_enable(lua_State *L)
+{
+    int n = lua_gettop(L);
+    bool result;
+
+    if (n > 0)
+        if (lua_isboolean(L, 1)) {
+            result = lua_toboolean(L, 1);
+            g_pSingeIn->cfm_bezel_enable(g_pSingeIn->pSingeInstance, result);
+
+            if (n == 2)
+                if (lua_isboolean(L, 2)) {
+                    result = lua_toboolean(L, 2);
+                    g_pSingeIn->cfm_bezel_custom(g_pSingeIn->pSingeInstance, result);
+                }
+        }
+
+    return 0;
+}
+
+static int sep_bezel_clear(lua_State *L)
+{
+    g_pSingeIn->cfm_bezel_clear(g_pSingeIn->pSingeInstance, true);
+
+    return 0;
+}
+
+static int sep_bezel_second_score(lua_State *L)
+{
+    int n = lua_gettop(L);
+    bool result;
+
+    if (n == 1)
+        if (lua_isboolean(L, 1)) {
+            result = lua_toboolean(L, 1);
+            g_pSingeIn->cfm_second_score(g_pSingeIn->pSingeInstance, result);
+        }
+
+    return 0;
+}
+
+static int sep_bezel_credits(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isnumber(L, 1))
+            g_pSingeIn->cfm_bezel_credits(g_pSingeIn->pSingeInstance, lua_tonumber(L, 1));
+
+    return 0;
+}
+
+
+static int sep_bezel_player_score(lua_State *L)
+{
+    int n = lua_gettop(L);
+    int player;
+
+    if (n == 2)
+        if (lua_isnumber(L, 1))
+            if (lua_isnumber(L, 2)) {
+                player = lua_tonumber(L, 1);
+                if (player == 1)
+                    g_pSingeIn->cfm_player1_score(g_pSingeIn->pSingeInstance, lua_tonumber(L, 2));
+                if (player == 2)
+                    g_pSingeIn->cfm_player2_score(g_pSingeIn->pSingeInstance, lua_tonumber(L, 2));
+            }
+
+    return 0;
+}
+
+static int sep_bezel_player_lives(lua_State *L)
+{
+    int n = lua_gettop(L);
+    int player;
+
+    if (n == 2)
+        if (lua_isnumber(L, 1))
+            if (lua_isnumber(L, 2)) {
+                player = lua_tonumber(L, 1);
+                if (player == 1)
+                    g_pSingeIn->cfm_player1_lives(g_pSingeIn->pSingeInstance, lua_tonumber(L, 2));
+                if (player == 2)
+                    g_pSingeIn->cfm_player2_lives(g_pSingeIn->pSingeInstance, lua_tonumber(L, 2));
+            }
+
+    return 0;
+}

@@ -5,6 +5,7 @@
 #include "usb_scoreboard.h"
 #include "null_scoreboard.h"
 #include "img_scoreboard.h"
+#include "bezel_scoreboard.h"
 #include "overlay_scoreboard.h"
 
 IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type,
@@ -26,6 +27,9 @@ IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type,
 		break;
 	case HARDWARE:	// hardware scoreboard via parallel port
 		pRes = HwScoreboard::GetInstance(uWhichPort);
+		break;
+	case BEZEL:
+		pRes = BezelScoreboard::GetInstance();
 		break;
 	case USB:	// Hardware scoreboard via USB
 	        pRes = USBScoreboard::GetInstance();

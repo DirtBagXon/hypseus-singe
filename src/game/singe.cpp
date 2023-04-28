@@ -28,6 +28,7 @@
 
 #include "singe.h"
 #include "singe/singe_interface.h"
+#include "../scoreboard/scoreboard_collection.h"
 
 // Win32 doesn't use strcasecmp, it uses stricmp (lame)
 #ifdef WIN32
@@ -65,7 +66,7 @@ const int singe::i_full_keybd_defs[] = {SDLK_BACKSPACE,    SDLK_TAB,
 
 #define KEYBD_ARRAY_SIZE 15
 
-singe::singe()
+singe::singe() : m_pScoreboard(NULL)
 {
     m_strGameScript           = "";
     m_shortgamename           = "singe";
@@ -77,6 +78,7 @@ singe::singe()
                                       // its overlay
     m_bMouseEnabled           = true;
     m_dll_instance            = NULL;
+    m_bezel_scoreboard        = false;
 
     m_overlay_size            = 0;
     m_fullsize_overlay        = false;
@@ -94,6 +96,39 @@ singe::singe()
     // by RDG2010
     m_game_type               = GAME_SINGE;
     i_keyboard_mode           = KEYBD_NORMAL;
+}
+
+SDL_Surface *get_active_overlay()
+{
+    return g_game->get_active_video_overlay();
+}
+
+void singe::scoreboard_score(int value, uint8_t player)
+{
+    const uint8_t which = (6 - 1); // six chars
+    uint8_t digit;
+    for(int i = which; i >= 0; i--) {
+
+        if (value == -1) {
+            digit = 0xf;
+        }
+        else
+        {
+            digit = value % 10;
+            value = value / 10;
+        }
+        m_pScoreboard->update_player_score(i, digit, player);
+    }
+}
+
+void singe::scoreboard_credits(uint8_t value)
+{
+    const uint8_t which = (2 - 1); // two chars
+    for(int i = which; i >= 0; i--) {
+        uint8_t digit = value % 10;
+        value = value / 10;
+        m_pScoreboard->update_credits(i, digit);
+    }
 }
 
 bool singe::init()
@@ -138,13 +173,13 @@ bool singe::init()
         g_SingeIn.request_screenshot  = request_screenshot;
 
         // by RDG2010
-        g_SingeIn.get_status        = get_status;
-        g_SingeIn.get_singe_version = get_singe_version;
-        g_SingeIn.set_ldp_verbose   = set_ldp_verbose;
+        g_SingeIn.get_status          = get_status;
+        g_SingeIn.get_singe_version   = get_singe_version;
+        g_SingeIn.set_ldp_verbose     = set_ldp_verbose;
 
-        g_SingeIn.samples_set_state = samples::set_state;
-        g_SingeIn.samples_is_playing = samples::is_playing;
-        g_SingeIn.samples_end_early = samples::end_early;
+        g_SingeIn.samples_set_state   = samples::set_state;
+        g_SingeIn.samples_is_playing  = samples::is_playing;
+        g_SingeIn.samples_end_early   = samples::end_early;
         g_SingeIn.samples_flush_queue = samples::flush_queue;
 
         // These functions allow the DLL side of SINGE
@@ -178,6 +213,17 @@ bool singe::init()
         g_SingeIn.cfm_set_overlaysize    = gfm_set_overlaysize;
         g_SingeIn.cfm_set_upgradeoverlay = gfm_set_upgradeoverlay;
         g_SingeIn.cfm_set_custom_overlay = gfm_set_custom_overlay;
+
+        // Active bezel
+        g_SingeIn.cfm_bezel_enable       = gfm_bezel_enable;
+        g_SingeIn.cfm_bezel_custom       = gfm_bezel_custom;
+        g_SingeIn.cfm_second_score       = gfm_second_score;
+        g_SingeIn.cfm_bezel_credits      = gfm_bezel_credits;
+        g_SingeIn.cfm_player1_score      = gfm_player1_score;
+        g_SingeIn.cfm_player2_score      = gfm_player2_score;
+        g_SingeIn.cfm_player1_lives      = gfm_player1_lives;
+        g_SingeIn.cfm_player2_lives      = gfm_player2_lives;
+        g_SingeIn.cfm_bezel_clear        = gfm_bezel_clear;
 
         /*
         Why a wrapper?
@@ -274,7 +320,12 @@ void singe::start()
     g_pSingeOut->sep_shutdown();
 }
 
-void singe::shutdown() {}
+void singe::shutdown()
+{
+    if (m_pScoreboard) {
+        m_pScoreboard->PreDeleteInstance();
+    }
+}
 
 void singe::input_enable(Uint8 input, Sint8 mouseID)
 {
@@ -600,6 +651,48 @@ void singe::repaint()
         }
     } // end if dimensions are incorrect
 
+    if (m_bezel_scoreboard) {
+
+        if (!m_pScoreboard) {
+            IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(
+			    get_active_overlay, false, false, 0);
+
+            if (pScoreboard) {
+                if (g_bezelboard.bezel) {
+                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::BEZEL);
+                } else {
+                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+                }
+            } else m_bezel_scoreboard = false;
+
+            m_pScoreboard = pScoreboard;
+            goto exit;
+        }
+
+        if (g_bezelboard.clear) {
+            m_pScoreboard->Clear();
+            g_bezelboard.clear = false;
+        }
+
+        if (g_bezelboard.repaint) {
+
+            scoreboard_score(g_bezelboard.player1_score, S_B_PLAYER1);
+            m_pScoreboard->update_player_lives(g_bezelboard.player1_lives, S_B_PLAYER1);
+
+	    if (g_bezelboard.altscore) {
+                scoreboard_score(g_bezelboard.player2_score, S_B_PLAYER2);
+                m_pScoreboard->update_player_lives(g_bezelboard.player2_lives, S_B_PLAYER2);
+            }
+
+            scoreboard_credits(g_bezelboard.credits);
+
+            m_pScoreboard->Invalidate();
+            m_pScoreboard->RepaintIfNeeded();
+            g_bezelboard.repaint = false;
+        }
+    }
+
+exit:
     g_pSingeOut->sep_do_blit(m_video_overlay[m_active_video_overlay]);
 }
 
@@ -627,6 +720,58 @@ double singe::get_yratio() { return singe_yratio; }
 uint8_t singe::get_overlaysize() { return m_overlay_size; }
 void singe::set_upgradeoverlay(bool bEnable) { game::set_fullsize_overlay(bEnable); }
 void singe::set_overlaysize(uint8_t thisVal) { m_overlay_size = thisVal; }
+
+
+void singe::bezel_clear(bool bEnable) { g_bezelboard.clear = bEnable; }
+void singe::bezel_custom(bool bEnable) { g_bezelboard.bezel = bEnable; }
+
+void singe::bezel_credits(uint8_t thisVal)
+{
+    g_bezelboard.credits = thisVal;
+    g_bezelboard.repaint = true;
+}
+
+void singe::player1_lives(uint8_t thisVal)
+{
+     g_bezelboard.player1_lives = thisVal;
+     g_bezelboard.repaint = true;
+}
+
+void singe::player1_score(int thisVal)
+{
+    g_bezelboard.player1_score = thisVal;
+    g_bezelboard.repaint = true;
+}
+
+void singe::second_score(bool bEnable)
+{
+    if (!bEnable) g_bezelboard.clear = true;
+    g_bezelboard.altscore = bEnable;
+    g_bezelboard.repaint = true;
+}
+
+void singe::player2_score(int thisVal)
+{
+    if (g_bezelboard.altscore) {
+        g_bezelboard.player2_score = thisVal;
+        g_bezelboard.repaint = true;
+    }
+}
+
+void singe::player2_lives(uint8_t thisVal)
+{
+    if (g_bezelboard.altscore) {
+        g_bezelboard.player2_lives = thisVal;
+        g_bezelboard.repaint = true;
+    }
+}
+
+void singe::bezel_enable(bool bEnable)
+{
+    g_game->m_software_scoreboard = m_bezel_scoreboard =
+               g_bezelboard.repaint = bEnable;
+    video::set_score_bezel(bEnable);
+}
 
 void singe::set_custom_overlay(uint16_t w, uint16_t h)
 {

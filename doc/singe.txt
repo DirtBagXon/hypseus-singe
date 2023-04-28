@@ -6,6 +6,13 @@ setOverlaySize,         sep_set_overlaysize
 setOverlayResolution,   sep_set_custom_overlay
 takeScreenshot,         sep_screenshot
 
+scoreBezelEnable,       sep_bezel_enable         (bool, bool)
+scoreBezelClear,        sep_bezel_clear          (void)
+scoreBezelCredits,      sep_bezel_credits        (credits)
+scoreBezelTwinScoreOn,  sep_bezel_second_score   (bool)
+scoreBezelScore,        sep_bezel_player_score   (player, score)
+scoreBezelLives,        sep_bezel_player_lives   (player, lives)
+
 
 Singe 1 API functions
 ---------------------
