@@ -83,6 +83,7 @@ bool USBScoreboard::USBInit() {
           snprintf(device, sizeof(device), "/dev/ttyACM%d", port);
           break;
       default:
+          LOGE << "Aborting: no USB device setup was specified";
           return false;
   }
 #endif
@@ -91,7 +92,7 @@ bool USBScoreboard::USBInit() {
 
   if (usb != 1)
   {
-      LOGE << "Failed to open: " << device;
+      LOGE << "Failed to open USB device: " << device;
       return false;
   }
 

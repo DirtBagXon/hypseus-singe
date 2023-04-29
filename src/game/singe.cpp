@@ -103,12 +103,9 @@ void singe::scoreboard_score(int value, uint8_t player)
     uint8_t digit;
     const uint8_t which = (6 - 1); // six chars
     for(int i = which; i >= 0; i--) {
-
         if (value == -1) {
             digit = 0xf;
-        }
-        else
-        {
+        } else {
             digit = value % 10;
             value = value / 10;
         }
@@ -651,14 +648,17 @@ void singe::repaint()
         if (!m_pScoreboard) {
             IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(
 			                   NULL, false, false, 0);
-
             if (pScoreboard) {
-                if (g_bezelboard.type == 1) {
-                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::BEZEL);
-                } else if (g_bezelboard.type == 2) {
-                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
-                } else {
-                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+                switch (g_bezelboard.type) {
+                case 1:
+                   ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::BEZEL);
+                   break;
+                case 2:
+                   ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
+                   break;
+                default:
+                   ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+                   break;
                 }
             } else m_bezel_scoreboard = false;
 
