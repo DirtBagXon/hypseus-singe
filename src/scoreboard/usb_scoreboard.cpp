@@ -90,17 +90,24 @@ bool USBScoreboard::USBInit() {
 
   int usb = g_usb_serial.openDevice(device, baud);
 
+  struct timespec delta = {0, 10000000};
+  nanosleep(&delta, &delta);
+
   if (usb != 1)
   {
       LOGE << "Failed to open USB device: " << device;
       return false;
   }
 
+  g_usb_serial.flushReceiver();
   LOGI << "Opened: " << device;
 
   g_usb_serial.DTR(false);
   g_usb_serial.RTS(true);
   g_serial_rts = true;
+
+  nanosleep(&delta, &delta);
+  g_usb_serial.flushReceiver();
 
   return true;
 }

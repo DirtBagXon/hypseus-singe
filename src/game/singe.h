@@ -46,6 +46,7 @@ using namespace std;
 
 enum { KEYBD_NORMAL, KEYBD_FULL };
 enum { S_B_PLAYER1, S_B_PLAYER2 };
+enum { SINGE_SB_IMG, SINGE_SB_BEZEL, SINGE_SB_USB };
 
 typedef struct singeJoyStruct {
     int8_t slide = 5;
@@ -89,7 +90,9 @@ class singe : public game
     void repaint();
 
     void scoreboard_score(int, uint8_t);
+    void scoreboard_lives(int, uint8_t);
     void scoreboard_credits(uint8_t);
+    int scoreboard_format(int);
 
     // g_ldp function wrappers (to make function pointers out of them)
     static void enable_audio1() { g_ldp->enable_audio1(); }
@@ -218,6 +221,12 @@ class singe : public game
         pSingeInstance->bezel_enable(bEnable);
     }
 
+    static bool gfm_bezel_is_enabled(void *pInstance)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        return pSingeInstance->bezel_is_enabled();
+    }
+
     static void gfm_bezel_type(void *pInstance, uint8_t thisValue)
     {
         singe *pSingeInstance = (singe *)pInstance;
@@ -315,6 +324,7 @@ class singe : public game
     void player2_score(int);
     void player1_lives(uint8_t);
     void player2_lives(uint8_t);
+    bool bezel_is_enabled();
 
     bool m_bezel_scoreboard;
     bool m_fullsize_overlay;

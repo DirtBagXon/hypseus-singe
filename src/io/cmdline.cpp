@@ -838,12 +838,15 @@ bool parse_cmd_line(int argc, char **argv)
                 if (game_thayers)
                     video::set_tq_keyboard(true);
             }
-            else if (strcasecmp(s, "-annunbezel") == 0) {
+            else if (strcasecmp(s, "-annunbezel") == 0 ||
+                         strcasecmp(s, "-dedannunbezel") == 0) {
                 lair *game_ace = dynamic_cast<ace *>(g_game);
 
                 if (game_ace) {
                     video::set_annun_bezel(true);
                     enable_bannun(true);
+                    if (strcasecmp(s, "-dedannunbezel") == 0)
+                        video::set_ded_annun_bezel(true);
                 }
             }
             // used to modify the dip switch settings of the game in question

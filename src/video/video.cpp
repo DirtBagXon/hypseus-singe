@@ -139,6 +139,7 @@ bool g_sb_bezel = false;
 bool g_rotate = false;
 bool g_keyboard_bezel = false;
 bool g_annun_bezel = false;
+bool g_ded_annun_bezel = false;
 
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
@@ -468,6 +469,8 @@ bool init_display()
 
                     if (g_annun_bezel) {
 
+                        if (g_ded_annun_bezel) g_an_bezel_scale--;
+
                         double scale = 9.0f - double((g_an_bezel_scale << 1) / 10.0f);
                         double ratio = (float)g_an_h / (float)g_an_w;
 
@@ -485,15 +488,20 @@ bool init_display()
                         g_aux_rect.w = (g_viewport_width / scale);
                         g_aux_rect.h = (g_aux_rect.w * ratio);
 
-                        LogicalPosition(&g_logical_rect, &g_aux_rect, 100, 90);
+                        if (g_ded_annun_bezel)
+                            LogicalPosition(&g_logical_rect, &g_aux_rect, 99, 10);
+                        else
+                            LogicalPosition(&g_logical_rect, &g_aux_rect, 100, 90);
 
                         // argument override
                         if (ann_bezel_pos_x || ann_bezel_pos_y) {
                             g_aux_rect.x = ann_bezel_pos_x;
                             g_aux_rect.y = ann_bezel_pos_y;
                         }
+
                         draw_annunciator(0);
-                        draw_ranks();
+                        if (!g_ded_annun_bezel)
+                            draw_ranks();
                     }
                 }
 
@@ -767,12 +775,19 @@ bool load_bmps()
     g_other_bmps[B_ACE_CAPTAIN] = load_one_bmp("captain.bmp", true);
     g_other_bmps[B_ACE_SPACE]   = load_one_bmp("spaceace.bmp", true);
 
+    g_other_bmps[B_CADET_OFF]   = load_one_bmp("offcadet.bmp", true);
+    g_other_bmps[B_CAPTAIN_OFF] = load_one_bmp("offcaptain.bmp", true);
+    g_other_bmps[B_ACE_OFF]     = load_one_bmp("offspaceace.bmp", true);
+    g_other_bmps[B_CADET_ON]    = load_one_bmp("oncadet.bmp", true);
+    g_other_bmps[B_CAPTAIN_ON]  = load_one_bmp("oncaptain.bmp", true);
+    g_other_bmps[B_ACE_ON]      = load_one_bmp("onspaceace.bmp", true);
+
     g_other_bmps[B_ANUN_ON]     = load_one_png("annunon.png");
     g_other_bmps[B_ANUN_OFF]    = load_one_png("annunoff.png");
 
     // check to make sure they all loaded
     for (index = 0; index < B_EMPTY; index++) {
-        if (g_other_bmps[index] == NULL) {
+        if (g_other_bmps[index] == NULL && index != B_MIA) {
             result = false;
         }
     }
@@ -853,30 +868,10 @@ bool draw_led(int value, int x, int y)
 
 bool draw_annunciator(int which)
 {
-    g_sb_surface = g_other_bmps[B_ANUN_OFF];
+    if (!g_ded_annun_bezel)
+        draw_annunciator1(which);
+    else draw_annunciator2(which);
 
-    SDL_Rect dest;
-    uint8_t spacer = 4;
-
-    dest.x = g_aux_blit_surface->w - (g_sb_surface->w
-                   + (g_sb_surface->w >> 2));
-
-    dest.w = (unsigned short) g_sb_surface->w;
-    dest.h = (unsigned short) g_sb_surface->h;
-
-    for (int i = 0; i < ANUN_LEVELS; i++) {
-       dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * i) + spacer;
-       SDL_FillRect(g_aux_blit_surface, &dest, 0x00000000);
-       SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
-    }
-
-    if (which) {
-        g_sb_surface = g_other_bmps[B_ANUN_ON];
-        dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * --which) + spacer;
-        SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
-    }
-
-    g_aux_needs_update = true;
     return true;
 }
 
@@ -886,7 +881,7 @@ bool draw_ranks()
     dest.x = 10;
     dest.y = dest.x - 1;
 
-    for (int i = B_ACE_SPACE; i < B_EMPTY; i++) {
+    for (int i = B_ACE_SPACE; i < B_MIA; i++) {
 
         g_sb_surface = g_other_bmps[i];
 
@@ -899,6 +894,59 @@ bool draw_ranks()
     return true;
 }
 
+bool draw_annunciator1(int which)
+{
+    g_sb_surface = g_other_bmps[B_ANUN_OFF];
+
+    SDL_Rect dest;
+    uint8_t spacer = 4;
+
+    dest.x = g_aux_blit_surface->w - (g_sb_surface->w
+                   + (g_sb_surface->w >> 1));
+
+    dest.w = (unsigned short) g_sb_surface->w;
+    dest.h = (unsigned short) g_sb_surface->h;
+
+    for (int i = 0; i < ANUN_LEVELS; i++) {
+        dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * i) + spacer;
+        SDL_FillRect(g_aux_blit_surface, &dest, 0x00000000);
+        SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
+    }
+
+    if (which) {
+        g_sb_surface = g_other_bmps[B_ANUN_ON];
+        dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * --which) + spacer;
+        SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
+    }
+
+    g_aux_needs_update = true;
+    return true;
+}
+
+bool draw_annunciator2(int which)
+{
+    SDL_Rect dest;
+
+    dest.x = 0;
+    dest.h = 40;
+    dest.w = 220;
+
+    for (int i = B_ACE_OFF; i < B_EMPTY; i++) {
+        g_sb_surface = g_other_bmps[i];
+        dest.y = (ANUN_RANK_HEIGHT * (i - B_ACE_OFF));
+        SDL_FillRect(g_aux_blit_surface, &dest, 0x00000000);
+        SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
+    }
+
+    if (which) {
+        g_sb_surface = g_other_bmps[B_MIA + which];
+        dest.y = ANUN_RANK_HEIGHT * --which;
+        SDL_BlitSurface(g_sb_surface, NULL, g_aux_blit_surface, &dest);
+    }
+
+    g_aux_needs_update = true;
+    return true;
+}
 
 // Update scoreboard surface
 void draw_overlay_leds(unsigned int values[], int num_digits,
@@ -1148,6 +1196,7 @@ void set_score_bezel_alpha(int8_t value) { g_sb_bezel_alpha = value; }
 void set_score_bezel_scale(int value) { g_sb_bezel_scale = value; }
 void set_ace_annun_scale(int value) { g_an_bezel_scale = value; }
 void set_annun_bezel_alpha(int8_t value) { g_annun_bezel_alpha = value; }
+void set_ded_annun_bezel(bool bEnabled) { g_ded_annun_bezel = bEnabled; }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 void set_scalefactor(int value) { g_scalefactor = value; }

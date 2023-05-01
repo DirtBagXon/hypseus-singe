@@ -44,7 +44,7 @@
 namespace video
 {
 // 16 is normal, the 17th is for the 'A' in SAE
-static const uint8_t LED_RANGE          = 17;
+static const uint8_t LED_RANGE          = 18;
 static const uint8_t OVERLAY_LED_WIDTH  = 8;
 static const uint8_t OVERLAY_LED_HEIGHT = 13;
 // width of each LDP1450 overlay character
@@ -57,6 +57,7 @@ static const uint8_t OVERLAY_LDP1450_CHARACTER_SPACING = 15;
 static const uint8_t OVERLAY_LDP1450_LINE_SPACING = 16;
 static const uint8_t OVERLAY_LDP1450_LINES = 16;
 static const uint8_t ANUN_CHAR_HEIGHT = 15;
+static const uint8_t ANUN_RANK_HEIGHT = 46;
 static const uint8_t ANUN_LEVELS = 3;
 
 typedef struct LDP1450_CharStruct {
@@ -78,6 +79,13 @@ enum {
     B_ACE_SPACE,
     B_ACE_CAPTAIN,
     B_ACE_CADET,
+    B_MIA,
+    B_ACE_ON,
+    B_CAPTAIN_ON,
+    B_CADET_ON,
+    B_ACE_OFF,
+    B_CAPTAIN_OFF,
+    B_CADET_OFF,
     B_EMPTY
 }; // bitmaps
 
@@ -188,6 +196,7 @@ void set_score_bezel_scale(int value);
 void set_ace_annun_scale(int value);
 void set_tq_keyboard(bool bEnabled);
 void set_annun_bezel(bool bEnabled);
+void set_ded_annun_bezel(bool bEnabled);
 void set_annun_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
@@ -195,6 +204,8 @@ void set_score_screen(int value);
 
 bool draw_ranks();
 bool draw_annunciator(int which);
+bool draw_annunciator1(int which);
+bool draw_annunciator2(int which);
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);
