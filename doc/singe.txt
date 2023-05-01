@@ -12,6 +12,7 @@ scoreBezelCredits,      sep_bezel_credits        (credits)
 scoreBezelTwinScoreOn,  sep_bezel_second_score   (bool)
 scoreBezelScore,        sep_bezel_player_score   (player, score)
 scoreBezelLives,        sep_bezel_player_lives   (player, lives)
+scoreBezelGetState,     sep_bezel_is_enabled     (void)
 
 
 Singe 1 API functions

@@ -12,6 +12,7 @@ Built-in bezels relating to 'lair/ace/tq'
 -----------------------------------------
 
 -annunbezel                [ Built-in bezel: ace annunciator               ]
+-dedannunbezel             [ Built-in bezel: ace annunciator [Dedicated]   ]
 -annunbezel_alpha <1-2>    [ Built-in bezel: alpha transparency            ]
 -annunbezel_scale <1-25>   [ Built-in bezel: scale option                  ]
 -annunbezel_position <x y> [ Built-in bezel: position options              ]
@@ -39,5 +40,12 @@ Built-in overrides
 - bezels/captain.bmp
 - bezels/spaceace.bmp
 - bezels/tqkeys.png
+
+- bezels/onspaceace.bmp
+- bezels/oncaptain.bmp
+- bezels/oncadet.bmp
+- bezels/offspaceace.bmp
+- bezels/offcaptain.bmp
+- bezels/offcadet.bmp
 
 

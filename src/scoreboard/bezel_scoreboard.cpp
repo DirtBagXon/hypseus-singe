@@ -99,7 +99,25 @@ bool BezelScoreboard::ChangeVisibility(bool bVisible)
 
 bool BezelScoreboard::set_digit(unsigned int uValue, WhichDigit which)
 {
-	return set_digit_w_sae(uValue, which);
+        if (m_DigitValues[which] != uValue)
+        {
+                if (uValue == 0xB)
+                {
+                        m_DigitValues[which] = 0x11;
+                }
+                else if (uValue == 0xD)
+                {
+                        m_DigitValues[which] = 0x10;
+                }
+                else
+                {
+                        m_DigitValues[which] = uValue;
+                }
+
+                m_bNeedsRepaint = true;
+        }
+
+        return true;
 }
 
 bool BezelScoreboard::is_repaint_needed()

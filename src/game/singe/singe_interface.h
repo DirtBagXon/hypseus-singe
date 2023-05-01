@@ -86,6 +86,7 @@ struct singe_in_info
 	void (*cfm_player2_score)(void *, int);
 	void (*cfm_player1_lives)(void *, uint8_t);
 	void (*cfm_player2_lives)(void *, uint8_t);
+	bool (*cfm_bezel_is_enabled)(void *);
 
 	//by RDG2010
 	void *pSingeInstance;

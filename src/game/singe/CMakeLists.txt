@@ -4,7 +4,7 @@ set( LIB_SOURCES
     lauxlib.c ldblib.c ldump.c linit.c lmathlib.c lobject.c
     lparser.c lstring.c ltablib.c lvm.c random.c lbaselib.c
     ldebug.c lfunc.c liolib.c lmem.c lopcodes.c lrandom.c
-    luretro.c lstrlib.c ltm.c lzio.c lfs.c
+    luretro.c lstrlib.c ltm.c lzio.c lfs.c singe_utils.cpp
 
 )
 

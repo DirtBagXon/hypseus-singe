@@ -120,6 +120,10 @@ Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
     ~/.hypseus
 
+## Bezels
+
+Bezel arguments are documented in: [bezels.txt](doc/bezels.txt)
+
 ## Hardware USB Scoreboard
 
 Example arguments: `-usbscoreboard COM 4 19200`

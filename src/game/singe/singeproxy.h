@@ -147,3 +147,4 @@ static int sep_bezel_credits(lua_State *L);
 static int sep_bezel_second_score(lua_State *L);
 static int sep_bezel_player_score(lua_State *L);
 static int sep_bezel_player_lives(lua_State *L);
+static int sep_bezel_is_enabled(lua_State *L);

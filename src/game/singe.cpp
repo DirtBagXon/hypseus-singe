@@ -28,7 +28,6 @@
 
 #include "singe.h"
 #include "singe/singe_interface.h"
-#include "../scoreboard/scoreboard_collection.h"
 
 // Win32 doesn't use strcasecmp, it uses stricmp (lame)
 #ifdef WIN32
@@ -96,31 +95,6 @@ singe::singe() : m_pScoreboard(NULL)
     // by RDG2010
     m_game_type               = GAME_SINGE;
     i_keyboard_mode           = KEYBD_NORMAL;
-}
-
-void singe::scoreboard_score(int value, uint8_t player)
-{
-    uint8_t digit;
-    const uint8_t which = (6 - 1); // six chars
-    for(int i = which; i >= 0; i--) {
-        if (value == -1) {
-            digit = 0xf;
-        } else {
-            digit = value % 10;
-            value = value / 10;
-        }
-        m_pScoreboard->update_player_score(i, digit, player);
-    }
-}
-
-void singe::scoreboard_credits(uint8_t value)
-{
-    const uint8_t which = (2 - 1); // two chars
-    for(int i = which; i >= 0; i--) {
-        uint8_t digit = value % 10;
-        value = value / 10;
-        m_pScoreboard->update_credits(i, digit);
-    }
 }
 
 bool singe::init()
@@ -216,6 +190,7 @@ bool singe::init()
         g_SingeIn.cfm_player1_lives      = gfm_player1_lives;
         g_SingeIn.cfm_player2_lives      = gfm_player2_lives;
         g_SingeIn.cfm_bezel_clear        = gfm_bezel_clear;
+        g_SingeIn.cfm_bezel_is_enabled   = gfm_bezel_is_enabled;
 
         /*
         Why a wrapper?
@@ -314,6 +289,11 @@ void singe::start()
 
 void singe::shutdown()
 {
+    if (g_bezelboard.type == SINGE_SB_USB) {
+        struct timespec delta = {0, 300000};
+        nanosleep(&delta, &delta); // Let serial flush
+    }
+
     if (m_pScoreboard) {
         m_pScoreboard->PreDeleteInstance();
     }
@@ -650,10 +630,10 @@ void singe::repaint()
 			                   NULL, false, false, 0);
             if (pScoreboard) {
                 switch (g_bezelboard.type) {
-                case 1:
+                case SINGE_SB_BEZEL:
                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::BEZEL);
                    break;
-                case 2:
+                case SINGE_SB_USB:
                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
                    break;
                 default:
@@ -674,16 +654,15 @@ void singe::repaint()
         if (g_bezelboard.repaint) {
 
             scoreboard_score(g_bezelboard.player1_score, S_B_PLAYER1);
-            m_pScoreboard->update_player_lives(g_bezelboard.player1_lives, S_B_PLAYER1);
+            scoreboard_lives(g_bezelboard.player1_lives, S_B_PLAYER1);
 
 	    if (g_bezelboard.altscore) {
                 scoreboard_score(g_bezelboard.player2_score, S_B_PLAYER2);
-                m_pScoreboard->update_player_lives(g_bezelboard.player2_lives, S_B_PLAYER2);
+                scoreboard_lives(g_bezelboard.player2_lives, S_B_PLAYER2);
             }
 
             scoreboard_credits(g_bezelboard.credits);
 
-            m_pScoreboard->Invalidate();
             m_pScoreboard->RepaintIfNeeded();
             g_bezelboard.repaint = false;
         }
@@ -721,6 +700,7 @@ void singe::set_overlaysize(uint8_t thisVal) { m_overlay_size = thisVal; }
 
 void singe::bezel_clear(bool bEnable) { g_bezelboard.clear = bEnable; }
 void singe::bezel_type(uint8_t thisVal) { g_bezelboard.type = thisVal; }
+bool singe::bezel_is_enabled() { return m_bezel_scoreboard; }
 
 void singe::bezel_credits(uint8_t thisVal)
 {

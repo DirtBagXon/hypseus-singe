@@ -625,6 +625,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "scoreBezelTwinScoreOn",  sep_bezel_second_score);
   lua_register(g_se_lua_context, "scoreBezelScore",        sep_bezel_player_score);
   lua_register(g_se_lua_context, "scoreBezelLives",        sep_bezel_player_lives);
+  lua_register(g_se_lua_context, "scoreBezelGetState",     sep_bezel_is_enabled);
 
   // by RDG2010
   lua_register(g_se_lua_context, "keyboardGetMode",    sep_keyboard_get_mode); 
@@ -1841,6 +1842,13 @@ static int sep_bezel_enable(lua_State *L)
         }
 
     return 0;
+}
+
+static int sep_bezel_is_enabled(lua_State *L)
+{
+    lua_pushboolean(L, g_pSingeIn->cfm_bezel_is_enabled(g_pSingeIn->pSingeInstance));
+
+    return 1;
 }
 
 static int sep_bezel_clear(lua_State *L)
