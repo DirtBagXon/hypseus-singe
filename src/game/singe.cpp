@@ -649,6 +649,7 @@ void singe::repaint()
         if (g_bezelboard.clear) {
             m_pScoreboard->Clear();
             g_bezelboard.clear = false;
+            goto repaint;
         }
 
         if (g_bezelboard.repaint) {
@@ -662,7 +663,7 @@ void singe::repaint()
             }
 
             scoreboard_credits(g_bezelboard.credits);
-
+repaint:
             m_pScoreboard->RepaintIfNeeded();
             g_bezelboard.repaint = false;
         }

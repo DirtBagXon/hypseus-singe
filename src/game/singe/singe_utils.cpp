@@ -26,8 +26,6 @@
 
 #include "../singe.h"
 
-#include "../../scoreboard/scoreboard_collection.h"
-
 int singe::scoreboard_format(int value)
 {
     uint8_t digit;
