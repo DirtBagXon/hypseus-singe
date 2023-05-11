@@ -60,7 +60,7 @@ static void DumpVector(const void* b, int n, LUAC_STR_SIZE_TYPE size, DumpState*
 
 static void DumpString(const TString* s, DumpState* D)
 {
- if (s==NULL || getstr(s)==NULL)
+ if (s==NULL)
  {
   LUAC_STR_SIZE_TYPE size=0;
   DumpVar(size,D);

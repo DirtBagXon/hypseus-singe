@@ -24,6 +24,7 @@
 * This is SINGE - the Somewhat Interactive Nostalgic Game Engine!
 */
 
+#include <time.h>
 #include "config.h"
 
 #include "singe.h"

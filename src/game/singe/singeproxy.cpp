@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <ctime>
 
 using namespace std;
 
@@ -862,6 +863,7 @@ static int sep_font_load(lua_State *L)
             result        = g_fontCurrent;
         } else {
             sep_die("Unable to load font: %s", fontpath.c_str());
+            return result;
         }
     }
 
@@ -1413,6 +1415,7 @@ static int sep_sound_load(lua_State *L)
         g_soundT temp;
         if (SDL_LoadWAV(filepath.c_str(), &temp.audioSpec, &temp.buffer, &temp.length) == NULL) {
             sep_die("Could not open %s: %s", filepath.c_str(), SDL_GetError());
+            return result;
         } else {
             g_soundList.push_back(temp);
             result = g_soundList.size() - 1;
@@ -1542,6 +1545,7 @@ static int sep_sprite_load(lua_State *L)
             result = g_spriteList.size() - 1;
         } else {
             sep_die("Unable to load sprite %s!", filepath.c_str());
+            return result;
         }
     }
 
