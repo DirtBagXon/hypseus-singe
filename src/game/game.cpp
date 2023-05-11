@@ -582,7 +582,7 @@ void game::set_fullsize_overlay(bool value) { m_fullsize_overlay = value; }
 
 void game::set_32bit_overlay(bool value)
 {
-	if (value) m_overlay_depth = 32;
+	if (value) m_overlay_depth = GAME_OVERLAY_FULL;
 	else m_overlay_depth = GAME_OVERLAY_DEPTH;
 
 	m_overlay_upgrade = value;

@@ -12,19 +12,23 @@ option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
 option(ASAN             "Address Sanitizer"     OFF)
 
-if( NOT CMAKE_BUILD_TYPE )
+if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-if ( UNIX )
-  if ( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+if (UNIX)
+  if (CMAKE_SIZEOF_VOID_P EQUAL 4)
       message(STATUS "Detected 32bit: Compiling with -D_FILE_OFFSET_BITS=64")
       add_definitions(-D_FILE_OFFSET_BITS=64)
   endif()
 endif()
 
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+    cmake_policy(SET CMP0135 OLD)
+endif()
+
 add_compile_options(-Wall)
-if(ASAN)
+if (ASAN)
     add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
 endif()
 

@@ -45,6 +45,7 @@
 
 // Default game overlay depth
 #define GAME_OVERLAY_DEPTH 8
+#define GAME_OVERLAY_FULL 32
 
 // Max loops through init_display()
 #define MAXRESIZE 2

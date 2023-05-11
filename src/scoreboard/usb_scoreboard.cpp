@@ -27,6 +27,7 @@
 #include "../hypseus.h"
 #include <plog/Log.h>
 #include <cstdio>
+#include <cstdint>
 
 serialib g_usb_serial;
 bool g_serial_rts = false, g_serial_saeboot = false;
