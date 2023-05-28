@@ -639,6 +639,10 @@ void singe::repaint()
                    break;
                 default:
                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
+                   if (!m_upgrade_overlay && g_bezelboard.type == SINGE_SB_PANEL) {
+                       m_video_overlay_width = m_video_overlay_width >> 1;
+                       video::set_score_bezel(false);
+                   }
                    break;
                 }
             } else m_bezel_scoreboard = false;

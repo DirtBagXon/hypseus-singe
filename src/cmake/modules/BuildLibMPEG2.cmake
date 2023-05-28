@@ -9,12 +9,12 @@ endif()
 externalproject_add( libmpeg2
 	PREFIX ${CMAKE_CURRENT_BINARY_DIR}/3rdparty
 	URL ../../../src/3rdparty/libmpeg2/libmpeg2-master.tgz
-	URL_HASH SHA256=e42d18a28480a426af8e4bf764c11a1c2efa3c5d21db878fb22c6cb1090c1245
-	CONFIGURE_COMMAND autoreconf -f -i && <SOURCE_DIR>/configure ${CONFIGURE_ARGS} --prefix=${CMAKE_CURRENT_BINARY_DIR}/3rdparty --disable-shared --enable-static --disable-sdl
+	URL_HASH SHA256=5260585e747a35815748117b30afe59fd527ee67e09822a5e544f55a9a5e8c61
+	CONFIGURE_COMMAND autoreconf -f -i && <SOURCE_DIR>/configure ${CONFIGURE_ARGS} --quiet --prefix=${CMAKE_CURRENT_BINARY_DIR}/3rdparty --disable-shared --enable-static --disable-sdl
 	BUILD_IN_SOURCE 1
 	BUILD_COMMAND make V=0
 	INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty
-	INSTALL_COMMAND make install
+	INSTALL_COMMAND make LIBTOOLFLAGS=--silent install
 )
 
 set( MPEG2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/include/mpeg2dec )
