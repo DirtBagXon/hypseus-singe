@@ -46,7 +46,7 @@ using namespace std;
 
 enum { KEYBD_NORMAL, KEYBD_FULL };
 enum { S_B_PLAYER1, S_B_PLAYER2 };
-enum { SINGE_SB_IMAGE, SINGE_SB_BEZEL, SINGE_SB_USB };
+enum { SINGE_SB_IMAGE, SINGE_SB_BEZEL, SINGE_SB_USB, SINGE_SB_PANEL };
 
 typedef struct singeJoyStruct {
     int8_t slide = 5;

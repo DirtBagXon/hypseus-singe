@@ -1121,7 +1121,6 @@ bool draw_othergfx(int which, int x, int y)
 // de-allocates all of the .bmps that we have allocated
 void free_bmps()
 {
-
     int nuke_index = 0;
 
     // get rid of all the LED's
@@ -1360,15 +1359,25 @@ void vid_toggle_fullscreen()
 
 void vid_toggle_scanlines()
 {
+    char s[16];
     SDL_BlendMode mode;
     SDL_GetRenderDrawBlendMode(g_renderer, &mode);
     if (mode != SDL_BLENDMODE_BLEND && !g_scanlines)
         SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
     if (g_scanlines) {
-        g_scanlines = false;
-        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
+        if (s_shunt < 10) {
+            s_shunt++;
+        } else {
+            g_scanlines = false;
+            SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
+            s_shunt = 2;
+        }
     } else g_scanlines = true;
+
+    if (g_scanlines) snprintf(s, sizeof(s), "shunt: %d", s_shunt);
+    else snprintf(s, sizeof(s), "scanlines off");
+    draw_subtitle(s, true);
 }
 
 void vid_scoreboard_switch()
@@ -1602,14 +1611,14 @@ void vid_blit () {
         g_aux_needs_update = false;
     }
 
-    // If there's a subtitle overlay
-    if (g_bSubtitleShown) draw_subtitle(subchar, false);
-
     // LDP1450 overlay
     if (g_LDP1450_overlay) draw_LDP1450_overlay();
 
     if (g_scanlines)
         draw_scanlines(g_viewport_width, g_viewport_height, s_shunt);
+
+    // If there's a subtitle overlay
+    if (g_bSubtitleShown) draw_subtitle(subchar, false);
 
     if (g_fRotateDegrees != 0) {
         if (g_yuv_texture)

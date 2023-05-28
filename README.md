@@ -55,7 +55,7 @@ Ensure you have data in the following `daphne` HOME folders:
 
 Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
 
-    hypseus lair vldp -framefile vldp_dl/lair/lair.txt -fullscreen_window -scorepanel
+    hypseus lair vldp -framefile vldp_dl/lair/lair.txt -scorebezel
 
     hypseus singe vldp -framefile singe/timegal/timegal.txt -script singe/timegal/timegal.singe
 
