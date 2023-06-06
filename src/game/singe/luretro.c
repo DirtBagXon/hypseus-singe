@@ -25,15 +25,33 @@
 
 #include <string.h>
 
+enum {
+    PATH_DAPHNE,
+    PATH_FRAMEWORK
+};
+
 static unsigned char g_retropath = 0;
 
 unsigned char get_retropath() { return g_retropath; }
 
 void lua_set_retropath(unsigned char value) { g_retropath = value; }
 
+unsigned char inPath(const char* src, char* path)
+{
+    char *s = strstr(src, path);
+
+    if (s != NULL)
+        return 1;
+    else
+        return 0;
+}
+
 void lua_retropath(const char *src, char *dst, int len)
 {
-    unsigned char r = 0;
+    unsigned char r = 0, path = PATH_DAPHNE;
+
+    if (inPath(src, "Framework")) path = PATH_FRAMEWORK;
+
     for (int i = 0; i < len; src++, i++) {
         if (i == 6) {
             memcpy(dst, "/../", 4);
@@ -44,8 +62,16 @@ void lua_retropath(const char *src, char *dst, int len)
             continue;
         }
         if (r == 2) {
-            memcpy(dst, ".daphne/", 8);
-            dst += 8;
+            switch(path) {
+            case (PATH_FRAMEWORK):
+                memcpy(dst, "/", 1);
+                dst += 1;
+                break;
+            default:
+                memcpy(dst, ".daphne/", 8);
+                dst += 8;
+                break;
+            }
             r = 0xf; //bool
         }
         *dst = *src;

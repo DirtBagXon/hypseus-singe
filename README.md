@@ -24,6 +24,7 @@ Features:
 * *SDL_GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
+* Coded exclusively in [vim](https://www.vim.org) using a Sun Microsystems [Type 5c keyboard](https://github.com/DirtBagXon/sunkbd).
 
 ## Compile
 
