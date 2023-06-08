@@ -353,6 +353,7 @@ bool game::init_video()
 
     if (m_area < area || m_overlay_depth == GAME_OVERLAY_DEPTH) {
         video::init_display();
+        m_area = area;
     }
 
     // if this particular game uses video overlay (most do)
@@ -405,7 +406,6 @@ bool game::init_video()
 
     // Log some stats
     video::notify_stats(m_video_overlay_width, m_video_overlay_height);
-    if (area > m_area) m_area = area;
 
     return (result);
 }
