@@ -27,7 +27,8 @@
 
 enum {
     PATH_DAPHNE,
-    PATH_FRAMEWORK
+    PATH_FRAMEWORK,
+    PATH_END
 };
 
 static unsigned char g_retropath = 0;
@@ -39,42 +40,46 @@ void lua_set_retropath(unsigned char value) { g_retropath = value; }
 unsigned char inPath(const char* src, char* path)
 {
     char *s = strstr(src, path);
-
-    if (s != NULL)
-        return 1;
-    else
-        return 0;
+    if (s != NULL) return 1;
+    return 0;
 }
 
 void lua_retropath(const char *src, char *dst, int len)
 {
-    unsigned char r = 0, path = PATH_DAPHNE;
+    unsigned char r = 0, fin = 0, path = PATH_DAPHNE;
 
     if (inPath(src, "Framework")) path = PATH_FRAMEWORK;
 
-    for (int i = 0; i < len; src++, i++) {
-        if (i == 6) {
-            memcpy(dst, "/../", 4);
-            dst += 4;
-        }
-        if (*src == '/' && r < 0xf) {
-            r++;
-            continue;
-        }
-        if (r == 2) {
-            switch(path) {
-            case (PATH_FRAMEWORK):
-                memcpy(dst, "/", 1);
-                dst += 1;
-                break;
-            default:
-                memcpy(dst, ".daphne/", 8);
-                dst += 8;
-                break;
+    for (int i = 0; i < (len - 2); src++, i++) {
+        if (!fin) {
+            if (*src == '\0') {
+                fin = PATH_END;
+                continue;
             }
-            r = 0xf; //bool
+            if (i == 6) {
+                memcpy(dst, "/../", 4);
+                dst += 4;
+            }
+            if (*src == '/' && r < 0xf) {
+                r++;
+                continue;
+            }
+            if (r == 2) {
+                switch(path) {
+                case (PATH_FRAMEWORK):
+                    memcpy(dst, "/", 1);
+                    dst += 1;
+                    break;
+                default:
+                    memcpy(dst, ".daphne/", 8);
+                    dst += 8;
+                    break;
+                }
+                r = 0xf; //bool
+            }
+            *dst = *src;
+            dst++;
         }
-        *dst = *src;
-        dst++;
     }
+    *dst = '\0';
 }
