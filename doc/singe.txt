@@ -4,6 +4,7 @@ ratioGetX,              sep_get_xratio
 ratioGetY,              sep_get_yratio
 setOverlaySize,         sep_set_overlaysize
 setOverlayResolution,   sep_set_custom_overlay
+getFValue,              sep_get_fvalue
 takeScreenshot,         sep_screenshot
 
 scoreBezelEnable,       sep_bezel_enable         (bool, int) -- (0)IMG, (1)BEZEL, (2)USB

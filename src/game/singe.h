@@ -191,6 +191,12 @@ class singe : public game
         return pSingeInstance->get_yratio();
     }
 
+    static double gfm_get_fvalue(void *pInstance)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        return pSingeInstance->get_fvalue();
+    }
+
     static uint8_t gfm_get_overlaysize(void *pInstance)
     {
         singe *pSingeInstance = (singe *)pInstance;
@@ -299,8 +305,10 @@ class singe : public game
     // by DBX
     double get_xratio();
     double get_yratio();
+    double get_fvalue();
     double singe_xratio;
     double singe_yratio;
+    double singe_fvalue;
 
     struct singeJoyStruct g_js;
     struct singeScoreboard g_bezelboard;
