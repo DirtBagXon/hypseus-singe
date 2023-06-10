@@ -90,6 +90,7 @@ singe::singe() : m_pScoreboard(NULL)
     singe_ocv                 = false;
     singe_xratio              = 0.0;
     singe_yratio              = 0.0;
+    singe_fvalue              = 0.0;
     singe_alt_pressed         = false;
     singe_joymouse            = true;
 
@@ -176,6 +177,7 @@ bool singe::init()
         // Extended args
         g_SingeIn.cfm_get_xratio         = gfm_get_xratio;
         g_SingeIn.cfm_get_yratio         = gfm_get_yratio;
+        g_SingeIn.cfm_get_fvalue         = gfm_get_fvalue;
         g_SingeIn.cfm_get_overlaysize    = gfm_get_overlaysize;
         g_SingeIn.cfm_set_overlaysize    = gfm_set_overlaysize;
         g_SingeIn.cfm_set_upgradeoverlay = gfm_set_upgradeoverlay;
@@ -528,6 +530,16 @@ bool singe::handle_cmdline_arg(const char *arg)
         } else
             printerror("SINGE: ratio should be a float");
     }
+    else if (strcasecmp(arg, "-fvalue") == 0) {
+        get_next_word(s, sizeof(s));
+        float f = (float)numstr::ToDouble(s);
+
+        if (f > 0 && f < 100000) {
+            singe_fvalue = (double)floorf(f * 1000) / 1000;
+            bResult = true;
+        } else
+            printerror("SINGE: -fvalue <value> out of range");
+    }
     else if (strcasecmp(arg, "-nojoymouse") == 0) {
         printline("Disabling Singe Joystick mouse actions...");
         singe_joymouse = false;
@@ -698,6 +710,7 @@ void singe::set_keyboard_mode(int thisVal)
 
 double singe::get_xratio() { return singe_xratio; }
 double singe::get_yratio() { return singe_yratio; }
+double singe::get_fvalue() { return singe_fvalue; }
 
 uint8_t singe::get_overlaysize() { return m_overlay_size; }
 void singe::set_upgradeoverlay(bool bEnable) { game::set_fullsize_overlay(bEnable); }

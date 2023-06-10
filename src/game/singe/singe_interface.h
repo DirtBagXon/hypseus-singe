@@ -71,6 +71,7 @@ struct singe_in_info
 
 	double (*cfm_get_xratio)(void *);
 	double (*cfm_get_yratio)(void *);
+	double (*cfm_get_fvalue)(void *);
 
 	uint8_t (*cfm_get_overlaysize)(void *);
 	void (*cfm_set_overlaysize)(void *, uint8_t);

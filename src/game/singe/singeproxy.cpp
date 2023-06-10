@@ -615,6 +615,7 @@ void sep_startup(const char *script)
   // Hypseus API
   lua_register(g_se_lua_context, "ratioGetX",              sep_get_xratio);
   lua_register(g_se_lua_context, "ratioGetY",              sep_get_yratio);
+  lua_register(g_se_lua_context, "getFValue",              sep_get_fvalue);
   lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
   lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
   lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
@@ -1122,6 +1123,12 @@ static int sep_get_xratio(lua_State *L)
 static int sep_get_yratio(lua_State *L)
 {
    lua_pushnumber(L, g_pSingeIn->cfm_get_yratio(g_pSingeIn->pSingeInstance));
+   return 1;
+}
+
+static int sep_get_fvalue(lua_State *L)
+{
+   lua_pushnumber(L, g_pSingeIn->cfm_get_fvalue(g_pSingeIn->pSingeInstance));
    return 1;
 }
 
