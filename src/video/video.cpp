@@ -70,7 +70,7 @@ unsigned int g_draw_width = g_vid_width, g_probe_width = g_vid_width;
 unsigned int g_draw_height = g_vid_height, g_probe_height = g_vid_height;
 const int g_an_w = 220, g_an_h = 128;
 const int g_sb_w = 340, g_sb_h = 480;
-int s_alpha = 255;
+int s_alpha = 64;
 int s_shunt = 2;
 
 int g_viewport_width = g_vid_width, g_viewport_height = g_vid_height;
