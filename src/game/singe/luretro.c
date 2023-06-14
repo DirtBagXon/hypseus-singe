@@ -54,7 +54,6 @@ void lua_retropath(const char *src, char *dst, int len)
         if (!fin) {
             if (*src == '\0') {
                 fin = PATH_END;
-                continue;
             }
             if (i == 6) {
                 memcpy(dst, "/../", 4);
