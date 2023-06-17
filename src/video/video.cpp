@@ -1164,6 +1164,7 @@ bool get_fullscreen() { return g_fullscreen; }
 bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
 bool get_use_old_osd() { return g_game->get_use_old_overlay(); }
 bool get_video_timer_blank() { return g_yuv_video_timer_blank; }
+bool get_video_resized() { return g_vid_resized; }
 
 void set_fullscreen(bool value) { g_fullscreen = value; }
 void set_fakefullscreen(bool value) { g_fakefullscreen = value; }

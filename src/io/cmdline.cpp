@@ -900,7 +900,7 @@ bool parse_cmd_line(int argc, char **argv)
                 if (game_cliff != NULL && (i >= 1 && i <= 24)) {
                     g_game->set_stretch_value(i);
                 } else {
-                    printerror("This argument only works with cliff. Values [1-24]");
+                    printerror("This argument only works with cliff and gtg. Values [1-24]");
                     result = false;
                 }
             }
