@@ -76,7 +76,7 @@ if [ -z "$1" ] ; then
     echo
     echo  -e "$0 [-fullscreen] [-blanking] [-gamepad] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
-    for game in ace astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld interstellar lair lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
+    for game in ace astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -149,6 +149,7 @@ case "$1" in
 	;;
     dle21)
 	VLDP_DIR="vldp_dl"
+	FASTBOOT="-fastboot"
 
 	if [ "$PROTOTYPE" ]; then
 		BANKS="-bank 1 10110111 -bank 0 11011001"
@@ -167,6 +168,10 @@ case "$1" in
 	;;
     gpworld)
 	VLDP_DIR="vldp"
+	;;
+    gtg)
+	VLDP_DIR="vldp"
+	FASTBOOT="-fastboot"
 	;;
     interstellar)
 	VLDP_DIR="vldp"
@@ -187,9 +192,11 @@ case "$1" in
 	;;
     roadblaster)
 	VLDP_DIR="vldp"
+	BANKS="-bank 1 00000001"
 	;;
     sae)
 	VLDP_DIR="vldp_dl"
+	FASTBOOT="-fastboot"
 	BANKS="-bank 1 01100111 -bank 0 10011000"
 	;;
     sdq|sdqshort|sdqshortalt)

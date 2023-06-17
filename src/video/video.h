@@ -146,6 +146,7 @@ bool get_fullscreen();
 bool get_use_old_osd();
 bool get_singe_blend_sprite();
 bool get_video_timer_blank();
+bool get_video_resized();
 void set_opengl(bool value);
 void set_vulkan(bool value);
 int get_textureaccess();

@@ -1,7 +1,7 @@
 /*
  * ____ DAPHNE COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2001 Matt Ownby
+ * Copyright (C) 2001 Matt Ownby / 2023 DirtBagXon
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -120,18 +120,21 @@ gtg::gtg()
 {
     m_shortgamename = "gtg";
     m_game_type     = GAME_GTG;
-    m_game_issues   = "When we fixed Cliff, we broke this game, sorry! hehe";
+    //m_game_issues   = "Overlay colors...";
 
     disc_side        = 1; // default to side 1 if no -preset is used
     e1ba_accesscount = 0;
 
+    //m_banks[1]     = 0x5C;
+    m_banks[3]       = 0x1F;
+
     // this must be static!
     const static struct rom_def roms[] =
-        {{"gtg.rm0", NULL, &m_cpumem[0], 0x2000, 0},
-         {"gtg.rm1", NULL, &m_cpumem[0x2000], 0x2000, 0},
-         {"gtg.rm2", NULL, &m_cpumem[0x4000], 0x2000, 0},
-         {"gtg.rm3", NULL, &m_cpumem[0x6000], 0x2000, 0},
-         {"gtg.rm4", NULL, &m_cpumem[0x8000], 0x2000, 0},
+        {{"gtg.rm0", NULL, &m_cpumem[0], 0x2000, 0xD8EFDDEA},
+         {"gtg.rm1", NULL, &m_cpumem[0x2000], 0x2000, 0x69953D38},
+         {"gtg.rm2", NULL, &m_cpumem[0x4000], 0x2000, 0xB043E205},
+         {"gtg.rm3", NULL, &m_cpumem[0x6000], 0x2000, 0xEC305F5E},
+         {"gtg.rm4", NULL, &m_cpumem[0x8000], 0x2000, 0x9E4C8AA2},
          {NULL}};
 
     m_rom_list = roms;
@@ -300,6 +303,7 @@ void cliff::port_write(Uint16 Port, Uint8 Value)
     // exhibited by this function was not consistent across different ROM
     // revisions
     // of cliffy.  Port 0x66 seems to be the correct way to detect blips.
+    case 0x68:
     case 0x6A:
         break;
     case 0x6E:
@@ -637,6 +641,18 @@ void cliff::repaint()
     tms9128nl_video_repaint();
 }
 
+bool cliff::handle_cmdline_arg(const char *arg)
+{
+    bool bRes = false;
+
+    if (strcasecmp(arg, "-spritelite") == 0) {
+        game::set_console_flag(true);
+        bRes = true;
+    }
+
+    return bRes;
+}
+
 // post-rom loading adjustment
 void cliff::patch_roms()
 {
@@ -667,8 +683,8 @@ void cliff::patch_roms()
 
     // skip diagnostics if fast boot is enabled
     if (m_fastboot) {
-        m_cpumem[8]   = 0;
-        m_cpumem[9]   = 0;
+        m_cpumem[0x8] = 0;
+        m_cpumem[0x9] = 0;
         m_cpumem[0xA] = 0;
     }
 }
@@ -703,6 +719,16 @@ Uint8 gtg::cpu_mem_read(Uint16 addr)
         // 		printline("e1ba read");
     }
     return result;
+}
+
+void gtg::patch_roms()
+{
+    // skip diagnostics if fast boot is enabled
+    if (m_fastboot) {
+        m_cpumem[0x8] = 0;
+        m_cpumem[0x9] = 0;
+        m_cpumem[0xB] = 0;
+    }
 }
 
 void gtg::set_preset(int val)

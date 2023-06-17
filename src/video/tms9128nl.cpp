@@ -1,7 +1,7 @@
 /*
  * ____ DAPHNE COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2001 Matt Ownby
+ * Copyright (C) 2001 Matt Ownby / 2023 DirtBagXon
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -60,6 +60,8 @@ unsigned char g_tms_foreground_color = 0xF; // white (3 bit)
 unsigned char g_tms_background_color = 0;   // black (3 bit)
 
 bool g_tms_interrupt_enabled = false; // whether NMI is on or off
+bool g_conv_12a563 = false;
+bool g_alpha_latch = false;
 
 int g_transparency_enabled = 0;
 int g_transparency_latch   = 0;
@@ -185,8 +187,15 @@ void tms9128nl_writechar(unsigned char value)
         }
         // BARBADEL: Added
         else {
-            g_tms_foreground_color = (unsigned char)((value & 0xF0) >> 4);
-            g_tms_background_color = (unsigned char)(value & 0x0F);
+            if (g_conv_12a563) {
+                g_tms_foreground_color = 0x5;
+                g_tms_background_color = 0x1;
+                if (wvidindex == 0x3802) tms9128nl_drawchar(0x0A, (value >> 3), 0x13);
+            } else {
+                g_tms_foreground_color = (unsigned char)((value & 0xF0) >> 4);
+                g_tms_background_color = (unsigned char)(value & 0x0F);
+            }
+
             tms9128nl_palette_update(); // MATT
         }
     }
@@ -512,7 +521,17 @@ void tms9128nl_write_port0(unsigned char Value)
 
 void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
 {
-
+    if (g_conv_12a563) {
+        switch (color_src) {
+        case 3:
+           tms9128nl_convert_color(0x4, color);
+           return;
+        case 2:
+        case 12:
+           tms9128nl_convert_color(0x1, color);
+           return;
+        }
+    }
     switch (color_src) {
     case 0: // transparent
         color->r = 0;
@@ -629,7 +648,7 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
 
     // if character is 0 and we're in transparency mode, make bitmap transparent
     if (g_transparency_latch) {
-        static bool latched = false;
+        static bool latched = true;
 
         if ((ch == 0) || (ch == 0xFF)) {
             // we need two 0's in a row to make a transparent block
@@ -661,25 +680,15 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
                 tms9128nl_palette_update();
                 bmp_index = (ch * 8) + 8 * 256 * (row > 7);
             } else {
-                // MATT : these color hacks don't seem to be necessary anymore
-                //				g_tms_foreground_color = 0x1; // Black
-                //				g_tms_background_color = 0x5;	// Light Blue
-                bmp_index = (ch * 8) + 0x3800;
+                if (g_conv_12a563) bmp_index = (ch * 8);
+                else bmp_index = (ch * 8) + 0x3800;
             }
         } else {
             x += 4;
             g_tms_foreground_color = 0x0; // Black
             g_tms_background_color = 0x5; // Light Blue
             tms9128nl_palette_update();
-
-            if (col != 0) {
-                //				g_transparent_color              = 0xff;
-                bmp_index = (ch * 8) + 8 * 256 * (row > 7);
-            } else {
-                //				g_transparent_color              = 0x7f;
-                //				background_color = 0;
-                bmp_index = (ch * 8) + 8 * 256 * (row > 7);
-            }
+            bmp_index = (ch * 8) + 8 * 256 * (row > 7);
         }
     }
 
@@ -707,12 +716,11 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
     // character after it non-transparent
     // This seems to be how Cliff Hanger behaves.  I haven't found it documented
     // anywhere though.
-    if ((g_transparency_latch) && (ch != 0) && (ch != 0xFF)) {
-        int row, col;
+    if ((!g_alpha_latch) && (g_transparency_latch) && (ch != 0) && (ch != 0xFF)) {
         Uint8 *ptr = ((Uint8 *)g_vidbuf) +
                      ((y + stretch_offset) * TMS9128NL_OVERLAY_W) + x + CHAR_WIDTH;
-        for (row = 0; row < CHAR_HEIGHT; row++) {
-            for (col = 0; col < CHAR_WIDTH; col++) {
+        for (int nrow = 0; nrow < CHAR_HEIGHT; nrow++) {
+            for (int ncol = 0; ncol < CHAR_WIDTH; ncol++) {
                 // make it non-transparent if it is
                 if (*ptr == TMS_TRANSPARENT_COLOR) {
                     *ptr = TMS_BG_COLOR;
@@ -792,6 +800,10 @@ void tms9128nl_palette_calculate()
                                                            // :)
     palette::set_color(TMS_TRANSPARENT_COLOR, color);
 
+    if (g_game->get_game_type() == GAME_GTG) g_conv_12a563 = true;
+
+    g_alpha_latch = g_game->get_console_flag();
+
     tms9128nl_palette_update();
     tms9128nl_reset();
 }
@@ -800,9 +812,12 @@ void tms9128nl_video_repaint()
 {
     // if the transparency state has changed
     if (g_transparency_enabled != g_transparency_latch) {
+        int prev_vidmode = g_vidmode;
         int i = 0;
 
         Uint8 *ptr = (Uint8 *)g_vidbuf + (TMS9128NL_OVERLAY_W * stretch_offset);
+
+        if (g_conv_12a563) g_vidmode = 1;
 
         // I don't believe we want to do the stretched overlay here
 
@@ -827,6 +842,7 @@ void tms9128nl_video_repaint()
             }
         }
 
+        if (g_conv_12a563) g_vidmode = prev_vidmode;
         g_transparency_latch = g_transparency_enabled;
     }
 
