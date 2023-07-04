@@ -70,7 +70,6 @@ static int stretch_offset  = TMS_VERTICAL_OFFSET;
 static int offset_shunt    = 0;
 
 // BARBADEL: Added
-int introHack     = 0;
 int prevg_vidmode = 0;
 void tms9128nl_clear_overlay();
 ////////////////////////////////////////////////////////////////////////////
@@ -99,7 +98,6 @@ void tms9128nl_reset()
     g_tms_interrupt_enabled = false;
     g_transparency_enabled  = 0;
     g_transparency_latch    = 0;
-    introHack               = 0;
     prevg_vidmode           = 0;
     stretch_offset          = g_game->get_stretch_value();
     offset_shunt            = (TMS_VERTICAL_OFFSET - g_game->get_stretch_value())
@@ -166,6 +164,8 @@ void tms9128nl_writechar(unsigned char value)
             base   = 0x3c01;
             rowdiv = 32; // 32*24
 
+            if (g_conv_12a563) --base;
+
             row = (wvidindex - base - 1) / rowdiv;
             col = (wvidindex - base - 1) % rowdiv;
 
@@ -179,6 +179,11 @@ void tms9128nl_writechar(unsigned char value)
                 }
             }
 
+            if (g_conv_12a563) {
+                row += offset_shunt;
+                --col;
+            }
+
             if ((col == 31) && (rowdiv == 32))
                 return; // problems with col31? or bug in fancyclearscreen
                         // routine?
@@ -188,9 +193,8 @@ void tms9128nl_writechar(unsigned char value)
         // BARBADEL: Added
         else {
             if (g_conv_12a563) {
-                g_tms_foreground_color = 0x5;
-                g_tms_background_color = 0x1;
-                if (wvidindex == 0x3802) tms9128nl_drawchar(0x0A, (value >> 3), 0x13);
+                if (wvidindex == 0x3802) tms9128nl_drawchar(0x0A, (value >> 3),
+                        (0x13 + offset_shunt));
             } else {
                 g_tms_foreground_color = (unsigned char)((value & 0xF0) >> 4);
                 g_tms_background_color = (unsigned char)(value & 0x0F);
@@ -526,6 +530,9 @@ void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
         case 3:
            tms9128nl_convert_color(0x4, color);
            return;
+        case 5:
+           color->r = color->g = color->b = 0xF0;
+           return;
         case 2:
         case 12:
            tms9128nl_convert_color(0x1, color);
@@ -646,6 +653,8 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
     unsigned char line             = 0;
     unsigned char background_color = TMS_BG_COLOR;
 
+    if (g_tms_pgt_addr == 0x03) x += (CHAR_WIDTH >> 1);
+
     // if character is 0 and we're in transparency mode, make bitmap transparent
     if (g_transparency_latch) {
         static bool latched = true;
@@ -719,8 +728,8 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
     if ((!g_alpha_latch) && (g_transparency_latch) && (ch != 0) && (ch != 0xFF)) {
         Uint8 *ptr = ((Uint8 *)g_vidbuf) +
                      ((y + stretch_offset) * TMS9128NL_OVERLAY_W) + x + CHAR_WIDTH;
-        for (int nrow = 0; nrow < CHAR_HEIGHT; nrow++) {
-            for (int ncol = 0; ncol < CHAR_WIDTH; ncol++) {
+        for (int r = 0; r < CHAR_HEIGHT; r++) {
+            for (int c = 0; c < CHAR_WIDTH; c++) {
                 // make it non-transparent if it is
                 if (*ptr == TMS_TRANSPARENT_COLOR) {
                     *ptr = TMS_BG_COLOR;

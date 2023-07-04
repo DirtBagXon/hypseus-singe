@@ -1385,6 +1385,7 @@ void vid_scoreboard_switch()
 {
     if (!g_sb_window) return;
 
+    char s[16] = "screen: 0";
     int displays = SDL_GetNumVideoDisplays();
 
     if (displays > 1) {
@@ -1395,6 +1396,7 @@ void vid_scoreboard_switch()
             SDL_GetDisplayBounds(i, &displayDimensions[i]);
 
         if (++winId == displays) winId = 0;
+        snprintf(s, sizeof(s), "screen: %d", (unsigned char)winId);
 
         SDL_SetWindowPosition(g_sb_window,
            displayDimensions[winId].x + sb_window_pos_x,
@@ -1402,6 +1404,8 @@ void vid_scoreboard_switch()
     } else
         SDL_SetWindowPosition(g_sb_window, sb_window_pos_x,
                                  sb_window_pos_y);
+
+    draw_subtitle(s, true);
 }
 
 void vid_setup_yuv_overlay (int width, int height) {

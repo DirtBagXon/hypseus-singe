@@ -73,3 +73,46 @@ void printnotice(const char *s)
 {
     LOGE << s;
 }
+
+void printusage()
+{
+  const char * usage = R"USAGE(
+  Hypseus Singe (C)2023 DirtBagXon
+
+  Usage: hypseus <game> vldp -framefile <framefile.txt> ...
+
+  The above arguments are, at minimum, required:
+
+      - <game> consists of a supported Daphne ROM or 'singe'
+
+      - Singe games require an extra '-script <game.singe>'
+        <game.singe> defines the main Singe LUA game file.
+
+      - Other common arguments are:
+
+        -bezel <game.png>
+        -fastboot
+        -fullscreen
+        -gamepad
+        -nolinear_scale
+
+      - Common Singe arguments:
+
+        -script <game.singe>  : (This is required)
+        -blend_sprites
+        -manymouse
+
+  See documentation for a full list of available arguments:
+
+  Visit: https://github.com/DirtBagXon/hypseus-singe
+
+  Use -v to display version and build information.
+
+  )USAGE";
+
+#ifdef WIN32
+  MessageBox(NULL, usage, "Usage", MB_OK | MB_ICONINFORMATION);
+#else
+  fprintf(stdout, "%s", usage);
+#endif
+}
