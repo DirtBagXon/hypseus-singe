@@ -1,0 +1,28 @@
+name: CMake-Linux64
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  appimage:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update -qy 
+        sudo apt-get install gcc, glibc-source, glibc-tools, libc6, libc-dev-bin, libogg-dev, libsdl2-dev, libsdl2-ttf-dev, libsdl2-image-dev, zlib1g-dev, libvorbis-dev
+    - name: Build Hypseus Singe (AppImage)
+      run: |
+        Linux/appimage/appimage.sh
+    - uses: actions/upload-artifact@v3
+      with:
+        name: hypseus
+        path: Hypseus-Singe.AppImage
