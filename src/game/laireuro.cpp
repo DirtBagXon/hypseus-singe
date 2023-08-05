@@ -728,7 +728,7 @@ void laireuro::set_version(int version)
 
         m_rom_list = lair_d2_roms;
     } else {
-        printline("Unsupported -version paramter, ignoring...");
+        printline("Unsupported -version parameter, ignoring...");
     }
 }
 

@@ -178,14 +178,14 @@ void bega::set_version(int version)
              {NULL}};
         m_rom_list = bega_roms;
     } else {
-        LOGW << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version parameter, ignoring...";
     }
 }
 
 cobra::cobra() // dedicated version of Cobra Command
 {
     m_shortgamename = "cobra";
-    m_game_issues   = "Game does not wook properly (graphics ploblems)";
+    m_game_issues   = "Game has graphic issues";
 
     const static struct rom_def cobra_roms[] =
         {// main cpu roms
@@ -213,7 +213,7 @@ cobra::cobra() // dedicated version of Cobra Command
 // we need to override bega::set_version so we don't load the wrong roms
 void cobra::set_version(int version)
 {
-    LOGW << "Unsupported -version paramter, ignoring...";
+    LOGW << "Unsupported -version parameter, ignoring...";
 }
 
 roadblaster::roadblaster() // dedicated version of Cobra Command
@@ -687,7 +687,7 @@ void bega::input_enable(Uint8 move, Sint8 mouseID)
     case SWITCH_TEST:
         break;
     default:
-        LOGW << "Error, bug in move enable";
+        LOGD << "Error, bug in move enable";
         break;
     }
 }
@@ -736,7 +736,7 @@ void bega::input_disable(Uint8 move, Sint8 mouseID)
     case SWITCH_TEST:
         break;
     default:
-        LOGW << "Error, bug in move enable";
+        LOGD << "Error, bug in move disable";
         break;
     }
 }

@@ -1510,8 +1510,8 @@ void update_parse_meter(const string &strFilename)
         if (remaining_s > 0) {
             SDL_Renderer *renderer = video::get_renderer();
             FC_Font *g_font = video::get_font();
-            int h = video::get_draw_height();
-            int w = video::get_draw_width();
+            int h = video::get_logical_height();
+            int w = video::get_logical_width();
             int len;
             char s[160];
             char f[160];

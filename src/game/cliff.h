@@ -100,7 +100,6 @@ class cliff : public game
     void palette_calculate();
     void repaint(); // function to repaint video
     void patch_roms();
-    bool handle_cmdline_arg(const char *arg);
 
   protected:
     char m_frame_str[FRAME_ARRAY_SIZE]; // current frame of laserdisc in string
@@ -146,6 +145,7 @@ class gtg : public cliff
     void set_preset(int val); // gets disc side from command line
     void reset();
     void patch_roms();
+    bool handle_cmdline_arg(const char *arg);
 
   protected:
     int e1ba_accesscount; // for tracking frame/chapter reads

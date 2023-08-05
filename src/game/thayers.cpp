@@ -234,7 +234,7 @@ void thayers::set_version(int version)
 
         m_rom_list = tq_roms;
     } else {
-        printline("TQ:  Unsupported -version paramter, ignoring...");
+        printline("TQ:  Unsupported -version parameter, ignoring...");
     }
 }
 
@@ -672,10 +672,12 @@ void thayers::process_keydown(SDL_Keycode key)
 
         default:
             // else we recognized no keys so print an error
+#ifdef DEBUG
             char s[81] = {0};
 
             snprintf(s, sizeof(s), "THAYERS: Unhandled keypress: %x", key);
             printline(s);
+#endif
             break;
         }
 }

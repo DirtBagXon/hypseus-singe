@@ -334,9 +334,9 @@ int load_waves()
     }
 
     // load "saveme" sound in
-    if (!SDL_LoadWAV("sound/saveme.wav", &spec, &g_sample_saveme.pu8Buf,
+    if (!SDL_LoadWAV("sound/grumble.wav", &spec, &g_sample_saveme.pu8Buf,
                      &g_sample_saveme.uLength)) {
-        LOGW << "Loading 'saveme.wav' failed...";
+        LOGW << "Loading 'grumble.wav' failed...";
         result = 0;
     }
 

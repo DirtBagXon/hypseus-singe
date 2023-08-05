@@ -75,17 +75,20 @@ badlands::badlands()
     firq_on = false;
     irq_on  = false;
     nmi_on  = false;
-    transparent = true;
+    yuv_on  = false;
 
     m_num_sounds            = 1;
     m_sound_name[S_BL_SHOT] = "bl_shot.wav";
 
+    m_sprite_lite     = false;
     shoot_led         = false;
     shoot_led_overlay = false;
     shoot_led_numlock = false;
     char_base         = 0x4000;
     charx_offset      = 6;
     chary_offset      = 2;
+
+    banks[2] = 0x7D;
 
     // this must be static
     const static struct rom_def badlands_roms[] =
@@ -113,6 +116,9 @@ badlandp::badlandp()
     // we need to set a different type because the hack in add_digit isn't
     // needed for this version
     m_game_type = GAME_BADLANDP;
+
+    banks[1] = 0xDF;
+    banks[2] = 0xFF;
 
     // this must be static
     const static struct rom_def badlandp_roms[] =
@@ -154,9 +160,13 @@ void badlands::do_nmi()
     {
         mc6809_nmi = 1;
     }
-#ifdef LINUX
-    if (!transparent && video::get_yuv_overlay_ready()) video::set_yuv_video_blank(true);
-#endif
+
+    if (!yuv_on)
+        if (video::get_yuv_overlay_ready()) {
+            video::set_video_blank(true);
+            yuv_on = true;
+        }
+
     blit(); // the NMI runs at the same period as the monitor vsync
 }
 
@@ -219,12 +229,13 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // DSP On
     else if (addr == 0x1003) {
-        if (value) {
-            palette::set_transparency(0, false);
-            transparent = false;
-        } else {
-            palette::set_transparency(0, true);
-            transparent = true;
+
+        if (yuv_on) {
+            if (value) {
+                video::set_video_blank(true);
+            } else {
+                video::set_video_blank(false);
+            }
         }
     }
 
@@ -294,7 +305,7 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
     }
 
     else {
-        LOGW << fmt("Write to %x with %x", addr, value);
+        LOGD << fmt("Write to %x with %x", addr, value);
     }
 
     m_cpumem[addr] = value;
@@ -325,7 +336,7 @@ Uint8 badlandp::cpu_mem_read(Uint16 addr)
     // ROM
     else if (addr >= 0xc000) {
     } else {
-        LOGW << fmt("Read from %x", addr);
+        LOGD << fmt("Read from %x", addr);
     }
 
     return result;
@@ -349,12 +360,13 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
     }
     // display disable
     else if (addr == 0x0803) {
-        if (value) {
-            palette::set_transparency(0, false); // disable laserdisc video
-            transparent = false;
-        } else {
-            palette::set_transparency(0, true); // enable laserdisc video
-            transparent = true;
+
+        if (yuv_on) {
+            if (value) {
+                video::set_video_blank(true);
+            } else {
+                video::set_video_blank(false);
+            }
         }
     }
     // ?
@@ -426,6 +438,9 @@ void badlands::palette_calculate()
 
         palette::set_color(i, temp_color);
     }
+
+    if (m_sprite_lite)
+        palette::set_transparency(3, true);
 }
 
 // updates badlands's video
@@ -454,13 +469,8 @@ void badlands::repaint()
         }
     }
 
-    if (shoot_led) {
-        const char *t = "SHOOT!";
-        Uint8 x = 24;
-
-        if (get_use_old_overlay()) x = 20;
-        video::draw_string(t, x, 220, m_video_overlay[m_active_video_overlay]);
-    }
+    if (shoot_led)
+        video::draw_shoot(294, 215, m_video_overlay[m_active_video_overlay]);
 }
 
 // this gets called when the user presses a key or moves the joystick
@@ -491,7 +501,7 @@ void badlands::input_enable(Uint8 move, Sint8 mouseID)
     case SWITCH_TEST:
         break;
     default:
-        LOGW << "bug in move enable";
+        LOGD << "bug in move enable";
         break;
     }
 }
@@ -526,7 +536,7 @@ void badlands::input_disable(Uint8 move, Sint8 mouseID)
                       // during boot
         break;
     default:
-        LOGW << "bug in move enable";
+        LOGD << "bug in move disable";
         break;
     }
 }
@@ -556,6 +566,7 @@ void badlands::reset()
 {
     cpu::reset();
     ldv1000::reset();
+    yuv_on = false;
 }
 
 void badlands::set_preset(int preset)
@@ -595,4 +606,15 @@ void badlands::update_shoot_led(Uint8 value)
             ledstate = false;
         }
     }
+}
+
+bool badlandp::handle_cmdline_arg(const char *arg)
+{
+    bool bRes = false;
+
+    if (strcasecmp(arg, "-spritelite") == 0) {
+        m_sprite_lite = bRes = true;
+    }
+
+    return bRes;
 }

@@ -41,12 +41,14 @@
 
 #include <string.h>
 #include "gpworld.h"
+#include <plog/Log.h>
 #include "../io/conout.h"
 #include "../ldp-in/ldv1000.h"
 #include "../ldp-out/ldp.h"
 #include "../video/palette.h"
 #include "../video/video.h"
 #include "../sound/sound.h"
+#include "../sound/samples.h"
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"
 
@@ -57,8 +59,8 @@ gpworld::gpworld()
     m_shortgamename = "gpworld";
     memset(&cpu, 0, sizeof(struct cpu::def));
     memset(banks, 0xff, 7); // fill banks with 0xFF's
-    banks[5] = 0;
-    banks[6] = 0;
+    banks[5] = 0x00;
+    banks[6] = 0x00;
     memset(sprite, 0x00, 0x30000);   // making sure sprite[] is zero'd out
     memset(m_cpumem, 0x00, 0x10000); // making sure m_cpumem[] is zero'd out
     palette_modified = true;
@@ -78,11 +80,24 @@ gpworld::gpworld()
     cpu.mem = m_cpumem;
     cpu::add(&cpu); // add a z80
 
-    m_video_row_offset = 8; // shift video up by 16 pixels (8 rows)
+    m_video_row_offset = 0; // shift video up by 16 pixels (8 rows)
 
     m_transparent_color = 0;
     ldp_output_latch    = 0xff;
     nmie                = false;
+
+    m_num_sounds = 10;
+    // With the lack of any hardware reference....
+    m_sound_name[S_GP_ENGINE1] = "gp_engine1.wav";
+    m_sound_name[S_GP_ENGINE2] = "gp_engine2.wav";
+    m_sound_name[S_GP_COUNT]   = "gp_count.wav";
+    m_sound_name[S_GP_START]   = "gp_signal.wav";
+    m_sound_name[S_GP_TIRE]    = "gp_tires.wav";
+    m_sound_name[S_GP_REV]     = "gp_roar.wav";
+    m_sound_name[S_GP_CRASH]   = "gp_crash.wav";
+    m_sound_name[S_GP_COIN]    = "dl_credit.wav";
+    m_sound_name[S_GP_DINK]    = "dl2_bad.wav";
+    m_sound_name[S_GP_GEAR]    = "gr_alarm4.wav";
 
     const static struct rom_def gpworld_roms[] =
         {// main z80 rom
@@ -140,7 +155,6 @@ void gpworld::do_nmi()
 Uint8 gpworld::cpu_mem_read(Uint16 addr)
 {
     Uint8 result = m_cpumem[addr];
-    char s[81]   = {0};
 
     // main rom
     if (addr <= 0xbfff) {
@@ -165,8 +179,7 @@ Uint8 gpworld::cpu_mem_read(Uint16 addr)
     // ld-v1000 laserdisc player
     else if (addr == 0xd800) {
         result = read_ldp(addr);
-        //		sprintf(s, "LDP read %x", result);
-        //		printline(s);
+        LOGD << fmt("LDP read %x", result);
     }
 
     // unknown
@@ -202,8 +215,7 @@ Uint8 gpworld::cpu_mem_read(Uint16 addr)
     }
 
     else {
-        snprintf(s, sizeof(s), "Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
-        printline(s);
+        LOGW << fmt("Unmapped read from %x (PC is %x)", addr, Z80_GET_PC);
     }
 
     return result;
@@ -213,12 +225,10 @@ Uint8 gpworld::cpu_mem_read(Uint16 addr)
 void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 {
     m_cpumem[addr] = value;
-    char s[81]     = {0};
 
     // main rom
     if (addr <= 0xbfff) {
-        snprintf(s, sizeof(s), "Attempted write to main ROM! at %x with value %x", addr, value);
-        printline(s);
+        LOGW << fmt("Attempted write to main ROM! at %x with value %x", addr, value);
     }
 
     // sprite
@@ -242,8 +252,7 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // disc
     else if (addr == 0xd800) {
-        //		sprintf(s, "LDP write %x", value);
-        //		printline(s);
+        LOGD << fmt("LDP write %x", value);
         write_ldp(value, addr);
     }
 
@@ -251,11 +260,64 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
     else if (addr == 0xda00) {
     }
 
-    // sound (uses analog hardware)
+    // sound (uses analog hardware) - unsupported - sound with samples
     else if (addr == 0xda01) {
+
         if (value != 0xff) {
-            //			sprintf(s, "da01 write %x", value);
-            //			printline(s);
+
+            static Uint8 lastbeep[0xFF] = {0};
+
+            // audio streams (primitive control)
+            if (++lastbeep[value] > 6) {
+                switch (value) {
+                 case 0xDC:
+                 case 0xDE:
+                    sound::play(S_GP_TIRE);
+                    break;
+                 case 0xEC:
+                 case 0xEE:
+                    samples::flush_queue();
+                    sound::play(S_GP_START);
+                    break;
+                 case 0xF4:
+                    samples::flush_queue();
+                    sound::play(S_GP_COUNT);
+                    break;
+                 case 0xF5:
+                    sound::play(S_GP_REV);
+                    break;
+                   break;
+                 case 0xF9:
+                 case 0xFB:
+                    sound::play(S_GP_COIN);
+                    break;
+                 case 0xFE:
+                    if (++ign > 0x0A) {
+                        if (banks[2])
+                            sound::play(S_GP_ENGINE2);
+                        else sound::play(S_GP_ENGINE1);
+                    }
+                   break;
+                 default:
+                    LOGD << fmt("%x write %x", addr, value);
+                    break;
+                 }
+                 lastbeep[value] = 0;
+            }
+	}
+    }
+    else if (addr == 0xdac0 || addr == 0xdae0) {
+
+        switch (value) {
+        case 0x90:
+           ign = 0;
+           samples::flush_queue();
+           sound::play(S_GP_CRASH);
+           break;
+        default:
+           sound::play(S_GP_DINK);
+           LOGD << fmt("%x write %x", addr, value);
+           break;
         }
     }
     // bit 0 selects whether brake or accelerater are read through 0xda20
@@ -279,36 +341,27 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 
     else {
         m_cpumem[addr] = value;
-        snprintf(s, sizeof(s), "Unmapped write to %x with value %x (PC is %x)", addr, value, Z80_GET_PC);
-        printline(s);
+        LOGW << fmt("Unmapped write to %x with value %x (PC is %x)", addr, value, Z80_GET_PC);
     }
 }
 
 Uint8 gpworld::read_ldp(Uint16 addr)
 {
-    //	char s[81] = {0};
-
     Uint8 result = ldp_input_latch;
-    //		sprintf(s, "Read from player %x at pc: %x", result, Z80_GET_PC);
-    //		printline(s);
+    LOGD << fmt("Read from player %x at pc: %x", result, Z80_GET_PC);
 
     return result;
 }
 
 void gpworld::write_ldp(Uint8 value, Uint16 addr)
 {
-    //	char s[81] = {0};
-
-    //	sprintf(s, "Write to player %x at pc %x", value, Z80_GET_PC);
-    //	printline(s);
+    LOGD << fmt("Write to player %x at pc %x", value, Z80_GET_PC);
     ldp_output_latch = value;
 }
 
 // reads a byte from the cpu's port
 Uint8 gpworld::port_read(Uint16 port)
 {
-    char s[81] = {0};
-
     port &= 0xFF;
 
     switch (port) {
@@ -329,10 +382,8 @@ Uint8 gpworld::port_read(Uint16 port)
         return banks[4];
         break;
     default:
-        snprintf(s, sizeof(s), "ERROR: CPU port %x read requested, but this function is "
-                   "unimplemented!",
-                port);
-        printline(s);
+        LOGW << fmt("ERROR: CPU port %x read requested, but this function is "
+                   "unimplemented!", port);
     }
 
     return (0);
@@ -341,8 +392,6 @@ Uint8 gpworld::port_read(Uint16 port)
 // writes a byte to the cpu's port
 void gpworld::port_write(Uint16 port, Uint8 value)
 {
-    char s[82] = {0};
-
     port &= 0xFF;
 
     switch (port) {
@@ -352,15 +401,18 @@ void gpworld::port_write(Uint16 port, Uint8 value)
     case 0x01:
         if (value & 0x40)
             nmie = true;
-        else
+        else {
             nmie = false;
+            if (value == 0x00) {
+                ldv1000::write(0xA3);
+                ign = 0;
+            }
+        }
         break;
 
     default:
-        snprintf(s, sizeof(s), "ERROR: CPU port %x write requested (value %x) but this "
-                   "function is unimplemented!",
-                port, value);
-        printline(s);
+        LOGW << fmt("ERROR: CPU port %x write requested (value %x) but this "
+                   "function is unimplemented!", port, value);
         break;
     }
 }
@@ -403,7 +455,6 @@ void gpworld::recalc_palette()
 {
     if (palette_modified) {
         m_video_overlay_needs_update = true;
-
         Uint8 used_tile_colors[4096] = {0};
         // int used_colors = 0;
         int i;
@@ -471,6 +522,11 @@ void gpworld::repaint()
     // This should be much faster
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
 
+    // draw low or high depending on the state of the shifter
+    const char *t = "HIGH";
+    if (banks[2]) t = "LOW";
+    video::draw_string(t, 1, 225, m_video_overlay[m_active_video_overlay]);
+
     // The sprites are bottom priority so we draw them first
     // START modified Mame code
     // check if sprites need to be drawn
@@ -524,7 +580,7 @@ void gpworld::repaint()
                 for (int x = 0; x < 8; x++) {
                     if (pixel[x]) {
                         *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          ((chary * 8 + y) * GPWORLD_OVERLAY_W) + ((charx - 19) * 7 + x + p)) =
+                          ((chary * 8 + y + p) * GPWORLD_OVERLAY_W) + ((charx - 19) * 7 + x + p)) =
                             tile_color_pointer[(pixel[x]) | ((m_cpumem[current_character]) & 0xfc)];
                     }
                 }
@@ -542,10 +598,6 @@ void gpworld::repaint()
     //			}
     //		}
 
-    // draw low or high depending on the state of the shifter
-    const char *t = "HIGH";
-    if (banks[2]) t = "LOW";
-    video::draw_string(t, 2, 222, m_video_overlay[m_active_video_overlay]);
 }
 
 // this gets called when the user presses a key or moves the joystick
@@ -566,7 +618,7 @@ void gpworld::input_enable(Uint8 move, Sint8 mouseID)
         banks[0] &= ~0x10;
         break;
     case SWITCH_BUTTON1: // space on keyboard
-        banks[2]                     = ~banks[2];
+        banks[2] = ~banks[2];
         m_video_overlay_needs_update = true;
         break;
     case SWITCH_BUTTON2: // left shift
@@ -609,6 +661,7 @@ void gpworld::input_disable(Uint8 move, Sint8 mouseID)
         banks[0] |= 0x10;
         break;
     case SWITCH_BUTTON1: // space on keyboard
+        sound::play(S_GP_GEAR);
         break;
     case SWITCH_BUTTON2: // left shift
         banks[5] = 0x00;
@@ -655,6 +708,7 @@ bool gpworld::set_bank(Uint8 which_bank, Uint8 value)
 // START modified Mame code
 void gpworld::draw_sprite(int spr_number)
 {
+    int p = 12;
     int sx, sy, row, height, src, sprite_color, sprite_bank;
     Uint8 *sprite_base;
     int skip; /* bytes to skip before drawing each row (can be negative) */
@@ -675,12 +729,15 @@ void gpworld::draw_sprite(int spr_number)
 
     sprite_bank = (sprite_base[SPR_X_HI] >> 1) & 0x07;
 
-    //	char s[81];
-    //	sprintf(s, "Draw Sprite #%x with src %x, skip %x, width %x, height %x, y
-    //%x, x %x", spr_number, src, skip, width, height, sy, sx);
-    //	printline(s);
+    if (spr_number == 0x1) {
+        if (sy < 0x4) p -= 0x0b;
+        else p -= 0x06;
+    }
 
-    for (row = 0; row < height; row++) {
+    LOGD << fmt( "Draw Sprite #%x with src %x, skip %x, height %x, y %x, x %x",
+		    spr_number, src, skip, height, sy, sx);
+
+    for (row = p; row < height + p; row++) {
         int x, y;
         int src2;
 

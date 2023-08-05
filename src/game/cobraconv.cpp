@@ -501,7 +501,7 @@ void cobraconv::input_enable(Uint8 move, Sint8 mouseID)
                           // for tilt detector)
         break;
     default:
-        LOGW << "bug in move enable";
+        LOGD << "bug in move enable";
         break;
     }
 }
@@ -551,7 +551,7 @@ void cobraconv::input_disable(Uint8 move, Sint8 mouseID)
         banks[3] &= ~0x01;
         break;
     default:
-        LOGW << "bug in move enable";
+        LOGD << "bug in move disable";
         break;
     }
 }

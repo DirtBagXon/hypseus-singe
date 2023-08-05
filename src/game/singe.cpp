@@ -81,7 +81,6 @@ singe::singe() : m_pScoreboard(NULL)
     m_bezel_scoreboard        = false;
 
     m_overlay_size            = 0;
-    m_fullsize_overlay        = false;
     m_upgrade_overlay         = false;
     m_muteinit                = false;
     m_notarget                = false;
@@ -180,7 +179,6 @@ bool singe::init()
         g_SingeIn.cfm_get_fvalue         = gfm_get_fvalue;
         g_SingeIn.cfm_get_overlaysize    = gfm_get_overlaysize;
         g_SingeIn.cfm_set_overlaysize    = gfm_set_overlaysize;
-        g_SingeIn.cfm_set_upgradeoverlay = gfm_set_upgradeoverlay;
         g_SingeIn.cfm_set_custom_overlay = gfm_set_custom_overlay;
 
         // Active bezel
@@ -244,12 +242,11 @@ void singe::start()
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
     bool blanking = g_local_info.blank_during_searches | g_local_info.blank_during_skips;
-    int delay = g_ldp->get_min_seek_delay() >> 6;
+    int delay = g_ldp->get_min_seek_delay() >> 4;
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
     if (m_upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
-    if (m_fullsize_overlay) g_pSingeOut->sep_overlay_resize();
     if (m_muteinit) g_pSingeOut->sep_mute_vldp_init();
     if (m_notarget) g_pSingeOut->sep_no_crosshair();
     if (singe_oc) g_pSingeOut->sep_alter_lua_clock(singe_ocv);
@@ -268,9 +265,9 @@ void singe::start()
             }
 
             if (blanking) {
-                if (video::get_video_timer_blank()) {
+                if (video::get_video_blank()) {
                     if (intTimer > delay)
-                        video::set_video_timer_blank(false);
+                        video::set_video_blank(false);
                     intTimer++;
                 } else intTimer = 0;
             }
@@ -396,6 +393,7 @@ bool singe::handle_cmdline_arg(const char *arg)
 
     if (!bInit) {
         game::set_32bit_overlay(true);
+        game::set_dynamic_overlay(true);
         m_upgrade_overlay = bInit = true;
     }
 
@@ -438,51 +436,17 @@ bool singe::handle_cmdline_arg(const char *arg)
         singe_ocv = false;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-oversize_overlay") == 0) {
-
-        if (m_overlay_size) {
-            printerror("SINGE: Only one overlay argument allowed");
-            return false;
-        }
-        printline("NOTE : -oversize_overlay is obsolete use '-set_overlay oversize'");
-        m_overlay_size = SINGE_OVERLAY_OVERSIZE;
-        bResult = true;
-    }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
         game::set_32bit_overlay(false);
         m_upgrade_overlay = false;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-set_overlay") == 0) {
+    else if (strcasecmp(arg, "-set_overlay") == 0
+                || strcasecmp(arg, "-oversize_overlay") == 0) {
 
-        if (m_overlay_size) {
-            printerror("SINGE: Only one overlay argument allowed");
-            return false;
-        }
-
-        uint8_t r = 0;
-        get_next_word(s, sizeof(s));
-
-        if (strcasecmp(s, "half") == 0)     r = SINGE_OVERLAY_HALF;
-        if (strcasecmp(s, "full") == 0)     r = SINGE_OVERLAY_FULL;
-        if (strcasecmp(s, "oversize") == 0) r = SINGE_OVERLAY_OVERSIZE;
-
-        switch(r) {
-        case SINGE_OVERLAY_HALF:
-        case SINGE_OVERLAY_FULL:
-           m_overlay_size = r;
-           game::set_fullsize_overlay(true);
-           m_fullsize_overlay = true;
-           bResult = true;
-           break;
-        case SINGE_OVERLAY_OVERSIZE:
-           m_overlay_size = r;
-           bResult = true;
-           break;
-        default:
-           printerror("SINGE: -set_overlay expects argument 'full', 'half' or 'oversize'");
-           break;
-        }
+        if (strcasecmp(arg, "-set_overlay") == 0) get_next_word(s, sizeof(s));
+        printline("NOTE : Overlay arguments are now obsolete");
+        bResult = true;
     }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {
         m_notarget = true;
@@ -493,7 +457,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         i = atoi(s);
 
         if ((i > 0) && (i < 11)) {
-           game::set_sinden_border(i<<1);
+           game::set_sinden_border(i<<2);
            game::set_manymouse(true);
            bResult = true;
         } else {
@@ -713,7 +677,6 @@ double singe::get_yratio() { return singe_yratio; }
 double singe::get_fvalue() { return singe_fvalue; }
 
 uint8_t singe::get_overlaysize() { return m_overlay_size; }
-void singe::set_upgradeoverlay(bool bEnable) { game::set_fullsize_overlay(bEnable); }
 void singe::set_overlaysize(uint8_t thisVal) { m_overlay_size = thisVal; }
 
 

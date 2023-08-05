@@ -176,9 +176,10 @@ void shutdown(void)
     }
 }
 
-// this function is here temporarily while the game drivers are switch to this
-// new method
-t_yuv_color *get_yuv(void) { return g_yuv; }
+void set_yuv_transparency(bool transparent)
+{
+    if (video::get_yuv_overlay_ready())
+        video::set_video_blank(!transparent);
+}
 
-Uint32 *get_rgba(void) { return g_uRGBAPalette; }
 }

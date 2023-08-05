@@ -162,7 +162,7 @@ void esh::set_version(int version)
              {NULL}};
         m_rom_list = roms;
     } else {
-        LOGW << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version parameter, ignoring...";
     }
 }
 
@@ -551,7 +551,7 @@ void esh::input_enable(Uint8 move, Sint8 mouseID)
         banks[0] &= ~0x10;
         break;
     default:
-        LOGW << "bug in move enable";
+        LOGD << "bug in move enable";
         break;
     }
 }
@@ -593,7 +593,7 @@ void esh::input_disable(Uint8 move, Sint8 mouseID)
         banks[0] |= 0x10;
         break;
     default:
-        LOGW << "bug in move disable";
+        LOGD << "bug in move disable";
         break;
     }
 }

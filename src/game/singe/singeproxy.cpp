@@ -44,6 +44,8 @@ typedef struct g_soundType {
 // These are pointers and values needed by the script engine to interact with Hypseus
 lua_State    *g_se_lua_context;
 SDL_Surface  *g_se_surface        = NULL;
+SDL_Renderer *g_se_renderer       = NULL;
+SDL_Texture  *g_se_texture        = NULL;
 int           g_se_overlay_width;
 int           g_se_overlay_height;
 double       *g_se_disc_fps;
@@ -71,9 +73,8 @@ double                g_sep_overlay_scale_y =  1;
 bool                  g_pause_state         = false; // by RDG2010
 bool                  g_init_mute           = false;
 bool                  g_upgrade_overlay     = false;
-bool                  g_fullsize_overlay    = false;
 bool                  g_show_crosshair      = true;
-bool                  g_not_cursor          = true;
+bool                  g_blend_sprite        = false;
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                int Ypitch, int Upitch, int Vpitch);
@@ -103,7 +104,6 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
 	g_SingeOut.sep_mute_vldp_init      = sep_mute_vldp_init;
 	g_SingeOut.sep_no_crosshair        = sep_no_crosshair;
 	g_SingeOut.sep_upgrade_overlay     = sep_upgrade_overlay;
-	g_SingeOut.sep_overlay_resize      = sep_overlay_resize;
 	
 	result = &g_SingeOut;
 	
@@ -349,7 +349,7 @@ void sep_set_static_pointers(double *m_disc_fps, unsigned int *m_uDiscFPKS)
 void sep_set_surface(int width, int height)
 {
 	bool createSurface = false;
-	
+
 	g_se_overlay_height = height;
 	g_se_overlay_width = width;
 	
@@ -606,9 +606,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "vldpSetVerbose",     sep_ldp_verbose);  
 
   // Singe 2
-  lua_register(g_se_lua_context, "overlaySetResolution",   sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeSetGameName",       sep_singe_two_pseudo_call_true);
-  lua_register(g_se_lua_context, "onOverlayUpdate",        sep_singe_two_pseudo_call_true);
   lua_register(g_se_lua_context, "singeWantsCrosshairs",   sep_singe_wants_crosshair);
   lua_register(g_se_lua_context, "mouseHowMany",           sep_get_number_of_mice);
 
@@ -618,6 +616,7 @@ void sep_startup(const char *script)
   lua_register(g_se_lua_context, "getFValue",              sep_get_fvalue);
   lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
   lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
+  lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
   lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
 
   lua_register(g_se_lua_context, "scoreBezelEnable",       sep_bezel_enable);
@@ -649,6 +648,8 @@ void sep_startup(const char *script)
 
   if (g_pSingeIn->get_retro_path()) sep_set_retropath();
 
+  g_blend_sprite = video::get_singe_blend_sprite();
+
   if (luaL_dofile(g_se_lua_context, script) != 0)
   {
 	sep_error("error compiling script: %s", lua_tostring(g_se_lua_context, -1));
@@ -660,40 +661,40 @@ void sep_startup(const char *script)
 
 void sep_unload_fonts(void)
 {
-  int x;
+  if (g_fontList.size() > 0) {
 
-  if (g_fontList.size() > 0)
-	{
-    for (x=0; x<(int)g_fontList.size(); x++)
-      TTF_CloseFont(g_fontList[x]);
-		g_fontList.clear();
-	}
+      for (int x = 0; x < (int)g_fontList.size(); x++)
+          TTF_CloseFont(g_fontList[x]);
+
+      g_fontList.clear();
+  }
 }
 
 void sep_unload_sounds(void)
 {
-  int x;
-
   g_pSingeIn->samples_flush_queue();
 
-  if (g_soundList.size() > 0)
-	{
-    for (x=0; x<(int)g_soundList.size(); x++)
-			SDL_FreeWAV(g_soundList[x].buffer);
-		g_soundList.clear();
-	}
+  if (g_soundList.size() > 0) {
+
+      for (int x = 0; x < (int)g_soundList.size(); x++)
+          SDL_FreeWAV(g_soundList[x].buffer);
+
+      g_soundList.clear();
+  }
 }
 
 void sep_unload_sprites(void)
 {
-  int x;
+  if (g_spriteList.size() > 0) {
 
-  if (g_spriteList.size() > 0)
-	{
-    for (x=0; x<(int)g_spriteList.size(); x++)
-			SDL_FreeSurface(g_spriteList[x]);
-		g_spriteList.clear();
-	}
+      for (int x = 0; x < (int)g_spriteList.size(); x++)
+      {
+          SDL_FreeSurface(g_spriteList[x]);
+          g_spriteList[x] = NULL;
+      }
+
+      g_spriteList.clear();
+   }
 }
 
 void sep_alter_lua_clock(bool s)
@@ -718,11 +719,6 @@ void sep_no_crosshair(void)
 void sep_upgrade_overlay(void)
 {
   g_upgrade_overlay = true;
-}
-
-void sep_overlay_resize(void)
-{
-  g_fullsize_overlay = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -968,9 +964,7 @@ static int sep_mpeg_get_pixel(lua_State *L)
         int32_t  n                   = lua_gettop(L);
         bool     result              = false;
         static bool ex               = false;
-        SDL_Renderer *g_renderer     = video::get_renderer();
-        SDL_Texture  *g_texture      = video::get_yuv_screen();
-        SDL_QueryTexture(g_texture, &format, NULL, NULL, NULL);
+        SDL_QueryTexture(g_se_texture, &format, NULL, NULL, NULL);
         unsigned char pixel[SDL_BYTESPERPIXEL(format)];
         unsigned char R;
         unsigned char G;
@@ -991,8 +985,8 @@ static int sep_mpeg_get_pixel(lua_State *L)
                                               / (double)g_se_overlay_width));
 				rect.y = (int)((double)lua_tonumber(L, 2) * ((double)g_pSingeIn->g_vldp_info->h
                                               / (double)g_se_overlay_height));
-				if (g_renderer && g_texture) {
-					if (SDL_SetRenderTarget(g_renderer, g_texture) < 0) {
+				if (g_se_renderer && g_se_texture) {
+					if (SDL_SetRenderTarget(g_se_renderer, g_se_texture) < 0) {
                                             if (!ex) {
 						sep_print("get_pixel unsupported texture: Targets disabled");
 						sep_print("Could not RenderTarget in get_pixel: %s", SDL_GetError());
@@ -1003,13 +997,16 @@ static int sep_mpeg_get_pixel(lua_State *L)
                                             lua_pushstring(X, "Targets disabled");
                                             sep_say_font(X);
 					} else {
-                                            if (SDL_RenderReadPixels(g_renderer, &rect, format,
+                                            if (SDL_RenderReadPixels(g_se_renderer, &rect, format,
                                                               pixel, SDL_BYTESPERPIXEL(format)) < 0)
 						  sep_die("Could not ReadPixel in get_pixel: %s", SDL_GetError());
 					}
-					SDL_SetRenderTarget(g_renderer, NULL);
+					SDL_SetRenderTarget(g_se_renderer, NULL);
 				} else {
-					sep_die("Could not initialize get_pixel");
+					if (!ex) {
+                                            g_se_renderer     = video::get_renderer();
+                                            g_se_texture      = video::get_yuv_screen();
+                                        } else sep_die("Could not initialize get_pixel");
 				}
 				Y = pixel[0] - 16;
 				U = (int)rand()% 6 + (-3);
@@ -1079,12 +1076,7 @@ static int sep_set_overlaysize(lua_State *L)
            switch (size) {
            case SINGE_OVERLAY_FULL:
            case SINGE_OVERLAY_HALF:
-               g_fullsize_overlay = true;
-               g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
-               break;
            case SINGE_OVERLAY_OVERSIZE:
-               g_fullsize_overlay = false;
-               g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, false);
                break;
            case SINGE_OVERLAY_CUSTOM:
                if (n == 3) {
@@ -1096,9 +1088,7 @@ static int sep_set_overlaysize(lua_State *L)
                            f = lua_tonumber(L, 3);
                            int h = (int)f;
                            if (w && h) {
-                               g_fullsize_overlay = true;
                                g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance, w, h);
-                               g_pSingeIn->cfm_set_upgradeoverlay(g_pSingeIn->pSingeInstance, true);
                            } else size = SINGE_OVERLAY_EMPTY;
                        }
                    }
@@ -1135,7 +1125,6 @@ static int sep_get_fvalue(lua_State *L)
 static int sep_singe_wants_crosshair(lua_State *L)
 {
    lua_pushboolean(L, g_show_crosshair);
-   if (g_show_crosshair) g_not_cursor = false;
    return 1;
 }
 
@@ -1212,36 +1201,14 @@ static int sep_say_font(lua_State *L)
 			SDL_Rect dest;
 			dest.w = textsurface->w;
 			dest.h = textsurface->h;
-
-			if (g_fullsize_overlay) {
-
-			    dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
-			    dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
-
-			} else { // Deal with legacy stuff - TODO: remove
-
-			    dest.x = lua_tonumber(L, 1);
-			    dest.y = lua_tonumber(L, 2);
-
-			    if (dest.x == 0x05 && dest.y == 0x05 && dest.h == 0x17) // AM SCORE SHUNT
-				dest.x+=20;
-
-			    if (g_se_overlay_width > SINGE_OVERLAY_STD_W) {
-				if (dest.h == 0x16 && dest.y == 0xcf) { // JR SCOREBOARD
-                                           dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 22);
-                                           if (dest.x <(SINGE_OVERLAY_STD_W>>2)) dest.x-=4;
-                                               if (dest.x >(SINGE_OVERLAY_STD_W>>1)) dest.x+=4;
-			    }
-				else
-				    dest.x = dest.x - (double)(((g_se_overlay_width) + (dest.x * 32)
-                                                              + (dest.w * 26)) / SINGE_OVERLAY_STD_W);
-			    }
-			}
+			dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
+			dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
 
 			SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
 			SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
-			if (!video::get_singe_blend_sprite())
-				SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
+
+			if (!g_blend_sprite)
+                            SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 
 			SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
 			SDL_FreeSurface(textsurface);
@@ -1282,7 +1249,7 @@ static int sep_search(lua_State *L)
 
       if (g_pSingeIn->g_local_info->blank_during_searches)
           if (debounced)
-              video::set_video_timer_blank(true);
+              video::set_video_blank(true);
 
       debounced = true;
     }
@@ -1331,7 +1298,7 @@ static int sep_skip_backward(lua_State *L)
     if (lua_isnumber(L, 1))
 	{
           if (g_pSingeIn->g_local_info->blank_during_skips)
-              video::set_video_timer_blank(true);
+              video::set_video_blank(true);
 
           g_pSingeIn->pre_skip_backward(lua_tonumber(L, 1));
 	}
@@ -1360,7 +1327,7 @@ static int sep_skip_forward(lua_State *L)
     if (lua_isnumber(L, 1))
 	{
           if (g_pSingeIn->g_local_info->blank_during_skips)
-              video::set_video_timer_blank(true);
+              video::set_video_blank(true);
 
           g_pSingeIn->pre_skip_forward(lua_tonumber(L, 1));
 	}
@@ -1388,7 +1355,7 @@ static int sep_skip_to_frame(lua_State *L)
 
 			if (g_pSingeIn->g_local_info->blank_during_skips)
 			    if (debounced)
-			        video::set_video_timer_blank(true);
+			        video::set_video_blank(true);
 
 			g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
 			g_pSingeIn->pre_search(s, true);
@@ -1465,35 +1432,11 @@ static int sep_sprite_draw(lua_State *L)
 			SDL_Rect dest;
 			dest.w = g_spriteList[sprite]->w;
 			dest.h = g_spriteList[sprite]->h;
+			dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
+			dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
 
-			if (g_fullsize_overlay) {
-
-			    dest.x = lua_tonumber(L, 1) + g_sep_overlay_scale_x;
-			    dest.y = lua_tonumber(L, 2) + g_sep_overlay_scale_y;
-
-			} else { // Deal with legacy stuff - TODO: remove
-
-			    dest.x = lua_tonumber(L, 1);
-			    dest.y = lua_tonumber(L, 2);
-
-			    if (g_se_overlay_width > SINGE_OVERLAY_STD_W) {
-				if (g_not_cursor && dest.y > 0xbe && dest.y <= 0xde)
-				    dest.x = dest.x - (double)((g_se_overlay_width + dest.x + dest.w) / 26);
-				else
-				    dest.x = dest.x - (double)((g_se_overlay_width + (dest.x * 32)
-						    + (dest.w * 26)) / SINGE_OVERLAY_STD_W);
-			    }
-			}
-
-			if (dest.w == 0x89 && dest.h == 0x1c) { // SP
-				SDL_SetColorKey(g_spriteList[sprite], SDL_TRUE, 0x000000ff);
-				dest.x+=3;
-			}
-
-			if ((!video::get_singe_blend_sprite()) &&
-				(dest.w != 0xcc && dest.h != 0x15) &&
-				    (dest.w != 0x0b && dest.h != 0x0b)) // JR / AM
-				SDL_SetSurfaceBlendMode(g_spriteList[sprite], SDL_BLENDMODE_NONE);
+			if (!g_blend_sprite)
+			    SDL_SetSurfaceBlendMode(g_spriteList[sprite], SDL_BLENDMODE_NONE);
 
 			SDL_BlitSurface(g_spriteList[sprite], NULL, g_se_surface, &dest);
                   }
@@ -1501,7 +1444,6 @@ static int sep_sprite_draw(lua_State *L)
           }
       }
   }
-  g_not_cursor = true;
   return 0;
 }
 
@@ -1544,7 +1486,6 @@ static int sep_sprite_load(lua_State *L)
         SDL_Surface *temp = IMG_Load(filepath.c_str());
 
         if (temp) {
-            // free old surface?
             temp = SDL_ConvertSurface(temp, g_se_surface->format, 0);
             SDL_SetSurfaceRLE(temp, SDL_TRUE);
             SDL_SetColorKey(temp, SDL_TRUE, 0x0);

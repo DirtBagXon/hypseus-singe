@@ -34,7 +34,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			if (!m_bThayers)
 			{
 				// Draw all DL/SA scoreboard labels.
-                                if (video::get_use_old_osd()) {
+                                if (video::use_old_font()) {
                                    video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3), 0, pSurface);
                                    video::draw_string("Player 1: ", 1, 0, pSurface);
                                    video::draw_string("Player 2: ", (pSurface->w / 6 - 19), 0, pSurface);
@@ -61,7 +61,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			else
 			{
 				// Thayer's Quest only uses "Credits" portion of the DL/SA // scoreboard.
-                                if (video::get_use_old_osd())
+                                if (video::use_old_font())
                                    video::draw_string("Time", pSurface->w / 12 - 2, 0, pSurface);
                                 else
                                    video::draw_string("Time", pSurface->w / 12 + 3, 1, pSurface);

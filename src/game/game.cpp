@@ -136,12 +136,12 @@ game::game()
     m_software_scoreboard = false;
 
     // old style overlays
-    m_use_old_overlay = false;
+    m_old_overlay = false;
 
     // overlay depth and size
     m_overlay_depth = GAME_OVERLAY_DEPTH;
     m_overlay_upgrade = false;
-    m_fullsize_overlay = false;
+    m_dynamic_overlay = false;
 
     // running on retro console
     m_run_on_console = false;
@@ -192,15 +192,6 @@ bool game::pre_init()
 bool game::init()
 {
     bool result = true;
-#ifdef LINUX
-    const int min = 200;
-
-    if (get_game_type() == GAME_BADLANDS ||
-		    get_game_type() == GAME_BADLANDP) {
-        if (g_ldp->get_min_seek_delay() < min)
-            g_ldp->set_min_seek_delay(min);
-    }
-#endif
 
     cpu::init();
     return result;
@@ -343,7 +334,7 @@ void game::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
 bool game::init_video()
 {
     static unsigned int m_area = 0;
-    static unsigned char vinit = 0;
+    static unsigned char v_init = 0;
     bool result = false;
     int index   = 0;
 
@@ -352,15 +343,15 @@ bool game::init_video()
     // Set up SDL display (create window, renderer, surfaces, textures...)
     if (m_area < area || m_overlay_depth == GAME_OVERLAY_DEPTH) {
 
-        if (video::get_video_resized() && vinit > 1) {
-            LOGE << "-x and -y do not support overlay switching.";
+        if ((video::get_video_resized() || video::get_rotated_state()) && v_init > 1) {
+            LOGE << "Rotation and resizing [-x/-y] do not support overlay switching.";
             set_quitflag();
         } else if (video::get_yuv_overlay_ready())
             video::reset_yuv_overlay();
 
         video::init_display();
         m_area = area;
-        vinit++;
+        v_init++;
     }
 
     // if this particular game uses video overlay (most do)
@@ -394,6 +385,9 @@ bool game::init_video()
                     palette::finalize();
                 }
             }
+
+            video::set_overlay_offset(m_video_row_offset);
+
         } // end if video overlay is used
 
         // if the game has not explicitely specified those variables that we
@@ -412,7 +406,7 @@ bool game::init_video()
     }
 
     // Log some stats
-    video::notify_stats(m_video_overlay_width, m_video_overlay_height);
+    video::notify_stats(m_video_overlay_width, m_video_overlay_height, "o");
 
     return (result);
 }
@@ -562,11 +556,11 @@ short game::get_game_errors() { return m_game_error; }
 
 bool game::get_console_flag() { return m_run_on_console; }
 
-bool game::get_use_old_overlay() { return m_use_old_overlay; }
+bool game::use_old_overlay() { return m_old_overlay; }
 
 bool game::get_overlay_upgrade() { return m_overlay_upgrade; }
 
-bool game::get_fullsize_overlay() { return m_fullsize_overlay; }
+bool game::get_dynamic_overlay() { return m_dynamic_overlay; }
 
 bool game::get_manymouse() { return m_manymouse; }
 
@@ -587,7 +581,7 @@ void game::set_manymouse(bool value) { m_manymouse = value; }
 
 void game::switch_scoreboard_display() { video::vid_scoreboard_switch(); }
 
-void game::set_fullsize_overlay(bool value) { m_fullsize_overlay = value; }
+void game::set_dynamic_overlay(bool value) { m_dynamic_overlay = value; }
 
 void game::set_32bit_overlay(bool value)
 {
@@ -597,7 +591,11 @@ void game::set_32bit_overlay(bool value)
 	m_overlay_upgrade = value;
 }
 
-void game::set_stretch_value(int value) { m_stretch = m_stretch - value; }
+void game::set_stretch_value(int value) {
+
+	if (m_stretch == TMS_VERTICAL_OFFSET)
+	    m_stretch = m_stretch - value;
+}
 
 // generic preset function, does nothing
 void game::set_preset(int preset)

@@ -27,6 +27,7 @@
 
 enum {
     PATH_DAPHNE,
+    PATH_SINGE,
     PATH_FRAMEWORK,
     PATH_END
 };
@@ -46,16 +47,19 @@ unsigned char inPath(const char* src, char* path)
 
 void lua_retropath(const char *src, char *dst, int len)
 {
-    unsigned char r = 0, fin = 0, path = PATH_DAPHNE;
+    unsigned char r = 0, fin = 0, folder = 0, path = PATH_DAPHNE;
 
     if (inPath(src, "Framework")) path = PATH_FRAMEWORK;
+    if (inPath(src, "singe/")) folder = PATH_SINGE;
+    else r++;
 
     for (int i = 0; i < (len - 2); src++, i++) {
-        if (!fin) {
+        if (fin != PATH_END) {
             if (*src == '\0') {
                 fin = PATH_END;
             }
-            if (i == 6) {
+            if (i == 0 && *src == '/') continue;
+            if (folder == PATH_SINGE && i == 6) {
                 memcpy(dst, "/../", 4);
                 dst += 4;
             }

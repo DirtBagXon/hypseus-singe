@@ -64,7 +64,8 @@ class badlands : public game
     bool firq_on;
     bool irq_on;
     bool nmi_on;
-    bool transparent;
+    bool yuv_on;
+    bool m_sprite_lite;
     Uint8 character[0x2000];
     Uint8 color_prom[0x20];
     Uint8 banks[3]; // badlands's banks
@@ -79,4 +80,5 @@ class badlandp : public badlands
     badlandp();
     Uint8 cpu_mem_read(Uint16 addr);              // memory read routine
     void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
+    bool handle_cmdline_arg(const char *arg);
 };

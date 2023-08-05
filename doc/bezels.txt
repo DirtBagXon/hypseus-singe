@@ -4,8 +4,8 @@ Arguments related to bezels
 -bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
 
 -scalefactor <50-100>      [ Scale video image [50-100]%                   ]
--scale_shiftx <-100 - 100> [ Position scaled video window - horizontally   ]
--scale_shifty <-100 - 100> [ Position scaled video window - vertically     ]
+-shiftx <-100 to 100>      [ Position video window - horizontally          ]
+-shifty <-100 to 100>      [ Position video window - vertically            ]
 
 
 Built-in bezels relating to 'lair/ace/tq'
@@ -16,6 +16,7 @@ Built-in bezels relating to 'lair/ace/tq'
 -annunbezel_alpha <1-2>    [ Built-in bezel: alpha transparency            ]
 -annunbezel_scale <1-25>   [ Built-in bezel: scale option                  ]
 -annunbezel_position <x y> [ Built-in bezel: position options              ]
+-annunlamps                [ Built-in bezel: staggered: lamps only [conv]  ]
 -scorebezel                [ Built-in bezel: ace/lair/tq scoreboard        ]
 -scorebezel_alpha <1-2>    [ Built-in bezel: alpha transparency            ]
 -scorebezel_scale <1-25>   [ Built-in bezel: scale option                  ]
@@ -47,5 +48,7 @@ Built-in overrides
 - bezels/offspaceace.bmp
 - bezels/offcaptain.bmp
 - bezels/offcadet.bmp
+
+- bezels/shoot.bmp
 
 
