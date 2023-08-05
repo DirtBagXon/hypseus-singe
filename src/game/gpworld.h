@@ -47,6 +47,19 @@
 #define SPR_GFXOFS_HI 7
 // END modified Mame code
 
+enum {
+    S_GP_ENGINE1,
+    S_GP_ENGINE2,
+    S_GP_CRASH,
+    S_GP_COUNT,
+    S_GP_START,
+    S_GP_COIN,
+    S_GP_DINK,
+    S_GP_TIRE,
+    S_GP_GEAR,
+    S_GP_REV
+};
+
 class gpworld : public game
 {
   public:
@@ -78,6 +91,7 @@ class gpworld : public game
     bool palette_modified;     // has our palette been modified?
     Uint8 ldp_output_latch;    // holds data to be sent to the LDV1000
     Uint8 ldp_input_latch;     // holds data that was retrieved from the LDV1000
+    Uint8 ign;
     bool nmie;
     Uint8 banks[7];
 };

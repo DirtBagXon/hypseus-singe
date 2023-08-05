@@ -2,7 +2,7 @@
 #define SINGE_INTERFACE_H
 
 // increase this number every time you change something in this file!!!
-#define SINGE_INTERFACE_API_VERSION 7
+#define SINGE_INTERFACE_API_VERSION 8
 
 #define SINGE_ERROR_INIT      0xA0
 #define SINGE_ERROR_RUNTIME   0xA1
@@ -75,7 +75,6 @@ struct singe_in_info
 
 	uint8_t (*cfm_get_overlaysize)(void *);
 	void (*cfm_set_overlaysize)(void *, uint8_t);
-	void (*cfm_set_upgradeoverlay)(void *, bool);
 	void (*cfm_set_custom_overlay)(void *, uint16_t, uint16_t);
 
 	void (*cfm_bezel_enable)(void *, bool);
@@ -131,7 +130,6 @@ struct singe_out_info
 	void (*sep_mute_vldp_init)(void);
 	void (*sep_no_crosshair)(void);
 	void (*sep_upgrade_overlay)(void);
-	void (*sep_overlay_resize)(void);
 	
 	////////////////////////////////////////////////////////////
 };

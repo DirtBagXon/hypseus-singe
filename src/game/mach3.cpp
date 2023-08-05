@@ -609,7 +609,13 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         {
             // whether laserdisc video can be seen
             m_ldvideo_enabled = ((Value & 8) == 8);
-            palette::set_transparency(0, m_ldvideo_enabled);
+            if (m_cpumem[0x8000] == 0x60) {
+                if (m_ldvideo_enabled)
+                    m_cpumem[0x5001] = 0x00;
+                else m_cpumem[0x5001] = 0x36;
+                m_palette_updated = true;
+            } else
+                palette::set_yuv_transparency(m_ldvideo_enabled);
         }
         if ((Value & 0x04) != (m_cpumem[0x5803] & 0x04)) // enable display bit
                                                          // has changed

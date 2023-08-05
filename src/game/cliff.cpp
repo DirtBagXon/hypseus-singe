@@ -120,17 +120,16 @@ gtg::gtg()
 {
     m_shortgamename = "gtg";
     m_game_type     = GAME_GTG;
-    //m_game_issues   = "Overlay colors...";
 
     disc_side        = 1; // default to side 1 if no -preset is used
     e1ba_accesscount = 0;
 
-    //m_banks[1]     = 0x5C;
+    m_banks[1]       = 0x01;
     m_banks[3]       = 0x1F;
 
     // this must be static!
     const static struct rom_def roms[] =
-        {{"gtg.rm0", NULL, &m_cpumem[0], 0x2000, 0xD8EFDDEA},
+        {{"gtg.rm0", NULL, &m_cpumem[0x0000], 0x2000, 0xD8EFDDEA},
          {"gtg.rm1", NULL, &m_cpumem[0x2000], 0x2000, 0x69953D38},
          {"gtg.rm2", NULL, &m_cpumem[0x4000], 0x2000, 0xB043E205},
          {"gtg.rm3", NULL, &m_cpumem[0x6000], 0x2000, 0xEC305F5E},
@@ -641,12 +640,16 @@ void cliff::repaint()
     tms9128nl_video_repaint();
 }
 
-bool cliff::handle_cmdline_arg(const char *arg)
+bool gtg::handle_cmdline_arg(const char *arg)
 {
     bool bRes = false;
-
     if (strcasecmp(arg, "-spritelite") == 0) {
-        game::set_console_flag(true);
+        tms9128nl_set_spritelite();
+        bRes = true;
+    }
+
+    if (strcasecmp(arg, "-compact") == 0) {
+        tms9128nl_set_nostretch();
         bRes = true;
     }
 
@@ -729,6 +732,7 @@ void gtg::patch_roms()
         m_cpumem[0x9] = 0;
         m_cpumem[0xB] = 0;
     }
+    tms9128nl_set_conv_12a563();
 }
 
 void gtg::set_preset(int val)

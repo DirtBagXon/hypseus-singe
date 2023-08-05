@@ -62,6 +62,7 @@ unsigned char g_tms_background_color = 0;   // black (3 bit)
 bool g_tms_interrupt_enabled = false; // whether NMI is on or off
 bool g_conv_12a563 = false;
 bool g_alpha_latch = false;
+bool g_nostretch = false;
 
 int g_transparency_enabled = 0;
 int g_transparency_latch   = 0;
@@ -104,6 +105,8 @@ void tms9128nl_reset()
                                              / TMS_ROW_HEIGHT;
 }
 
+bool tms9128nl_bordchar(unsigned char value) { return (value > 0x5F && value < 0x69); }
+
 bool tms9128nl_int_enabled() { return (g_tms_interrupt_enabled); }
 
 void tms9128nl_writechar(unsigned char value)
@@ -111,10 +114,11 @@ void tms9128nl_writechar(unsigned char value)
 // this is the same as writing to register #0 on a TMS chip
 {
     unsigned int row = 0, col = 0;
+    unsigned char tile = 0, s = 0;
     int base = 0;
 
+    if (g_nostretch) s += TMS_ROW_HEIGHT >> 1;
     if (viddisp == 0) return; // video display is off
-    // if (g_vidmode!=1) return; //only text mode 1 for now
 
     // MODE 1 (bitmapped text)
     if (g_vidmode == 1) {
@@ -131,15 +135,10 @@ void tms9128nl_writechar(unsigned char value)
                 {
                    case 0x0:
                       if ((int)row == offset_shunt)
-                          tms9128nl_drawchar(0, col, 0);
-                      break;
-                   case 0x60:
-                   case 0x61:
-                   case 0x62:
-                   case 0x63:
-                   case 0x67:
+                          tms9128nl_drawchar(0, col, 0, 0);
                       break;
                    default:
+                      if (tms9128nl_bordchar(value)) break;
                       if ((int)row == offset_shunt)
                           row = 0x0;
                       break;
@@ -150,7 +149,7 @@ void tms9128nl_writechar(unsigned char value)
                 return; // problems with col31? or bug in fancyclearscreen
                         // routine?
 
-            tms9128nl_drawchar(value, col, row);
+            tms9128nl_drawchar(value, col, row, 0);
         }
         // else, they're outside the viewable area, so draw nothing
     } // end mode 1
@@ -180,6 +179,33 @@ void tms9128nl_writechar(unsigned char value)
             }
 
             if (g_conv_12a563) {
+                switch (value)
+                {
+                    case 0x38:
+                      if (wvidindex != 0x3D95)
+                          tile = 1;
+                      break;
+                    case 0x1C:
+                    case 0x1E:
+                    case 0x3E:
+                    case 0x40:
+                      if (!g_transparency_enabled)
+                          tile = 1;
+                      break;
+                    case 0x71:
+                    case 0x72:
+                    case 0x73:
+                      if (col == 0x16 && row > 0xD)
+                          tms9128nl_drawchar(TMS_TAG_TICK, 0x10 + s,
+                              (0xF + offset_shunt), 3);
+                      tile = 1;
+                      break;
+                }
+
+                if (tms9128nl_bordchar(value))
+                    if (g_transparency_latch)
+                        tile = 2;
+
                 row += offset_shunt;
                 --col;
             }
@@ -188,13 +214,13 @@ void tms9128nl_writechar(unsigned char value)
                 return; // problems with col31? or bug in fancyclearscreen
                         // routine?
 
-            tms9128nl_drawchar(value, col, row);
+            tms9128nl_drawchar(value, col + s, row, tile);
         }
         // BARBADEL: Added
         else {
             if (g_conv_12a563) {
-                if (wvidindex == 0x3802) tms9128nl_drawchar(0x0A, (value >> 3),
-                        (0x13 + offset_shunt));
+                if (wvidindex == 0x3802) tms9128nl_drawchar(0x5F, s + (value >> 3),
+                                             (0x13 + offset_shunt), 1);
             } else {
                 g_tms_foreground_color = (unsigned char)((value & 0xF0) >> 4);
                 g_tms_background_color = (unsigned char)(value & 0x0F);
@@ -631,6 +657,16 @@ void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
         color->g = 255;
         color->b = 255;
         break;
+    case TMS_LAY1:
+        color->r = 155;
+        color->g = 34;
+        color->b = 34;
+        break;
+    case TMS_LAY2:
+        color->r = 45;
+        color->g = 45;
+        color->b = 45;
+        break;
     default:
         LOGW << fmt("UNSUPPORTED COLOR passed into convert color : %d", color_src);
         break;
@@ -640,20 +676,34 @@ void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
 // draws a character to the Cliff video display
 // 40 columns by 24 rows
 // uses Cliffy's video memory to retrieve 8x8 character bitmap
-void tms9128nl_drawchar(unsigned char ch, int col, int row)
+void tms9128nl_drawchar(unsigned char ch, int col, int row, unsigned char tile)
 {
-    const int CHAR_WIDTH  = 8;
-    const int CHAR_HEIGHT = 8;
+    const int CharWidth  = 8;
+    const int CharHeight = 8;
+    int FGColor = TMS_FG_COLOR;
 
     int bmp_index = (ch * 8) + (g_tms_pgt_addr << 11); // index in vid mem where
                                                        // bmp data is located
     int i = 0, j = 0;                                  // temp indices
-    int x                          = col * CHAR_WIDTH;
-    int y                          = row * CHAR_HEIGHT;
+    int x                          = col * CharWidth;
+    int y                          = row * CharHeight;
     unsigned char line             = 0;
     unsigned char background_color = TMS_BG_COLOR;
 
-    if (g_tms_pgt_addr == 0x03) x += (CHAR_WIDTH >> 1);
+    switch (tile)
+    {
+       case 0x01:
+           FGColor = TMS_LAY1;
+           break;
+       case 0x02:
+           FGColor = TMS_LAY2;
+           break;
+       case 0x03:
+           x -= 0x02;
+           break;
+    }
+
+    if (g_tms_pgt_addr == 0x03) x += (CharWidth >> 1);
 
     // if character is 0 and we're in transparency mode, make bitmap transparent
     if (g_transparency_latch) {
@@ -702,15 +752,15 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
     }
 
     // draw each line of character into new surface
-    for (i = 0; i < CHAR_HEIGHT; i++) {
+    for (i = 0; i < CharHeight; i++) {
         line = vidmem[bmp_index + i]; // get a line
 
         // handle each pixel across
-        for (j = CHAR_WIDTH - 1; j >= 0; j--) {
+        for (j = CharWidth - 1; j >= 0; j--) {
             // if rightmost bit is 1, it means draw the pixel
             if (line & 1) {
                 *((Uint8 *)g_vidbuf + ((y + i + stretch_offset) * TMS9128NL_OVERLAY_W) +
-                  (x + j)) = TMS_FG_COLOR;
+                  (x + j)) = FGColor;
             }
             // else draw the background
             else {
@@ -725,18 +775,20 @@ void tms9128nl_drawchar(unsigned char ch, int col, int row)
     // character after it non-transparent
     // This seems to be how Cliff Hanger behaves.  I haven't found it documented
     // anywhere though.
-    if ((!g_alpha_latch) && (g_transparency_latch) && (ch != 0) && (ch != 0xFF)) {
-        Uint8 *ptr = ((Uint8 *)g_vidbuf) +
-                     ((y + stretch_offset) * TMS9128NL_OVERLAY_W) + x + CHAR_WIDTH;
-        for (int r = 0; r < CHAR_HEIGHT; r++) {
-            for (int c = 0; c < CHAR_WIDTH; c++) {
-                // make it non-transparent if it is
-                if (*ptr == TMS_TRANSPARENT_COLOR) {
-                    *ptr = TMS_BG_COLOR;
+    if (!g_alpha_latch) {
+        if ((g_transparency_latch) && (ch != 0) && (ch != 0xFF)) {
+            Uint8 *ptr = ((Uint8 *)g_vidbuf) +
+                     ((y + stretch_offset) * TMS9128NL_OVERLAY_W) + x + CharWidth;
+            for (int r = 0; r < CharHeight; r++) {
+                for (int c = 0; c < CharWidth; c++) {
+                    // make it non-transparent if it is
+                    if (*ptr == TMS_TRANSPARENT_COLOR) {
+                        *ptr = TMS_BG_COLOR;
+                    }
+                    ptr++;
                 }
-                ptr++;
+                ptr += (TMS9128NL_OVERLAY_W - CharWidth); // move to the next line
             }
-            ptr += (TMS9128NL_OVERLAY_W - CHAR_WIDTH); // move to the next line
         }
     }
 
@@ -770,10 +822,12 @@ void tms9128nl_outcommand(char *s, int col, int row)
 // initialization requirement
 void tms9128nl_palette_update()
 {
-    SDL_Color fore, back; // the foreground and background colors
+    SDL_Color fore, back, grid, tag; // the foreground and background colors
 
     tms9128nl_convert_color(g_tms_foreground_color, &fore);
     tms9128nl_convert_color(g_tms_background_color, &back);
+    tms9128nl_convert_color(TMS_LAY1, &tag);
+    tms9128nl_convert_color(TMS_LAY2, &grid);
 
     palette::set_color(0, back);
     palette::set_color(255, fore);
@@ -781,7 +835,7 @@ void tms9128nl_palette_update()
     // if we should do extra calculations for stretching
     if (g_vidmode == 2) {
         SDL_Color fore75back25, fore5back5,
-            fore25back75; // mixtures of the foreground and background colors
+            fore25back75, tagfade; // mixtures of the foreground and background colors
                           // (for stretching)
         MIX_COLORS_75_25(fore75back25, fore, back); // 3/4, 1/4
         MIX_COLORS_50(fore5back5, fore, back);      // average
@@ -789,6 +843,11 @@ void tms9128nl_palette_update()
         palette::set_color(1, fore25back75);
         palette::set_color(2, fore5back5);
         palette::set_color(3, fore75back25);
+
+        MIX_COLORS_75_25(tagfade, tag, back);
+        palette::set_color(TMS_LAY1, tag);
+        palette::set_color(TMS_LAY1 + 1, tagfade);
+        palette::set_color(TMS_LAY2, grid);
     }
 
     palette::finalize();
@@ -808,10 +867,6 @@ void tms9128nl_palette_calculate()
                                                            // color transparent
                                                            // :)
     palette::set_color(TMS_TRANSPARENT_COLOR, color);
-
-    if (g_game->get_game_type() == GAME_GTG) g_conv_12a563 = true;
-
-    g_alpha_latch = g_game->get_console_flag();
 
     tms9128nl_palette_update();
     tms9128nl_reset();
@@ -861,7 +916,7 @@ void tms9128nl_video_repaint()
 
     // if we're in video mode 2, we have to display our stretched overlay
     // instead of our regular one
-    if (g_vidmode == 2) {
+    if (g_vidmode == 2 && !g_nostretch) {
         tms9128nl_video_repaint_stretched();
     }
 
@@ -903,7 +958,8 @@ void tms9128nl_video_repaint_stretched()
             for (int i = 1; i < 4; i++) {
                 // if prev pixel is not the same as cur pixel, blending is
                 // required
-                if (*(ptr256 + i - 1) != *(ptr256 + i)) {
+                if ((*(ptr256 + i - 1) != *(ptr256 + i)) &&
+                        (*(ptr256 + i) != TMS_LAY1)) {
                     // if prev pixel is background color, cur pixel must be
                     // foreground
                     if (*(ptr256 + i - 1) == 0) {
@@ -912,10 +968,15 @@ void tms9128nl_video_repaint_stretched()
                     // else prev pixel is foreground, and therefore cur pixel
                     // must be background
                     else {
-                        *(ptr320 + i) = blend[i][1];
+                        if ((*(ptr256 + i - 1)) == TMS_LAY1)
+                            *(ptr320 + i) = TMS_LAY1 + 1;
+                        else *(ptr320 + i) = blend[i][1];
                     }
-                } else
-                    *(ptr320 + i) = *(ptr256 + i); // else no blending required
+                } else {
+                   if ((*(ptr256 - 1)) == TMS_LAY1 && (*(ptr256)) == 0)
+                       *(ptr320 - 1) = TMS_LAY1 + 1;
+                   *(ptr320 + i) = *(ptr256 + i); // else no blending required
+                }
             }
 
             // PIXEL +4
@@ -973,3 +1034,6 @@ void tms9128nl_clear_overlay()
 // sets the "transparency value" for one NMI tick (it gets cleared at each NMI
 // tick)
 void tms9128nl_set_transparency() { g_transparency_enabled = 1; }
+void tms9128nl_set_conv_12a563() { g_conv_12a563 = true; }
+void tms9128nl_set_nostretch() { g_nostretch = true; }
+void tms9128nl_set_spritelite() { g_alpha_latch = true; }

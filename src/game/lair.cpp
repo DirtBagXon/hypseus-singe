@@ -248,7 +248,7 @@ void dle2::set_version(int version)
 
         m_rom_list = roms;
     } else {
-        LOGW << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version parameter, ignoring...";
     }
 }
 
@@ -329,7 +329,7 @@ void ace::set_version(int version)
              {NULL}};
         m_rom_list = ace_roms;
     } else {
-        LOGW << "Unsupported -version paramter, ignoring...";
+        LOGW << "Unsupported -version parameter, ignoring...";
     }
 }
 

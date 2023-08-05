@@ -279,7 +279,6 @@ int main(int argc, char **argv)
     // if command line was bogus, quit
     else {
         printerror("Bad command line or initialization problem.");
-        printusage();
     }
 
     // if our g_game class was allocated

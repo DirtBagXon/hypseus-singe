@@ -31,7 +31,10 @@
 #define TMS_BG_COLOR 0
 #define TMS_TRANSPARENT_COLOR 0x7F
 #define TMS_FG_COLOR 0xFF
-#define TMS_ROW_HEIGHT 0x8
+#define TMS_ROW_HEIGHT 0x08
+#define TMS_TAG_TICK 0x1A
+#define TMS_LAY1 0x40
+#define TMS_LAY2 0x44
 
 #define TMS_COLOR_COUNT 256
 
@@ -56,12 +59,15 @@ void tms9128nl_write_port1(unsigned char);
 void tms9128nl_write_port0(unsigned char Value);
 int tms9128nl_setvidmem(unsigned char);
 void tms9128nl_convert_color(unsigned char, SDL_Color *);
-void tms9128nl_drawchar(unsigned char, int, int);
+void tms9128nl_drawchar(unsigned char, int, int, unsigned char);
 void tms9128nl_outcommand(char *s, int col, int row);
 void tms9128nl_palette_update();
 void tms9128nl_palette_calculate();
 void tms9128nl_video_repaint();
 void tms9128nl_video_repaint_stretched();
 void tms9128nl_set_transparency();
+void tms9128nl_set_conv_12a563();
+void tms9128nl_set_nostretch();
+void tms9128nl_set_spritelite();
 
 #endif

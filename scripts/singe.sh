@@ -38,24 +38,12 @@ while [[ $# -gt 0 ]]; do
         GAMEPAD="-gamepad"
         shift
         ;;
-      -nolinear)
-        NEAREST="-nolinear_scale"
+      -linear)
+        LINEAR="-linear_scale"
         shift
         ;;
       -nolog)
         LOG="-nolog"
-        shift
-        ;;
-      -fulloverlay)
-        OVERLAY="-set_overlay full"
-        shift
-        ;;
-      -halfoverlay)
-        OVERLAY="-set_overlay half"
-        shift
-        ;;
-      -oversize)
-        OVERLAY="-set_overlay oversize -manymouse"
         shift
         ;;
       -scale)
@@ -79,7 +67,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-nolinear] [-gamepad] [-oversize] [-fulloverlay] [-halfoverlay] [-scanlines] [-scale] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-scanlines] [-scale] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -107,7 +95,7 @@ $HYPSEUS_BIN singe vldp \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
-$NEAREST \
+$LINEAR \
 $BLANK \
 $BLEND \
 $GAMEPAD \

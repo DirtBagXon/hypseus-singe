@@ -86,6 +86,7 @@ enum {
     B_ACE_OFF,
     B_CAPTAIN_OFF,
     B_CADET_OFF,
+    B_SHOOT,
     B_EMPTY
 }; // bitmaps
 
@@ -140,13 +141,13 @@ SDL_Texture *get_yuv_screen();
 SDL_Surface *get_screen_blitter();
 SDL_Surface *get_screen_leds();
 FC_Font *get_font();
+bool use_old_font();
 bool get_opengl();
 bool get_vulkan();
-bool get_fullscreen();
-bool get_use_old_osd();
 bool get_singe_blend_sprite();
-bool get_video_timer_blank();
+bool get_video_blank();
 bool get_video_resized();
+bool get_rotated_state();
 void set_opengl(bool value);
 void set_vulkan(bool value);
 int get_textureaccess();
@@ -156,14 +157,14 @@ void set_vsync(bool value);
 void set_yuv_blue(bool value);
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
-void set_fullscreen_scale_nearest(bool value);
+void set_scale_linear(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_ignore_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
 void set_shunt(int value);
 void set_alpha(int value);
 void set_yuv_video_blank(bool value);
-void set_video_timer_blank(bool value);
+void set_video_blank(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void set_rotate_degrees(float fDegrees);
@@ -172,9 +173,10 @@ Uint16 get_video_width();
 void set_video_width(Uint16);
 Uint16 get_video_height();
 void set_video_height(Uint16);
-void draw_scanlines(int, int, int);
+void draw_scanlines(int);
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
+void draw_shoot(int, int, SDL_Surface *);
 void draw_subtitle(char *, bool ins);
 void draw_LDP1450_overlay();
 void vid_toggle_fullscreen();
@@ -183,7 +185,6 @@ void vid_scoreboard_switch();
 void set_aspect_ratio(int fRatio);
 void set_detected_height(int pHeight);
 void set_detected_width(int pWidth);
-void set_subtitle_enabled(bool bEnabled);
 void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
@@ -196,12 +197,17 @@ void set_score_bezel_alpha(int8_t value);
 void set_score_bezel_scale(int value);
 void set_ace_annun_scale(int value);
 void set_tq_keyboard(bool bEnabled);
+void set_annun_lamponly(bool bEnabled);
 void set_annun_bezel(bool bEnabled);
 void set_ded_annun_bezel(bool bEnabled);
 void set_annun_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
 void set_score_screen(int value);
+
+void set_vertical_orientation(bool);
+void format_fullscreen_render();
+void format_window_render();
 
 bool draw_ranks();
 bool draw_annunciator(int which);
@@ -211,14 +217,15 @@ bool draw_annunciator2(int which);
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);
 
-unsigned int get_draw_width();
-unsigned int get_draw_height();
+unsigned int get_logical_width();
+unsigned int get_logical_height();
 
+void set_overlay_offset(int offset);
 int get_yuv_overlay_width();
 int get_yuv_overlay_height();
 void reset_yuv_overlay();
 
-void notify_stats(int width, int height);
+void notify_stats(int width, int height, const char*);
 
 bool get_yuv_overlay_ready();
 

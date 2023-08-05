@@ -427,7 +427,7 @@ void write(unsigned char value)
             g_output |= 0x80; // set highbit just in case
             break;
         default: // Unsupported Command
-            LOGW << fmt("Unsupported LD-V1000 Command Received: %x", value);
+            LOGD << fmt("Unsupported LD-V1000 Command Received: %x", value);
             break;
         }
     }
@@ -448,10 +448,10 @@ void write(unsigned char value)
 }
 
 // As you can see we are currently not supporting display disable
-void pre_display_disable() { LOGW << "Display disable received (unsupported)"; }
+void pre_display_disable() { LOGD << "Display disable received (unsupported)"; }
 
 // We are not currently supporting display enable
-void pre_display_enable() { LOGW << "Display enable received (unsupported)"; }
+void pre_display_enable() { LOGD << "Display enable received (unsupported)"; }
 
 // Make the LD-V1000 appear to perform instantaneous searches
 // NOTE : Doesn't work with all games

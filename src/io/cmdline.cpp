@@ -394,6 +394,7 @@ bool parse_game_type()
     } else {
         snprintf(e, sizeof(e), "ERROR: Unknown game type specified : %s", s);
         printerror(e);
+        printusage();
         result = false;
     }
 
@@ -530,7 +531,8 @@ bool parse_cmd_line(int argc, char **argv)
             }
             // Ignore some deprecated arguments (Rather than error)
             else if (strcasecmp(s, "-noserversend") == 0 ||
-                         strcasecmp(s, "-fullscale") == 0) {
+                         strcasecmp(s, "-nolinear_scale") == 0 ||
+                             strcasecmp(s, "-fullscale") == 0) {
 
                  char e[460];
                  snprintf(e, sizeof(e), "NOTE : Ignoring deprecated argument: %s", s);
@@ -839,7 +841,8 @@ bool parse_cmd_line(int argc, char **argv)
                     video::set_tq_keyboard(true);
             }
             else if (strcasecmp(s, "-annunbezel") == 0 ||
-                         strcasecmp(s, "-dedannunbezel") == 0) {
+                         strcasecmp(s, "-dedannunbezel") == 0 ||
+                             strcasecmp(s, "-annunlamps") == 0) {
                 lair *game_ace = dynamic_cast<ace *>(g_game);
 
                 if (game_ace) {
@@ -847,6 +850,8 @@ bool parse_cmd_line(int argc, char **argv)
                     enable_bannun(true);
                     if (strcasecmp(s, "-dedannunbezel") == 0)
                         video::set_ded_annun_bezel(true);
+                    if (strcasecmp(s, "-annunlamps") == 0)
+                        video::set_annun_lamponly(true);
                 }
             }
             // used to modify the dip switch settings of the game in question
@@ -977,9 +982,9 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-manymouse") == 0) {
                 g_game->set_manymouse(true);
             }
-            // Disable SDL_HINT_RENDER_SCALE_QUALITY(linear)
-            else if (strcasecmp(s, "-nolinear_scale") == 0) {
-                video::set_fullscreen_scale_nearest(true);
+            // Enable SDL_HINT_RENDER_SCALE_QUALITY(linear)
+            else if (strcasecmp(s, "-linear_scale") == 0) {
+                video::set_scale_linear(true);
             }
             // disable log file
             else if (strcasecmp(s, "-nolog") == 0) {
@@ -1024,7 +1029,10 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                  }
             }
-
+            // by DBX - This switches logical axis calculations
+            else if (strcasecmp(s, "-vertical_screen") == 0) {
+                video::set_vertical_orientation(true);
+            }
             // by RDG2010
             // Scales video image to something smaller than the window size.
             // Helpful for users with overscan issues on arcade monitors or CRT
@@ -1043,12 +1051,12 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-            else if ((strcasecmp(s, "-scale_shiftx") == 0) ||
-                       (strcasecmp(s, "-scale_shifty") == 0)) {
+            else if ((strcasecmp(s, "-shiftx") == 0) ||
+                       (strcasecmp(s, "-shifty") == 0)) {
 
                 bool x = false, f = false;
 
-                if (strcasecmp(s, "-scale_shiftx") == 0)
+                if (strcasecmp(s, "-shiftx") == 0)
                     x = true;
 
                 get_next_word(s, sizeof(s));
@@ -1058,7 +1066,7 @@ bool parse_cmd_line(int argc, char **argv)
                          f = true; // print help
                 }
                 i = atoi(s);
-                if (i >= -100 && i <= 100 && !f) {
+                if (i >= -100 && i != 0 && i <= 100 && !f) {
                     i = i + 0x64;
                     if (i == 0x0) i = 0x1;
                     if (x)
@@ -1162,7 +1170,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
             // Use old style overlays (lair, ace, lair2 & tq)
             else if (strcasecmp(s, "-original_overlay") == 0) {
-                g_game->m_use_old_overlay = true;
+                g_game->m_old_overlay = true;
             }
             // this switch only supported by the ldp-vldp player class.
             else if (strcasecmp(s, "-useoverlaysb") == 0) {

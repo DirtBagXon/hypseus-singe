@@ -26,8 +26,8 @@ while [[ $# -gt 0 ]]; do
         GAMEPAD="-gamepad"
         shift
         ;;
-      -nolinear)
-        NEAREST="-nolinear_scale"
+      -linear)
+        LINEAR="-linear_scale"
         shift
         ;;
       -nolog)
@@ -74,7 +74,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] [-blanking] [-gamepad] [-nolinear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
+    echo  -e "$0 [-fullscreen] [-blanking] [-gamepad] [-linear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
     for game in ace astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
@@ -113,9 +113,13 @@ case "$1" in
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
-    badlands|badlandp)
+    badlands)
 	VLDP_DIR="vldp"
-	BANKS="-bank 1 10000001 -bank 0 00000000"
+	BANKS="-blank_searches -blank_skips -min_seek_delay 600"
+	;;
+    badlandp)
+	VLDP_DIR="vldp"
+	BANKS="-spritelite -preset 1"
 	;;
     bega)
 	VLDP_DIR="vldp"
@@ -152,9 +156,9 @@ case "$1" in
 	FASTBOOT="-fastboot"
 
 	if [ "$PROTOTYPE" ]; then
-		BANKS="-bank 1 10110111 -bank 0 11011001"
+		BANKS="-bank 1 10110111 -bank 0 11011000"
 	else
-		BANKS="-bank 1 00110111 -bank 0 11011001"
+		BANKS="-bank 1 00110111 -bank 0 11011000"
 	fi
 	;;
     esh|eshalt|eshalt2)
@@ -227,7 +231,7 @@ $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
 $GAMEPAD \
-$NEAREST \
+$LINEAR \
 $BLANK \
 $OVERLAY \
 $LOG \

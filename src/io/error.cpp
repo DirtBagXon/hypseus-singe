@@ -34,9 +34,12 @@
 
 #include "../sound/sound.h"
 
+static bool g_usage = false;
+
 // notifies the user of an error that has occurred
 void printerror(const char *s)
 {
+    if (g_usage) return;
     static bool alert = true;
 
     if (alert && sound::get_initialized()) {
@@ -61,23 +64,23 @@ void printerror(const char *s)
 #endif
 }
 
+// prints a notice to the screen
+void printnotice(const char *s)
+{
+    LOGW << s;
+}
+
 // notifies user that the game does not work correctly and gives a reason
 // this should be called after video has successfully been initialized
 void printnowookin(const char *s)
 {
-    LOGE << s;
-}
-
-// prints a notice to the screen
-void printnotice(const char *s)
-{
-    LOGE << s;
+    printnotice(s);
 }
 
 void printusage()
 {
   const char * usage = R"USAGE(
-  Hypseus Singe (C)2023 DirtBagXon
+  Hypseus Singe (c) 2023 DirtBagXon
 
   Usage: hypseus <game> vldp -framefile <framefile.txt> ...
 
@@ -94,7 +97,7 @@ void printusage()
         -fastboot
         -fullscreen
         -gamepad
-        -nolinear_scale
+        -linear_scale
 
       - Common Singe arguments:
 
@@ -111,8 +114,12 @@ void printusage()
   )USAGE";
 
 #ifdef WIN32
-  MessageBox(NULL, usage, "Usage", MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, usage, "Usage", MB_OK | MB_ICONINFORMATION);
+#elif __APPLE__
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", usage, NULL);
 #else
-  fprintf(stdout, "%s", usage);
+    fprintf(stdout, "%s", usage);
 #endif
+
+    g_usage = true;
 }

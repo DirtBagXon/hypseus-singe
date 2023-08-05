@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "superd.h"
+#include <plog/Log.h>
 #include "../cpu/generic_z80.h"
 #include "../ldp-in/ldv1000.h"
 #include "../ldp-out/ldp.h"
@@ -567,7 +568,7 @@ void superd::input_enable(Uint8 move, Sint8 mouseID)
         banks[1] &= ~0x02;
         break;
     default:
-        printline("Error, bug in move enable");
+        LOGD << "Error, bug in move enable";
         break;
     }
 }
@@ -611,7 +612,7 @@ void superd::input_disable(Uint8 move, Sint8 mouseID)
         banks[1] |= 0x02;
         break;
     default:
-        printline("Error, bug in move enable");
+        LOGD << "Error, bug in move disable";
         break;
     }
 }

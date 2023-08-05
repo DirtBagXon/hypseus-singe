@@ -72,7 +72,6 @@ void          sep_alter_lua_clock(bool);
 void          sep_mute_vldp_init(void);
 void          sep_no_crosshair(void);
 void          sep_upgrade_overlay(void);
-void          sep_overlay_resize(void);
 bool          sep_format_srf32(SDL_Surface *src, SDL_Surface *dst);
 bool          sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst);
 

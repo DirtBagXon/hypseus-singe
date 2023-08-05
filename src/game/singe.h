@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.81 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.82 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -209,12 +209,6 @@ class singe : public game
         pSingeInstance->set_overlaysize(thisVal);
     }
 
-    static void gfm_set_upgradeoverlay(void *pInstance, bool bEnable)
-    {
-        singe *pSingeInstance = (singe *)pInstance;
-        pSingeInstance->set_upgradeoverlay(bEnable);
-    }
-
     static void gfm_set_custom_overlay(void *pInstance, uint16_t w, uint16_t h)
     {
         singe *pSingeInstance = (singe *)pInstance;
@@ -313,7 +307,6 @@ class singe : public game
     struct singeJoyStruct g_js;
     struct singeScoreboard g_bezelboard;
 
-    void set_upgradeoverlay(bool);
     void set_overlaysize(uint8_t);
     void set_custom_overlay(uint16_t, uint16_t);
 
@@ -335,7 +328,6 @@ class singe : public game
     bool bezel_is_enabled();
 
     bool m_bezel_scoreboard;
-    bool m_fullsize_overlay;
     bool m_upgrade_overlay;
     bool singe_alt_pressed;
     bool singe_joymouse;
