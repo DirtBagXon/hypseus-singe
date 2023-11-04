@@ -1,0 +1,57 @@
+name: CMake-Linux64
+
+on:
+ workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Linux 64bit Build' 
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Dependancies
+      run: |
+        sudo apt update
+        sudo apt install gcc
+        sudo apt install glibc-source
+        sudo apt install glibc-tools
+        sudo apt install libc6
+        sudo apt install libc-dev-bin
+        sudo apt install libogg-dev
+        sudo apt install libsdl2-dev
+        sudo apt install libsdl2-ttf-dev
+        sudo apt install libsdl2-image-dev
+        sudo apt install libzip-dev
+        sudo apt install libvorbis-dev
+        sudo apt install zlib1g-dev
+    - name: Build
+      run: |
+        mkdir build
+        cd build
+        cmake ../src
+        make
+    - name: Package
+      run: |
+        cp build/hypseus .
+        cp doc/hypinput.ini doc/hypinput_gamepad.ini .
+        cp screenshots/hypseus-minilogo.png hypseus.png
+        FILES="hypseus LICENSE README.md hypseus.png hypinput.ini hypinput_gamepad.ini fonts/ pics/ roms/ sound/ scripts/"
+        tar -zcvf hypseus-singe.tgz $FILES
+    - name: Create Distribution
+      id: vars
+      run: |
+        ShortSHA=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$ShortSHA" >> $GITHUB_ENV
+    - uses: actions/upload-artifact@v3
+      with:
+        name: hypseus-singe-${{ env.COMMIT_SHORT_SHA }}
+        path: hypseus-singe.tgz
