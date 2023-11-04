@@ -65,9 +65,6 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-IF(APPLE)
-  return()
-ENDIF(APPLE)
 
 SET(SDL2_SEARCH_PATHS
  ~/Library/Frameworks

@@ -119,6 +119,10 @@ find_package(SDL2TTF REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
 find_package(Vorbis REQUIRED)
 
+if(APPLE)
+    set( SDL2_LIBRARIES ${SDL2_LIBRARY} )
+endif(APPLE)
+
 add_executable( hypseus hypseus.cpp globals.h )
 target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY} )
 if(ASAN)

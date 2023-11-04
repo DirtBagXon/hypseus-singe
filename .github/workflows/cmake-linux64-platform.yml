@@ -4,11 +4,11 @@ on:
  workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Log level'     
+        description: 'Log level'
         required: true
         default: 'warning'
       tags:
-        description: 'Linux 64bit Build' 
+        description: 'Linux 64bit Build'
 env:
   BUILD_TYPE: Release
 

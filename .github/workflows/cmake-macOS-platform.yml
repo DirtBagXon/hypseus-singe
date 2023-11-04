@@ -1,0 +1,54 @@
+name: CMake-MacOS
+
+on:
+ workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'MacOS Build'
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@master
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        if: success()
+      - name: Install SDL2
+        run: |
+          brew install sdl2
+          brew install sdl2_ttf
+          brew install sdl2_image
+          brew install automake
+        if: success()
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake ../src
+          make
+      - name: Package
+        run: |
+          cp build/hypseus .
+          cp doc/hypinput.ini doc/hypinput_gamepad.ini .
+          cp screenshots/hypseus-minilogo.png hypseus.png
+          FILES="hypseus LICENSE README.md hypseus.png hypinput.ini hypinput_gamepad.ini fonts/ pics/ roms/ sound/ scripts/"
+          zip -r hypseus-singe.zip $FILES
+      - name: Create Distribution
+        id: vars
+        run: |
+          ShortSHA=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$ShortSHA" >> $GITHUB_ENV
+      - uses: actions/upload-artifact@v3
+        with:
+          name: hypseus-singe-MacOS-${{ env.COMMIT_SHORT_SHA }}
+          path: hypseus-singe.zip
+
