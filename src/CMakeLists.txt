@@ -114,6 +114,7 @@ find_package(SDL2_IMAGE REQUIRED)
 find_package(Vorbis REQUIRED)
 
 if(APPLE)
+    find_package(MPEG2 REQUIRED)
     set( SDL2_LIBRARIES ${SDL2_LIBRARY} )
 endif(APPLE)
 
@@ -122,6 +123,10 @@ target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_L
 if(ASAN)
     target_link_options(hypseus PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
 endif()
+
+if(APPLE)
+    target_link_libraries( hypseus ${MPEG2_LIBRARIES} )
+endif(APPLE)
 
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
