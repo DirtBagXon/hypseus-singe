@@ -1,0 +1,107 @@
+name: CMake-AppImage
+
+on:
+ workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Linux 64bit AppImage'
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Dependancies
+      run: |
+        sudo apt update
+        sudo apt install gcc
+        sudo apt install libc6
+        sudo apt install libc-dev-bin
+        sudo apt install libogg-dev
+        sudo apt install libsdl2-dev
+        sudo apt install libsdl2-ttf-dev
+        sudo apt install libsdl2-image-dev
+        sudo apt install libzip-dev
+        sudo apt install libvorbis-dev
+        sudo apt install zlib1g-dev
+    - name: Create Distribution SHA
+      id: vars
+      run: |
+        ShortSHA=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$ShortSHA" >> $GITHUB_ENV
+    - name: Build AppImage
+      run: |
+        sed -i "/.*logs%shypseus.log.*/d" src/hypseus.cpp
+        sed -i 's/char logname\[64\];/char logname[64] = "\/tmp\/hypseus.log";/' src/hypseus.cpp
+        sed -i 's/set(VER_TAG "${VER_TAG}-dirty")/set(VER_TAG "${VER_TAG}-${{ env.COMMIT_SHORT_SHA }}")/' src/CMakeLists.txt
+        mkdir build
+        cd build
+        cmake ../src
+        make
+        mkdir -p AppDir/usr/bin
+        cp hypseus AppDir/usr/bin/hypseus.bin
+        ln -s usr/bin/hypseus.bin AppDir/AppRun
+        cp ../screenshots/hypseus-minilogo.png AppDir/hypseus.png
+        echo "[Desktop Entry]" > AppDir/hypseus.desktop
+        echo "Version=1.0" >> AppDir/hypseus.desktop
+        echo "Exec=hypseus.bin" >> AppDir/hypseus.desktop
+        echo "Icon=hypseus" >> AppDir/hypseus.desktop
+        echo "Terminal=false" >> AppDir/hypseus.desktop
+        echo "Type=Application" >> AppDir/hypseus.desktop
+        echo "StartupNotify=true" >> AppDir/hypseus.desktop
+        echo "Hidden=false" >> AppDir/hypseus.desktop
+        echo "Categories=Game;Emulator;" >> AppDir/hypseus.desktop
+        echo "Name=Hypseus Singe" >> AppDir/hypseus.desktop
+        echo "GenericName=Arcade LaserDisc Emulator" >> AppDir/hypseus.desktop
+        echo "Keywords=emulator;hyspeus;singe;daphne;laserdisc" >> AppDir/hypseus.desktop
+        curl -s -SL https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -o linuxdeploy
+        curl -s -SL https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -o AppImageTool
+        chmod +x linuxdeploy AppImageTool
+        ./linuxdeploy -l /lib/x86_64-linux-gnu/libOpenGL.so.0 -l /lib/x86_64-linux-gnu/libgio-2.0.so.0 --appdir AppDir
+        ./AppImageTool AppDir
+        mkdir hypseus-singe
+        cp Hypseus_Singe-x86_64.AppImage hypseus-singe
+        ln -s Hypseus_Singe-x86_64.AppImage hypseus-singe/hypseus.bin
+        cp -r ../fonts hypseus-singe
+        cp -r ../roms hypseus-singe
+        cp -r ../sound hypseus-singe
+        cp -r ../pics hypseus-singe
+        echo "# Steam Deck Buttons: A=1, B=2, X=3, Y=4" > hypseus-singe/hypinput.ini
+        echo "# Start=8, Select=7, L1=5, R1=6, L3=10, R3=11" >> hypseus-singe/hypinput.ini
+        echo "" >> hypseus-singe/hypinput.ini
+        echo "[KEYBOARD]" >> hypseus-singe/hypinput.ini
+        echo "KEY_UP = SDLK_UP SDLK_r 0 -002" >> hypseus-singe/hypinput.ini
+        echo "KEY_DOWN = SDLK_DOWN SDLK_f 0 +002" >> hypseus-singe/hypinput.ini
+        echo "KEY_LEFT = SDLK_LEFT SDLK_d 0 -001" >> hypseus-singe/hypinput.ini
+        echo "KEY_RIGHT = SDLK_RIGHT SDLK_g 0 +001" >> hypseus-singe/hypinput.ini
+        echo "KEY_COIN1 = SDLK_5 0 7" >> hypseus-singe/hypinput.ini
+        echo "KEY_COIN2 = SDLK_6 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_START1 = SDLK_1 0 8" >> hypseus-singe/hypinput.ini
+        echo "KEY_START2 = SDLK_2 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_BUTTON1 = SDLK_LCTRL SDLK_a 1" >> hypseus-singe/hypinput.ini
+        echo "KEY_BUTTON2 = SDLK_LALT SDLK_s 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_BUTTON3 = SDLK_SPACE SDLK_d 11" >> hypseus-singe/hypinput.ini
+        echo "KEY_SKILL1 = SDLK_LSHIFT SDLK_w 3" >> hypseus-singe/hypinput.ini
+        echo "KEY_SKILL2 = SDLK_z SDLK_i 4" >> hypseus-singe/hypinput.ini
+        echo "KEY_SKILL3 = SDLK_x SDLK_k 2" >> hypseus-singe/hypinput.ini
+        echo "KEY_SERVICE = SDLK_9 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_TEST = SDLK_F2 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_RESET = SDLK_0 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_SCREENSHOT = SDLK_F12 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_QUIT = SDLK_ESCAPE SDLK_q 17" >> hypseus-singe/hypinput.ini
+        echo "KEY_PAUSE = SDLK_p 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_CONSOLE = SDLK_BACKSLASH 0 0" >> hypseus-singe/hypinput.ini
+        echo "KEY_TILT = SDLK_t 0 0" >> hypseus-singe/hypinput.ini
+        echo "END" >> hypseus-singe/hypinput.ini
+        tar -zcvf ../hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz hypseus-singe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: hypseus-singe-AppImage-${{ env.COMMIT_SHORT_SHA }}
+        path: hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz
