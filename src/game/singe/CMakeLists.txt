@@ -15,6 +15,10 @@ set( LIB_HEADERS
     lstate.h ltable.h luaconf.h lualib.h lvm.h singe_interface.h lfs.h
 )
 
+if( APPLE )
+    set( SDL2_LIBRARIES "" )
+endif( APPLE )
+
 set_source_files_properties( random.c PROPERTIES COMPILE_FLAGS -Wno-unused-function )
 
 add_library( singeproxy ${LIB_SOURCES} ${LIB_HEADERS} )
