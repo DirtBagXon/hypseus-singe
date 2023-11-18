@@ -6,6 +6,7 @@ Arguments related to bezels
 -scalefactor <50-100>      [ Scale video image [50-100]%                   ]
 -shiftx <-100 to 100>      [ Position video window - horizontally          ]
 -shifty <-100 to 100>      [ Position video window - vertically            ]
+-vertical_screen           [ Reorient calculations for above arguments     ]
 
 
 Built-in bezels relating to 'lair/ace/tq'

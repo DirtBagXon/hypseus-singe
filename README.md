@@ -50,6 +50,15 @@ Use homebrew to install the following packages:
     brew install libtool
     brew install libvorbis
     brew install libogg
+    brew install libzip
+
+Newer series Macs may need to use the _brew_ `libmpeg2` package:
+
+    brew install libmpeg2
+
+Then clone the `libmpeg2` branch:
+
+    git clone --single-branch --branch libmpeg2 https://github.com/DirtBagXon/hypseus-singe.git
 
 ### Raspberry Pi
 
@@ -74,7 +83,7 @@ Ensure you have data in the following `daphne` HOME folders:
 
     pics, fonts, ram, roms, sound, singe, (vldp and vldp_dl)
 
-Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
+Run `hypseus` with `daphne` [arguments](doc/CmdLine.md) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
 
     hypseus lair vldp -framefile vldp_dl/lair/lair.txt -scorebezel
 
@@ -106,6 +115,8 @@ The singe `-retropath` argument can ease integration into libretro style systems
     singe
 
 ## Configuration
+
+See [CmdLine](doc/CmdLine.md)
 
 Configuration of keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
 
