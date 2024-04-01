@@ -386,6 +386,8 @@ void process_command()
             LOGD << "Sound forced analog (4 channel NTSC disc) (ignored)";
         } else if (command[command_pointer - 1] == 'N') {
             LOGD << "Sound normal (digital sound if available) (ignored)";
+        } else if (command[command_pointer - 1] == '2') {
+            g_ldp->pre_pause();
         } else {
             LOGE << fmt("Error in 'S' command %s", (const char *)command);
         }

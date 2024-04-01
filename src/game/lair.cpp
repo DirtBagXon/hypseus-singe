@@ -727,22 +727,22 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
 
         if (m_game_type == GAME_DLE2) {
 
-            if (a_frame == (stoi(LAIR_INTROFRAME) - 0x96)) {
-                if (g_ldp->pre_search(LAIR_INTROFRAME, true)) {
+            if (a_frame == (stoi(LAIR_BOOTFRAME))) {
+                if (g_ldp->pre_search(LAIR_SPLASHFRAME, true)) {
                     m_cpumem[0x121b] = 0xF0;
                     m_cpumem[0x123d] = 0xC5;
-                    g_ldp->pre_play();
+                    g_ldp->pre_pause();
                     g_bBootLog = true;
                 } else set_quitflag();
             }
 
         } else {
 
-            if (a_frame == (stoi(ACE_INTROFRAME) - 0x03)) {
-                if (g_ldp->pre_search(ACE_INTROFRAME, true)) {
+            if (a_frame == (stoi(ACE_BOOTFRAME))) {
+                if (g_ldp->pre_search(ACE_SPLASHFRAME, true)) {
                     m_cpumem[0x121b] = 0xF0;
                     m_cpumem[0x1248] = 0x07;
-                    g_ldp->pre_play();
+                    g_ldp->pre_pause();
                     g_bBootLog = true;
                 } else set_quitflag();
             }
@@ -968,7 +968,7 @@ bool lair::set_bank(unsigned char which_bank, unsigned char value)
         m_switchB = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }
@@ -1071,9 +1071,11 @@ void lair::input_enable(Uint8 move, Sint8 mouseID)
     case SWITCH_BUTTON2:
         break;
     case SWITCH_BUTTON3:
-        m_bScoreboardVisibility = !m_bScoreboardVisibility;
-        m_pScoreboard->ChangeVisibility(m_bScoreboardVisibility);
-        m_video_overlay_needs_update |= m_pScoreboard->is_repaint_needed();
+        if (m_pScoreboard) {
+            m_bScoreboardVisibility = !m_bScoreboardVisibility;
+            m_pScoreboard->ChangeVisibility(m_bScoreboardVisibility);
+            m_video_overlay_needs_update |= m_pScoreboard->is_repaint_needed();
+        }
         break;
     case SWITCH_COIN1:
         m_misc_val &= (unsigned char)~0x04;
@@ -1105,7 +1107,7 @@ void lair::input_enable(Uint8 move, Sint8 mouseID)
     default:
         // unused key, take no action
 
-        LOGW << "Error, bug in Dragon's Lair's input enable";
+        LOGD << "Error, bug in Dragon's Lair's input enable";
         break;
     }
 }
@@ -1158,7 +1160,7 @@ void lair::input_disable(Uint8 move, Sint8 mouseID)
     default:
         // unused key, take no action
 
-        LOGW << "Error, bug in Dragon's Lair's move disable";
+        LOGD << "Error, bug in Dragon's Lair's move disable";
         break;
     }
 }

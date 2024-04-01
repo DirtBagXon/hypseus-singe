@@ -88,6 +88,14 @@ int g_arg_index = 0;
 #define strcasecmp stricmp
 #endif
 
+bool invalid_arg(const char *s)
+{
+    char e[432];
+    snprintf(e, sizeof(e), "Invalid argument for game type: %s", s);
+    printerror(e);
+    return false;
+}
+
 // parses the command line looking for the -homedir switch, returns true if
 // found and valid (or not found)
 // (this must be done first because the the game and ldp classes may rely on the
@@ -385,10 +393,24 @@ bool parse_game_type()
     } else if (strcasecmp(s, "uvt") == 0) {
         g_game = new uvt();
     } else if (strcasecmp(s, "-v") == 0) {
+#if defined(WIN32) || defined(__APPLE__)
+        const char* l = "Hypseus Singe: ";
+        const char* l1 = get_hypseus_version();
+        const char* l2 = get_sdl_compile();
+        const char* l3 = get_sdl_linked();
+        const char* l4 = get_build_time();
+        string s = string(l) + l1 + "\n\n" + l2 + "\n" + l3 + "\n\n" + l4;
+#endif
+#ifdef WIN32
+        MessageBox(NULL, s.c_str(), "Version", MB_OK | MB_ICONINFORMATION);
+#elif __APPLE__
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Version", s.c_str(), NULL);
+#else
         printline(get_os_description());
         printline(get_sdl_compile());
         printline(get_sdl_linked());
         printline(get_build_time());
+#endif
         result = true;
         exit(0);
     } else {
@@ -458,9 +480,8 @@ bool parse_ldp_type()
 bool parse_cmd_line(int argc, char **argv)
 {
     bool result = true;
-    char s[400] = {0}; // in case they pass in a huge directory as part of the
-                       // framefile
-    int i                 = 0;
+    char s[400] = {0}; // in case they pass in a huge folder as part of the framefile
+    int i = 0;
 
     //////////////////////////////////////////////////////////////////////////////////////
 
@@ -562,7 +583,11 @@ bool parse_cmd_line(int argc, char **argv)
                         string s3 = s1.substr(0, (iLen-4));
                         for (int i = 0; s3[i] != '\0'; i++) {
                             if (!isalnum(s3[i]) && s3[i] != int('-')
-                                     && s3[i] != int('_')) {
+                                && s3[i] != int('_') && s3[i] != int('/')
+#ifdef WIN32
+                                    && s3[i] != int('\\')
+#endif
+                            ) {
                                 loadini = false;
                             }
                         }
@@ -650,6 +675,22 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-gamepad") == 0) {
                 set_use_gamepad(true);
             }
+            else if (strcasecmp(s, "-haptic") == 0) {
+                get_next_word(s, sizeof(s));
+                if (strcasecmp(s, "0") == 0) {
+                    printline("All haptic feedback is disabled...");
+                    disable_haptics();
+                    return true;
+                }
+
+                i = atoi(s);
+                if ((i > 0) && (i < 5)) {
+                    set_haptic(i);
+                } else {
+                    printline("Invalid argument: -haptic [0-4]");
+                    result = false;
+                }
+            }
             // Invert the Joystick HAT UP/DOWN
             else if (strcasecmp(s, "-tiphat") == 0) {
                 set_invert_hat(true);
@@ -730,6 +771,9 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
+            else if (strcasecmp(s, "-usbserial_rts_on") == 0) {
+                set_scoreboard_usb_rts(true);
+            }
             else if (strcasecmp(s, "-scorebezel") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
@@ -744,17 +788,15 @@ bool parse_cmd_line(int argc, char **argv)
             }
             else if (strcasecmp(s, "-scorebezel_scale") == 0 ||
                          strcasecmp(s, "-scorepanel_scale") == 0 ||
-                             strcasecmp(s, "-annunbezel_scale") == 0) {
-                bool annun = false;
+                             strcasecmp(s, "-auxbezel_scale") == 0) {
 
-                if (strcasecmp(s, "-annunbezel_scale") == 0)
-                    annun = true;
+                bool aux = (strcasecmp(s, "-auxbezel_scale") == 0);
 
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 if (i >= 1 && i <= 25) {
-                    if (annun)
-                        video::set_ace_annun_scale(i);
+                    if (aux)
+                        video::set_aux_bezel_scale(i);
                     else
                         video::set_score_bezel_scale(i);
                 } else {
@@ -763,18 +805,16 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             else if (strcasecmp(s, "-scorebezel_alpha") == 0 ||
-                         strcasecmp(s, "-annunbezel_alpha") == 0) {
+                         strcasecmp(s, "-auxbezel_alpha") == 0) {
 
-                bool annun = false;
-                if (strcasecmp(s, "-annunbezel_alpha") == 0)
-                    annun = true;
+                bool aux = (strcasecmp(s, "-auxbezel_alpha") == 0);
 
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
 
                 if (i >= 1 && i <= 2) {
-                    if (annun)
-                        video::set_annun_bezel_alpha((int8_t)i);
+                    if (aux)
+                        video::set_aux_bezel_alpha((int8_t)i);
                     else
                         video::set_score_bezel_alpha((int8_t)i);
                 } else {
@@ -796,36 +836,46 @@ bool parse_cmd_line(int argc, char **argv)
             }
             else if (strcasecmp(s, "-scorepanel_position") == 0 ||
                          strcasecmp(s, "-scorebezel_position") == 0 ||
-                            strcasecmp(s, "-annunbezel_position") == 0) {
+                            strcasecmp(s, "-auxbezel_position") == 0) {
                 const int vMax = 3840 + 1; // This should handle 4k
                 int xVal = 0;
                 int yVal = 0;
-                bool annun = false;
 
-                if (strcasecmp(s, "-annunbezel_position") == 0)
-                    annun = true;
+                bool aux =  (strcasecmp(s, "-auxbezel_position") == 0);
 
                 get_next_word(s, sizeof(s));
+                bool xn = (s[0] == '-') ? true : false;
+
                 if (strcasecmp(s, "0") == 0) xVal = 1;
-                else { xVal = atoi(s);
-                       if (xVal) xVal++;
+                else {
+                    xVal = atoi(xn ? s + 1 : s);
+                    if (xVal) xVal++;
                 }
 
                 get_next_word(s, sizeof(s));
+                bool yn = (s[0] == '-') ? true : false;
+
                 if (strcasecmp(s, "0") == 0) yVal = 1;
-                else { yVal = atoi(s);
-                       if (yVal) yVal++;
+                else {
+                    yVal = atoi(yn ? s + 1 : s);
+                    if (yVal) yVal++;
                 }
 
                 if ((xVal > 0) && (xVal <= vMax) && (yVal > 0) && (yVal <= vMax)) {
-                    if (annun)
-                        video::set_annun_bezel_position(xVal-1, yVal-1);
+
+                    if (aux)
+                        video::set_aux_bezel_position((xn ? -xVal+1 : xVal-1),
+                                                      (yn ? -yVal+1 : yVal-1));
                     else
-                        video::set_sb_window_position(xVal-1, yVal-1);
+                        video::set_sb_window_position((xn ? -xVal+1 : xVal-1),
+                                                      (yn ? -yVal+1 : yVal-1));
                 } else {
                     printerror("Positions requires x and y values");
                     result = false;
                 }
+            }
+            else if (strcasecmp(s, "-bezelflip") == 0) {
+                    video::set_bezel_reverse(false);
             }
             else if (strcasecmp(s, "-scorescreen") == 0) {
                 get_next_word(s, sizeof(s));
@@ -834,11 +884,13 @@ bool parse_cmd_line(int argc, char **argv)
                 if (i >= 2 && i <= 255)
                     video::set_score_screen(i);
             }
-            else if (strcasecmp(s, "-tq_keyboard") == 0) {
+            else if (strcasecmp(s, "-tq_keyboard") == 0 ||
+                         strcasecmp(s, "-tqkeys") == 0) {
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
                 if (game_thayers)
                     video::set_tq_keyboard(true);
+                else result = invalid_arg(s);
             }
             else if (strcasecmp(s, "-annunbezel") == 0 ||
                          strcasecmp(s, "-dedannunbezel") == 0 ||
@@ -846,13 +898,13 @@ bool parse_cmd_line(int argc, char **argv)
                 lair *game_ace = dynamic_cast<ace *>(g_game);
 
                 if (game_ace) {
-                    video::set_annun_bezel(true);
+                    video::set_aux_bezel(true);
                     enable_bannun(true);
                     if (strcasecmp(s, "-dedannunbezel") == 0)
                         video::set_ded_annun_bezel(true);
                     if (strcasecmp(s, "-annunlamps") == 0)
                         video::set_annun_lamponly(true);
-                }
+                } else result = invalid_arg(s);
             }
             // used to modify the dip switch settings of the game in question
             else if (strcasecmp(s, "-bank") == 0) {
@@ -864,8 +916,8 @@ bool parse_cmd_line(int argc, char **argv)
                 unsigned char value =
                     (unsigned char)(strtol(s, NULL, 2)); // value to be set is
                                                          // in base 2 (binary)
-
-                result = g_game->set_bank((unsigned char)i, (unsigned char)value);
+                if (result)
+                    result = g_game->set_bank((unsigned char)i, (unsigned char)value);
             }
             else if (strcasecmp(s, "-latency") == 0) {
                 get_next_word(s, sizeof(s));
@@ -931,8 +983,15 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("Enabling SDL_VULKAN");
                 if (video::get_opengl()) result = false;
             }
+            else if (strcasecmp(s, "-alwaysontop") == 0) {
+                video::set_forcetop(true);
+                printline("Setting WINDOW_ALWAYS_ON_TOP");
+            }
             else if (strcasecmp(s, "-novsync") == 0) {
                 video::set_vsync(false);
+            }
+            else if (strcasecmp(s, "-nosplash") == 0) {
+                video::set_intro(false);
             }
             else if (strcasecmp(s, "-force_aspect_ratio") == 0) {
                 printline("Forcing 4:3 aspect ratio.");
@@ -974,9 +1033,10 @@ bool parse_cmd_line(int argc, char **argv)
                 video::set_fakefullscreen(true);
                 video::set_fullscreen(false);
             }
-            // Capture mouse within SDL window
+            // Capture mouse within SDL window and enable manymouse
             else if (strcasecmp(s, "-grabmouse") == 0) {
                 video::set_grabmouse(true);
+                g_game->set_manymouse(true);
             }
             // Make manymouse a global argument
             else if (strcasecmp(s, "-manymouse") == 0) {
@@ -1012,7 +1072,11 @@ bool parse_cmd_line(int argc, char **argv)
                         string s3 = s1.substr(0, (iLen-4));
                         for (int i = 0; s3[i] != '\0'; i++) {
                             if (!isalnum(s3[i]) && s3[i] != int('-')
-                                && s3[i] != int('_') && s3[i] != int('/')) {
+                                && s3[i] != int('_') && s3[i] != int('/')
+#ifdef WIN32
+                                    && s3[i] != int('\\')
+#endif
+                                ) {
                                 loadbezel = false;
                             }
                         }
@@ -1042,22 +1106,20 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-scalefactor") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
-                if (i >= 50 && i <= 100) {
+                if (i >= 25 && i <= 100) {
                     snprintf(s, sizeof(s), "Scaling video by %d%%", i);
                     printline(s);
                     video::set_scalefactor((Uint16)i);
                 } else {
-                    printerror("Scaling values: 50 to 100");
+                    printerror("Scaling values: 25 to 100");
                     result = false;
                 }
             }
             else if ((strcasecmp(s, "-shiftx") == 0) ||
                        (strcasecmp(s, "-shifty") == 0)) {
 
-                bool x = false, f = false;
-
-                if (strcasecmp(s, "-shiftx") == 0)
-                    x = true;
+                bool f = false;
+                bool x = (strcasecmp(s, "-shiftx") == 0);
 
                 get_next_word(s, sizeof(s));
                 int iLen = strlen(s);
@@ -1127,12 +1189,14 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-x") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
+                if (i == 0) result = invalid_arg(s);
                 video::set_video_width((Uint16)i);
                 snprintf(s, sizeof(s), "Setting screen width to %d", i);
                 printline(s);
             } else if (strcasecmp(s, "-y") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
+                if (i == 0) result = invalid_arg(s);
                 video::set_video_height((Uint16)i);
                 snprintf(s, sizeof(s), "Setting screen height to %d", i);
                 printline(s);
@@ -1171,6 +1235,7 @@ bool parse_cmd_line(int argc, char **argv)
             // Use old style overlays (lair, ace, lair2 & tq)
             else if (strcasecmp(s, "-original_overlay") == 0) {
                 g_game->m_old_overlay = true;
+                video::set_sboverlay_white(true);
             }
             // this switch only supported by the ldp-vldp player class.
             else if (strcasecmp(s, "-useoverlaysb") == 0) {
@@ -1204,7 +1269,9 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-
+            else if (strcasecmp(s, "-sboverlaymono") == 0) {
+                video::set_sboverlay_white(true);
+            }
             // Playing Thayer's Quest, and don't want speech synthesis?
             else if (strcasecmp(s, "-nospeech") == 0) {
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
@@ -1243,7 +1310,7 @@ bool parse_cmd_line(int argc, char **argv)
             } else {
                 printerror("Unknown command line parameter or parameter value:");
                 printerror(s);
-                result = false;
+                return false;
             }
         } // end for
     }     // end if we know our game type

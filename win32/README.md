@@ -9,10 +9,10 @@
 Latest build is: (_32bit_ and _64bit_ versions are available.)
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.11.1
+    [version] Hypseus Singe: v2.11.2
     [console] Windows 10
-    [console] SDL(CC): 2.0.14
-    [console] SDL(LD): 2.0.16
+    [console] SDL(CC): 2.28.5
+    [console] SDL(LD): 2.28.5
 
 Windows executables linked with `-subsystem,windows` are also available to suppress *Command Prompt* popups.
 
@@ -29,7 +29,7 @@ Place *framefile* and *video* files in `vldp` or `singe` under the appropriate g
 
 ## Running games
 
-Example `.bat` files are provided in the repo. Run `hypseus.exe` with *Daphne* [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine):
+Example `.bat` files are provided in the repo. Run `hypseus.exe` with *Daphne* [arguments](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/CmdLine.md)
 
     hypseus.exe lair vldp -scorepanel -framefile vldp/lair/lair.txt
 

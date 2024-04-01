@@ -46,6 +46,10 @@ while [[ $# -gt 0 ]]; do
         LOG="-nolog"
         shift
         ;;
+      -rotate)
+        ROTATE="-rotate 90"
+        shift
+        ;;
       -scale)
         SCALE="-scalefactor 50"
         shift
@@ -81,17 +85,29 @@ if [ -z $1 ] ; then
 	exit 1
 fi
 
-if [ ! -f $HYPSEUS_SHARE/singe/$1/$1.singe ] || [ ! -f $HYPSEUS_SHARE/singe/$1/$1.txt ]; then
+ROMFILE="$HYPSEUS_SHARE/singe/$1/$1.singe"
+
+if [ ! -f $ROMFILE ]; then
         echo
-        echo "Missing file: $HYPSEUS_SHARE/singe/$1/$1.singe ?" | STDERR
-        echo "              $HYPSEUS_SHARE/singe/$1/$1.txt ?" | STDERR
+        echo "Missing: $HYPSEUS_SHARE/singe/$1/$1.singe" | STDERR
+        echo "Will attempt to load from Zip..."
         echo
-        exit 1
+        ROMFILE="$HYPSEUS_SHARE/roms/$1.zip"
+fi
+
+FRAMEFILE="$HYPSEUS_SHARE/singe/$1/$1.txt"
+
+if [ ! -f $FRAMEFILE ]; then
+        echo
+        echo "Missing: $HYPSEUS_SHARE/singe/$1/$1.txt" | STDERR
+        echo "Will attempt to load from vldp folder..."
+        echo
+        FRAMEFILE="$HYPSEUS_SHARE/vldp/$1/$1.txt"
 fi
 
 $HYPSEUS_BIN singe vldp \
--framefile $HYPSEUS_SHARE/singe/$1/$1.txt \
--script $HYPSEUS_SHARE/singe/$1/$1.singe \
+-framefile $FRAMEFILE \
+-script $ROMFILE \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
@@ -101,6 +117,7 @@ $BLEND \
 $GAMEPAD \
 $LOG \
 $OVERLAY \
+$ROTATE \
 $SCANLINES \
 $SCALE \
 $SILENTBOOT \

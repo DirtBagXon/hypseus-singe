@@ -33,6 +33,10 @@
 #define GPWORLD_VID_ADDRESS 0xd000
 #define GPWORLD_SPRITE_ADDRESS 0xc000
 
+#define GPWORLD_LSS 0x10
+#define GPWORLD_RSS 0x01
+#define GPWORLD_RST 0xA3
+
 // we really need 512, but 256 is the max we can use with an 8 bit palette
 #define GPWORLD_COLOR_COUNT 256
 
@@ -47,22 +51,15 @@
 #define SPR_GFXOFS_HI 7
 // END modified Mame code
 
-enum {
-    S_GP_ENGINE1,
-    S_GP_ENGINE2,
-    S_GP_CRASH,
-    S_GP_COUNT,
-    S_GP_START,
-    S_GP_COIN,
-    S_GP_DINK,
-    S_GP_TIRE,
-    S_GP_GEAR,
-    S_GP_REV
-};
-
 class gpworld : public game
 {
   public:
+
+    typedef enum {
+        S_GP_ENGINE1, S_GP_ENGINE2, S_GP_CRASH, S_GP_COUNT, S_GP_START,
+        S_GP_COIN, S_GP_DINK, S_GP_TIRE, S_GP_GEAR, S_GP_REV
+    } GPWorldSound;
+
     gpworld();
     void do_irq(unsigned int);                    // does an IRQ tick
     void do_nmi();                                // does an NMI tick
@@ -77,8 +74,10 @@ class gpworld : public game
     void repaint(); // function to repaint video
     virtual void write_ldp(Uint8, Uint16);
     virtual Uint8 read_ldp(Uint16);
+    void set_preset(int);
 
   protected:
+    void align();
     void recalc_palette();
     void draw_sprite(int);
     Uint8 rombank[0x8000];
@@ -91,8 +90,11 @@ class gpworld : public game
     bool palette_modified;     // has our palette been modified?
     Uint8 ldp_output_latch;    // holds data to be sent to the LDV1000
     Uint8 ldp_input_latch;     // holds data that was retrieved from the LDV1000
+    Uint8 lss;                 // steering sensitivity modifier (left)
+    Uint8 rss;                 // steering sensitivity modifier (right)
     Uint8 ign;
     bool nmie;
+    bool m_align;
     Uint8 banks[7];
 };
 

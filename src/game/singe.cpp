@@ -1,7 +1,7 @@
 /*
 * ____ DAPHNE COPYRIGHT NOTICE ____
 *
-* Copyright (C) 2006 Scott C. Duensing
+* Copyright (C) 2006 Scott C. Duensing, 2024 DirtBagXon
 *
 * This file is part of DAPHNE, a laserdisc arcade game emulator
 *
@@ -84,13 +84,12 @@ singe::singe() : m_pScoreboard(NULL)
     m_upgrade_overlay         = false;
     m_muteinit                = false;
     m_notarget                = false;
+    m_running                 = false;
 
-    singe_oc                  = false;
-    singe_ocv                 = false;
     singe_xratio              = 0.0;
     singe_yratio              = 0.0;
     singe_fvalue              = 0.0;
-    singe_alt_pressed         = false;
+    singe_trace               = false;
     singe_joymouse            = true;
 
     // by RDG2010
@@ -180,6 +179,7 @@ bool singe::init()
         g_SingeIn.cfm_get_overlaysize    = gfm_get_overlaysize;
         g_SingeIn.cfm_set_overlaysize    = gfm_set_overlaysize;
         g_SingeIn.cfm_set_custom_overlay = gfm_set_custom_overlay;
+        g_SingeIn.cfm_set_gamepad_rumble = gfm_set_gamepad_rumble;
 
         // Active bezel
         g_SingeIn.cfm_bezel_enable       = gfm_bezel_enable;
@@ -247,13 +247,14 @@ void singe::start()
     g_ldp->set_min_seek_delay(0);
 
     if (m_upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
+    if (singe_trace) g_pSingeOut->sep_enable_trace();
     if (m_muteinit) g_pSingeOut->sep_mute_vldp_init();
     if (m_notarget) g_pSingeOut->sep_no_crosshair();
-    if (singe_oc) g_pSingeOut->sep_alter_lua_clock(singe_ocv);
 
     // if singe didn't get an error during startup...
     if (!get_quitflag()) {
 
+        m_running = true;
         while (!get_quitflag()) {
             g_pSingeOut->sep_call_lua("onOverlayUpdate", ">i", &intReturn);
             if (intReturn == 1) {
@@ -280,6 +281,7 @@ void singe::start()
             g_ldp->think_delay(10);         // don't hog cpu, and advance timer
         }
 
+        m_running = false;
         g_pSingeOut->sep_call_lua("onShutdown", "");
     } // end if there was no startup error
 
@@ -397,7 +399,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         m_upgrade_overlay = bInit = true;
     }
 
-    if (strcasecmp(arg, "-script") == 0) {
+    if (strcasecmp(arg, "-script") == 0 || strcasecmp(arg, "-zlua") == 0) {
         get_next_word(s, sizeof(s));
 
         if (mpo_file_exists(s)) {
@@ -405,11 +407,11 @@ bool singe::handle_cmdline_arg(const char *arg)
                 bResult = scriptLoaded = true;
                 m_strGameScript = s;
             } else {
-                printerror("Only one game script may be loaded at a time!");
+                printerror("Only one game script or zip may be loaded at a time!");
                 bResult = false;
             }
         } else {
-            string strErrMsg = "Script ";
+            string strErrMsg = "Game Data file: ";
             strErrMsg += s;
             strErrMsg += " does not exist.";
             printerror(strErrMsg.c_str());
@@ -427,25 +429,9 @@ bool singe::handle_cmdline_arg(const char *arg)
         m_muteinit = true;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-overclock") == 0) {
-        singe_oc = singe_ocv = true;
-        bResult = true;
-    }
-    else if (strcasecmp(arg, "-underclock") == 0) {
-        singe_oc = true;
-        singe_ocv = false;
-        bResult = true;
-    }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
         game::set_32bit_overlay(false);
         m_upgrade_overlay = false;
-        bResult = true;
-    }
-    else if (strcasecmp(arg, "-set_overlay") == 0
-                || strcasecmp(arg, "-oversize_overlay") == 0) {
-
-        if (strcasecmp(arg, "-set_overlay") == 0) get_next_word(s, sizeof(s));
-        printline("NOTE : Overlay arguments are now obsolete");
         bResult = true;
     }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {
@@ -508,6 +494,9 @@ bool singe::handle_cmdline_arg(const char *arg)
         printline("Disabling Singe Joystick mouse actions...");
         singe_joymouse = false;
         bResult = true;
+    }
+    else if (strcasecmp(arg, "-enable_trace") == 0) {
+        singe_trace = bResult = true;
     }
     else if (strcasecmp(arg, "-js_range") == 0) {
         get_next_word(s, sizeof(s));
@@ -738,6 +727,11 @@ void singe::set_custom_overlay(uint16_t w, uint16_t h)
     m_custom_overlay_h = h;
 }
 
+void singe::set_gamepad_rumble(uint8_t s, uint8_t l)
+{
+    do_gamepad_rumble(s, l);
+}
+
 int singe::get_keyboard_mode() { return i_keyboard_mode; }
 
 double singe::get_singe_version()
@@ -769,6 +763,7 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
      *
      * */
 
+    if (m_running) g_pSingeOut->sep_keyboard_set_state(key, true);
     if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
     { // traverse the keydef array for mapped keys.
         for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
@@ -788,7 +783,7 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
         else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
             input_enable(key, NOMOUSE);
         // arrow keys and insert, delete, home, end, pgup, pgdown
-        else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
+        else if (key >= SDLK_INSERT && key <= SDLK_UP)
             input_enable(key, NOMOUSE);
         // function keys
         else if (key >= SDLK_F1 && key <= SDLK_F15)
@@ -817,17 +812,16 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
 
     } // endif
 
-    // check for ALT-COMMANDS here
-    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
-        singe_alt_pressed = true;
-    }
-
-    if (singe_alt_pressed) {
-        if (key == SDLK_RETURN) video::vid_toggle_fullscreen();
-        else if (key == SDLK_BACKSPACE) video::vid_toggle_scanlines();
+    if (alt_commands) {
+        input_toolbox(key, alt_lastkey, false);
+        alt_lastkey = key;
     }
     // end ALT-COMMAND checks
 
+    // check for ALT-COMMANDS but not this pass
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+        alt_commands = true;
+    }
 }
 
 // this is called when the user releases a key
@@ -841,6 +835,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
      *
      * */
 
+    if (m_running) g_pSingeOut->sep_keyboard_set_state(key, false);
     if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
     { // traverse the keydef array for mapped keys.
 
@@ -851,7 +846,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
 
         } else if (key == keydefs[SWITCH_QUIT][0] || key == keydefs[SWITCH_QUIT][1]) {
 
-            set_quitflag();
+            if (m_running) set_quitflag();
 
         } else if (key == keydefs[SWITCH_SCREENSHOT][0]) {
 
@@ -872,7 +867,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     } else { // Using full keyboard access....
 
         // Hardwire ESCAPE key to quit
-        if (key == SDLK_ESCAPE) set_quitflag();
+        if (key == SDLK_ESCAPE && m_running) set_quitflag();
         // letter keys
         else if (key >= SDLK_a && key <= SDLK_z)
             input_disable(key, NOMOUSE);
@@ -884,7 +879,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
         else if (key >= SDLK_KP_0 && key <= SDLK_KP_EQUALS)
             input_disable(key, NOMOUSE);
         // arrow keys and insert, delete, home, end, pgup, pgdown
-        else if (key >= SDLK_UP && key <= SDLK_PAGEDOWN)
+        else if (key >= SDLK_INSERT && key <= SDLK_UP)
             input_disable(key, NOMOUSE);
         // function keys
         else if (key >= SDLK_F1 && key <= SDLK_F15)
@@ -913,7 +908,13 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
 
     // if they are releasing an ALT key
     if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
-        singe_alt_pressed = false;
+        alt_commands = false;
     }
 
+    if (alt_commands) alt_lastkey = SDLK_UNKNOWN;
+}
+
+void singe::ControllerAxisProxy(Uint8 axis, Sint16 value)
+{
+    if (m_running) g_pSingeOut->sep_controller_set_axis(axis, value);
 }

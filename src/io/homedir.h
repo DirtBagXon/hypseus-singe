@@ -23,6 +23,7 @@ class homedir
     string get_romfile(const string &s);
     string get_ramfile(const string &s);
     string get_framefile(const string &s);
+    void create_dirs(const string &s);
 
     // Searches homedir for a filename indicated by 'fileName' and if it doesn't
     // find it,

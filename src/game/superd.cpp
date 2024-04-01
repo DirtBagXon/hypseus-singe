@@ -293,8 +293,6 @@ void superd::cpu_mem_write(Uint16 Addr, Uint8 Value)
 void superd::port_write(Uint16 Port, Uint8 Value)
 // Called whenever the emulator wants to output to a port
 {
-
-    char s[81]                   = {0};
     static int snd_succeed_count = 0; // a cheat to make sure we only play the
                                       // succeed sample once
     static int snd_coin_count = 0; // a cheat to make sure we only play the coin
@@ -407,9 +405,8 @@ void superd::port_write(Uint16 Port, Uint8 Value)
         break;
 
     default:
-        snprintf(s, sizeof(s), "SUPERDON: Unsupported Port Output-> %x:%x (PC is %x)", Port,
+        LOGI << fmt("SUPERDON: Unsupported Port Output-> %x:%x (PC is %x)", Port,
                 Value, Z80_GET_PC);
-        printline(s);
         break;
     }
 }
@@ -417,8 +414,6 @@ void superd::port_write(Uint16 Port, Uint8 Value)
 Uint8 superd::port_read(Uint16 Port)
 // Called whenever the emulator wants to read from a port
 {
-
-    char s[81]           = {0};
     unsigned char result = 0;
 
     Port &= 0xFF; // strip off high byte
@@ -446,8 +441,7 @@ Uint8 superd::port_read(Uint16 Port)
         break;
 
     default:
-        snprintf(s, sizeof(s), "SUPERD: Unsupported Port Input-> %x (PC is %x)", Port, Z80_GET_PC);
-        printline(s);
+        LOGI << fmt("SUPERD: Unsupported Port Input-> %x (PC is %x)", Port, Z80_GET_PC);
         break;
     }
 

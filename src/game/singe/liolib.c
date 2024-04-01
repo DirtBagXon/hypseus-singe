@@ -203,20 +203,30 @@ static int g_iofile (lua_State *L, int f, const char *mode) {
     const char *filename = lua_tostring(L, 1);
     if (filename) {
       FILE **pf = newfile(L);
-      *pf = fopen(filename, mode);
 
-      if (*pf == NULL) {
+      if (get_zipath()) {
+        int len = strlen(filename);
+        char ramname[RETRO_MAXPATH] = {0};
+        if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+        lua_rampath(filename, ramname, len);
+        *pf = fopen(ramname, mode);
+        if (*pf == NULL) fileerror(L, 1, ramname);
+
+      } else {
+
+        *pf = fopen(filename, mode);
+        if (*pf == NULL) {
           if (get_retropath()) {
               int len = strlen(filename) + RETRO_PAD;
-              char retroname[RETRO_MAXPATH];
+              char retroname[RETRO_MAXPATH] = {0};
               if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
               lua_retropath(filename, retroname, len);
               *pf = fopen(retroname, mode);
               if (*pf == NULL) fileerror(L, 1, retroname);
           }
           else fileerror(L, 1, filename);
+        }
       }
-
     }
     else {
       tofile(L);  /* check that it's a valid file handle */

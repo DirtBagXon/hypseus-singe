@@ -39,9 +39,7 @@
 
 #ifdef WIN32
 #include <windows.h>
-//#include <strmif.h>
-//#include <control.h>
-//#include <uuids.h>
+#include <VersionHelpers.h>
 #endif
 
 #ifdef LINUX
@@ -315,46 +313,16 @@ char *get_os_description()
 #endif
 
 #ifdef WIN32
-    OSVERSIONINFO info;
-    memset(&info, 0, sizeof(OSVERSIONINFO));
-    info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    GetVersionEx(&info);
-    switch (info.dwPlatformId) {
-    case VER_PLATFORM_WIN32_WINDOWS:
-        switch (info.dwMinorVersion) {
-        case 0:
-            strcpy(result, "Windows 95");
-            break;
-        case 10:
-            strcpy(result, "Windows 98");
-            break;
-        case 90:
-            strcpy(result, "Windows ME");
-            break;
-        default:
-            strcpy(result, "Windows 95 Derivative");
-            break;
-        }
-        break;
-    case VER_PLATFORM_WIN32_NT:
-        switch (info.dwMajorVersion) {
-        case 10:
-            strcpy(result, "Windows 10");
-            break;
-        case 6:
-            strcpy(result, "Windows 7/8");
-            break;
-        case 5:
-            strcpy(result, "Windows XP/2000");
-            break;
-        default:
-            strcpy(result, "Windows NT Derivative");
-            break;
-        }
-        break;
-    default:
-        strcpy(result, "Unknown Windows");
-        break;
+    strcpy(result, "Unknown Windows");
+
+    if (IsWindows10OrGreater()) {
+        strcpy(result, "Windows 10/11");
+    } else if (IsWindows7OrGreater()) {
+        strcpy(result, "Windows 7/8");
+    } else if (IsWindowsVistaOrGreater()) {
+        strcpy(result, "Windows Vista");
+    } else if (IsWindowsXPOrGreater()) {
+        strcpy(result, "Windows XP/2000");
     }
 #endif
 

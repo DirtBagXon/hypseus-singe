@@ -4,6 +4,7 @@ set( LIB_SOURCES
     SDL_FontCache.c
     led.cpp
     palette.cpp
+    splash.cpp
     rgb2yuv.cpp
     rgb2yuv-gas.s
 )
@@ -15,6 +16,7 @@ set( LIB_HEADERS
     SDL_FontCache.h
     tms9128nl.h
     video.h
+    splash.h
     yuv2rgb_lookup.h
 )
 

@@ -1,19 +1,43 @@
 Hypseus API functions
 ---------------------
-ratioGetX,              sep_get_xratio
-ratioGetY,              sep_get_yratio
-setOverlaySize,         sep_set_overlaysize
-setOverlayResolution,   sep_set_custom_overlay
-getFValue,              sep_get_fvalue
+ratioGetX,              sep_get_xratio             (return float)
+ratioGetY,              sep_get_yratio             (return float)
+setOverlaySize,         sep_set_overlaysize        (int)
+setOverlayResolution,   sep_set_custom_overlay     (int, int)
+getFValue,              sep_get_fvalue             (return double)
 takeScreenshot,         sep_screenshot
 
-scoreBezelEnable,       sep_bezel_enable         (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
-scoreBezelClear,        sep_bezel_clear          (void)
-scoreBezelCredits,      sep_bezel_credits        (credits)
-scoreBezelTwinScoreOn,  sep_bezel_second_score   (bool)
-scoreBezelScore,        sep_bezel_player_score   (player, score)
-scoreBezelLives,        sep_bezel_player_lives   (player, lives)
-scoreBezelGetState,     sep_bezel_is_enabled     (void)
+scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
+scoreBezelClear,        sep_bezel_clear            (void)
+scoreBezelCredits,      sep_bezel_credits          (credits)
+scoreBezelTwinScoreOn,  sep_bezel_second_score     (return bool)
+scoreBezelScore,        sep_bezel_player_score     (player, score)
+scoreBezelLives,        sep_bezel_player_lives     (player, lives)
+scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
+
+spriteDrawFrame,        sep_sprite_animate         (x, y, [scale], frame, spr)
+spriteDrawRotatedFrame, sep_sprite_animate_rotated (x, y, [scale], spr)
+spriteFrameHeight,      sep_sprite_height          (spr)
+spriteFrameWidth,       sep_frame_width            (spr)
+spriteGetFrames,        sep_sprite_frames          (spr) -- (0 = no animation)
+spriteLoadFrames,       sep_sprite_loadframes      (no of frames, png)
+spriteResetColorKey,    sep_sprite_color_rekey     (bool, spr) -- Following GFX operations
+spriteRotateFrame,      sep_sprite_rotateframe     (rotation, frame, spr)
+
+spriteAnimGetFrame,     sep_sprite_get_frame       (spr)
+spriteAnimIsPlaying,    sep_sprite_playing         (return bool)
+spriteAnimLoop,         sep_sprite_loop            (bool, spr)
+spriteAnimPause,        sep_sprite_pause           (spr)
+spriteAnimPlay,         sep_sprite_play            (spr)
+spriteSetAnimFrame,     sep_sprite_set_frame       (frame, spr)
+
+spriteRotate,           sep_sprite_rotate          (rotation, spr)
+spriteRotateAndScale,   sep_sprite_rotatescale     (rotation, scale, [scaley], spr)
+spriteQuality,          sep_sprite_quality         (bool, spr)
+spriteScale,            sep_sprite_scale           (scale, [scaley], spr)
+
+controllerDoRumble,     sep_controller_rumble      (strength, duration) -- Values:[1-4]
+controllerGetButton     sep_controller_button      (ctrl, button, bool[framework adjust])
 
 
 Singe 1 API functions
@@ -99,6 +123,10 @@ fontSelect,           apiFontSelect
 fontToSprite,         apiFontToSprite
 fontUnload,           apiFontUnload
 keyboardGetMode,      apiKeyboardGetMode
+keyboardGetModifiers, apiKeyboardGetModifiers
+keyboardGetLastDown,  apiKeyboardGetLastDown
+keyboardGetLastUp,    apiKeyboardGetLastUp
+keyboardIsDown,       apiKeyboardIsDown
 keyboardSetMode,      apiKeyboardSetMode
 mouseEnable,          apiMouseEnable
 mouseDisable,         apiMouseDisable

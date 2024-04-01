@@ -34,7 +34,7 @@ Features:
 ## Compile
 
 Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
-[libtool], [vorbis] and [ogg].
+[libtool], [libzip], [vorbis] and [ogg].
 
 ### MacOS X
 
@@ -154,7 +154,7 @@ Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
 ## Bezels
 
-Bezel arguments are documented in: [bezels.txt](doc/bezels.txt)
+Bezel arguments are documented in: [Bezels.md](doc/Bezels.md)
 
 ## Hardware USB Scoreboard
 
@@ -217,7 +217,7 @@ The following additional, and reimplemented, arguments have been added to Hypseu
     -linear_scale              [ Enable linear filtering when scaling          ]
     -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
     -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
-    -scalefactor <50-100>      [ Scale video display area [50-100]%            ]
+    -scalefactor <25-100>      [ Scale video display area [25-100]%            ]
     -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
     -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
     -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
@@ -291,7 +291,7 @@ project would not be possible.
 ## License
 
 **Hypseus Singe**, Being Retro Orientated This Humble Emulator Regenerates  
-Copyright (C) 2021-2023  [DirtBagXon][owner]
+Copyright (C) 2021-2024  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]
@@ -325,6 +325,7 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [CUS]: http://www.daphne-emu.com/site3/statement.php
 [gcc]: https://gcc.gnu.org/
 [zlib]: http://www.zlib.net/
+[libzip]: https://libzip.org/
 [libmpeg2]: http://libmpeg2.sourceforge.net/
 [SDL2]: https://www.libsdl.org/download-2.0.php
 [SDL_Image]: https://www.libsdl.org/projects/SDL_image/

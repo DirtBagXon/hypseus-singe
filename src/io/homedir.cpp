@@ -99,3 +99,17 @@ string homedir::find_file(string fileName, bool bFallback)
 
     return result;
 }
+
+void homedir::create_dirs(const string &s) {
+
+    size_t dir = s.find_last_of("/");
+    string p = s.substr(0, ++dir);
+
+    for (size_t i = 0; i < p.length(); i++) {
+        if (p[i] == '/') {
+            string sub = p.substr(0, i);
+            if (!mpo_file_exists(sub.c_str()))
+                make_dir(m_homedir + "/" + sub);
+        }
+    }
+}

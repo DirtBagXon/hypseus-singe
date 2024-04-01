@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <sys/select.h>
 
 /* 32 is good enough for now. */
 #define MAX_MICE 32

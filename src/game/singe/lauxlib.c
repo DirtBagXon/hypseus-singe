@@ -23,6 +23,7 @@
 #include "lua.h"
 
 #include "lauxlib.h"
+#include "luretro.h"
 
 
 #define FREELIST_REF	0	/* free list of references */
@@ -548,13 +549,22 @@ static int errfile (lua_State *L, const char *what, int fnameindex) {
   return LUA_ERRFILE;
 }
 
+static int rerrfile (lua_State *L, const char *what, const char *file, int fnameindex) {
+  const char *serr = strerror(errno);
+  lua_pushfstring(L, "cannot %s %s: %s", what, file, serr);
+  lua_remove(L, fnameindex);
+  return LUA_ERRFILE;
+}
 
 LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   LoadF lf;
   int status, readstatus;
   int c;
+  int len = strlen(filename) + RETRO_PAD;
   int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
+  char retroname[RETRO_MAXPATH] = {0};
   lf.extraline = 0;
+  if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
   if (filename == NULL) {
     lua_pushliteral(L, "=stdin");
     lf.f = stdin;
@@ -562,7 +572,14 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   else {
     lua_pushfstring(L, "@%s", filename);
     lf.f = fopen(filename, "r");
-    if (lf.f == NULL) return errfile(L, "open", fnameindex);
+    if (lf.f == NULL) {
+      if (get_retropath()) {
+        lua_retropath(filename, retroname, len);
+        lf.f = fopen(retroname, "r");
+        if (lf.f == NULL) return rerrfile(L, "open", retroname, fnameindex);
+      }
+      else return errfile(L, "open", fnameindex);
+    }
   }
   c = getc(lf.f);
   if (c == '#') {  /* Unix exec. file? */
@@ -572,7 +589,13 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   }
   if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
     lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
-    if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
+    if (lf.f == NULL) {
+      if (get_retropath()) {
+        lf.f = fopen(retroname, "rb");
+        if (lf.f == NULL) return rerrfile(L, "reopen", retroname, fnameindex);
+      }
+      else return errfile(L, "reopen", fnameindex);
+    }
     /* skip eventual `#!...' */
     while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]);
     lf.extraline = 0;

@@ -51,7 +51,7 @@ jobs:
       run: |
         ShortSHA=$(git rev-parse --short ${{ github.sha }})
         echo "COMMIT_SHORT_SHA=$ShortSHA" >> $GITHUB_ENV
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: hypseus-singe-${{ env.COMMIT_SHORT_SHA }}
         path: hypseus-singe.tgz

@@ -19,8 +19,7 @@ void OverlayScoreboard::Invalidate()
 
 bool OverlayScoreboard::RepaintIfNeeded()
 {
-	if (get_scoreboard() & 0x01) m_bVisible = false;
-	if (get_scoreboard() & 0x02) m_bVisible = false;
+	if (get_scoreboard() & 0x03) m_bVisible = false;
 
 	bool bRepainted = false;
 	if (m_bNeedsRepaint)
@@ -62,9 +61,9 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			{
 				// Thayer's Quest only uses "Credits" portion of the DL/SA // scoreboard.
                                 if (video::use_old_font())
-                                   video::draw_string("Time", pSurface->w / 12 - 2, 0, pSurface);
+                                   video::draw_string("Time", (pSurface->w / 12) - 2, 0, pSurface);
                                 else
-                                   video::draw_string("Time", pSurface->w / 12 + 3, 1, pSurface);
+                                   video::draw_string("Time", (pSurface->w / 12) + 4, 1, pSurface);
 			}
 
 			// Update Credits
@@ -108,11 +107,11 @@ void OverlayScoreboard::update_credits(SDL_Surface *pSurface)
 	// need to shift a bit to look exactly centered
 	if (m_bThayers)
 	{
-		fudge = (pSurface->w == 360 ? 4 : 3);
+		fudge = (video::use_old_font() ? 3 : -1);
 	}
 	else
 	{
-		fudge = (pSurface->w == 360 ? 2 : 0);
+		fudge = (video::use_old_font() ? 1 : -1);
 	}
 
 	video::draw_overlay_leds(m_DigitValues + this->CREDITS1_0, 2,

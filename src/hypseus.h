@@ -59,6 +59,7 @@ void set_scoreboard(unsigned char value);
 void set_scoreboard_usb_port(unsigned char value);
 void set_scoreboard_usb_impl(unsigned char value);
 void set_scoreboard_usb_baud(unsigned int value);
+void set_scoreboard_usb_rts(bool value);
 unsigned char get_scoreboard();
 void set_scoreboard_port(unsigned int value);
 unsigned int get_scoreboard_port();
@@ -75,6 +76,7 @@ unsigned char get_startsilent();
 unsigned char get_usb_port();
 unsigned char get_usb_impl();
 unsigned int get_usb_baud();
+bool get_usb_rts();
 
 // added by MAC for -nolog
 void set_log_was_disabled(bool value);

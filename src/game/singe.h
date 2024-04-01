@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.82 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.88 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -85,6 +85,7 @@ class singe : public game
     void input_enable(Uint8, Sint8);
     void input_disable(Uint8, Sint8);
     void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
+    void ControllerAxisProxy(Uint8 a, Sint16 v);
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();
     void repaint();
@@ -215,6 +216,12 @@ class singe : public game
         pSingeInstance->set_custom_overlay(w, h);
     }
 
+    static void gfm_set_gamepad_rumble(void *pInstance, uint8_t s, uint8_t l)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->set_gamepad_rumble(s, l);
+    }
+
     static void gfm_bezel_enable(void *pInstance, bool bEnable)
     {
         singe *pSingeInstance = (singe *)pInstance;
@@ -309,6 +316,7 @@ class singe : public game
 
     void set_overlaysize(uint8_t);
     void set_custom_overlay(uint16_t, uint16_t);
+    void set_gamepad_rumble(uint8_t, uint8_t);
 
     uint8_t get_overlaysize();
 
@@ -329,12 +337,11 @@ class singe : public game
 
     bool m_bezel_scoreboard;
     bool m_upgrade_overlay;
-    bool singe_alt_pressed;
     bool singe_joymouse;
+    bool singe_trace;
     bool m_muteinit;
     bool m_notarget;
-    bool singe_ocv;
-    bool singe_oc;
+    bool m_running;
 
     IScoreboard *m_pScoreboard;
 

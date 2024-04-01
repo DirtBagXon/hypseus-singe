@@ -52,6 +52,7 @@ unsigned char startsilent = 0;
 unsigned char scoreboard_usb_port = 0;
 unsigned char scoreboard_usb_impl = 0;
 unsigned int scoreboard_usb_baud = 300;
+bool scoreboard_usb_rts = false;
 
 bool log_was_disabled = false; // added by MAC for -nolog
 

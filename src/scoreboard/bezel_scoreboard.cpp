@@ -82,7 +82,7 @@ bool BezelScoreboard::RepaintIfNeeded()
 			}
 
 			uValue = m_DigitValues[which];
-			video::draw_led(uValue, coord_x, coord_y);
+			video::draw_led(uValue, coord_x, coord_y, 0xf);
 		}
 
 		bRepainted = true;

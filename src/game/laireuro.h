@@ -30,6 +30,7 @@
 #define LAIREURO_OVERLAY_W 360 // width of overlay
 #define LAIREURO_OVERLAY_H 288 // height of overlay
 #define LAIREURO_COLOR_COUNT 9 // 8 colors total plus a "transparent" color
+#define LAIREURO_SPLASH 0x05
 
 // we need our own callback since laireuro uses IM2
 Sint32 laireuro_irq_callback(int);
@@ -85,9 +86,11 @@ class laireuro : public game
     void palette_calculate();
     void repaint();
     void set_version(int);
+    void set_preset(int);
     bool set_bank(Uint8, Uint8);
 
   protected:
+    bool m_splash;
     Uint8 m_wt_misc;
     Uint8 m_character[0x2000];
     SDL_Color m_colors[LAIREURO_COLOR_COUNT];

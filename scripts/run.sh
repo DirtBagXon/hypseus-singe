@@ -76,7 +76,7 @@ if [ -z "$1" ] ; then
     echo
     echo  -e "$0 [-fullscreen] [-blanking] [-gamepad] [-linear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
-    for game in ace astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
+    for game in ace aceeuro ace91 astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair laireuro lair_ita lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -108,6 +108,9 @@ case "$1" in
 	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00000001 -bank 0 00000010"
+	;;
+    aceeuro|ace91)
+	VLDP_DIR="vldp_dl"
 	;;
     astron)
 	VLDP_DIR="vldp"
@@ -144,7 +147,6 @@ case "$1" in
     cobraconv)
 	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
-	BANKS="-bank 1 01000001"
 	;;
     cobram3)
 	VLDP_DIR="vldp"
@@ -156,7 +158,7 @@ case "$1" in
 	FASTBOOT="-fastboot"
 
 	if [ "$PROTOTYPE" ]; then
-		BANKS="-bank 1 10110111 -bank 0 11011000"
+		BANKS="-bank 1 10100111 -bank 0 11011000"
 	else
 		BANKS="-bank 1 00110111 -bank 0 11011000"
 	fi
@@ -191,12 +193,14 @@ case "$1" in
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00110111 -bank 0 10011001"
 	;;
+    laireuro|lair_ita)
+	VLDP_DIR="vldp_dl"
+	;;
     lair2)
 	VLDP_DIR="vldp_dl"
 	;;
     roadblaster)
 	VLDP_DIR="vldp"
-	BANKS="-bank 1 00000001"
 	;;
     sae)
 	VLDP_DIR="vldp_dl"

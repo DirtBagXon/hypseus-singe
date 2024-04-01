@@ -20,7 +20,7 @@ IScoreboard *ScoreboardFactory::GetInstance(ScoreboardType type,
 		pRes = NullScoreboard::GetInstance();
 		break;
 	case IMAGE:
-		pRes = ImgScoreboard::GetInstance();
+		pRes = ImgScoreboard::GetInstance(bThayers);
 		break;
 	case OVERLAY:
 		pRes = OverlayScoreboard::GetInstance(pFuncGetActiveOverlay, bThayers);

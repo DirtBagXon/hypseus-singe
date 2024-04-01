@@ -60,7 +60,7 @@ jobs:
         echo "Categories=Game;Emulator;" >> AppDir/hypseus.desktop
         echo "Name=Hypseus Singe" >> AppDir/hypseus.desktop
         echo "GenericName=Arcade LaserDisc Emulator" >> AppDir/hypseus.desktop
-        echo "Keywords=emulator;hyspeus;singe;daphne;laserdisc" >> AppDir/hypseus.desktop
+        echo "Keywords=emulator;hypseus;singe;daphne;laserdisc" >> AppDir/hypseus.desktop
         curl -s -SL https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage -o linuxdeploy
         curl -s -SL https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -o AppImageTool
         chmod +x linuxdeploy AppImageTool
@@ -101,7 +101,7 @@ jobs:
         echo "KEY_TILT = SDLK_t 0 0" >> hypseus-singe/hypinput.ini
         echo "END" >> hypseus-singe/hypinput.ini
         tar -zcvf ../hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz hypseus-singe
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: hypseus-singe-AppImage-${{ env.COMMIT_SHORT_SHA }}
         path: hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz

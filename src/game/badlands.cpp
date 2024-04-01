@@ -470,7 +470,7 @@ void badlands::repaint()
     }
 
     if (shoot_led)
-        video::draw_shoot(294, 215, m_video_overlay[m_active_video_overlay]);
+        video::draw_shoot(0x126, 0xd7, m_video_overlay[m_active_video_overlay]);
 }
 
 // this gets called when the user presses a key or moves the joystick
@@ -554,7 +554,7 @@ bool badlands::set_bank(unsigned char which_bank, unsigned char value)
         banks[2] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }

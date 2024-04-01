@@ -24,6 +24,7 @@ static const luaL_Reg lualibs[] = {
   {LUA_MATHLIBNAME, luaopen_math},
   {LUA_DBLIBNAME, luaopen_debug},
   {LUA_LOADLFSNAME, luaopen_lfs},
+  {LUA_LOAD232NAME, luaopen_luars232},
   {LUA_RNDLIBNAME, luaopen_random},  // by RDG2010
   {NULL, NULL}
 };

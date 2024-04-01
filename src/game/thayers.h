@@ -29,9 +29,22 @@
 
 #define THAYERS_CPU_HZ 4000000 // speed of cpu
 
+#define KMATRIX 1000.0f
+
 class thayers : public game
 {
   public:
+
+    typedef enum {
+        TQ_ONE, TQ_TWO, TQ_THREE, TQ_FOUR, TQ_COIN1, TQ_COIN2,
+        TQ_YES, TQ_ITEMS, TQ_DROP, TQ_GIVE, TQ_REPLAY,
+        TQ_COMBINE, TQ_SAVE, TQ_UPDATE, TQ_HINT, TQ_NO,
+        TQ_A, TQ_B, TQ_C, TQ_D, TQ_E, TQ_F, TQ_G, TQ_H,
+        TQ_I, TQ_J, TQ_K, TQ_L, TQ_M, TQ_N, TQ_O, TQ_P,
+        TQ_Q, TQ_R, TQ_S, TQ_T, TQ_U, TQ_V, TQ_W, TQ_X,
+        TQ_Y, TQ_Z, TQ_EMPTY
+    } KeyMapType;
+
     thayers();
     bool init();
     void shutdown();
@@ -45,9 +58,12 @@ class thayers : public game
     void port_write(Uint16 port, Uint8 value);    // write to a port
     void process_keydown(SDL_Keycode);
     void process_keyup(SDL_Keycode);
+    void input_enable(Uint8, Sint8);              // for keyboard bezel
+    void input_disable(Uint8, Sint8);
     bool set_bank(unsigned char, unsigned char);
     void palette_calculate();
     void repaint();
+    void set_preset(int);
     void init_overlay_scoreboard();
     void write_scoreboard(Uint8, Uint8, int); // function to decode scoreboard
                                               // data
@@ -60,6 +76,7 @@ class thayers : public game
     unsigned char thayers_read_g_port(void);  // Read to G I/O port
     void thayers_write_so_bit(unsigned char); // Write to SO
     unsigned char thayers_read_si_bit(void);  // Read to SI
+    void OnMouseMotion(Uint16, Uint16, Sint16, Sint16, Sint8);
 
     // To turn off speech synthesis (only called from cmdline.cpp)
     void no_speech();
@@ -85,17 +102,44 @@ class thayers : public game
     // Overlay text control stuff.
     bool m_use_overlay_scoreboard;
     bool m_show_speech_subtitle;
-    int m_message_timer;
+    bool m_show_timerboard;
+    bool m_show_startup;
 
     // Text-to-speech related vars/methods.
     bool m_use_speech;
     void speech_buffer_cleanup(char *src, char *dst, int len);
+
+    // Keyboard
+    Uint16 m_axis_x;
+    Uint16 m_axis_y;
+    SDL_Cursor* g_cursor;
+    Uint16 get_keymap(Uint16, Uint16);
+    SDL_Keycode get_keycode(int value);
+    SDL_Rect m_keyrect = { 0, 0, 0, 0 };
 
     // pointer to our scoreboard interface
     IScoreboard *m_pScoreboard;
 
     // whether overlay scoreboard is visible or not
     bool m_bScoreboardVisibility;
+
+    const int m_tq_keys[TQ_EMPTY][4] =
+    {
+        { 16,  52,  95, 462}, { 16, 548,  95, 955}, {900,  52, 982, 462},
+        {900, 548, 982, 955}, {125, 825, 205, 970}, {795, 825, 875, 970},
+        {120,  52, 185, 290}, {195,  52, 265, 290}, {275,  52, 340, 290},
+        {350,  52, 415, 290}, {425,  52, 495, 290}, {505,  52, 570, 290},
+        {580,  52, 645, 290}, {655,  52, 725, 290}, {735,  52, 800, 290},
+        {810,  52, 880, 290}, {155, 585, 225, 765}, {540, 790, 610, 975},
+        {390, 790, 455, 975}, {310, 585, 380, 765}, {275, 380, 340, 560},
+        {390, 585, 455, 765}, {465, 585, 530, 765}, {540, 585, 610, 765},
+        {655, 380, 725, 560}, {620, 585, 690, 765}, {700, 585, 765, 765},
+        {775, 585, 845, 765}, {700, 790, 765, 975}, {620, 790, 690, 975},
+        {735, 380, 800, 560}, {810, 380, 880, 560}, {120, 380, 185, 560},
+        {350, 380, 415, 560}, {235, 585, 300, 765}, {425, 380, 495, 560},
+        {580, 380, 645, 560}, {465, 790, 530, 975}, {195, 380, 265, 560},
+        {310, 790, 380, 975}, {505, 380, 570, 560}, {235, 790, 300, 975}
+    };
 };
 
 #endif // THAYERS_H

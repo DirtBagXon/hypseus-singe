@@ -80,11 +80,10 @@ gpworld::gpworld()
     cpu.mem = m_cpumem;
     cpu::add(&cpu); // add a z80
 
-    m_video_row_offset = 0; // shift video up by 16 pixels (8 rows)
-
     m_transparent_color = 0;
     ldp_output_latch    = 0xff;
     nmie                = false;
+    m_align             = false;
 
     m_num_sounds = 10;
     // With the lack of any hardware reference....
@@ -265,37 +264,38 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 
         if (value != 0xff) {
 
-            static Uint8 lastbeep[0xFF] = {0};
+            static Uint8 lastbeep[0xff] = {0};
 
             // audio streams (primitive control)
             if (++lastbeep[value] > 6) {
                 switch (value) {
-                 case 0xDC:
-                 case 0xDE:
+                 case 0xdc:
+                 case 0xde:
                     sound::play(S_GP_TIRE);
                     break;
-                 case 0xEC:
-                 case 0xEE:
+                 case 0xec:
+                 case 0xee:
                     samples::flush_queue();
                     sound::play(S_GP_START);
                     break;
-                 case 0xF4:
+                 case 0xf4:
                     samples::flush_queue();
                     sound::play(S_GP_COUNT);
                     break;
-                 case 0xF5:
+                 case 0xf5:
                     sound::play(S_GP_REV);
                     break;
                    break;
-                 case 0xF9:
-                 case 0xFB:
+                 case 0xf9:
+                 case 0xfB:
                     sound::play(S_GP_COIN);
                     break;
-                 case 0xFE:
-                    if (++ign > 0x0A) {
+                 case 0xfe:
+                    if (++ign > 0x0a) {
                         if (banks[2])
                             sound::play(S_GP_ENGINE2);
                         else sound::play(S_GP_ENGINE1);
+                        ign--;
                     }
                    break;
                  default:
@@ -310,7 +310,7 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
 
         switch (value) {
         case 0x90:
-           ign = 0;
+           ign = 0x00;
            samples::flush_queue();
            sound::play(S_GP_CRASH);
            break;
@@ -362,7 +362,7 @@ void gpworld::write_ldp(Uint8 value, Uint16 addr)
 // reads a byte from the cpu's port
 Uint8 gpworld::port_read(Uint16 port)
 {
-    port &= 0xFF;
+    port &= 0xff;
 
     switch (port) {
     // shifter (anything else?)
@@ -392,7 +392,7 @@ Uint8 gpworld::port_read(Uint16 port)
 // writes a byte to the cpu's port
 void gpworld::port_write(Uint16 port, Uint8 value)
 {
-    port &= 0xFF;
+    port &= 0xff;
 
     switch (port) {
 
@@ -404,8 +404,11 @@ void gpworld::port_write(Uint16 port, Uint8 value)
         else {
             nmie = false;
             if (value == 0x00) {
-                ldv1000::write(0xA3);
-                ign = 0;
+                ldv1000::write(GPWORLD_RST);
+                lss = GPWORLD_LSS;
+                rss = GPWORLD_RSS;
+                ign = value;
+                align();
             }
         }
         break;
@@ -607,10 +610,12 @@ void gpworld::input_enable(Uint8 move, Sint8 mouseID)
     case SWITCH_UP:
         break;
     case SWITCH_LEFT:
-        banks[1] &= ~0x40;
+        banks[1] &= ~lss;
+        if (lss < 0x80) lss = lss << 1;
         break;
     case SWITCH_RIGHT:
-        banks[1] &= ~0x04;
+        banks[1] &= ~rss;
+        if (rss < 0x08) rss = rss << 1;
         break;
     case SWITCH_DOWN:
         break;
@@ -650,10 +655,11 @@ void gpworld::input_disable(Uint8 move, Sint8 mouseID)
     case SWITCH_UP:
         break;
     case SWITCH_LEFT:
-        banks[1] |= 0x40;
-        break;
     case SWITCH_RIGHT:
-        banks[1] |= 0x04;
+        banks[1] = 0xff;
+        lss = GPWORLD_LSS;
+        rss = GPWORLD_RSS;
+        if (m_align) align();
         break;
     case SWITCH_DOWN:
         break;
@@ -691,10 +697,10 @@ bool gpworld::set_bank(Uint8 which_bank, Uint8 value)
 
     switch (which_bank) {
     case 0:                               // bank A
-        banks[3] = (Uint8)(value ^ 0xFF); // dip switches are active low
+        banks[3] = (Uint8)(value ^ 0xff); // dip switches are active low
         break;
     case 1:                               // bank B
-        banks[4] = (Uint8)(value ^ 0xFF); // switches are active low
+        banks[4] = (Uint8)(value ^ 0xff); // switches are active low
         break;
     default:
         printline("ERROR: Bank specified is out of range!");
@@ -730,8 +736,11 @@ void gpworld::draw_sprite(int spr_number)
     sprite_bank = (sprite_base[SPR_X_HI] >> 1) & 0x07;
 
     if (spr_number == 0x1) {
-        if (sy < 0x4) p -= 0x0b;
-        else p -= 0x06;
+
+        sx -= 0x2;
+        p  -= 0x4;
+        if (sx < 0x4) sx -= 0x4;
+        if (sy < 0x4) p  -= 0x7;
     }
 
     LOGD << fmt( "Draw Sprite #%x with src %x, skip %x, height %x, y %x, x %x",
@@ -809,3 +818,13 @@ void gpworld::draw_sprite(int spr_number)
     }
 }
 // END modified Mame code
+
+void gpworld::set_preset(int preset)
+{
+    if (preset == 1) m_align = true;
+}
+
+void gpworld::align()
+{
+    m_cpumem[0xe02e] = 0x00;
+}
