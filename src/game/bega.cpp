@@ -219,6 +219,7 @@ void cobra::set_version(int version)
 roadblaster::roadblaster() // dedicated version of Cobra Command
 {
     m_shortgamename = "roadblaster";
+    banks[2]        = 0xf8; // Disable random start scenes
 
     const static struct rom_def rb_roms[] =
         {// main cpu roms
@@ -302,7 +303,7 @@ bool bega::set_bank(unsigned char which_bank, unsigned char value)
         banks[2] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }

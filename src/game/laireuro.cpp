@@ -1,7 +1,7 @@
 /*
  * ____ DAPHNE COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2001-2007 Mark Broadhead
+ * Copyright (C) 2001-2007 Mark Broadhead, 2024 DirtBagXon
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -24,6 +24,7 @@
 // by Mark Broadhead
 
 #include "config.h"
+#include <plog/Log.h>
 
 #include <string.h> // for memset
 #include "laireuro.h"
@@ -44,6 +45,7 @@ laireuro::laireuro()
 {
     struct cpu::def cpu;
     struct sound::chip sound;
+    game::set_overlay_upgrade(true);
 
     memset(&g_ctc, 0, sizeof(ctc_chip));
 
@@ -69,12 +71,18 @@ laireuro::laireuro()
     sound.type     = sound::CHIP_TONEGEN;
     g_soundchip_id = sound::add_chip(&sound);
 
+    m_video_row_offset = -28;
+
     m_video_overlay_width       = LAIREURO_OVERLAY_W;
     m_video_overlay_height      = LAIREURO_OVERLAY_H;
     m_uVideoOverlayVisibleLines = LAIREURO_OVERLAY_H; // since it's PAL, this
                                                       // must be explicitly set
                                                       // (576 / 2)
     m_palette_color_count = LAIREURO_COLOR_COUNT;
+
+    m_banks[2] = 0x16;
+    m_banks[3] = 0xF6;
+    m_splash   = false;
 
     ctc_init(1000.0 / LAIREURO_CPU_HZ, 0, 0, 2.0 * 1000.0 / LAIREURO_CPU_HZ, 0);
 
@@ -95,7 +103,10 @@ laireuro::laireuro()
 aceeuro::aceeuro()
 {
     m_shortgamename = "aceeuro";
-    //	m_game_type = GAME_ACEEURO;
+
+    m_banks[2] = 0xD6;
+    m_banks[3] = 0xF6;
+    m_splash   = true;
 
     const static struct rom_def aceeuro_roms[] =
         {// z80 program
@@ -204,9 +215,7 @@ Uint8 laireuro::cpu_mem_read(Uint16 addr)
     // read disc data
     else if (addr >= 0xe0a0 && addr <= 0xe0a7) {
     } else {
-        char s[81] = {0};
-        snprintf(s, sizeof(s), "Unmapped read from %x", addr);
-        printline(s);
+        LOGD << fmt("Unmapped read from %x", addr);
     }
 
     return result;
@@ -214,12 +223,9 @@ Uint8 laireuro::cpu_mem_read(Uint16 addr)
 
 void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
 {
-    char s[81] = {0};
-
     // main rom (must be > 0 because it's unsigned)
     if (addr <= 0x9fff) {
-        snprintf(s, sizeof(s), "ERROR: WRITE TO MAIN ROM at %x with %x(PC is %x)", addr, value, Z80_GET_PC);
-        //		printline(s);
+        LOGD << fmt("ERROR: WRITE TO MAIN ROM at %x with %x(PC is %x)", addr, value, Z80_GET_PC);
     }
 
     // ram
@@ -250,9 +256,16 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
     }
     // wt misc
     else if (addr == 0xe028) {
-        m_wt_misc                    = value;
+
+        if (m_splash) {
+            m_wt_misc = value;
+        } else {
+            m_wt_misc = (m_wt_misc == LAIREURO_SPLASH && !value) ? m_wt_misc : value;
+            m_splash = (m_wt_misc == LAIREURO_SPLASH && !value);
+        }
+
         m_video_overlay_needs_update = true;
-        m_cpumem[addr]               = value;
+        m_cpumem[addr] = value;
     }
     // watchdog reset
     else if (addr == 0xe030) {
@@ -267,18 +280,13 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
     }
 
     else {
-        char s[81] = {0};
-        snprintf(s, sizeof(s), "Unmapped write to %x with %x", addr, value);
-        printline(s);
+        LOGD << fmt("Unmapped write to %x with %x", addr, value);
     }
 }
 
 void laireuro::port_write(Uint16 port, Uint8 value)
 // Called whenever the emulator wants to output to a port
 {
-
-    char s[81] = {0};
-
     port &= 0xFF; // strip off high byte
 
     switch (port) {
@@ -297,9 +305,8 @@ void laireuro::port_write(Uint16 port, Uint8 value)
         dart_write((port >> 1) & 0x01, port & 0x01, value);
         break;
     default:
-        snprintf(s, sizeof(s), "LAIREURO: Unsupported Port Output-> %x:%x (PC is %x)", port,
+        LOGW << fmt("LAIREURO: Unsupported Port Output-> %x:%x (PC is %x)", port,
                 value, Z80_GET_PC);
-        printline(s);
         break;
     }
 }
@@ -307,8 +314,6 @@ void laireuro::port_write(Uint16 port, Uint8 value)
 Uint8 laireuro::port_read(Uint16 port)
 // Called whenever the emulator wants to read from a port
 {
-
-    char s[81]           = {0};
     unsigned char result = 0;
 
     port &= 0xFF; // strip off high byte
@@ -329,8 +334,7 @@ Uint8 laireuro::port_read(Uint16 port)
     case 0x82:
     case 0x83:
     default:
-        snprintf(s, sizeof(s), "LAIREURO: Unsupported Port Input-> %x (PC is %x)", port, Z80_GET_PC);
-        printline(s);
+        LOGW << fmt("LAIREURO: Unsupported Port Input-> %x (PC is %x)", port, Z80_GET_PC);
         break;
     }
 
@@ -341,37 +345,37 @@ void laireuro::palette_calculate()
 {
     SDL_Color colors[LAIREURO_COLOR_COUNT];
 
-    colors[0].r = 0;
-    colors[0].g = 0;
-    colors[0].b = 0;
+    colors[0].r = 0x00;
+    colors[0].g = 0x00;
+    colors[0].b = 0x00;
 
-    colors[1].r = 255;
-    colors[1].g = 0;
-    colors[1].b = 0;
+    colors[1].r = 0xFF;
+    colors[1].g = 0x00;
+    colors[1].b = 0x00;
 
-    colors[2].r = 0;
-    colors[2].g = 255;
-    colors[2].b = 0;
+    colors[2].r = 0x00;
+    colors[2].g = 0xFF;
+    colors[2].b = 0x00;
 
-    colors[3].r = 255;
-    colors[3].g = 255;
-    colors[3].b = 0;
+    colors[3].r = 0xFF;
+    colors[3].g = 0xFF;
+    colors[3].b = 0x00;
 
-    colors[4].r = 0;
-    colors[4].g = 0;
-    colors[4].b = 255;
+    colors[4].r = 0x00;
+    colors[4].g = 0x00;
+    colors[4].b = 0xFF;
 
-    colors[5].r = 255;
-    colors[5].g = 0;
-    colors[5].b = 255;
+    colors[5].r = 0xFF;
+    colors[5].g = 0x00;
+    colors[5].b = 0xFF;
 
-    colors[6].r = 0;
-    colors[6].g = 255;
-    colors[6].b = 255;
+    colors[6].r = 0x00;
+    colors[6].g = 0xFF;
+    colors[6].b = 0xFF;
 
-    colors[7].r = 255;
-    colors[7].g = 255;
-    colors[7].b = 255;
+    colors[7].r = 0xFF;
+    colors[7].g = 0xFF;
+    colors[7].b = 0xFF;
 
     for (int x = 0; x < LAIREURO_COLOR_COUNT; x++) {
         palette::set_color(x, colors[x]);
@@ -380,60 +384,37 @@ void laireuro::palette_calculate()
     palette::set_transparency(8, true);
 }
 
-// updates laireuro's video
+
 void laireuro::repaint()
 {
-    int charx_offset = 1;
-    int chary_offset = 0;
-    for (int charx = charx_offset; charx < 18 + charx_offset; charx++) {
-        for (int chary = chary_offset; chary < 9 + chary_offset; chary++) {
-            int y = 0;
-            for (y = 0; y < 16; y++) {
-                int x = 0;
-                // Each tile is loaded into an 8 bit serial shift
-                for (x = 0; x < 10; x++) {
-                    // bit 0 of wt misc turns on/off character generator
+    game::resize();
+    const int charx_offset = 1;
+    const int chary_offset = 1;
+
+    for (int charx = charx_offset; charx < 18 + charx_offset; ++charx) {
+        for (int chary = chary_offset; chary < 9 + chary_offset; ++chary) {
+            for (int y = 0; y < 16; ++y) {
+                for (int x = 0; x < 10; ++x) {
+                    int yOffset = (chary - chary_offset) * 32 + y * 2;
+                    int xOffset = (charx - charx_offset) * 20 + x * 2;
+                    int charBaseAddr = chary * 64 + charx * 2;
+                    Uint8* pixelAddr = (Uint8*)m_video_overlay[m_active_video_overlay]->pixels;
+
                     if (m_wt_misc & 0x04) {
-                        Uint8 pixel =
-                            (x < 8)
-                                ? static_cast<Uint8>(
-                                      m_character[(m_cpumem[chary * 64 + charx * 2 + 0xc001] * 16 + y) |
-                                                  ((m_wt_misc & 0x02) << 11)] &
-                                      (0x01 << x))
-                                : 0;
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2)) =
-                            pixel ? m_cpumem[chary * 64 + charx * 2 + 0xc002]
-                                  : ((m_wt_misc & 0x02) ? 0 : 4);
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2) + 1) =
-                            pixel ? m_cpumem[chary * 64 + charx * 2 + 0xc002]
-                                  : ((m_wt_misc & 0x02) ? 0 : 4);
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2)) =
-                            pixel ? m_cpumem[chary * 64 + charx * 2 + 0xc002]
-                                  : ((m_wt_misc & 0x02) ? 0 : 4);
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2) + 1) =
-                            pixel ? m_cpumem[chary * 64 + charx * 2 + 0xc002]
-                                  : ((m_wt_misc & 0x02) ? 0 : 4);
-                    } else {
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2)) = 8;
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2) + 1) = 8;
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2)) = 8;
-                        *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
-                          (((chary - chary_offset) * 32 + y * 2 + 1) * LAIREURO_OVERLAY_W) +
-                          (charx - charx_offset) * 20 + (x * 2) + 1) = 8;
+                        Uint8 pixel = (x < 8) ? static_cast<Uint8>(m_character[(m_cpumem[charBaseAddr + 0xc001] * 16 + y) | ((m_wt_misc & 0x02) << 11)] & (0x01 << x)) : 0;
+                        Uint8 color = pixel ? m_cpumem[charBaseAddr + 0xc002] : ((m_wt_misc & 0x02) ? 0 : 4);
+
+                        pixelAddr[(yOffset * LAIREURO_OVERLAY_W) + xOffset] = color;
+                        pixelAddr[(yOffset * LAIREURO_OVERLAY_W) + xOffset + 1] = color;
+                        pixelAddr[((yOffset + 1) * LAIREURO_OVERLAY_W) + xOffset] = color;
+                        pixelAddr[((yOffset + 1) * LAIREURO_OVERLAY_W) + xOffset + 1] = color;
+                    }
+                    else
+                    {
+                        pixelAddr[(yOffset * LAIREURO_OVERLAY_W) + xOffset] = 8;
+                        pixelAddr[(yOffset * LAIREURO_OVERLAY_W) + xOffset + 1] = 8;
+                        pixelAddr[((yOffset + 1) * LAIREURO_OVERLAY_W) + xOffset] = 8;
+                        pixelAddr[((yOffset + 1) * LAIREURO_OVERLAY_W) + xOffset + 1] = 8;
                     }
                 }
             }
@@ -476,7 +457,7 @@ void laireuro::input_enable(Uint8 move, Sint8 mouseID)
         m_banks[0] &= ~0x80;
         break;
     default:
-        printline("Error, bug in move enable");
+        LOGD << "Error, bug in move enable";
         break;
     }
 }
@@ -517,7 +498,7 @@ void laireuro::input_disable(Uint8 move, Sint8 mouseID)
         m_banks[0] |= 0x80;
         break;
     default:
-        printline("Error, bug in move enable");
+        LOGD << "Error, bug in move enable";
         break;
     }
 }
@@ -530,28 +511,18 @@ Sint32 laireuro_irq_callback(int irqline)
 
 void ctc_write(Uint8 channel, Uint8 value)
 {
-#ifdef DEBUG
-    char s[81] = "";
-#endif // DEBUG
-
     // load a time constant
     if (g_ctc.channels[channel].load_const) {
         g_ctc.channels[channel].load_const = false;
         g_ctc.channels[channel].time_const = value;
         ctc_update_period(channel);
-#ifdef DEBUG
-        snprintf(s, sizeof(s), "CTC time constant of %x loaded on channel %x",
+        LOGD << fmt("CTC time constant of %x loaded on channel %x",
                 g_ctc.channels[channel].time_const, channel);
-        printline(s);
-#endif
     }
     // only channel 0 can set the vector
     else if (!(value & 0x01) && channel == 0) {
         g_ctc.int_vector = value & 0xf8;
-#ifdef DEBUG
-        snprintf(s, sizeof(s), "CTC interrupt vector set to %x", g_ctc.int_vector);
-        printline(s);
-#endif
+        LOGD << fmt("CTC interrupt vector set to %x", g_ctc.int_vector);
     }
     // it's a control word
     else {
@@ -561,10 +532,7 @@ void ctc_write(Uint8 channel, Uint8 value)
         g_ctc.channels[channel].load_const = (value & 0x04) ? true : false;
 
         if (g_ctc.channels[channel].interrupt) {
-#ifdef DEBUG
-            snprintf(s, sizeof(s), "CTC interrupt enabled on channel %x", channel);
-            printline(s);
-#endif
+            LOGD << fmt("CTC interrupt enabled on channel %x", channel);
         }
         // Reset
         if (value & 0x02) {
@@ -579,7 +547,6 @@ Uint8 ctc_read(Uint8 channel) { return g_ctc.channels[channel].time_const; }
 
 void dart_write(bool b, bool command, Uint8 data)
 {
-    char s[81] = "";
     if (command) {
         switch (g_dart.next_reg) {
         case 0:
@@ -612,10 +579,7 @@ void dart_write(bool b, bool command, Uint8 data)
             // only channel b can set the vector
             if (b) {
                 g_dart.int_vector = data;
-#ifdef DEBUG
-                snprintf(s, sizeof(s), "DART interrupt vector set to %x", g_ctc.int_vector);
-                printline(s);
-#endif
+                LOGD << fmt("DART interrupt vector set to %x", g_ctc.int_vector);
             }
             g_dart.next_reg = 0;
             break;
@@ -624,8 +588,7 @@ void dart_write(bool b, bool command, Uint8 data)
             break;
         case 4:
             g_dart.next_reg = 0;
-            snprintf(s, sizeof(s), "DART register 4 written with %x", data);
-            printline(s);
+            LOGD << fmt("DART register 4 written with %x", data);
             break;
         case 5:
             g_dart.next_reg = 0;
@@ -666,11 +629,7 @@ void ctc_update_period(Uint8 channel)
 
     if (g_ctc.channels[channel].interrupt) {
         cpu::change_irq(0, channel, new_period);
-#ifdef DEBUG
-        char s[81] = {0};
-        snprintf(s, sizeof(s), "Set up Irq %x with period of %f", channel, new_period);
-        printline(s);
-#endif
+        LOGD << fmt("Set up Irq %x with period of %f", channel, new_period);
     } else {
         // when interrupts are disabled...
         cpu::change_irq(0, channel, 0);
@@ -686,11 +645,7 @@ void ctc_update_period(Uint8 channel)
         {
             sound::write_ctrl_data(1, (Uint32)(1000 / new_period / 2), g_soundchip_id);
         }
-#ifdef DEBUG
-        char s[81] = {0};
-        snprintf(s, sizeof(s), "Set up Irq %x with period of %d", channel, 0);
-        printline(s);
-#endif
+        LOGD << fmt("Set up Irq %x with period of %d", channel, 0);
     }
 }
 
@@ -701,6 +656,9 @@ void laireuro::set_version(int version)
     } else if (version == 2) // italian version
     {
         m_shortgamename = "lair_ita";
+        m_banks[2] = 0xDF;
+        m_banks[3] = 0xEF;
+
         const static struct rom_def lair_ita_roms[] =
             {// z80 program
              {"lair_ita_45.bin", NULL, &m_cpumem[0x0000], 0x2000, 0x2ed85958},
@@ -715,6 +673,9 @@ void laireuro::set_version(int version)
         m_rom_list = lair_ita_roms;
     } else if (version == 3) {
         m_shortgamename = "lair_d2";
+        m_banks[2] = 0xFF;
+        m_banks[3] = 0xFF;
+
         const static struct rom_def lair_d2_roms[] =
             {// z80 program
              {"elu45_d2.bin", NULL, &m_cpumem[0x0000], 0x2000, 0x329b354a},
@@ -728,7 +689,7 @@ void laireuro::set_version(int version)
 
         m_rom_list = lair_d2_roms;
     } else {
-        printline("Unsupported -version parameter, ignoring...");
+        LOGW << "Unsupported -version parameter, ignoring...";
     }
 }
 
@@ -751,4 +712,10 @@ bool laireuro::set_bank(Uint8 which_bank, Uint8 value)
     }
 
     return result;
+}
+
+void laireuro::set_preset(int preset)
+{
+    // Disable the prolonged splash hack
+    if (preset == 1) m_splash = true;
 }

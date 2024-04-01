@@ -17,5 +17,9 @@ endif( VLDP_DEBUG )
 
 include_directories( ${MPEG2_INCLUDE_DIRS} )
 
+if(APPLE)
+       set( MPEG2_LIBRARIES "" )
+endif(APPLE)
+
 add_library( vldp ${LIB_SOURCES} ${LIB_HEADERS} )
 target_link_libraries( vldp plog ${MPEG2_LIBRARIES} )

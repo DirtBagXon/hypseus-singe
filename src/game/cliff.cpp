@@ -554,7 +554,7 @@ void cliff::input_enable(Uint8 move, Sint8 mouseID)
         break;
 
     default:
-        LOGW << fmt("Bug in Cliffy's input enable.  Input was %x", move);
+        LOGD << fmt("Bug in input enable, input was %x", move);
         break;
     }
 }
@@ -600,7 +600,7 @@ void cliff::input_disable(Uint8 move, Sint8 mouseID)
         m_banks[5] |= 128;
         break;
     default:
-        LOGW << fmt("bug in Cliffy's input disable, input was %x", move);
+        LOGD << fmt("Bug in input disable, input was %x", move);
         break;
     }
 }
@@ -624,7 +624,7 @@ bool cliff::set_bank(unsigned char which_bank, unsigned char value)
         m_banks[1] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }

@@ -25,6 +25,9 @@ const int credits_x = player_lives_x - LED_WIDTH;
 const int credits_y = player2_lives_y + LED_HEIGHT + 23;
 const int credits_title_y = credits_y + 18;
 
+const int thayers_time_x = 130;
+const int thayers_time_y = 20;
+
 void ImgScoreboard::DeleteInstance()
 {
 	delete this;
@@ -45,58 +48,76 @@ bool ImgScoreboard::RepaintIfNeeded()
 
 	if (m_bNeedsRepaint)
 	{
-		// draw all scoreboard decorations
-		video::draw_othergfx(video::B_DL_PLAYER1, player_title_x, player1_title_y);
-		video::draw_othergfx(video::B_DL_PLAYER2, player_title_x, player2_title_y);
-		video::draw_othergfx(video::B_DL_LIVES, player_lives_title_x, player1_lives_title_y);
-		video::draw_othergfx(video::B_DL_LIVES, player_lives_title_x, player2_lives_title_y);
-		video::draw_othergfx(video::B_DL_CREDITS, player_lives_title_x, credits_title_y);
+		if (!m_bThayers)
+		{
+			bool (*decor)(int, int, int);
+			decor = video::draw_othergfx;
+
+			// draw all scoreboard decorations
+			decor(video::B_DL_PLAYER1, player_title_x, player1_title_y);
+			decor(video::B_DL_PLAYER2, player_title_x, player2_title_y);
+			decor(video::B_DL_LIVES, player_lives_title_x, player1_lives_title_y);
+			decor(video::B_DL_LIVES, player_lives_title_x, player2_lives_title_y);
+			decor(video::B_DL_CREDITS, player_lives_title_x, credits_title_y);
+		}
 
 		// draw all digits
 		for (unsigned int which = 0; which < DIGIT_COUNT; which++)
 		{
-			// this is a player digit
-			if ((which >= this->PLAYER1_0) && (which <= this->PLAYER2_5))
+			if (!m_bThayers)
 			{
-				// convert 'which' to a digit ranging from 0-6
-				unsigned int digit = ((which - PLAYER1_0) % 6);
-
-				coord_x = (digit * LED_WIDTH) + player_score_x;
-
-				// if this is player 1
-				if (which <= this->PLAYER1_5)
+				// this is a player digit
+				if ((which >= this->PLAYER1_0) && (which <= this->PLAYER2_5))
 				{
-					coord_y = player1_score_y;
+					// convert 'which' to a digit ranging from 0-6
+					unsigned int digit = ((which - PLAYER1_0) % 6);
+
+					coord_x = (digit * LED_WIDTH) + player_score_x;
+
+					// if this is player 1
+					if (which <= this->PLAYER1_5)
+					{
+						coord_y = player1_score_y;
+					}
+					// else it's player 2
+					else
+					{
+						coord_y = player2_score_y;
+					}
 				}
-				// else it's player 2
+				// else if this is a lives digit
+				else if ((which == LIVES0) || (which == LIVES1))
+				{
+					coord_x = player_lives_x;
+					if (which == LIVES0)
+					{
+						coord_y = player1_lives_y;
+					}
+					else
+					{
+						coord_y = player2_lives_y;
+					}
+				}
+				// else it's the credits
 				else
 				{
-					coord_y = player2_score_y;
+					unsigned int digit = (which - CREDITS1_0) & 1;
+					coord_x = (LED_WIDTH * digit) + credits_x;
+					coord_y = credits_y;
 				}
+
+				uValue = m_DigitValues[which];
+				video::draw_led(uValue, coord_x, coord_y, 0xf);
 			}
-			// else if this is a lives digit
-			else if ((which == LIVES0) || (which == LIVES1))
-			{
-				coord_x = player_lives_x;
-				if (which == LIVES0)
-				{
-					coord_y = player1_lives_y;
-				}
-				else
-				{
-					coord_y = player2_lives_y;
-				}
-			}
-			// else it's the credits
 			else
 			{
-				unsigned int digit = (which - CREDITS1_0) & 1;
-				coord_x = (LED_WIDTH * digit) + credits_x;
-				coord_y = credits_y;
+				if ((which == CREDITS1_0) || (which == CREDITS1_1)) {
+					unsigned int digit = (which - CREDITS1_0) & 1;
+					coord_x = (LED_WIDTH * digit) + thayers_time_x;
+					video::draw_led(m_DigitValues[which], coord_x,
+							thayers_time_y, 0x1);
+				}
 			}
-
-			uValue = m_DigitValues[which];
-			video::draw_led(uValue, coord_x, coord_y);
 		}
 
 		bRepainted = true;
@@ -128,13 +149,15 @@ bool ImgScoreboard::get_digit(unsigned int &uValue, WhichDigit which)
 	return true;
 }
 
-ImgScoreboard::ImgScoreboard()
+ImgScoreboard::ImgScoreboard() :
+m_bThayers(false)
 {
 }
 
-IScoreboard *ImgScoreboard::GetInstance()
+IScoreboard *ImgScoreboard::GetInstance(bool bThayers)
 {
 	ImgScoreboard *pInstance = new ImgScoreboard();
+	pInstance->m_bThayers = bThayers;
 	if (!pInstance->Init())
 	{
 		pInstance->DeleteInstance();

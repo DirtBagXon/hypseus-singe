@@ -87,6 +87,10 @@ typedef struct dir_data {
 #endif
 } dir_data;
 
+void zipath (lua_State *L) {
+	luaL_error (L, "Unable to use \"lfs\" within zip file");
+}
+
 #define LOCK_METATABLE "lock metatable"
 
 #ifdef _WIN32
@@ -113,8 +117,10 @@ typedef struct dir_data {
 */
 static int change_dir (lua_State *L) {
 
+	if (get_zipath()) zipath(L);
+
 	const char *path = luaL_checkstring(L, 1);
-	char filepath[RETRO_MAXPATH];
+	char filepath[RETRO_MAXPATH] = {0};
 	int len = strlen(path) + RETRO_PAD;
 
 	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
@@ -494,8 +500,11 @@ static int dir_close (lua_State *L) {
 ** Factory of directory iterators
 */
 static int dir_iter_factory (lua_State *L) {
+
+	if (get_zipath()) zipath(L);
+
 	const char *path = luaL_checkstring (L, 1);
-	char dirpath[RETRO_MAXPATH];
+	char dirpath[RETRO_MAXPATH] = {0};
 	int len = strlen(path) + RETRO_PAD;
 
 	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
@@ -734,10 +743,13 @@ struct _stat_members members[] = {
 ** Get file or symbolic link information
 */
 static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
+
+	if (get_zipath()) zipath(L);
+
 	int i;
 	STAT_STRUCT info;
 	const char *file = luaL_checkstring (L, 1);
-	char retrofile[RETRO_MAXPATH];
+	char retrofile[RETRO_MAXPATH] = {0};
 	int len = strlen(file) + RETRO_PAD;
 
 	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;

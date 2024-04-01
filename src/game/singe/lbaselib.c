@@ -18,7 +18,6 @@
 
 #include "lauxlib.h"
 #include "lualib.h"
-#include "luretro.h"
 
 /*
 ** If your system does not support `stdout', you can just remove this function.
@@ -323,16 +322,7 @@ static int luaB_load (lua_State *L) {
 static int luaB_dofile (lua_State *L) {
   const char *fname = luaL_optstring(L, 1, NULL);
   int n = lua_gettop(L);
-  if (luaL_loadfile(L, fname) != 0) {
-      if (get_retropath()) {
-          int len = strlen(fname) + RETRO_PAD;
-          char retroname[RETRO_MAXPATH];
-          if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
-          lua_retropath(fname, retroname, len);
-          if (luaL_loadfile(L, retroname) != 0) lua_error(L);
-      }
-      else lua_error(L);
-  }
+  if (luaL_loadfile(L, fname) != 0) lua_error(L);
   lua_call(L, 0, LUA_MULTRET);
   return lua_gettop(L) - n;
 }
@@ -454,7 +444,7 @@ static int luaB_newproxy (lua_State *L) {
 static const luaL_Reg base_funcs[] = {
   {"assert", luaB_assert},
   {"collectgarbage", luaB_collectgarbage},
-  {"dofile", luaB_dofile},
+  {"dontfile", luaB_dofile},
   {"error", luaB_error},
   {"gcinfo", luaB_gcinfo},
   {"getfenv", luaB_getfenv},

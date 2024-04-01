@@ -39,8 +39,11 @@ LUALIB_API int (luaopen_debug) (lua_State *L);
 #define LUA_LOADLIBNAME	"package"
 LUALIB_API int (luaopen_package) (lua_State *L);
 
-#define LUA_LOADLFSNAME        "lfs"
+#define LUA_LOADLFSNAME	"lfs"
 LUALIB_API int (luaopen_lfs) (lua_State *L);
+
+#define LUA_LOAD232NAME	"rs232"
+LUALIB_API int (luaopen_luars232) (lua_State *L);
 
 // by RDG2010
 #define LUA_RNDLIBNAME "random"

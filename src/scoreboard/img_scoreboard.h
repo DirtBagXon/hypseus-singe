@@ -26,7 +26,10 @@ public:
 private:
 	ImgScoreboard();
 
-	static IScoreboard *GetInstance();
+	static IScoreboard *GetInstance(bool bThayers);
+
+	// is the current game Thayer's Quest? if so, we need to draw the scoreboard differently
+	bool m_bThayers;
 
 };
 

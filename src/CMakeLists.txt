@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
-set(PKG_VERSION "v2.11.1-RPi")
+set(PKG_VERSION "v2.11.2-RPi")
 
 project(hypseus)
 
@@ -105,13 +105,26 @@ add_subdirectory(timer)
 add_subdirectory(video)
 add_subdirectory(vldp)
 
+add_dependencies( ldp-out vldp )
+add_dependencies( game vldp )
+add_dependencies( sound vldp )
+
+find_package(SDL2 REQUIRED)
+find_package(SDL2TTF REQUIRED)
+find_package(SDL2_IMAGE REQUIRED)
+find_package(Vorbis REQUIRED)
+
+if(APPLE)
+    set( SDL2_LIBRARIES ${SDL2_LIBRARY} )
+endif(APPLE)
+
 add_executable( hypseus hypseus.cpp globals.h )
-target_link_libraries( hypseus plog io timer sound video cpu game ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} )
+target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${LIBZIP_LIBRARY} )
 
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
-target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2IMAGE_LIBRARIES})
+target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2IMAGE_LIBRARY})
 ]]
 
 if(BUILDBOT)

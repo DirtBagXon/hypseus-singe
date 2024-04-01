@@ -114,5 +114,10 @@ void set_invert_hat(bool val);
 void set_inputini_file(const char *inputFile);
 bool set_mouse_mode(int);
 void set_use_gamepad(bool value);
+void do_gamepad_rumble(Uint8, Uint8);
+void disable_haptics();
+void set_haptic(Uint8);
+
+void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers);
 
 #endif // INPUT_H

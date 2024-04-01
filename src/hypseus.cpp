@@ -155,7 +155,7 @@ void set_cur_dir(const char *exe_loc)
 int main(int argc, char **argv)
 {
     int result_code = 1; // assume an error unless we find otherwise
-    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
+    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG | IMG_INIT_WEBP;
 
     set_cur_dir(argv[0]); // set active directory
 
@@ -321,6 +321,7 @@ void set_scoreboard(unsigned char value) { realscoreboard = value; }
 void set_scoreboard_usb_port(unsigned char value) { scoreboard_usb_port = value; }
 void set_scoreboard_usb_impl(unsigned char value) { scoreboard_usb_impl = value; }
 void set_scoreboard_usb_baud(unsigned int value) { scoreboard_usb_baud = value; }
+void set_scoreboard_usb_rts(bool value) { scoreboard_usb_rts = value; }
 
 unsigned char get_scoreboard() { return (realscoreboard); }
 
@@ -379,6 +380,7 @@ void set_startsilent(unsigned char value) { startsilent = value; }
 unsigned char get_usb_port() { return (scoreboard_usb_port); }
 unsigned char get_usb_impl() { return (scoreboard_usb_impl); }
 unsigned int get_usb_baud() { return (scoreboard_usb_baud); }
+bool get_usb_rts() { return (scoreboard_usb_rts); }
 
 unsigned char get_startsilent() { return (startsilent); }
 // end edit

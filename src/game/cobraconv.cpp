@@ -447,7 +447,7 @@ bool cobraconv::set_bank(unsigned char which_bank, unsigned char value)
         banks[2] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }

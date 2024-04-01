@@ -118,6 +118,9 @@ class game
     virtual void start();
     void pre_shutdown();
 
+    bool alt_commands = false;
+    SDL_Keycode alt_lastkey = SDLK_UNKNOWN;
+
     // saves this game's static ram to a compressed file
     // (can be called to ensure sram is saved even if Hypseus is terminated
     // improperly)
@@ -141,6 +144,7 @@ class game
     virtual void update_pc(Uint32 new_pc);                // update the PC
     virtual void input_enable(Uint8, Sint8);
     virtual void input_disable(Uint8, Sint8);
+    virtual void ControllerAxisProxy(Uint8, Sint16);
     virtual void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
     virtual void OnVblank(); // this gets called by the ldp class every vblank
                              // (since many games use vblank for their
@@ -212,6 +216,7 @@ class game
     virtual void set_manymouse(bool);
 
     virtual void set_32bit_overlay(bool);
+    virtual void set_overlay_upgrade(bool);
     virtual void set_dynamic_overlay(bool);
 
     virtual void set_console_flag(bool);

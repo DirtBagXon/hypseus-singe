@@ -891,7 +891,7 @@ bool lair2::set_bank(unsigned char which_bank, unsigned char value)
 {
     bool result = true;
 
-    LOGW << "no dip switches, uses onscreen setup";
+    printline("ERROR: No -bank switches, use Service Menu");
     result = false;
 
     return result;
@@ -1043,11 +1043,8 @@ void lair2::EEPROM_9536_write(Uint8 value)
                 nv_address |= (value & 0x01);
                 address_count++;
                 if (address_count == 2 && (nv_opcode == 0 || nv_opcode == 3)) {
-                    char s[81] = {0};
-                    snprintf(s, sizeof(s), "EEP unhandled OPCode %x with address %x", nv_opcode, nv_address);
-                    banks[1] |= 0x01; // set bit 0 high to indicate we aren't
-                                      // busy
-                    LOGW << s;
+                    LOGD << fmt("EEP unhandled OPCode %x with address %x", nv_opcode, nv_address);
+                    banks[1] |= 0x01; // set bit 0 high to indicate we aren't busy
                 }
 
                 banks[1] = (banks[1] & ~0x01) | ((EEPROM_9536[nv_address] >> 15) & 0x01);

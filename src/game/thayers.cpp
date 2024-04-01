@@ -26,8 +26,8 @@
 //
 
 #include "config.h"
+#include <plog/Log.h>
 
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -83,10 +83,15 @@ thayers::thayers() : m_pScoreboard(NULL)
     m_video_overlay_width    = 320;
     m_video_overlay_height   = 240;
     m_palette_color_count    = 256;
+    m_show_timerboard         = true;
+    m_show_startup            = true;
+    m_bMouseEnabled           = true;
     m_overlay_size_is_dynamic = true;
     m_game_uses_video_overlay = true;
     m_use_overlay_scoreboard  = true; // overlay scoreboard option must be
                                        // enabled from cmd line
+    m_num_sounds = 1;
+    m_sound_name[0] = "gr_alarm4.wav";
 
     // default ROM images for TQ (this must be static!)
     const static struct rom_def tq_roms[] =
@@ -104,9 +109,35 @@ SDL_Surface *tq_get_active_overlay()
     return g_game->get_active_video_overlay();
 }
 
+Uint16 thayers::get_keymap(Uint16 x, Uint16 y)
+{
+    for (Uint16 k = TQ_ONE; k < TQ_EMPTY; k++)
+    {
+        if ((x >= m_tq_keys[k][0] && x <= m_tq_keys[k][2]) &&
+            (y >= m_tq_keys[k][1] && y <= m_tq_keys[k][3])) {
+            return k;
+	}
+    }
+
+    return TQ_EMPTY;
+}
+
+SDL_Keycode thayers::get_keycode(int value)
+{
+    if (value == TQ_NO) return SDLK_0;
+
+    if (value >= TQ_YES && value < TQ_EMPTY) {
+        return static_cast<SDL_Keycode>(value + (value < TQ_NO ? 0x2b : 0x31));
+    }
+
+    return SDLK_UNKNOWN;
+}
+
 bool thayers::init()
 {
     bool result = false;
+
+    char startup[] = "Press F5/F6 for credit";
 
     // The "-nosound" arg could have been specified, so don't crank up
     // the synthesizer unless audio is enabled. If -notqspeech was present
@@ -126,7 +157,7 @@ bool thayers::init()
 
         IScoreboard *pScoreboard =
             ScoreboardCollection::GetInstance(tq_get_active_overlay,
-                                              true,  // we are thayers quest
+                                  m_show_timerboard, // we are thayers quest
                                               false, // not using annunciator,
                                                      // that's just for Space
                                                      // Ace
@@ -148,10 +179,10 @@ bool thayers::init()
                 ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::HARDWARE);
             }
 
-	    // if user has also requested a USB scoreboard, then enable that too
-	    if (get_scoreboard() & 0x02) {
-	        ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
-	    }
+            // if user has also requested a USB scoreboard, then enable that too
+            if (get_scoreboard() & 0x02) {
+                ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::USB);
+            }
 	    
             m_pScoreboard = pScoreboard;
         } else {
@@ -159,6 +190,8 @@ bool thayers::init()
         }
     }
     // else sound initialization failed
+
+    if (m_show_startup) video::draw_subtitle(startup, true, true);
 
     return result;
 }
@@ -196,6 +229,8 @@ void thayers::no_speech()
 
 void thayers::shutdown()
 {
+    if (g_cursor) SDL_FreeCursor(g_cursor);
+
     if (m_pScoreboard) {
         m_pScoreboard->PreDeleteInstance();
     }
@@ -234,7 +269,7 @@ void thayers::set_version(int version)
 
         m_rom_list = tq_roms;
     } else {
-        printline("TQ:  Unsupported -version parameter, ignoring...");
+        LOGI << "TQ:  Unsupported -version parameter, ignoring...";
     }
 }
 
@@ -260,20 +295,6 @@ void thayers::do_nmi()
     } else {
         // else check to see if the scoreboard needs to be updated
         m_pScoreboard->RepaintIfNeeded();
-    }
-
-    m_message_timer++;
-
-    // Clear any existing message after a few seconds
-    if (m_message_timer == 200) {
-        char t[60] = {0};
-
-        memset(t, 0x20, 59); // set the string to a bunch of blanks
-
-        if (m_game_uses_video_overlay) {
-		video::draw_subtitle(t, true);
-        }
-
     }
 
     thayers_irq();
@@ -344,12 +365,10 @@ Uint8 thayers::port_read(Uint16 port)
         result = banks[0];
         break;
     default:
-        char s[81];
 
-        snprintf(s, sizeof(s), "ERROR: CPU port %x read requested, but this function is "
+        LOGW << fmt("CPU port %x read requested, but this function is "
                    "unimplemented!",
                 port);
-        printline(s);
     }
 
     return result;
@@ -358,8 +377,6 @@ Uint8 thayers::port_read(Uint16 port)
 // writes a byte to the cpu's port
 void thayers::port_write(Uint16 port, Uint8 value)
 {
-    char s[81] = {0};
-
     port &= 0xFF; // strip off high byte
 
     switch (port) {
@@ -402,12 +419,11 @@ void thayers::port_write(Uint16 port, Uint8 value)
         break;
     case 0xf3: // Interrupt Triger
         thayers_irq();
-        //		printline("Got self INT");
+        //		LOGI << "Got self INT";
         break;
     case 0xf4: // Write data to LD-V1000
         ldv1000::write(value);
-        //		sprintf(s, "THAYERS: Write to LD-V1000: %x", value);
-        //		printline(s);
+        //		LOGI << fmt("THAYERS: Write to LD-V1000: %x", value);
         break;
     case 0xf5: // Latch, only bits 4-7 are used, bit 4 coin counter, bit 5
                // enable writes to LDP, bit 6 LD Enter, bit 7 INT/EXT(LD-V1000)
@@ -421,9 +437,8 @@ void thayers::port_write(Uint16 port, Uint8 value)
                          static_cast<Uint8>(value & 0x0f), 1);
         break;
     default:
-        snprintf(s, sizeof(s), "ERROR: CPU port %x write requested (value %x) at pc %x",
+        LOGD << fmt("ERROR: CPU port %x write requested (value %x) at pc %x",
                 port, value, Z80_GET_PC);
-        printline(s);
         break;
     }
 }
@@ -435,17 +450,6 @@ void thayers::show_speech_subtitle()
         char text[SSI_PHRASE_BUF_LEN];
         int len;
 
-        if (m_message_timer < 200) {
-            // Erase previous message that's still showing.
-            memset(text, 0x20, 59);
-            text[60] = '\0';
-            speech_buffer_cleanup((char *)&m_cpumem[0xa500], text, sizeof(text));
-
-            if (m_game_uses_video_overlay) {
-		    video::draw_subtitle(text, true);
-            }
-        }
-
         // TQ stores a copy of the text to be synthesized in game RAM at 0xa500.
         // 0xa6d3 holds the # of characters in the buffer.
         len           = m_cpumem[0xa6d3];
@@ -455,16 +459,9 @@ void thayers::show_speech_subtitle()
         // out when phoneme rules are applied, so strip them out before display.
         speech_buffer_cleanup((char *)&m_cpumem[0xa500], text, len);
 
-        // Reset the timer so text will be cleared after a few seconds.
-        m_message_timer = 0;
-
-        // Make sure m_video_overlay pointer array is not NULL
-        if (m_game_uses_video_overlay) {
-		video::draw_subtitle(text, true);
-        }
-
+        video::draw_subtitle(text, true, false);
 #ifdef SSI_DEBUG
-        printline(text);
+        LOGI << fmt(text);
 #endif
     }
 }
@@ -531,8 +528,8 @@ void thayers::repaint()
         // here (ie, opening a new mpeg) then reallocate the video overlay
         // buffer.
         if ((cur_w != m_video_overlay_width) || (cur_h != m_video_overlay_height)) {
-            printline("THAYERS : Surface does not match disc video, "
-                      "re-allocating surface!");
+            LOGI << "THAYERS : Surface does not match disc video, "
+                      "re-allocating surface!";
 
             // in order to re-initialize our video we need to stop the yuv
             // callback
@@ -546,8 +543,8 @@ void thayers::repaint()
 
             // if the yuv callback is not responding to our stop request
             else {
-                printline("THAYERS : Timed out trying to get a lock on the yuv "
-                          "overlay");
+                LOGW << "THAYERS : Timed out trying to get a lock on the yuv "
+                          "overlay";
             }
         } // end if video resizing is required
     }     // else game isn't using video overlay at this time
@@ -565,7 +562,6 @@ void thayers::repaint()
 void thayers::process_keydown(SDL_Keycode key)
 {
     static int volume = 64;
-
     key_press = true;
 
     // Check to see if value of key is a letter between the a and z keys
@@ -574,7 +570,7 @@ void thayers::process_keydown(SDL_Keycode key)
     // if shift or caps lock is enabled)
     if (key >= SDLK_a && key <= SDLK_z) {
         cop_write_latch =
-            static_cast<Uint8>(key - SDLK_SPACE); // convert lowercase keys to
+            static_cast<Uint8>(key - 0x20); // convert lowercase keys to
                                                   // uppercase
         m_irq_status &= ~0x20;
         thayers_irq();
@@ -588,7 +584,7 @@ void thayers::process_keydown(SDL_Keycode key)
         thayers_irq();
     }
     // only looking for single keypress, not range
-    else
+    else {
         switch (key) {
         case SDLK_ESCAPE:
             // escape quits hypseus =]
@@ -672,14 +668,19 @@ void thayers::process_keydown(SDL_Keycode key)
 
         default:
             // else we recognized no keys so print an error
-#ifdef DEBUG
-            char s[81] = {0};
-
-            snprintf(s, sizeof(s), "THAYERS: Unhandled keypress: %x", key);
-            printline(s);
-#endif
+            LOGD << fmt("THAYERS: Unhandled keypress: %x", key);
             break;
         }
+
+        if (alt_commands) {
+            input_toolbox(key, alt_lastkey, true);
+            alt_lastkey = key;
+        }
+
+        if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+            alt_commands = true;
+        }
+    }
 }
 
 // this is called when the user releases a key
@@ -710,6 +711,93 @@ void thayers::process_keyup(SDL_Keycode key)
     }
 
     key_press = false;
+
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+        alt_commands = false;
+    }
+
+    if (alt_commands) alt_lastkey = SDLK_UNKNOWN;
+}
+
+
+void thayers::input_enable(Uint8 input, Sint8 mouseID)
+{
+    static bool setup = false;
+    Uint16 key = 0;
+
+    if (!setup) {
+
+        if (!video::get_aux_bezel() || video::get_fRotateDegrees() != 0) {
+            m_bMouseEnabled = false;
+            return;
+        }
+
+        g_cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+        if (g_cursor) SDL_SetCursor(g_cursor);
+        SDL_ShowCursor(SDL_ENABLE);
+
+        m_keyrect = video::get_aux_rect();
+        setup = true;
+    }
+
+    switch (input) {
+    case SWITCH_BUTTON1:
+    case SWITCH_BUTTON3:
+        key = get_keymap(m_axis_x, m_axis_y);
+        switch (key) {
+        case TQ_COIN1:
+            banks[1] &= ~0x10;
+            break;
+        case TQ_COIN2:
+            banks[1] &= ~0x20;
+            break;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+void thayers::input_disable(Uint8 input, Sint8 mouseID)
+{
+    Uint16 key = 0;
+    SDL_Keycode keycode = SDLK_UNKNOWN;
+
+    switch (input) {
+    case SWITCH_BUTTON1:
+    case SWITCH_BUTTON3:
+        key = get_keymap(m_axis_x, m_axis_y);
+        switch (key) {
+        case TQ_ONE:
+        case TQ_TWO:
+        case TQ_THREE:
+        case TQ_FOUR:
+            cop_write_latch = 0x80 + static_cast<Uint8>(key);
+            m_irq_status &= ~0x20;
+            thayers_irq();
+            sound::play(0);
+            break;
+        case TQ_COIN1:
+        case TQ_COIN2:
+            banks[1] |= 0x10 << (static_cast<Uint8>(key) - TQ_COIN1);
+            sound::play(0);
+            break;
+        default:
+            keycode = get_keycode(key);
+            if (keycode) {
+                cop_write_latch = static_cast<Uint8>(keycode);
+                m_irq_status &= ~0x20;
+                thayers_irq();
+                sound::play(0);
+            }
+            break;
+        }
+        break;
+    default:
+        break;
+    }
 }
 
 // used to set dip switch values
@@ -744,12 +832,8 @@ void thayers::write_scoreboard(Uint8 address, Uint8 data, int den)
     } else if (den == 1 && address <= 7) {
         m_pScoreboard->update_credits(address - 6, data);
     } else {
-        char s[81] = {0};
-
-        snprintf(s, sizeof(s),
-                "THAYERS: Unsupported write to scoreboard: Address %x Data %x ",
+        LOGW << fmt("THAYERS: Unsupported write to scoreboard: Address %x Data %x ",
                 address, data);
-        printline(s);
     }
 
     // let scoreboard interface decide if it needs to be repainted or not
@@ -793,12 +877,30 @@ unsigned char thayers::thayers_read_g_port()
 
 void thayers::thayers_write_so_bit(unsigned char)
 {
-    //	printline("Not implemented");
+    //	LOGI << "Not implemented";
 }
 
 unsigned char thayers::thayers_read_si_bit() { return 0; }
 
 void thayers::thayers_write_g_port(unsigned char)
 {
-    //	printline("Not implemented");
+    //	LOGI << "Not implemented";
+}
+
+void thayers::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID)
+{
+    m_axis_x = (x > m_keyrect.x) ? (KMATRIX / m_keyrect.w) * (x - m_keyrect.x) : 0;
+    m_axis_y = (y > m_keyrect.y) ? (KMATRIX / m_keyrect.h) * (y - m_keyrect.y) : 0;
+
+#ifdef DEBUG
+    char s[24] = {};
+    snprintf(s, sizeof(s), "#%d : %d", m_axis_x, m_axis_y);
+    video::draw_subtitle(s, true, false);
+#endif
+}
+
+void thayers::set_preset(int preset)
+{
+    if (preset == 1) m_show_timerboard = false; // Display full scoreboard
+    if (preset == 2) m_show_startup = false; // Don't display the COIN UP
 }

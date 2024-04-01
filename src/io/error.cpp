@@ -80,7 +80,7 @@ void printnowookin(const char *s)
 void printusage()
 {
   const char * usage = R"USAGE(
-  Hypseus Singe (c) 2023 DirtBagXon
+  Hypseus Singe (c) 2021-2024 DirtBagXon
 
   Usage: hypseus <game> vldp -framefile <framefile.txt> ...
 
@@ -90,6 +90,10 @@ void printusage()
 
       - Singe games require an extra '-script <game.singe>'
         <game.singe> defines the main Singe LUA game file.
+
+        Zipped LUA ROM files are supported in Singe via:
+
+        -zlua <game.zip>
 
       - Other common arguments are:
 
@@ -101,7 +105,8 @@ void printusage()
 
       - Common Singe arguments:
 
-        -script <game.singe>  : (This is required)
+        -script <game.singe>  : (One argument is required)
+        -zlua <game.zip>
         -blend_sprites
         -manymouse
 
@@ -111,7 +116,7 @@ void printusage()
 
   Use -v to display version and build information.
 
-  )USAGE";
+)USAGE";
 
 #ifdef WIN32
     MessageBox(NULL, usage, "Usage", MB_OK | MB_ICONINFORMATION);

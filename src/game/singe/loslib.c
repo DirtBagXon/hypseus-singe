@@ -20,7 +20,15 @@
 #include "lauxlib.h"
 #include "lualib.h"
 
-static int clocker = LUA_LO;
+#ifndef _WIN32
+#include <sys/time.h>
+
+static double hires_time() {
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  return t.tv_sec + t.tv_usec / 1000000.0;
+}
+#endif
 
 static int os_pushresult (lua_State *L, int i, const char *filename) {
   int en = errno;  /* calls to Lua API may change this value */
@@ -35,7 +43,6 @@ static int os_pushresult (lua_State *L, int i, const char *filename) {
     return 3;
   }
 }
-
 
 static int os_execute (lua_State *L) {
   lua_pushinteger(L, system(luaL_optstring(L, 1, NULL)));
@@ -55,7 +62,6 @@ static int os_rename (lua_State *L) {
   return os_pushresult(L, rename(fromname, toname) == 0, fromname);
 }
 
-
 static int os_tmpname (lua_State *L) {
   char buff[LUA_TMPNAMBUFSIZE];
   int err;
@@ -72,15 +78,13 @@ static int os_getenv (lua_State *L) {
   return 1;
 }
 
-
-static int os_clock (lua_State *L) {
-  lua_pushnumber(L, (((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC) * clocker);
+static int os_clock(lua_State *L) {
+#ifdef _WIN32
+  lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
+#else
+  lua_pushnumber(L, (lua_Number)hires_time());
+#endif
   return 1;
-}
-
-void os_alter_clocker (unsigned char s) {
-  if (s == LUA_HI) clocker = LUA_HI;
-  else clocker = LUA_LO >> 1;
 }
 
 /*

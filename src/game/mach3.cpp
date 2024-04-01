@@ -32,13 +32,13 @@
 //  - add samples for UVT/CC
 
 #include "config.h"
+#include <plog/Log.h>
 
 // Win32 doesn't use strcasecmp, it uses stricmp (lame)
 #ifdef WIN32
 #define strcasecmp stricmp
 #endif
 
-#include <stdio.h> // for snprintf
 #include <math.h>  // for pow() in palette gamma
 #include "mach3.h"
 #include "../video/palette.h"
@@ -415,7 +415,6 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
     Uint8 result           = 0;
 
     if (which_cpu == 0) {
-        char s[80];
         Uint16 cur_frame = 0; // temp variable used by more than one 'case'
                               // below, so we define it once here
 
@@ -521,11 +520,9 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
             }
         } else if (addr >= 0x5800 && addr <= 0x5FFF) // mapped i/o
         {
-            snprintf(s, sizeof(s), "Undefined mapped i/o read from %x", addr);
-            printline(s);
+            LOGW << fmt("Undefined mapped i/o read from %x", addr);
         } else {
-            snprintf(s, sizeof(s), "Unmapped read from %x", addr);
-            printline(s);
+            LOGW << fmt("Unmapped read from %x", addr);
         }
     } // end x86 CPU
 
@@ -538,8 +535,6 @@ Uint8 mach3::cpu_mem_read(Uint32 addr)
 
 void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
 {
-    char s[80];
-
     if (Addr > 0xFFFF) // accessing mirrored memory from different segment (UVT
                        // does this)
     {
@@ -557,8 +552,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
             m_video_overlay_needs_update = true;
         }
     } else if (Addr >= 0x4000 && Addr <= 0x4FFF) {
-        snprintf(s, sizeof(s), "invalid write to character ROM at %x, value %x", Addr, Value);
-        printline(s);
+        LOGW << fmt("invalid write to character ROM at %x, value %x", Addr, Value);
 
         m_cpumem[Addr] = Value;                  // store to RAM anyway
     } else if (Addr >= 0x5000 && Addr <= 0x501F) // palette RAM
@@ -579,8 +573,7 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         /*
         if  (Value != 0)
         {
-            sprintf(s, "Write to sound board at %x, value %x", Addr, Value);
-            printline(s);
+            LOGI << fmt("Write to sound board at %x, value %x", Addr, Value);
         }
         */
         //		sound::play(Value);
@@ -596,9 +589,8 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         m_cpumem[Addr] = Value; // store to RAM
     } else if (Addr == 0x5803)  // video control
     {
-        //		sprintf(s, "Write to video control register at %x, value %x",
+        //		LOGI << fmt("Write to video control register at %x, value %x",
         //Addr, Value);
-        //		printline(s);
 
         // bit 0 - foreground/background (sprite/character) priority reversal
         // bit 1 - sprite bank select (for Us Vs Them)
@@ -626,9 +618,8 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         m_cpumem[Addr] = Value; // store to RAM to compare next time
     } else if (Addr == 0x5805)  // 0x5805 is ld command register
     {
-        //	sprintf(s, "Write to LD command register at %x, value %x", Addr,
+        //	LOGI << fmt("Write to LD command register at %x, value %x", Addr,
         //Value);
-        //	printline(s);
 
         // commands are written twice, followed by a zero (which is EOC - "End
         // of Command")
@@ -669,27 +660,22 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
         prev_cmd = Value;
     } else if (Addr == 0x5806) // 0x5806 is ld audio/status register toggle
     {
-        //	sprintf(s, "Write to decode select register at %x, value %x", Addr,
+        //	LOGI << fmt("Write to decode select register at %x, value %x", Addr,
         //Value);
-        //	printline(s);
 
         // m_cpumem[Addr] = Value; // store to RAM (not needed, we are using a
         // separate variable, and value is only used
         //                            by our own cpu_mem_read() )
         m_frame_decoder_select_bit = Value & 0x01;
     } else if (Addr >= 0x5800 && Addr <= 0x5FFF) {
-        snprintf(s, sizeof(s),
-                "Undefined write to memory-mapped i/o device at %x, value %x", Addr, Value);
-        printline(s);
+        LOGW << fmt("Undefined write to memory-mapped i/o device at %x, value %x", Addr, Value);
 
         // m_cpumem[Addr] = Value; // store to RAM
 
     } else if (Addr >= 0x6000 && Addr <= 0xFFFF) {
-        //	sprintf(s, "Ignoring write to ROM at %x, value %x", Addr, Value);
-        //	printline(s);
+        //	LOGI << fmt("Ignoring write to ROM at %x, value %x", Addr, Value);
     } else {
-        snprintf(s, sizeof(s), "Unmapped write to %x, value %x", Addr, Value);
-        printline(s);
+        LOGW << fmt("Unmapped write to %x, value %x", Addr, Value);
         // m_cpumem[Addr] = Value; // store to RAM
     }
 }
@@ -697,7 +683,6 @@ void mach3::cpu_mem_write(Uint32 Addr, Uint8 Value)
 // only the 6502's use this read handler since the I86 uses 20 bit addressing
 Uint8 mach3::cpu_mem_read(Uint16 addr)
 {
-    //	char s[80];
     Uint8 result = 0;
 
     switch (cpu::get_active()) {
@@ -715,14 +700,13 @@ Uint8 mach3::cpu_mem_read(Uint16 addr)
             }
             // we may want to know about a lot of these
             else
-                printline("MACH3 NOTE: CPU #1 queried 0x8000 even though "
-                          "nothing is available");
+                LOGW << "MACH3 NOTE: CPU #1 queried 0x8000 even though "
+                          "nothing is available";
         }
         // main rom (mack 3 uses f000, uvt uses e000)
         else if (addr >= 0xe000) {
         } else {
-            //				sprintf(s, "CPU 1: Unmapped read from %x", addr);
-            //				printline(s);
+            //				LOGI << fmt("CPU 1: Unmapped read from %x", addr);
         }
     } break;
     case 2: {
@@ -741,14 +725,13 @@ Uint8 mach3::cpu_mem_read(Uint16 addr)
             }
             // we may want to know about a lot of these
             else
-                printline("MACH3 NOTE: CPU #2 queried 0xA800 when no data was "
-                          "present");
+                LOGI << "MACH3 NOTE: CPU #2 queried 0xA800 when no data was "
+                          "present";
         }
         // main rom
         else if (addr >= 0xf000) {
         } else {
-            //				sprintf(s, "CPU 2: Unmapped read from %x", addr);
-            //				printline(s);
+            //				LOGI << fmt("CPU 2: Unmapped read from %x", addr);
         }
     } break;
     default:
@@ -760,20 +743,16 @@ Uint8 mach3::cpu_mem_read(Uint16 addr)
 // only the 6502's use this write handler since the I86 uses 20 bit addressing
 void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
 {
-    //	char s[80];
-
     switch (cpu::get_active()) {
     case 1:
         // Dac control ?
         if (Addr == 0x4000) {
             // this seems to be either 0xFF or 0x2F, no idea what it means
-            //			sprintf(s, "4000: 0x%x", Value);
-            //			printline(s);
+            //			LOGI << fmt("4000: 0x%x", Value);
         }
         // Dac data ?
         else if (Addr == 0x4001) {
-            //			sprintf(s, "4001: 0x%x", Value);
-            //			printline(s);
+            //			LOGI << fmt("4001: 0x%x", Value);
 
             // if it's time to re-calculate
             if (Value != m_dac_last_val) {
@@ -786,8 +765,7 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
             }
         } else {
             /*
-            sprintf(s, "CPU 1: Unmapped write to %x, value %x", Addr, Value);
-            printline(s);
+            LOGW << fmt("CPU 1: Unmapped write to %x, value %x", Addr, Value);
             */
             m_cpumem2[Addr] = Value; // store to RAM
         }
@@ -809,9 +787,8 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
                         m_soundctrl1 = m_psg_latch;
                     else {
                         /*
-                        sprintf(s, "AY8910 1: 0x%x->0x%x", m_soundctrl1,
+                        LOGI << fmt("AY8910 1: 0x%x->0x%x", m_soundctrl1,
                         m_psg_latch);
-                        printline(s);
                         */
                         sound::write_ctrl_data(m_soundctrl1, m_psg_latch, m_soundchip1_id);
                     }
@@ -821,9 +798,8 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
                         m_soundctrl2 = m_psg_latch;
                     else {
                         /*
-                        sprintf(s, "AY8910 2: 0x%x->0x%x", m_soundctrl2,
+                        LOGI << fmt("AY8910 2: 0x%x->0x%x", m_soundctrl2,
                         m_psg_latch);
-                        printline(s);
                         */
                         sound::write_ctrl_data(m_soundctrl2, m_psg_latch, m_soundchip2_id);
                     }
@@ -843,9 +819,8 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
                                  // to this spot
             break;
         default:
-            //			sprintf(s, "CPU 2: Unmapped write to %x, value %x", Addr,
+            //			LOGI << fmt("CPU 2: Unmapped write to %x, value %x", Addr,
             //Value);
-            //			printline(s);
             break;
         }
 
@@ -860,22 +835,16 @@ void mach3::cpu_mem_write(Uint16 Addr, Uint8 Value)
 // mack3 hardware doesn't appear to use ports
 void mach3::port_write(Uint16 port, Uint8 value)
 {
-    char s[80];
-
-    snprintf(s, sizeof(s), "Unmapped write to port %x, value %x", port, value);
-    printline(s);
+    LOGW << fmt("Unmapped write to port %x, value %x", port, value);
 }
 
 // mack3 hardware doesn't appear to use ports
 
 Uint8 mach3::port_read(Uint16 port)
 {
-    char s[80];
-
     unsigned char result = 0;
 
-    snprintf(s, sizeof(s), "Unmapped read from port %x", port);
-    printline(s);
+    LOGW << fmt("Unmapped read from port %x", port);
     return (result);
 }
 
@@ -1316,6 +1285,6 @@ void cobram3::patch_roms()
         m_cpumem[0xBB8F] = 0xB0;
         // Replace instruction sbb al,1 (2C 01) with
         // mov al,1 (B0 01)
-        printline("CobraM3 infinite lives cheat enabled!");
+        LOGI << "CobraM3 infinite lives cheat enabled!";
     }
 }

@@ -62,12 +62,12 @@ const int JOY_AXIS_MID  = (int)(32768 * (0.75));  // how far they have to move t
 bool g_use_gamepad       = false;
 bool g_use_joystick      = true;  // use a joystick by default
 bool g_invert_hat        = false; // invert joystick hat up/down
-bool g_alt_pressed       = false; // whether the ALT key is presssed (for ALT-Enter
-                                  // combo)
 unsigned int idle_timer;          // added by JFA for -idleexit
 
 string g_inputini_file = "hypinput.ini"; // Default keymap file
 bool m_altInputFileSet = false;
+
+uint8_t thisGame = GAME_UNDEFINED;
 
 const double STICKY_COIN_SECONDS =
     0.125; // how many seconds a coin acceptor is forced to be "depressed" and
@@ -86,6 +86,8 @@ static ManyMouseEvent mm_event;
 static int g_mouse_mode = SDL_MOUSE;
 static SDL_GameController *g_gamepad_id = NULL;
 
+static bool enabled_haptic = true;
+Uint16 g_haptic[2] = {0, 0};
 
 // the ASCII key words that the parser looks at for the key values
 // NOTE : these are in a specific order, corresponding to the enum in hypseus.h
@@ -102,10 +104,10 @@ const char *g_key_names[] = {"KEY_UP",      "KEY_LEFT",    "KEY_DOWN",
 // Notice each switch can have two keys assigned to it
 // NOTE : These are in a specific order, corresponding to the enum in hypseus.h
 int g_key_defs[SWITCH_COUNT][2] = {
-    {SDLK_UP, SDLK_KP_8},     // up
-    {SDLK_LEFT, SDLK_KP_4},   // left
-    {SDLK_DOWN, SDLK_KP_2},   // down
-    {SDLK_RIGHT, SDLK_KP_6},  // right
+    {SDLK_UP, 0},             // up
+    {SDLK_LEFT, 0},           // left
+    {SDLK_DOWN, 0},           // down
+    {SDLK_RIGHT, 0},          // right
     {SDLK_1, 0},              // 1 player start
     {SDLK_2, 0},              // 2 player start
     {SDLK_SPACE, SDLK_LCTRL}, // action button 1
@@ -183,6 +185,7 @@ void CFG_Keys()
     string key_name = "", sval1 = "", sval2 = "", sval3 = "", sval4 = "", eq_sign = "";
     int val1 = 0, val2 = 0, val3 = 0, val4 = 0;
     bool warn = true;
+    bool end = false;
 
     if (m_altInputFileSet) {
        string keyinput_notice = "Loading alternate keymap file: ";
@@ -218,8 +221,10 @@ void CFG_Keys()
 
                 // if we are able to read in the key name
                 if (find_word(cur_line.c_str(), key_name, cur_line)) {
-                    if (strcasecmp(key_name.c_str(), "END") == 0)
+                    if (strcasecmp(key_name.c_str(), "END") == 0) {
+                        end = true;
                         break; // if we hit the 'END' keyword, we're done
+                    }
 
                     // equals sign
                     if (find_word(cur_line.c_str(), eq_sign, cur_line) && (eq_sign == "=")) {
@@ -315,6 +320,10 @@ void CFG_Keys()
             } // end if we didn't find a blank line
               // else it's a blank line so we just ignore it
         }     // end while not EOF
+
+        if (!end) {
+            LOGW << fmt("Didn't find \"END\" in %s, it may be corrupt.", g_inputini_file.c_str());
+        }
 
         mpo_close(io);
     } else // end if file was opened successfully
@@ -519,8 +528,9 @@ int SDL_input_init()
     else
     {
          FilterMouseEvents(false);
+         if (thisGame == GAME_UNDEFINED) thisGame = g_game->get_game_type();
 
-         if (g_game->get_manymouse())
+         if (g_game->get_manymouse() && thisGame != GAME_THAYERS)
              g_mouse_mode = MANY_MOUSE;
 
          if (!set_mouse_mode(g_mouse_mode)) {
@@ -557,6 +567,11 @@ void SDL_gamepad_init()
             }
         }
     }
+}
+
+SDL_GameController* get_gamepad_id()
+{
+    return g_gamepad_id;
 }
 
 void FilterMouseEvents(bool bFilteredOut)
@@ -636,7 +651,7 @@ void process_event(SDL_Event *event)
     // by RDG2010
     // make things easier to read...
     SDL_Keycode keyPressed = event->key.keysym.sym;
-    Uint8 thisGame    = g_game->get_game_type();
+    if (thisGame == GAME_UNDEFINED) thisGame = g_game->get_game_type();
 
     switch (event->type) {
     case SDL_KEYDOWN:
@@ -755,6 +770,8 @@ void process_event(SDL_Event *event)
             if (event->cbutton.button == joystick_buttons_map[i][1]-1) {
                 if (i == SWITCH_COIN1) hotkey = true;
                 input_enable(i, NOMOUSE);
+                if (g_haptic[0] && enabled_haptic)
+                    SDL_GameControllerRumble(g_gamepad_id, g_haptic[0], g_haptic[0], g_haptic[1]);
                 break;
             }
         }
@@ -847,16 +864,16 @@ void process_keydown(SDL_Keycode key)
         }
     }
 
-    // check for ALT-COMMANDS here
-    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
-        g_alt_pressed = true;
-    }
-
-    if (g_alt_pressed) {
-        if (key == SDLK_RETURN) video::vid_toggle_fullscreen();
-        else if (key == SDLK_BACKSPACE) video::vid_toggle_scanlines();
+    if (g_game->alt_commands) {
+        input_toolbox(key, g_game->alt_lastkey, false);
+        g_game->alt_lastkey = key;
     }
     // end ALT-COMMAND checks
+
+    // check for ALT-COMMANDS but not this pass
+    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+        g_game->alt_commands = true;
+    }
 }
 
 // if a key is released, we go here
@@ -874,8 +891,10 @@ void process_keyup(SDL_Keycode key)
 
     // if they are releasing an ALT key
     if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
-        g_alt_pressed = false;
+        g_game->alt_commands = false;
     }
+
+    if (g_game->alt_commands) g_game->alt_lastkey = SDLK_UNKNOWN;
 }
 
 // game controller axis
@@ -883,6 +902,8 @@ void process_controller_motion(SDL_Event *event)
 {
     static int x_axis_in_use = 0; // true if joystick is left or right
     static int y_axis_in_use = 0; // true if joystick is up or down
+
+    g_game->ControllerAxisProxy(event->caxis.axis, event->caxis.value);
 
     // Deal with AXIS TRIGGERS
     for (int i = 0; i < SWITCH_COUNT; i++) {
@@ -892,6 +913,8 @@ void process_controller_motion(SDL_Event *event)
             if ((abs(event->caxis.value) > JOY_AXIS_TRIG)
 			    && !controller_trigger_pressed[event->caxis.axis]) {
                 input_enable(i, NOMOUSE);
+                if (g_haptic[0] && enabled_haptic)
+                    SDL_GameControllerRumble(g_gamepad_id, g_haptic[0], g_haptic[0], g_haptic[1]);
                 controller_trigger_pressed[event->caxis.axis] = true;
             } else {
                 if (controller_trigger_pressed[event->caxis.axis]) {
@@ -1036,6 +1059,8 @@ void input_enable(Uint8 move, Sint8 mouseID)
         g_ldp->request_screenshot();
         break;
     case SWITCH_PAUSE:
+        if (thisGame == GAME_SINGE)
+            g_game->input_disable(move, mouseID);
         g_game->toggle_game_pause();
         break;
     case SWITCH_QUIT:
@@ -1135,6 +1160,21 @@ void set_inputini_file(const char *inputFile) {
 void set_use_gamepad(bool value) {
     g_use_gamepad = value;
     g_use_joystick = !value;
+}
+
+void disable_haptics() { enabled_haptic = false; }
+
+void set_haptic(Uint8 value) {
+    g_haptic[0] = (1 << (value + 0xC)) - 1;
+    g_haptic[1] = 0x96;
+}
+
+void do_gamepad_rumble(Uint8 str, Uint8 len) {
+
+    if (g_gamepad_id && enabled_haptic) {
+        Uint16 s = (1 << (str + 0xC)) - 1;
+        SDL_GameControllerRumble(g_gamepad_id, s, s, (0x4B << len));
+    }
 }
 
 bool set_mouse_mode(int thisMode)

@@ -86,8 +86,8 @@
 //
 
 #include "config.h"
+#include <plog/Log.h>
 
-#include <string.h>
 #include "interstellar.h"
 #include "../cpu/cpu.h"
 #include "../io/conout.h"
@@ -207,7 +207,6 @@ void interstellar::do_nmi() { Z80_ASSERT_NMI; }
 Uint8 interstellar::cpu_mem_read(Uint16 addr)
 {
     Uint8 result = 0x00;
-    char s[81]   = {0};
 
     switch (cpu::get_active()) {
     case 0:
@@ -219,10 +218,9 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
         {
             result = m_cpumem[addr];
         } else {
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Memory Read-> %x (PC "
+            LOGD << fmt("INTERSTELLAR: CPU 0: Unsupported Memory Read-> %x (PC "
                        "is %x)",
                     addr, Z80_GET_PC);
-            printline(s);
             result = m_cpumem[addr];
         }
         break;
@@ -234,10 +232,9 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
         {
             result = m_cpumem2[addr];
         } else {
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Memory Read-> %x (PC "
+            LOGD << fmt("INTERSTELLAR: CPU 1: Unsupported Memory Read-> %x (PC "
                        "is %x)",
                     addr, Z80_GET_PC);
-            printline(s);
             result = m_cpumem2[addr];
         }
         break;
@@ -252,15 +249,14 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
         {
             result = m_cpumem3[addr];
         } else {
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Memory Read-> %x (PC "
+            LOGD << fmt("INTERSTELLAR: CPU 2: Unsupported Memory Read-> %x (PC "
                        "is %x)",
                     addr, Z80_GET_PC);
-            printline(s);
             result = m_cpumem3[addr];
         }
         break;
     default: {
-        printline("cpu_mem_read from invalid CPU!");
+        LOGW << "cpu_mem_read from invalid CPU!";
     } break;
     }
     return result;
@@ -269,15 +265,12 @@ Uint8 interstellar::cpu_mem_read(Uint16 addr)
 // writes a byte to the cpu's memory
 void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
 {
-    char s[81] = {0};
-
     switch (cpu::get_active()) {
     case 0:
         if (addr <= 0x9fff) // rom
         {
-            //			sprintf(s, "INTERSTELLAR: CPU 0: Attemped write to ROM!-> %x
-            //with %x (PC is %x)", addr, value, Z80_GET_PC);
-            //			printline(s);
+            LOGD << fmt("INTERSTELLAR: CPU 0: Attemped write to ROM!-> %x "
+                         "with %x (PC is %x)", addr, value, Z80_GET_PC);
         } else if (addr >= 0xa000 && addr <= 0xa7ff) // ram
         {
             m_cpumem[addr] = value;
@@ -289,50 +282,45 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
         } else {
             m_cpumem[addr] = value;
 
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Memory Write-> %x "
+            LOGD << fmt("INTERSTELLAR: CPU 0: Unsupported Memory Write-> %x "
                        "with %x (PC is %x)",
                     addr, value, Z80_GET_PC);
-            printline(s);
         }
         break;
     case 1:
         if (addr <= 0x1fff) // rom
         {
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Attemped write to ROM!-> %x with "
+            LOGD << fmt("INTERSTELLAR: CPU 1: Attemped write to ROM!-> %x with "
                        "%x (PC is %x)",
                     addr, value, Z80_GET_PC);
-            printline(s);
         } else if (addr >= 0x4000 && addr <= 0x47ff) // ram
         {
             m_cpumem2[addr] = value;
         } else {
             m_cpumem2[addr] = value;
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Memory Write-> %x "
+            LOGD << fmt("INTERSTELLAR: CPU 1: Unsupported Memory Write-> %x "
                        "with %x (PC is %x)",
                     addr, value, Z80_GET_PC);
-            printline(s);
         }
         break;
     case 2:
         if (addr <= 0x17ff) // rom
         {
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Attemped write to ROM!-> %x with "
+            LOGD << fmt("INTERSTELLAR: CPU 2: Attemped write to ROM!-> %x with "
                        "%x (PC is %x)",
                     addr, value, Z80_GET_PC);
-            printline(s);
         } else if (addr >= 0x1800 && addr <= 0x1fff) // ram
         {
             m_cpumem3[addr] = value;
         } else {
             m_cpumem3[addr] = value;
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Memory Write-> %x "
+            LOGD << fmt("INTERSTELLAR: CPU 2: Unsupported Memory Write-> %x "
                        "with %x (PC is %x)",
                     addr, value, Z80_GET_PC);
-            printline(s);
         }
         break;
     default: {
-        printline("cpu_write_read from invalid CPU!");
+        LOGW << "cpu_write_read from invalid CPU!";
     } break;
     }
 }
@@ -340,7 +328,6 @@ void interstellar::cpu_mem_write(Uint16 addr, Uint8 value)
 // reads a byte from the cpu's port
 Uint8 interstellar::port_read(Uint16 port)
 {
-    char s[81]   = {0};
     Uint8 result = 0x00;
     static Uint8 old1, old2, oldldp;
 
@@ -361,18 +348,14 @@ Uint8 interstellar::port_read(Uint16 port)
         case 0x05:
             result = cpu_latch1;
             if (result != old1) {
-#ifdef DEBUG
-                snprintf(s, sizeof(s), "Main Z80 Read %x from LDP Z80 (PC is %x)", result, Z80_GET_PC);
-                printline(s);
-#endif
+                LOGD << fmt("Main Z80 Read %x from LDP Z80 (PC is %x)", result, Z80_GET_PC);
             }
             old1 = result;
             break;
         default:
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Port Input-> %x (PC "
+            LOGD << fmt("INTERSTELLAR: CPU 0: Unsupported Port Input-> %x (PC "
                        "is %x)",
                     port, Z80_GET_PC);
-            printline(s);
             break;
         }
         break;
@@ -385,10 +368,9 @@ Uint8 interstellar::port_read(Uint16 port)
             m_cpu1_nmi_enable = true;
             break;
         default:
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Port Input-> %x (PC "
+            LOGD << fmt("INTERSTELLAR: CPU 1: Unsupported Port Input-> %x (PC "
                        "is %x)",
                     port, Z80_GET_PC);
-            printline(s);
             break;
         }
         break;
@@ -397,18 +379,14 @@ Uint8 interstellar::port_read(Uint16 port)
         case 0x00:
             result = ldv1000::read();
             if (result != oldldp) {
-#ifdef DEBUG
-                snprintf(s, sizeof(s), "LDP Z80 Read %x from LD-V1000 (PC is %x)", result, Z80_GET_PC);
-                printline(s);
-#endif
+                LOGD << fmt("LDP Z80 Read %x from LD-V1000 (PC is %x)", result, Z80_GET_PC);
             }
             oldldp = result;
             break;
         case 0x01:
             result = cpu_latch2;
             if (result != old2) {
-                snprintf(s, sizeof(s), "LDP Z80 Read %x from Main Z80 (PC is %x)", result, Z80_GET_PC);
-                printline(s);
+                LOGD << fmt("LDP Z80 Read %x from Main Z80 (PC is %x)", result, Z80_GET_PC);
             }
             old2 = result;
             break;
@@ -416,15 +394,14 @@ Uint8 interstellar::port_read(Uint16 port)
             m_cpu2_nmi_enable = true;
             break;
         default:
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Port Input-> %x (PC "
+            LOGD << fmt("INTERSTELLAR: CPU 2: Unsupported Port Input-> %x (PC "
                        "is %x)",
                     port, Z80_GET_PC);
-            printline(s);
             break;
         }
         break;
     default:
-        printline("port_read on invalid cpu!");
+        LOGW << "port_read on invalid cpu!";
         break;
     }
 
@@ -434,8 +411,6 @@ Uint8 interstellar::port_read(Uint16 port)
 // writes a byte to the cpu's port
 void interstellar::port_write(Uint16 port, Uint8 value)
 {
-    char s[81] = {0};
-
     port &= 0xFF;
     static Uint8 old1, old2, oldldp;
     switch (cpu::get_active()) {
@@ -503,10 +478,7 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             cpu_latch2 = value;
             if (old2 != value) {
 // cpu::generate_nmi(2);
-#ifdef DEBUG
-                snprintf(s, sizeof(s), "Main Z80 Write %x to LDP Z80 (PC is %x)", value, Z80_GET_PC);
-                printline(s);
-#endif
+                LOGD << fmt("Main Z80 Write %x to LDP Z80 (PC is %x)", value, Z80_GET_PC);
             }
             if (m_cpu2_nmi_enable) {
                 cpu::generate_nmi(2);
@@ -515,10 +487,9 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             old2 = value;
             break;
         default:
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 0: Unsupported Port Output-> %x:%x "
+            LOGD << fmt("INTERSTELLAR: CPU 0: Unsupported Port Output-> %x:%x "
                        "(PC is %x)",
                     port, value, Z80_GET_PC);
-            printline(s);
             break;
         }
         break;
@@ -539,10 +510,9 @@ void interstellar::port_write(Uint16 port, Uint8 value)
             sound::writedata(m_soundchip2_id, value);
             break;
         default:
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 1: Unsupported Port Output-> %x:%x "
+            LOGD << fmt("INTERSTELLAR: CPU 1: Unsupported Port Output-> %x:%x "
                        "(PC is %x)",
                     port, value, Z80_GET_PC);
-            printline(s);
             break;
         }
         break;
@@ -551,20 +521,14 @@ void interstellar::port_write(Uint16 port, Uint8 value)
         case 0x00:
             ldv1000::write(value);
             if (oldldp != value) {
-#ifdef DEBUG
-                snprintf(s, sizeof(s), "LDP Z80 Write %x to LD-V1000 (PC is %x)", value, Z80_GET_PC);
-                printline(s);
-#endif
+                LOGD << fmt("LDP Z80 Write %x to LD-V1000 (PC is %x)", value, Z80_GET_PC);
             }
             oldldp = value;
             break;
         case 0x01:
             cpu_latch1 = value;
             if (old1 != value) {
-#ifdef DEBUG
-                snprintf(s, sizeof(s), "LDP Z80 Write %x to Main Z80 (PC is %x)", value, Z80_GET_PC);
-                printline(s);
-#endif
+                LOGD << fmt("LDP Z80 Write %x to Main Z80 (PC is %x)", value, Z80_GET_PC);
             }
             old1 = value;
             break;
@@ -576,15 +540,14 @@ void interstellar::port_write(Uint16 port, Uint8 value)
                 palette::set_transparency(0, false);
             break;
         default:
-            snprintf(s, sizeof(s), "INTERSTELLAR: CPU 2: Unsupported Port Output-> %x:%x "
+            LOGD << fmt("INTERSTELLAR: CPU 2: Unsupported Port Output-> %x:%x "
                        "(PC is %x)",
                     port, value, Z80_GET_PC);
-            printline(s);
             break;
         }
         break;
     default:
-        printline("port_write on invalid cpu!");
+        LOGW << "port_write on invalid cpu!";
         break;
     }
 }

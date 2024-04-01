@@ -33,10 +33,13 @@ enum {
 };
 
 static unsigned char g_retropath = 0;
+static unsigned char g_zipath = 0;
 
 unsigned char get_retropath() { return g_retropath; }
+unsigned char get_zipath() { return g_zipath; }
 
 void lua_set_retropath(unsigned char value) { g_retropath = value; }
+void lua_set_zipath(unsigned char value) { g_zipath = value; }
 
 unsigned char inPath(const char* src, char* path)
 {
@@ -79,6 +82,27 @@ void lua_retropath(const char *src, char *dst, int len)
                     break;
                 }
                 r = 0xf; //bool
+            }
+            *dst = *src;
+            dst++;
+        }
+    }
+    *dst = '\0';
+}
+
+void lua_rampath(const char *src, char *dst, int len)
+{
+    unsigned char r = 0, fin = 0;
+
+    for (int i = 0; i < (len); src++, i++) {
+        if (fin != PATH_END) {
+            if (*src == '\0') {
+                fin = PATH_END;
+            }
+            if (r == 0) {
+                memcpy(dst, "ram/", 4);
+                dst += 4;
+                r++;
             }
             *dst = *src;
             dst++;

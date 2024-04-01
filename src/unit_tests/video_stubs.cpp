@@ -7,7 +7,7 @@ void vid_flip()
 {
 }
 
-bool draw_led(int, int, int)
+bool draw_led(int, int, int, unsigned char)
 {
 	return true;
 }

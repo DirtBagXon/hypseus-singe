@@ -91,6 +91,7 @@
 firefox::firefox()
 {
     struct cpu::def cpu;
+    game::set_overlay_upgrade(true);
 
     m_shortgamename = "firefox";
     memset(&cpu, 0, sizeof(struct cpu::def));
@@ -554,6 +555,7 @@ void firefox::repaint()
         palette::finalize();
     }
 
+    game::resize();
     for (int charx = 0; charx < 64; charx++) {
         for (int chary = 0; chary < 64; chary++) {
             for (int x = 0; x < 4; x++) {
@@ -702,7 +704,7 @@ bool firefox::set_bank(unsigned char which_bank, unsigned char value)
         banks[3] = (unsigned char)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }

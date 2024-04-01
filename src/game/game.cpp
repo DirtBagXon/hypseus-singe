@@ -315,6 +315,15 @@ void game::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mou
     LOGW << "generic mouse_motion function called, does nothing";
 }
 
+void game::ControllerAxisProxy(Uint8 a, Sint16 v)
+{
+    // get rid of warnings
+    if (a || v ) {
+    }
+
+    LOGD << "generic controller_axis_proxy function called, does nothing";
+}
+
 // by default, this is ignored, but it should be used by specific game drivers
 // to stay in sync with the laserdisc
 void game::OnVblank() {}
@@ -343,8 +352,8 @@ bool game::init_video()
     // Set up SDL display (create window, renderer, surfaces, textures...)
     if (m_area < area || m_overlay_depth == GAME_OVERLAY_DEPTH) {
 
-        if ((video::get_video_resized() || video::get_rotated_state()) && v_init > 1) {
-            LOGE << "Rotation and resizing [-x/-y] do not support overlay switching.";
+        if (video::get_video_resized() && v_init > 1) {
+            LOGE << "Resizing [-x/-y] is not supported in overlay switching.";
             set_quitflag();
         } else if (video::get_yuv_overlay_ready())
             video::reset_yuv_overlay();
@@ -352,6 +361,9 @@ bool game::init_video()
         video::init_display();
         m_area = area;
         v_init++;
+
+        if (get_game_type() != GAME_SINGE)
+            video::set_game_window(m_shortgamename);
     }
 
     // if this particular game uses video overlay (most do)
@@ -468,9 +480,7 @@ void game::blit()
             false; // game will need to set this value to true next time it
                    // becomes needful for us to redraw the screen
 
-        // MAC: No software scaling to be done on SDL2, so we just update the texture here,
-        // and SDL_RenderCopy() will hw-scale for us.
-        video::vid_update_overlay_surface(m_video_overlay[m_active_video_overlay], 0, 0);
+        video::vid_update_overlay_surface(m_video_overlay[m_active_video_overlay]);
     }
     video::vid_blit();
 }
@@ -581,20 +591,20 @@ void game::set_manymouse(bool value) { m_manymouse = value; }
 
 void game::switch_scoreboard_display() { video::vid_scoreboard_switch(); }
 
+void game::set_overlay_upgrade(bool value) { m_overlay_upgrade = value; }
+
 void game::set_dynamic_overlay(bool value) { m_dynamic_overlay = value; }
 
 void game::set_32bit_overlay(bool value)
 {
-	if (value) m_overlay_depth = GAME_OVERLAY_FULL;
-	else m_overlay_depth = GAME_OVERLAY_DEPTH;
-
+	m_overlay_depth = value ? GAME_OVERLAY_FULL : GAME_OVERLAY_DEPTH;
 	m_overlay_upgrade = value;
 }
 
 void game::set_stretch_value(int value) {
 
 	if (m_stretch == TMS_VERTICAL_OFFSET)
-	    m_stretch = m_stretch - value;
+	    m_stretch -= value;
 }
 
 // generic preset function, does nothing

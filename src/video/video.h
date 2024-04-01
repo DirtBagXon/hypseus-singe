@@ -1,7 +1,7 @@
 /*
  * ____ DAPHNE COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2001 Matt Ownby
+ * Copyright (C) 2001 Matt Ownby, 2024 DirtBagXon
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -35,6 +35,7 @@
 #define ASPECTSD 133
 #define ASPECTWS 178 // Round up
 #define NOSQUARE 0x2D0
+#define TITLE_LENGTH 42
 
 #include "SDL_FontCache.h"
 #include <SDL.h>
@@ -106,7 +107,7 @@ int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, i
 void vid_blank_yuv_texture (bool value);
 void vid_free_yuv_overlay ();
 
-void vid_update_overlay_surface(SDL_Surface *tx, int x, int y);
+void vid_update_overlay_surface(SDL_Surface *tx);
 void vid_blit();
 // MAC: sdl_video_run thread block ends here
 
@@ -123,9 +124,8 @@ void vid_flip();
 // blanks the back video buffer (makes it black)
 void vid_blank();
 
-void display_repaint();
 bool load_bmps();
-bool draw_led(int, int, int);
+bool draw_led(int, int, int, unsigned char);
 void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
 void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y);
@@ -140,20 +140,27 @@ SDL_Texture *get_screen();
 SDL_Texture *get_yuv_screen();
 SDL_Surface *get_screen_blitter();
 SDL_Surface *get_screen_leds();
+SDL_Rect get_aux_rect();
+SDL_Rect get_sb_rect();
 FC_Font *get_font();
+FC_Font *get_ffont();
 bool use_old_font();
 bool get_opengl();
 bool get_vulkan();
+bool get_fullscreen();
+bool get_aux_bezel();
+bool get_fullwindow();
 bool get_singe_blend_sprite();
 bool get_video_blank();
 bool get_video_resized();
-bool get_rotated_state();
 void set_opengl(bool value);
 void set_vulkan(bool value);
+void set_forcetop(bool value);
 int get_textureaccess();
 void set_textureaccess(int value);
 void set_grabmouse(bool value);
 void set_vsync(bool value);
+void set_intro(bool value);
 void set_yuv_blue(bool value);
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
@@ -167,20 +174,28 @@ void set_yuv_video_blank(bool value);
 void set_video_blank(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
+void scalekeyboard(int value);
+void reset_scalefactor(int, uint8_t);
 void set_rotate_degrees(float fDegrees);
 void set_sboverlay_characterset(int value);
+void set_sboverlay_white(bool value);
+void set_window_title(char* value);
+void set_game_window(const char* value);
 Uint16 get_video_width();
-void set_video_width(Uint16);
+Uint16 get_viewport_width();
+Uint16 get_viewport_height();
 Uint16 get_video_height();
+void set_video_width(Uint16);
 void set_video_height(Uint16);
 void draw_scanlines(int);
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_shoot(int, int, SDL_Surface *);
-void draw_subtitle(char *, bool ins);
+void draw_subtitle(char *, bool, bool);
 void draw_LDP1450_overlay();
 void vid_toggle_fullscreen();
 void vid_toggle_scanlines();
+void vid_toggle_bezel();
 void vid_scoreboard_switch();
 void set_aspect_ratio(int fRatio);
 void set_detected_height(int pHeight);
@@ -189,21 +204,23 @@ void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
+void set_bezel_reverse(bool display);
 void set_aspect_change(int aspectWidth, int aspectHeight);
 void set_sb_window_position(int, int);
-void set_annun_bezel_position(int, int);
+void set_aux_bezel_position(int, int);
 void set_score_bezel(bool bEnabled);
 void set_score_bezel_alpha(int8_t value);
 void set_score_bezel_scale(int value);
-void set_ace_annun_scale(int value);
+void set_aux_bezel_scale(int value);
 void set_tq_keyboard(bool bEnabled);
 void set_annun_lamponly(bool bEnabled);
-void set_annun_bezel(bool bEnabled);
+void set_aux_bezel(bool bEnabled);
 void set_ded_annun_bezel(bool bEnabled);
-void set_annun_bezel_alpha(int8_t value);
+void set_aux_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
 void set_score_screen(int value);
+void set_fRotateDegrees(float fDegrees);
 
 void set_vertical_orientation(bool);
 void format_fullscreen_render();
@@ -213,12 +230,21 @@ bool draw_ranks();
 bool draw_annunciator(int which);
 bool draw_annunciator1(int which);
 bool draw_annunciator2(int which);
+void calc_annun_rect();
 
 void take_screenshot();
 void set_queue_screenshot(bool bEnabled);
 
 unsigned int get_logical_width();
 unsigned int get_logical_height();
+float get_fRotateDegrees();
+
+void reset_shiftvalue(int, bool, uint8_t);
+int get_scale_h_shift();
+int get_scale_v_shift();
+
+int get_score_bezel_scale();
+int get_aux_bezel_scale();
 
 void set_overlay_offset(int offset);
 int get_yuv_overlay_width();
@@ -226,6 +252,7 @@ int get_yuv_overlay_height();
 void reset_yuv_overlay();
 
 void notify_stats(int width, int height, const char*);
+void notify_positions();
 
 bool get_yuv_overlay_ready();
 

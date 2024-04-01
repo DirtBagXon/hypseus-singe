@@ -312,7 +312,7 @@ galaxy::galaxy()
 cobraab::cobraab()
 {
     m_shortgamename = "cobraab";
-    banks[3]        = 0xfb;
+    //banks[3]        = 0xfb;
 
     m_video_row_offset = -8; // shift video up by 16 pixels (8 rows)
 
@@ -1041,7 +1041,7 @@ bool astron::set_bank(Uint8 which_bank, Uint8 value)
         banks[3] = (Uint8)(value ^ 0xFF); // switches are active low
         break;
     default:
-        LOGW << "Bank specified is out of range!";
+        printline("ERROR: Bank specified is out of range!");
         result = false;
         break;
     }
