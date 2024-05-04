@@ -63,8 +63,9 @@ void lua_retropath(const char *src, char *dst, int len)
             }
             if (i == 0 && *src == '/') continue;
             if (folder == PATH_SINGE && i == 6) {
-                memcpy(dst, "/../", 4);
-                dst += 4;
+                dst -= 5;
+                memcpy(dst, "roms/../", 8);
+                dst += 8;
             }
             if (*src == '/' && r < 0xf) {
                 r++;
@@ -77,8 +78,13 @@ void lua_retropath(const char *src, char *dst, int len)
                     dst += 1;
                     break;
                 default:
+#ifdef ABSTRACT_SINGE
+                    memcpy(dst, ".singe/", 7);
+                    dst += 7;
+#else
                     memcpy(dst, ".daphne/", 8);
                     dst += 8;
+#endif
                     break;
                 }
                 r = 0xf; //bool

@@ -11,6 +11,9 @@ option(CPU_DEBUG        "CPU Debug"             OFF)
 option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
 
+# Abstract out -retropath ES extension: Use .singe NOT .daphne
+option(ABSTRACT_SINGE   "Redefine Singe LUA Rewrites"     OFF)
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
