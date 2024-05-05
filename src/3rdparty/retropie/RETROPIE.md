@@ -61,26 +61,29 @@ The Singe specific ``-retropath`` argument, performs an *on-the-fly* rewrite of 
 
 ...is rewritten to:
 
-    singe/../timegal.daphne/
+    roms/../timegal.daphne/
 
-The ``singe`` subdirectory is now purely traversed so we can symlink from ``-homedir`` to any existing folder in the daphne ``-datadir``.
+Following ``2.11.2``, if the ``ABSTRACT_SINGE`` option is enabled in ``CMakeLists.txt`` at _build_ time, the rewrite will be:
 
-``roms`` is the obvious choice:
+    roms/../timegal.singe/
+
+This allows _Frontend_ "game type" separation based on folder extensions.
+
+The ``roms`` subdirectory is now purely traversed in the correct ROM location.
 
     ls -al /opt/retropie/emulators/hypseus/
 
     drwxr-xr-x 9 root root    4096 Jul 12 12:24 .
     -rwxr-xr-x 1 root root 2485652 Jul 13 13:00 hypseus.bin
     -rwxr-xr-x 1 root root     522 Jul 12 12:24 hypseus.sh
+    lrwxrwxrwx 1 root root      36 Apr 29 20:23 bezels -> /opt/retropie/configs/daphne/bezels
     drwxr-xr-x 2 root root    4096 Jul  9 22:28 fonts
-    drwxr-xr-x 2 root root    4096 Apr 29 20:23 framefile
     lrwxrwxrwx 1 root root      41 Apr 29 20:01 hypinput.ini -> /opt/retropie/configs/daphne/hypinput.ini
     lrwxrwxrwx 1 root root    4096 Jul 12 12:26 logs -> /opt/retropie/configs/daphne/logs
     drwxr-xr-x 3 root root    4096 Apr 29 20:00 pics
     lrwxrwxrwx 1 root root    4096 Jun 28 19:39 ram -> /opt/retropie/configs/daphne/ram
     lrwxrwxrwx 1 root root      38 Apr 29 20:01 roms -> /home/pi/RetroPie/roms/daphne/roms
     lrwxrwxrwx 1 root root    4096 Apr 29 20:23 screenshots -> /opt/retropie/configs/daphne/screenshots
-    lrwxrwxrwx 1 root root      39 Jul 12 00:07 singe -> /home/pi/RetroPie/roms/daphne/roms
     drwxr-xr-x 2 root root    4096 Apr 29 20:00 sound
 
 This should allow easier integration within Retro gaming systems.

@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install Dependancies
+    - uses: actions/checkout@master
+    - name: Install Dependencies
       run: |
         sudo apt update
         sudo apt install gcc

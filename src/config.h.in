@@ -11,6 +11,7 @@
 #cmakedefine VLDP_DEBUG
 #cmakedefine CPU_DEBUG
 #cmakedefine BUILD_SINGE
+#cmakedefine ABSTRACT_SINGE
 
 /* Makefile.vars CFLAGS now auto-detected by CMake
    TODO: cleanup and replace in code

@@ -193,6 +193,7 @@ static int sep_bezel_player_lives(lua_State *L);
 static int sep_bezel_is_enabled(lua_State *L);
 static int sep_pseudo_audio_call(lua_State *L);
 static int sep_invalid_api_call(lua_State *L);
+static int sep_lua_rewrite(lua_State *L);
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 static int sep_sprite_get_frame(lua_State *L);
 static int sep_sprite_playing(lua_State *L);

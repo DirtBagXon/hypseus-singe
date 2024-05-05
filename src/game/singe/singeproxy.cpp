@@ -1118,6 +1118,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "spriteFrameHeight",      sep_sprite_height);
     lua_register(g_se_lua_context, "spriteFrameWidth",       sep_frame_width);
     lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
+    lua_register(g_se_lua_context, "rewriteStatus",          sep_lua_rewrite);
     lua_register(g_se_lua_context, "dofile",                 sep_doluafile);
 
     lua_register(g_se_lua_context, "scoreBezelEnable",       sep_bezel_enable);
@@ -1800,6 +1801,12 @@ static int sep_overlay_clear(lua_State *L)
 {
     SDL_FillRect(g_se_surface, NULL, 0);
     return 0;
+}
+
+static int sep_lua_rewrite(lua_State *L)
+{
+    lua_pushboolean(L, g_pSingeIn->get_retro_path());
+    return 1;
 }
 
 static int sep_pause(lua_State *L)

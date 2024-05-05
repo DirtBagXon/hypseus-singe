@@ -22,7 +22,7 @@ jobs:
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
         if: success()
-      - name: Install Dependancies
+      - name: Install Dependencies
         run: |
           brew install sdl2
           brew install sdl2_ttf

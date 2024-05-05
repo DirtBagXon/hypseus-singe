@@ -29,6 +29,10 @@ else( WIN32 )
     list( APPEND LIB_HEADERS rs232_posix.h )
 endif( WIN32 )
 
+if( ABSTRACT_SINGE )
+    set_source_files_properties( luretro.c PROPERTIES COMPILE_FLAGS -DABSTRACT_SINGE )
+endif( ABSTRACT_SINGE )
+
 set_source_files_properties( random.c rs232_windows.c PROPERTIES COMPILE_FLAGS -Wno-unused-function )
 
 if( CMAKE_SYSTEM_PROCESSOR MATCHES "arm*|aarch64" )

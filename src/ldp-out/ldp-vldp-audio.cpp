@@ -589,7 +589,7 @@ void ldp_vldp_audio_callback(Uint8 *stream, int len, int unused)
                 // else, samples_read == 0 in which case we've come to the end
                 // of the stream
                 else {
-                    LOGE << "End of audio stream detected!";
+                    LOGW << "End of audio stream detected!";
                     g_audio_playing = false;
                     break;
                 }

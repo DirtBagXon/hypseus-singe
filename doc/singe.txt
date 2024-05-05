@@ -7,6 +7,8 @@ setOverlayResolution,   sep_set_custom_overlay     (int, int)
 getFValue,              sep_get_fvalue             (return double)
 takeScreenshot,         sep_screenshot
 
+rewriteStatus,          sep_lua_rewrite            (return bool) -- (-retropath enabled)
+
 scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
 scoreBezelClear,        sep_bezel_clear            (void)
 scoreBezelCredits,      sep_bezel_credits          (credits)
