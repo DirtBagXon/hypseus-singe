@@ -48,7 +48,7 @@ jobs:
         mkdir -p AppDir/usr/bin
         cp hypseus AppDir/usr/bin/hypseus.bin
         ln -s usr/bin/hypseus.bin AppDir/AppRun
-        cp ../screenshots/hypseus-minilogo.png AppDir/hypseus.png
+        cp ../screenshots/hypseus-logo.png AppDir/hypseus.png
         echo "[Desktop Entry]" > AppDir/hypseus.desktop
         echo "Version=1.0" >> AppDir/hypseus.desktop
         echo "Exec=hypseus.bin" >> AppDir/hypseus.desktop

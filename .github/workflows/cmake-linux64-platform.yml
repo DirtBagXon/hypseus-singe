@@ -43,7 +43,7 @@ jobs:
       run: |
         cp build/hypseus .
         cp doc/hypinput.ini doc/hypinput_gamepad.ini .
-        cp screenshots/hypseus-minilogo.png hypseus.png
+        cp screenshots/hypseus-logo.png hypseus.png
         FILES="hypseus LICENSE README.md hypseus.png hypinput.ini hypinput_gamepad.ini fonts/ pics/ roms/ sound/ scripts/"
         tar -zcvf hypseus-singe.tgz $FILES
     - name: Create Distribution
