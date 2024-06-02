@@ -40,6 +40,7 @@ struct singe_in_info
 	// From video/video.h
 	Uint16 (*get_video_width)();
 	Uint16 (*get_video_height)();
+	int (*get_scalefactor)();
 	void (*draw_string)(const char*, int, int, SDL_Surface*);
 	
 	// From sound/samples.h

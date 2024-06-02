@@ -132,6 +132,7 @@ bool singe::init()
         g_SingeIn.g_vldp_info         = g_vldp_info;
         g_SingeIn.get_video_height    = video::get_video_height;
         g_SingeIn.get_video_width     = video::get_video_width;
+        g_SingeIn.get_scalefactor     = video::get_scalefactor;
         g_SingeIn.draw_string         = video::draw_string;
         g_SingeIn.samples_play_sample = samples::play;
         g_SingeIn.set_last_error      = set_last_error;

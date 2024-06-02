@@ -1119,6 +1119,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "spriteFrameWidth",       sep_frame_width);
     lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
     lua_register(g_se_lua_context, "rewriteStatus",          sep_lua_rewrite);
+    lua_register(g_se_lua_context, "vldpGetScale",           sep_mpeg_get_scale);
     lua_register(g_se_lua_context, "dofile",                 sep_doluafile);
 
     lua_register(g_se_lua_context, "scoreBezelEnable",       sep_bezel_enable);
@@ -1602,6 +1603,12 @@ static int sep_get_overlay_width(lua_State *L)
 static int sep_mpeg_get_height(lua_State *L)
 {
     lua_pushnumber(L, g_pSingeIn->g_vldp_info->h);
+    return 1;
+}
+
+static int sep_mpeg_get_scale(lua_State *L)
+{
+    lua_pushnumber(L, g_pSingeIn->get_scalefactor());
     return 1;
 }
 
