@@ -84,7 +84,11 @@ static int available_mice = 0;
 static ManyMouseEvent mm_event;
 
 static int g_mouse_mode = SDL_MOUSE;
-static SDL_GameController *g_gamepad_id = NULL;
+static SDL_GameController *g_gamepad_id[MAX_GAMECONTROLLER];
+static SDL_Haptic *g_gamepad_haptic[MAX_GAMECONTROLLER];
+static int g_padindex[MAX_GAMECONTROLLER] = {0, 1, 2, 3};
+static uint8_t g_gamepad_attached = 0;
+static bool g_index_reset = false;
 
 static bool enabled_haptic = true;
 Uint16 g_haptic[2] = {0, 0};
@@ -130,40 +134,20 @@ int g_key_defs[SWITCH_COUNT][2] = {
 
 ////////////
 
-int joystick_buttons_map[SWITCH_COUNT][2] = {
-    {0, 0}, // up
-    {0, 0}, // left
-    {0, 0}, // down
-    {0, 0}, // right
-    {0, 0}, // 1 player start
-    {0, 0}, // 2 player start
-    {0, 0}, // action button 1
-    {0, 0}, // action button 2
-    {0, 0}, // action button 3
-    {0, 0}, // coin chute left
-    {0, 0}, // coin chute right
-    {0, 0}, // skill easy
-    {0, 0}, // skill medium
-    {0, 0}, // skill hard
-    {0, 0}, // service coin
-    {0, 0}, // test mode
-    {0, 0}, // reset cpu
-    {0, 0}, // take screenshot
-    {0, 0}, // Quit DAPHNE
-    {0, 0}, // pause game
-    {0, 0}, // toggle console
-    {0, 0}  // Tilt/Slam switch
-};
+int joystick_buttons_map[MAX_GAMECONTROLLER][SWITCH_COUNT][3] = { {0} };
 
-int joystick_axis_map[SWITCH_START1][3] = {
-    {0, 2, -1}, // up
-    {0, 1, -1}, // left
-    {0, 2, 1},  // down
-    {0, 1, 1}   // right
-};
+//  {0, 0, 2, -1}, // up
+//  {0, 0, 1, -1}, // left
+//  {0, 0, 2, 1},  // down
+//  {0, 0, 1, 1}   // right
+
+int joystick_axis_map[MAX_GAMECONTROLLER][SWITCH_START1][4] = { {0} };
 
 // Game controller triggers activated
-bool controller_trigger_pressed[SDL_CONTROLLER_AXIS_MAX]{};
+bool controller_trigger_pressed[MAX_GAMECONTROLLER][SDL_CONTROLLER_AXIS_MAX] = { {false} };
+
+// Hot-plugging
+int controller_map[MAX_GAMECONTROLLER];
 
 // Mouse button to key mappings
 // Added by ScottD for Singe
@@ -182,12 +166,13 @@ void CFG_Keys()
 {
     struct mpo_io *io;
     string cur_line = "";
-    string key_name = "", sval1 = "", sval2 = "", sval3 = "", sval4 = "", eq_sign = "";
-    int val1 = 0, val2 = 0, val3 = 0, val4 = 0;
+    string key_name = "", sval1 = "", sval2 = "", sval3 = "", sval4 = "", sval5 = "", sval6 = "", eq_sign = "";
+    int val1 = 0, val2 = 0, val3 = 0, val4 = 0, val5 = 0, val6 = 0;
+    const uint8_t minparam = 3;
     bool warn = true;
     bool end = false;
 
-    if (m_altInputFileSet) {
+    if (m_altInputFileSet && !g_index_reset) {
        string keyinput_notice = "Loading alternate keymap file: ";
        keyinput_notice += g_inputini_file.c_str();
        LOGI << keyinput_notice.c_str();
@@ -249,19 +234,32 @@ void CFG_Keys()
                                     val4 = 0;
                                     if (find_word(cur_line.c_str(), sval4, cur_line)) {
                                         if (g_use_gamepad) {
-                                            val4 = sdl2_controller_axis(sval4.c_str());
+                                            if (isdigit(sval4[0])) val4 = atoi(sval4.c_str());
+                                            else val4 = sdl2_controller_axis(sval4.c_str());
                                         } else {
                                             val4 = atoi(sval4.c_str());
                                         }
                                     }
+                                    if (g_use_gamepad) {
+                                        val5 = val6 = 0;
+                                        if (find_word(cur_line.c_str(), sval5, cur_line)) {
+                                            if (isdigit(sval5[0])) val5 = atoi(sval5.c_str());
+                                            else val5 = sdl2_controller_button(sval5.c_str());
+                                            if (find_word(cur_line.c_str(), sval6, cur_line)) {
+                                                if (isdigit(sval6[0])) val6 = atoi(sval6.c_str());
+                                                else val6 = sdl2_controller_axis(sval6.c_str());
+                                            }
+                                        }
+                                    }
+                                    uint8_t id = 0;
                                     corrupt_file = false; // looks like we're good
 
                                     bool found_match = false;
                                     for (int i = 0; i < SWITCH_COUNT; i++) {
                                         // if we can match up a key name (see
                                         // list above) ...
-                                        if (strcasecmp(key_name.c_str(),
-                                                       g_key_names[i]) == 0) {
+                                        if (strcasecmp(key_name.c_str(), g_key_names[i]) == 0)
+                                        {
                                             g_key_defs[i][0] = val1;
                                             g_key_defs[i][1] = val2;
 
@@ -269,24 +267,39 @@ void CFG_Keys()
                                             // necessary, just use default, if any
                                             if (val3 > 0) {
                                                 if (val3 > AXIS_TRIGGER) {
-                                                    joystick_buttons_map[i][0] = (val3 / AXIS_TRIGGER);
-                                                    joystick_buttons_map[i][1] = val3;
+                                                    joystick_buttons_map[id][i][0] = (val3 / AXIS_TRIGGER);
+                                                    joystick_buttons_map[id][i][1] = val3;
                                                 } else {
                                                     // first digit=joystick index, remaining digits=button index
                                                     int divider = (sval3.length() == 4) ? 1000 : 100;
-                                                    joystick_buttons_map[i][0] = (val3 / divider);
-                                                    joystick_buttons_map[i][1] = (val3 % divider);
+                                                    joystick_buttons_map[id][i][0] = (val3 / divider);
+                                                    joystick_buttons_map[id][i][1] = (val3 % divider);
                                                 }
                                             }
                                             // joystick axis
                                             if (val4 != 0) {
                                                 // first digit=joystick index, remaining digits=axis index, sign=direction
                                                 int divider = (sval4.length() > 4) ? 1000 : 100;
-                                                joystick_axis_map[i][0] = abs(val4 / divider);
-                                                joystick_axis_map[i][1] = abs(val4 % divider);
-                                                joystick_axis_map[i][2] = (val4 == 0)?0:((val4 < 0)?-1:1);
+                                                joystick_axis_map[id][i][0] = abs(val4 / divider);
+                                                joystick_axis_map[id][i][1] = abs(val4 % divider);
+                                                joystick_axis_map[id][i][2] = (val4 == 0)?0:((val4 < 0) ? -1 : 1);
                                             }
 
+                                            if (g_use_gamepad) {
+                                                if (val5 != 0)
+                                                {
+                                                    id = 1;
+                                                    int adj = (val5 > AXIS_TRIGGER) ? (val5 / AXIS_TRIGGER) : val5;
+                                                    joystick_buttons_map[id][i][0] = adj;
+                                                    joystick_buttons_map[id][i][1] = val5;
+
+                                                    if (val6 != 0) {
+                                                        joystick_axis_map[id][i][0] = abs(val6);
+                                                        joystick_axis_map[id][i][1] = abs(val6);
+                                                        joystick_axis_map[id][i][2] = (val6 == 0)?0:((val6 < 0) ? -1 : 1);
+                                                    }
+                                                }
+                                            }
                                             found_match = true;
                                             break;
                                         }
@@ -301,11 +314,11 @@ void CFG_Keys()
                                     }
 
                                 } else
-                                    LOGW << "Expected 3 integers, only found 2";
+                                    LOGW << fmt("Expected %d config parameters, only found %d", minparam, minparam - 1);
                             } else
-                                LOGW << "Expected 3 integers, only found 1";
+                                LOGW << fmt("Expected %d config parameters, only found %d", minparam, minparam - 2);
                         } else
-                            LOGW << "Expected 3 integers, found none";
+                            LOGW << fmt("Expected %d config parameters, found none", minparam);
                     } // end equals sign
                     else
                         LOGW << "Expected an '=' sign, didn't find it";
@@ -465,9 +478,23 @@ int SDL_input_init()
     g_sticky_coin_cycles =
         (Uint32)(STICKY_COIN_SECONDS * cpu::get_hz(0)); // only needs to be
                                                        // calculated once
+
+    for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
+        g_gamepad_haptic[i] = NULL;
+        g_gamepad_id[i] = NULL;
+        controller_map[i] = i;
+    }
+
     if (g_use_gamepad) {
 
-        if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) >= 0) {
+        Uint32 gamepad_init = SDL_INIT_GAMECONTROLLER;
+
+        if (enabled_haptic) {
+            gamepad_init |= SDL_INIT_HAPTIC;
+            LOGI << "Loading Game Controller system with HAPTIC support";
+        }
+
+        if (SDL_InitSubSystem(gamepad_init) >= 0) {
 
             string strGCdb = g_homedir.find_file("gamecontrollerdb.txt", true);
 
@@ -542,36 +569,71 @@ int SDL_input_init()
     return (result);
 }
 
-void SDL_gamepad_init()
+void reOrderIdx(int controller_map[], int g_padindex[])
 {
-    static bool padcfg = false;
-
-    // Only use first controller found
-    for (int i=0; i < SDL_NumJoysticks(); i++) {
-         if (SDL_IsGameController(i)) {
-             SDL_GameController *gamepad = SDL_GameControllerOpen(i);
-             SDL_Joystick* joy = SDL_GameControllerGetJoystick(gamepad);
-             if (joy != NULL) {
-
-                 LOGI << "Gamepad #" << i << ": "
-			 << SDL_GameControllerName(gamepad) << " connected";
-                 g_gamepad_id = gamepad;
-
-                 if (!padcfg) {
-                     SDL_JoystickEventState(SDL_ENABLE);
-                     SDL_GameControllerEventState(SDL_ENABLE);
-                     padcfg = true;
-                     CFG_Keys();
-                 }
-                 break;
+    for (int i = 0; i < MAX_GAMECONTROLLER; ++i)
+    {
+        for (int j = 0; j < MAX_GAMECONTROLLER; ++j)
+        {
+            if (controller_map[i] == g_padindex[j])
+            {
+                controller_map[i] = j;
+                break;
             }
         }
     }
+
+    if (g_index_reset) {
+        LOGW << fmt("Gamepad index re-ordering requested: %s", g_inputini_file.c_str());
+    }
 }
 
-SDL_GameController* get_gamepad_id()
+void SDL_gamepad_init()
 {
-    return g_gamepad_id;
+    for (int i = 0; i < SDL_NumJoysticks(); i++) {
+         if (SDL_IsGameController(i)) {
+             g_gamepad_id[g_gamepad_attached] = SDL_GameControllerOpen(i);
+             SDL_Joystick* joy = SDL_GameControllerGetJoystick(g_gamepad_id[g_gamepad_attached]);
+             if (joy != NULL) {
+
+                 LOGI << "Gamepad #" << i << ": "
+			 << SDL_GameControllerName(g_gamepad_id[g_gamepad_attached]) << " connected";
+
+                 if (enabled_haptic)
+                 {
+                     g_gamepad_haptic[g_gamepad_attached] = SDL_HapticOpenFromJoystick(joy);
+
+		     if (g_gamepad_haptic[g_gamepad_attached] != NULL) {
+                         if (SDL_HapticRumbleSupported(g_gamepad_haptic[g_gamepad_attached])) {
+                             LOGI << "Gamepad #" << i << ": Haptic Rumble support";
+                         } else {
+                             SDL_HapticClose(g_gamepad_haptic[g_gamepad_attached]);
+                             g_gamepad_haptic[g_gamepad_attached] = NULL;
+                         }
+                     }
+                 }
+
+                 g_gamepad_attached++;
+
+                 if (g_gamepad_attached > (MAX_GAMECONTROLLER - 1)) {
+                     LOGI << "Max Game Controller limit [" << MAX_GAMECONTROLLER << "] reached";
+                     break;
+                }
+            }
+        }
+    }
+    SDL_JoystickEventState(SDL_ENABLE);
+    SDL_GameControllerEventState(SDL_ENABLE);
+    reOrderIdx(controller_map, g_padindex);
+    CFG_Keys();
+}
+
+SDL_GameController* get_gamepad_id(int i)
+{
+    if (g_gamepad_id[(uint8_t)i])
+        return g_gamepad_id[(uint8_t)i];
+
+    return nullptr;
 }
 
 void FilterMouseEvents(bool bFilteredOut)
@@ -592,9 +654,15 @@ void FilterMouseEvents(bool bFilteredOut)
 void SDL_input_shutdown(void)
 {
     if (g_use_gamepad) {
-        if (g_gamepad_id) {
-            SDL_GameControllerClose(g_gamepad_id);
-            g_gamepad_id = NULL;
+        for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
+            if (g_gamepad_haptic[i]) {
+                SDL_HapticClose(g_gamepad_haptic[i]);
+                g_gamepad_haptic[i] = NULL;
+            }
+            if (g_gamepad_id[i]) {
+                SDL_GameControllerClose(g_gamepad_id[i]);
+                g_gamepad_id[i] = NULL;
+            }
         }
         SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
     } else
@@ -723,15 +791,54 @@ void process_event(SDL_Event *event)
 
         break;
     case SDL_CONTROLLERDEVICEREMOVED:
-        if (g_gamepad_id) {
-            LOGI << "GamePad '" << SDL_GameControllerName(g_gamepad_id) << "' disconnected";
-            SDL_GameControllerClose(g_gamepad_id);
-            g_gamepad_id = NULL;
+        for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
+            if (g_gamepad_id[i] && event->cdevice.which == SDL_JoystickInstanceID(
+                  SDL_GameControllerGetJoystick(g_gamepad_id[i]))) {
+                LOGI << "GamePad '" << SDL_GameControllerName(g_gamepad_id[i]) << "' disconnected";
+                if (g_gamepad_haptic[i]) {
+                    SDL_HapticClose(g_gamepad_haptic[i]);
+                    g_gamepad_haptic[i] = NULL;
+                }
+                SDL_GameControllerClose(g_gamepad_id[i]);
+                g_gamepad_id[i] = NULL;
+                g_gamepad_attached--;
+                break;
+            }
         }
         break;
     case SDL_CONTROLLERDEVICEADDED:
-        if (!g_gamepad_id)
-            SDL_gamepad_init();
+	if (g_index_reset) {
+            LOGW << "Controller hotplugging disabled in reorder mode.";
+            break;
+        }
+        if (g_gamepad_attached < MAX_GAMECONTROLLER) {
+            for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
+                if (!g_gamepad_id[i]) {
+                    g_gamepad_id[i] = SDL_GameControllerOpen(event->cdevice.which);
+                    SDL_Joystick* joy = SDL_GameControllerGetJoystick(g_gamepad_id[i]);
+                    if (joy != NULL) {
+                        LOGI << "Gamepad #" << i << ": "
+                            << SDL_GameControllerName(g_gamepad_id[i]) << " connected";
+                        if (enabled_haptic && !g_gamepad_haptic[i]) {
+                            g_gamepad_haptic[i] = SDL_HapticOpenFromJoystick(joy);
+
+                            if (g_gamepad_haptic[i] != NULL) {
+                                if (SDL_HapticRumbleSupported(g_gamepad_haptic[i])) {
+                                    LOGI << "Gamepad #" << i << ": Haptic Rumble support";
+                                } else {
+                                    SDL_HapticClose(g_gamepad_haptic[i]);
+                                    g_gamepad_haptic[i] = NULL;
+                                }
+                            }
+                        }
+                        controller_map[SDL_JoystickInstanceID(
+				SDL_GameControllerGetJoystick(g_gamepad_id[i]))] = i;
+                        g_gamepad_attached++;
+                        break;
+                    }
+                }
+            }
+        }
         break;
     case SDL_CONTROLLERAXISMOTION:
         process_controller_motion(event);
@@ -754,8 +861,8 @@ void process_event(SDL_Event *event)
 
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->jbutton.which == joystick_buttons_map[i][0]
-                            && event->jbutton.button == joystick_buttons_map[i][1]-1) {
+            if (event->jbutton.which == joystick_buttons_map[0][i][0]
+                            && event->jbutton.button == joystick_buttons_map[0][i][1]-1) {
                 if (i == SWITCH_COIN1) hotkey = true;
                 input_enable(i, NOMOUSE);
                 break;
@@ -767,11 +874,12 @@ void process_event(SDL_Event *event)
         reset_idle(); // added by JFA for -idleexit
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->cbutton.button == joystick_buttons_map[i][1]-1) {
+            if (event->cbutton.button == joystick_buttons_map[controller_map[event->cdevice.which]][i][1]-1) {
                 if (i == SWITCH_COIN1) hotkey = true;
                 input_enable(i, NOMOUSE);
-                if (g_haptic[0] && enabled_haptic)
-                    SDL_GameControllerRumble(g_gamepad_id, g_haptic[0], g_haptic[0], g_haptic[1]);
+                if (g_haptic[0] && g_gamepad_haptic[controller_map[event->cdevice.which]])
+                    SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
+                                                 g_haptic[0], g_haptic[0], g_haptic[1]);
                 break;
             }
         }
@@ -784,8 +892,8 @@ void process_event(SDL_Event *event)
 
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->jbutton.which == joystick_buttons_map[i][0]
-                           && event->jbutton.button == joystick_buttons_map[i][1]-1) {
+            if (event->jbutton.which == joystick_buttons_map[0][i][0]
+                           && event->jbutton.button == joystick_buttons_map[0][i][1]-1) {
                 input_disable(i, NOMOUSE);
                 break;
             }
@@ -798,7 +906,7 @@ void process_event(SDL_Event *event)
 
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->cbutton.button == joystick_buttons_map[i][1]-1) {
+            if (event->cbutton.button == joystick_buttons_map[controller_map[event->cdevice.which]][i][1]-1) {
                 input_disable(i, NOMOUSE);
                 break;
             }
@@ -900,26 +1008,27 @@ void process_keyup(SDL_Keycode key)
 // game controller axis
 void process_controller_motion(SDL_Event *event)
 {
-    static int x_axis_in_use = 0; // true if joystick is left or right
-    static int y_axis_in_use = 0; // true if joystick is up or down
+    static int x_axis_in_use[MAX_GAMECONTROLLER] = { 0 }; // true if joystick is left or right
+    static int y_axis_in_use[MAX_GAMECONTROLLER] = { 0 }; // true if joystick is up or down
 
-    g_game->ControllerAxisProxy(event->caxis.axis, event->caxis.value);
+    g_game->ControllerAxisProxy(event->caxis.axis, event->caxis.value, controller_map[event->cdevice.which]);
 
     // Deal with AXIS TRIGGERS
     for (int i = 0; i < SWITCH_COUNT; i++) {
 
-        if (event->caxis.axis == joystick_buttons_map[i][1]-AXIS_TRIGGER) {
+        if (event->caxis.axis == joystick_buttons_map[controller_map[event->cdevice.which]][i][1]-AXIS_TRIGGER) {
 
             if ((abs(event->caxis.value) > JOY_AXIS_TRIG)
-			    && !controller_trigger_pressed[event->caxis.axis]) {
+			    && !controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis]) {
                 input_enable(i, NOMOUSE);
-                if (g_haptic[0] && enabled_haptic)
-                    SDL_GameControllerRumble(g_gamepad_id, g_haptic[0], g_haptic[0], g_haptic[1]);
-                controller_trigger_pressed[event->caxis.axis] = true;
+                if (g_haptic[0] && g_gamepad_haptic[controller_map[event->cdevice.which]])
+                    SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
+                                                 g_haptic[0], g_haptic[0], g_haptic[1]);
+                controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis] = true;
             } else {
-                if (controller_trigger_pressed[event->caxis.axis]) {
+                if (controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis]) {
                     input_disable(i, NOMOUSE);
-                    controller_trigger_pressed[event->caxis.axis] = false;
+                    controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis] = false;
                 }
             }
             return;
@@ -930,8 +1039,8 @@ void process_controller_motion(SDL_Event *event)
     int key = -1;
     for (int i = 0; i < SWITCH_START1; i++) {
 
-        if (event->caxis.axis == joystick_axis_map[i][1]-1
-			&& ((event->caxis.value < 0)?-1:1) == joystick_axis_map[i][2]) {
+        if (event->caxis.axis == joystick_axis_map[controller_map[event->cdevice.which]][i][1]-1
+			&& ((event->caxis.value < 0) ? -1 : 1) == joystick_axis_map[controller_map[event->cdevice.which]][i][2]) {
             key = i;
             break;
         }
@@ -941,20 +1050,22 @@ void process_controller_motion(SDL_Event *event)
     if (abs(event->caxis.value) > JOY_AXIS_MID) {
         input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
-            y_axis_in_use = 1;
+            y_axis_in_use[controller_map[event->cdevice.which]] = 1;
         else
-            x_axis_in_use = 1;
+            x_axis_in_use[controller_map[event->cdevice.which]] = 1;
     }
     else {
-        if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use) {
+        if ((key == SWITCH_UP ||
+		key == SWITCH_DOWN) && y_axis_in_use[controller_map[event->cdevice.which]]) {
             input_disable(SWITCH_UP, NOMOUSE);
             input_disable(SWITCH_DOWN, NOMOUSE);
-            y_axis_in_use = 0;
+            y_axis_in_use[controller_map[event->cdevice.which]] = 0;
 
-        } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use) {
+        } else if ((key == SWITCH_LEFT ||
+		key == SWITCH_RIGHT) && x_axis_in_use[controller_map[event->cdevice.which]]) {
             input_disable(SWITCH_LEFT, NOMOUSE);
             input_disable(SWITCH_RIGHT, NOMOUSE);
-            x_axis_in_use = 0;
+            x_axis_in_use[controller_map[event->cdevice.which]] = 0;
         }
     }
 }
@@ -968,8 +1079,8 @@ void process_joystick_motion(SDL_Event *event)
     // loop through map and find corresponding action
     int key = -1;
     for (int i = 0; i < SWITCH_START1; i++) {
-        if (event->jaxis.which == joystick_axis_map[i][0] && event->jaxis.axis == joystick_axis_map[i][1]-1
-			&& ((event->jaxis.value < 0)?-1:1) == joystick_axis_map[i][2]) {
+        if (event->jaxis.which == joystick_axis_map[0][i][0] && event->jaxis.axis == joystick_axis_map[0][i][1]-1
+			&& ((event->jaxis.value < 0) ? -1 : 1) == joystick_axis_map[0][i][2]) {
             key = i;
             break;
         }
@@ -1162,6 +1273,15 @@ void set_use_gamepad(bool value) {
     g_use_joystick = !value;
 }
 
+void set_gamepad_order(int *c, int max) {
+
+    for (int i = 0; i < max; i++) {
+        g_padindex[i] = (uint8_t)(c[i] - 1);
+    }
+
+    g_index_reset = true;
+}
+
 void disable_haptics() { enabled_haptic = false; }
 
 void set_haptic(Uint8 value) {
@@ -1169,11 +1289,11 @@ void set_haptic(Uint8 value) {
     g_haptic[1] = 0x96;
 }
 
-void do_gamepad_rumble(Uint8 str, Uint8 len) {
-
-    if (g_gamepad_id && enabled_haptic) {
+void do_gamepad_rumble(Uint8 str, Uint8 len, Uint8 id)
+{
+    if (g_gamepad_id[id] && g_gamepad_haptic[id]) {
         Uint16 s = (1 << (str + 0xC)) - 1;
-        SDL_GameControllerRumble(g_gamepad_id, s, s, (0x4B << len));
+        SDL_GameControllerRumble(g_gamepad_id[id], s, s, (0x4B << len));
     }
 }
 

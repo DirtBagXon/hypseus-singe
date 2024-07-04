@@ -21,7 +21,7 @@ Features:
 * Sinden support in Singe games
 * For Singe games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
 * Daphne alternate overlay choices
-* *SDL_GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
+* Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
 * 64bit Windows and MacOS X Ports

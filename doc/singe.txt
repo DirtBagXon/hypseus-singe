@@ -39,7 +39,8 @@ spriteRotateAndScale,   sep_sprite_rotatescale     (rotation, scale, [scaley], s
 spriteQuality,          sep_sprite_quality         (bool, spr)
 spriteScale,            sep_sprite_scale           (scale, [scaley], spr)
 
-controllerDoRumble,     sep_controller_rumble      (strength, duration) -- Values:[1-4]
+controllerIsValid,      sep_controller_valid       (ctrl) -- Controller [id] (return bool)
+controllerDoRumble,     sep_controller_rumble      (ctrl, strength, duration) -- Values:[1-4]
 controllerGetButton     sep_controller_button      (ctrl, button, bool[framework adjust])
 
 

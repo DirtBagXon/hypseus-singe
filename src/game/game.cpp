@@ -315,7 +315,7 @@ void game::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mou
     LOGW << "generic mouse_motion function called, does nothing";
 }
 
-void game::ControllerAxisProxy(Uint8 a, Sint16 v)
+void game::ControllerAxisProxy(Uint8 a, Sint16 v, Uint8 id)
 {
     // get rid of warnings
     if (a || v ) {

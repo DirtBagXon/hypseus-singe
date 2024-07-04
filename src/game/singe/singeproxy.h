@@ -45,6 +45,7 @@
 #define __func__ "unknown"
 #endif
 
+#define MAX_GAMECONTROLLER 4
 #define AXIS_COUNT 6
 #define MAX_MICE 32
 
@@ -85,7 +86,7 @@ void          sep_no_crosshair(void);
 void          sep_enable_trace(void);
 void          sep_upgrade_overlay(void);
 void          sep_keyboard_set_state(int key, bool state);
-void          sep_controller_set_axis(uint8_t axis, int16_t value);
+void          sep_controller_set_axis(uint8_t axis, int16_t value, uint8_t id);
 bool          sep_format_srf32(SDL_Surface *src, SDL_Surface *dst);
 bool          sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst);
 
@@ -155,6 +156,7 @@ static int sep_keyboard_get_up(lua_State *L);
 static int sep_keyboard_is_down(lua_State *L);
 static int sep_controller_axis(lua_State *L);
 static int sep_controller_button(lua_State *L);
+static int sep_controller_valid(lua_State *L);
 static int sep_singe_quit(lua_State *L);
 static int sep_get_vldp_state(lua_State *L);
 static int sep_get_pause_flag(lua_State *L);

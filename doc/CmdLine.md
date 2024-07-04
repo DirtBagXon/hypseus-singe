@@ -1,6 +1,6 @@
 # CmdLine
 
-#### Derived from Daphne [CmdLine](http://www.daphne-emu.com/mediawiki/index.php/CmdLine)
+#### Derived from Daphne [CmdLine](https://www.daphne-emu.com:9443/mediawiki/index.php/CmdLine)
 
 ### Command Line Format
 The command line format is:
@@ -66,6 +66,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -fullscreen                      | Runs Hypseus in fullscreen mode (instead of windowed mode). |
 | -fullscreen_window               | Runs Hypseus in a fullscreen window.                    |
 | -gamepad                         | Enable SDL_GameController configuration. Use -haptic [0-4] to configure rumble. |
+| -gamepad_reorder 3 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3]_|
 | -grabmouse                       | Capture mouse in SDL window.                           |
 | -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.         |
 | -idleexit \<seconds>             | Tells Hypseus to exit after a certain number of seconds if no input has been received. |
@@ -142,4 +143,4 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | [KEY_COIN1]=\|[KEY_START1]       | *Joystick* hotkey combination for [KEY_QUIT]                             |
 | [KEY_TILT]                       | Switch *scorepanel* display screen lair/ace/tq.                          |
 
-Credits: [Daphne Wiki](http://www.daphne-emu.com/mediawiki/index.php/CmdLine)
+Credits: [Daphne Wiki](https://www.daphne-emu.com:9443/mediawiki/index.php/CmdLine)

@@ -74,7 +74,7 @@ typedef struct g_spriteType {
 typedef struct g_positionType {
 	int     mouseX[MAX_MICE] = {0};
 	int     mouseY[MAX_MICE] = {0};
-	Sint16  axisvalue[AXIS_COUNT] = {0};
+	Sint16  axisvalue[MAX_GAMECONTROLLER][AXIS_COUNT] = { {0} };
 } g_positionT;
 
 // These are pointers and values needed by the script engine to interact with Hypseus
@@ -167,7 +167,7 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SDL_GameController* get_gamepad_id();
+SDL_GameController* get_gamepad_id(int i);
 
 unsigned char sep_byte_clip(int value)
 {
@@ -300,9 +300,9 @@ void sep_keyboard_set_state(int keycode, bool state)
     }
 }
 
-void sep_controller_set_axis(Uint8 axis, Sint16 value)
+void sep_controller_set_axis(Uint8 axis, Sint16 value, Uint8 id)
 {
-    g_tract.axisvalue[axis] = value;
+    g_tract.axisvalue[id][axis] = value;
 }
 
 void sep_call_lua(const char *func, const char *sig, ...)
@@ -1130,6 +1130,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "scoreBezelLives",        sep_bezel_player_lives);
     lua_register(g_se_lua_context, "scoreBezelGetState",     sep_bezel_is_enabled);
     lua_register(g_se_lua_context, "controllerDoRumble",     sep_controller_rumble);
+    lua_register(g_se_lua_context, "controllerIsValid",      sep_controller_valid);
 
     // by RDG2010
     lua_register(g_se_lua_context, "keyboardGetMode",        sep_keyboard_get_mode);
@@ -3125,23 +3126,25 @@ static int sep_controller_axis(lua_State *L)
 {
     int n = lua_gettop(L);
     int a = 0;
+    int c = 0;
     int v = 0;
     bool result = false;
 
-    // We only have one controller - enabled via -gamepad
     if (n == 1 || n == 2) {
         if (lua_isnumber(L, 1)) {
 
             if (n == 2 && lua_isnumber(L, 2))
+            {
+                c = lua_tonumber(L, 1);
                 a = lua_tonumber(L, 2);
-            else
-                a = lua_tonumber(L, 1);
+            }
+            else a = lua_tonumber(L, 1);
 
-            if ((a < 0) || (a > AXIS_COUNT)) {
+            if (get_gamepad_id(c) == nullptr || ((a < 0) || (a > AXIS_COUNT))) {
                 sep_die("Invalid controller axis specified");
                 return 0;
             }
-            v = g_tract.axisvalue[a];
+            v = g_tract.axisvalue[(uint8_t)c][a];
             result = true;
         }
     }
@@ -3155,36 +3158,64 @@ static int sep_controller_axis(lua_State *L)
 static int sep_controller_rumble(lua_State *L)
 {
     int n = lua_gettop(L);
-    int s = 0, l = 0;
+    int s = 0, l = 0, id = 0;
     bool result = false;
 
-    if (n == 2) {
+    if (n >= 2 && n <= 3) {
         if (lua_isnumber(L, 1) && lua_isnumber(L, 2)) {
 
-            int t1 = lua_tonumber(L, 1);
-            int t2 = lua_tonumber(L, 2);
-
-            if (t1 > 0 && t1 < 5 && t2 > 0 && t2 < 5) {
-                s = t1; l = t2;
-                result = true;;
+            int t1 = 0, t2 = 0;
+            if (n == 3 && lua_isnumber(L, 3))
+            {
+                id = lua_tonumber(L, 1);
+                t1 = lua_tonumber(L, 2);
+                t2 = lua_tonumber(L, 3);
+            }
+            else
+            {
+                t1 = lua_tonumber(L, 1);
+                t2 = lua_tonumber(L, 2);
+            }
+            if (get_gamepad_id(id) != nullptr) {
+                if (t1 > 0 && t1 < 5 && t2 > 0 && t2 < 5) {
+                    s = t1; l = t2;
+                    result = true;;
+                }
             }
         }
     }
 
     if (!result) sep_die("Failed on controllerDoRumble");
-    g_pSingeIn->cfm_set_gamepad_rumble(g_pSingeIn->pSingeInstance, s, l);
+    g_pSingeIn->cfm_set_gamepad_rumble(g_pSingeIn->pSingeInstance, s, l, id);
 
     return 0;
+}
+
+static int sep_controller_valid(lua_State *L)
+{
+    int n = lua_gettop(L);
+    bool valid = false;
+
+    if (n == 1) {
+        if (lua_isnumber(L, 1)) {
+            SDL_GameController* c = get_gamepad_id(lua_tonumber(L, 1));
+            if (c != nullptr) valid = true;
+        }
+    }
+
+    lua_pushboolean(L, valid);
+    return 1;
 }
 
 static int sep_controller_button(lua_State *L)
 {
     int n = lua_gettop(L);
     int b = 0;
+    int c = 0;
     bool d = false;
     bool result = false;
 
-    // We only have one controller (c = 0) - enabled via -gamepad
+    // Default to controller 0
     // controllerGetButton(b)              - Is controller button down
     // controllerGetButton(c, b)           - Is controller button down (Singe2 compatibility)
     // controllerGetButton(c, b, f)        - c is unused: (bool)f (en)/dis Framework adjustment
@@ -3194,7 +3225,10 @@ static int sep_controller_button(lua_State *L)
         if (lua_isnumber(L, 1)) {
 
             bool framework = true;
-            if (n >= 2 && lua_isnumber(L, 2)) {
+
+            if (n >= 2 && lua_isnumber(L, 2))
+            {
+                c = lua_tonumber(L, 1);
                 b = lua_tonumber(L, 2);
 
                 if (n == 3 && lua_isboolean(L, 3))
@@ -3215,8 +3249,13 @@ static int sep_controller_button(lua_State *L)
                 sep_die("Invalid controller button specified");
                 return 0;
             }
-            d = SDL_GameControllerGetButton(get_gamepad_id(), get_button(b));
-            result = true;
+
+            SDL_GameController* controller = get_gamepad_id(c);
+
+            if (controller != nullptr) {
+                d = SDL_GameControllerGetButton(controller, get_button(b));
+                result = true;
+            }
         }
     }
 

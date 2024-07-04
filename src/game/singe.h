@@ -85,7 +85,7 @@ class singe : public game
     void input_enable(Uint8, Sint8);
     void input_disable(Uint8, Sint8);
     void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
-    void ControllerAxisProxy(Uint8 a, Sint16 v);
+    void ControllerAxisProxy(Uint8 a, Sint16 v, Uint8 id);
     bool handle_cmdline_arg(const char *arg);
     void palette_calculate();
     void repaint();
@@ -216,10 +216,10 @@ class singe : public game
         pSingeInstance->set_custom_overlay(w, h);
     }
 
-    static void gfm_set_gamepad_rumble(void *pInstance, uint8_t s, uint8_t l)
+    static void gfm_set_gamepad_rumble(void *pInstance, uint8_t s, uint8_t l, uint8_t id)
     {
         singe *pSingeInstance = (singe *)pInstance;
-        pSingeInstance->set_gamepad_rumble(s, l);
+        pSingeInstance->set_gamepad_rumble(s, l, id);
     }
 
     static void gfm_bezel_enable(void *pInstance, bool bEnable)
@@ -316,7 +316,7 @@ class singe : public game
 
     void set_overlaysize(uint8_t);
     void set_custom_overlay(uint16_t, uint16_t);
-    void set_gamepad_rumble(uint8_t, uint8_t);
+    void set_gamepad_rumble(uint8_t, uint8_t, uint8_t);
 
     uint8_t get_overlaysize();
 

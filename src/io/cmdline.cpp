@@ -570,7 +570,7 @@ bool parse_cmd_line(int argc, char **argv)
                     loadini = false;
 
                 if (loadini) {
-                    for(int k=0;k<iLen;k++) // lowercase
+                    for (int k = 0; k < iLen; k++) // lowercase
                         s[k] = tolower(s[k]);
 
                     string s1(s);
@@ -674,6 +674,47 @@ bool parse_cmd_line(int argc, char **argv)
             }
             else if (strcasecmp(s, "-gamepad") == 0) {
                 set_use_gamepad(true);
+            }
+            else if (strcasecmp(s, "-gamepad_reorder") == 0) {
+
+                bool b = true;
+                int ctlr[MAX_GAMECONTROLLER] = {0}, j, k;
+
+                for (j = 0; j < MAX_GAMECONTROLLER; j++) {
+
+                    get_next_word(s, sizeof(s));
+
+                    if (strcasecmp(s, "0") == 0) i = 1;
+                    else {
+                        i = atoi(s);
+                        if (i) i++;
+                    }
+
+                    if ((i > 0) && (i <= MAX_GAMECONTROLLER)) {
+                        ctlr[j] = i;
+                    }
+                }
+
+                for (j = 0; j < MAX_GAMECONTROLLER && b; j++) {
+                    if (ctlr[j] == 0) {
+                        b = false;
+                        break;
+                    }
+                    for (k = j + 1; k < MAX_GAMECONTROLLER; k++) {
+                        if (ctlr[j] == ctlr[k]) {
+                            b = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (b) {
+                    set_use_gamepad(true);
+                    set_gamepad_order(ctlr, MAX_GAMECONTROLLER);
+                } else {
+                    printline("Invalid gamepad unit input: -gamepad_order 0 .. 3");
+                    result = false;
+                }
             }
             else if (strcasecmp(s, "-haptic") == 0) {
                 get_next_word(s, sizeof(s));

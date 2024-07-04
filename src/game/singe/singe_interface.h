@@ -77,7 +77,7 @@ struct singe_in_info
 	uint8_t (*cfm_get_overlaysize)(void *);
 	void (*cfm_set_overlaysize)(void *, uint8_t);
 	void (*cfm_set_custom_overlay)(void *, uint16_t, uint16_t);
-	void (*cfm_set_gamepad_rumble)(void *, uint8_t, uint8_t);
+	void (*cfm_set_gamepad_rumble)(void *, uint8_t, uint8_t, uint8_t);
 
 	void (*cfm_bezel_enable)(void *, bool);
 	void (*cfm_bezel_type)(void *, uint8_t);
@@ -129,7 +129,7 @@ struct singe_out_info
 	void (*sep_startup)(const char *script);
 	void (*sep_set_retropath)(void);
 	void (*sep_keyboard_set_state)(int key, bool state);
-	void (*sep_controller_set_axis)(uint8_t axis, int16_t value);
+	void (*sep_controller_set_axis)(uint8_t axis, int16_t value, uint8_t id);
 	void (*sep_mute_vldp_init)(void);
 	void (*sep_no_crosshair)(void);
 	void (*sep_upgrade_overlay)(void);

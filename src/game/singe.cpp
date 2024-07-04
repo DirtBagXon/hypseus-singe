@@ -728,9 +728,9 @@ void singe::set_custom_overlay(uint16_t w, uint16_t h)
     m_custom_overlay_h = h;
 }
 
-void singe::set_gamepad_rumble(uint8_t s, uint8_t l)
+void singe::set_gamepad_rumble(uint8_t s, uint8_t l, uint8_t id)
 {
-    do_gamepad_rumble(s, l);
+    do_gamepad_rumble(s, l, id);
 }
 
 int singe::get_keyboard_mode() { return i_keyboard_mode; }
@@ -915,7 +915,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     if (alt_commands) alt_lastkey = SDLK_UNKNOWN;
 }
 
-void singe::ControllerAxisProxy(Uint8 axis, Sint16 value)
+void singe::ControllerAxisProxy(Uint8 axis, Sint16 value, Uint8 id)
 {
-    if (m_running) g_pSingeOut->sep_controller_set_axis(axis, value);
+    if (m_running) g_pSingeOut->sep_controller_set_axis(axis, value, id);
 }
