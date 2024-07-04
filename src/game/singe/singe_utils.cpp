@@ -60,7 +60,7 @@ void singe::scoreboard_score(int value, uint8_t player)
 {
     uint8_t digit;
     const uint8_t which = (6 - 1); // six chars
-    for(int i = which; i >= 0; i--) {
+    for (int i = which; i >= 0; i--) {
         if (value < 0)
             digit = scoreboard_format(value);
         else
@@ -85,7 +85,7 @@ void singe::scoreboard_lives(int value, uint8_t player)
 void singe::scoreboard_credits(uint8_t value)
 {
     const uint8_t which = (2 - 1); // two chars
-    for(int i = which; i >= 0; i--) {
+    for (int i = which; i >= 0; i--) {
         uint8_t digit = value % 10;
         value = value / 10;
         m_pScoreboard->update_credits(i, digit);

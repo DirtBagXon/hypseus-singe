@@ -155,7 +155,7 @@ void set_cur_dir(const char *exe_loc)
 int main(int argc, char **argv)
 {
     int result_code = 1; // assume an error unless we find otherwise
-    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG | IMG_INIT_WEBP;
+    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
 
     set_cur_dir(argv[0]); // set active directory
 
