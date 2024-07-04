@@ -86,7 +86,7 @@ static ManyMouseEvent mm_event;
 static int g_mouse_mode = SDL_MOUSE;
 static SDL_GameController *g_gamepad_id[MAX_GAMECONTROLLER];
 static SDL_Haptic *g_gamepad_haptic[MAX_GAMECONTROLLER];
-static int g_padindex[MAX_GAMECONTROLLER] = {0, 1, 2, 3};
+static int g_padindex[MAX_GAMECONTROLLER] = {0};
 static uint8_t g_gamepad_attached = 0;
 static bool g_index_reset = false;
 
@@ -583,9 +583,7 @@ void reOrderIdx(int controller_map[], int g_padindex[])
         }
     }
 
-    if (g_index_reset) {
-        LOGW << fmt("Gamepad index re-ordering requested: %s", g_inputini_file.c_str());
-    }
+    LOGW << fmt("Gamepad index re-ordering requested: %s", g_inputini_file.c_str());
 }
 
 void SDL_gamepad_init()
@@ -624,7 +622,10 @@ void SDL_gamepad_init()
     }
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_GameControllerEventState(SDL_ENABLE);
-    reOrderIdx(controller_map, g_padindex);
+
+    if (g_index_reset)
+        reOrderIdx(controller_map, g_padindex);
+
     CFG_Keys();
 }
 

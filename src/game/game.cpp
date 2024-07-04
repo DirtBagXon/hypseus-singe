@@ -318,7 +318,7 @@ void game::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mou
 void game::ControllerAxisProxy(Uint8 a, Sint16 v, Uint8 id)
 {
     // get rid of warnings
-    if (a || v ) {
+    if (a || v) {
     }
 
     LOGD << "generic controller_axis_proxy function called, does nothing";
