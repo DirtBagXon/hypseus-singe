@@ -560,7 +560,7 @@ bool parse_cmd_line(int argc, char **argv)
                  printline(e);
             }
             // specify an alternate hypseus.ini file (located in home or app directory)
-            else if (strcasecmp(s, "-keymapfile") == 0) {
+            else if (strcasecmp(s, "-keymapfile") == 0 || strcasecmp(s, "-config") == 0) {
 
                 bool loadini = true;
                 get_next_word(s, sizeof(s));
@@ -694,7 +694,6 @@ bool parse_cmd_line(int argc, char **argv)
                         ctlr[j] = i;
                     }
                 }
-
                 for (j = 0; j < MAX_GAMECONTROLLER && b; j++) {
                     if (ctlr[j] == 0) {
                         b = false;
@@ -707,27 +706,30 @@ bool parse_cmd_line(int argc, char **argv)
                         }
                     }
                 }
-
                 if (b) {
                     set_use_gamepad(true);
                     set_gamepad_order(ctlr, MAX_GAMECONTROLLER);
                 } else {
-                    printline("Invalid gamepad unit input: -gamepad_order 0 .. 3");
+                    char e[460];
+                    snprintf(e, sizeof(e), "Invalid gamepad unit input: -gamepad_order 0 .. %d",
+                       MAX_GAMECONTROLLER - 1);
+                    printline(e);
                     result = false;
                 }
             }
             else if (strcasecmp(s, "-haptic") == 0) {
+                bool disabled = false;
                 get_next_word(s, sizeof(s));
                 if (strcasecmp(s, "0") == 0) {
                     printline("All haptic feedback is disabled...");
                     disable_haptics();
-                    return true;
+                    disabled = true;
                 }
 
                 i = atoi(s);
                 if ((i > 0) && (i < 5)) {
                     set_haptic(i);
-                } else {
+                } else if (!disabled) {
                     printline("Invalid argument: -haptic [0-4]");
                     result = false;
                 }

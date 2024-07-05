@@ -569,7 +569,7 @@ int SDL_input_init()
     return (result);
 }
 
-void reOrderIdx(int controller_map[], int g_padindex[])
+void reOrderIndex()
 {
     for (int i = 0; i < MAX_GAMECONTROLLER; ++i)
     {
@@ -623,8 +623,7 @@ void SDL_gamepad_init()
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_GameControllerEventState(SDL_ENABLE);
 
-    if (g_index_reset)
-        reOrderIdx(controller_map, g_padindex);
+    if (g_index_reset) reOrderIndex();
 
     CFG_Keys();
 }
