@@ -45,10 +45,6 @@
 #define __func__ "unknown"
 #endif
 
-#define MAX_GAMECONTROLLER 4
-#define AXIS_COUNT 6
-#define MAX_MICE 32
-
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
 {

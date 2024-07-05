@@ -26,6 +26,7 @@
 #include "../../video/video.h"
 #include "../../sound/sound.h"
 #include "../../io/zippp.h"
+#include "../../io/limits.h"
 #include "../../io/homedir.h"
 #include "../../io/mpo_fileio.h"
 #include "SDL2_GFX/SDL2_rotozoom.h"

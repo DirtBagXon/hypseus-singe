@@ -9,6 +9,7 @@ set( LIB_HEADERS
     cmdline.h conout.h error.h fileparse.h homedir.h input.h
     mpo_fileio.h mpo_mem.h my_stdio.h keycodes.h serialib.h
     network.h numstr.h parallel.h sram.h zippp.h unzip.h
+    limits.h
 )
 
 find_package(ZLIB REQUIRED)
