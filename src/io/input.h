@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "limits.h"
+
 #ifndef INPUT_H
 #define INPUT_H
 
@@ -66,9 +68,6 @@ struct coin_input {
 };
 
 ////////////////////////
-
-#define MAX_MICE 32
-#define MAX_GAMECONTROLLER 4
 
 typedef struct
 {
