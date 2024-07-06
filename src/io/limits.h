@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef limits_h
-#define limits_h
+#ifndef io_limits_h
+#define io_limits_h
 
 #define MAX_MICE 32
 #define AXIS_COUNT 6

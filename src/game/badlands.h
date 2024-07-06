@@ -58,6 +58,8 @@ class badlands : public game
     Uint8 chary_offset;
     Uint16 char_base;
     Uint8 m_soundchip_id;
+    void draw_char(Uint8, int, int);
+    void draw_shoot(const char*, int, int, Uint8);
     bool shoot_led_overlay;
     bool shoot_led_numlock;
     bool shoot_led;
