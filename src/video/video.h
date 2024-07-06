@@ -87,7 +87,6 @@ enum {
     B_ACE_OFF,
     B_CAPTAIN_OFF,
     B_CADET_OFF,
-    B_SHOOT,
     B_EMPTY
 }; // bitmaps
 
@@ -190,7 +189,6 @@ void set_video_height(Uint16);
 void draw_scanlines(int);
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
-void draw_shoot(int, int, SDL_Surface *);
 void draw_subtitle(char *, bool, bool);
 void draw_LDP1450_overlay();
 void vid_toggle_fullscreen();

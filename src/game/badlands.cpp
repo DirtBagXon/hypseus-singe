@@ -443,6 +443,35 @@ void badlands::palette_calculate()
         palette::set_transparency(3, true);
 }
 
+void badlands::draw_char(Uint8 char_value, int x_offset, int y_offset)
+{
+    for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 8; y++) {
+            Uint8 left_pixel = static_cast<Uint8>(
+                (character[char_value * 32 + x + 4 * y] & 0xf0) >> 4);
+            Uint8 right_pixel = static_cast<Uint8>(
+                (character[char_value * 32 + x + 4 * y] & 0x0f));
+            *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
+              ((y_offset * 8 + y) * BADLANDS_OVERLAY_W) +
+              (x_offset * 8 + x * 2)) = left_pixel;
+            *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels +
+              ((y_offset * 8 + y) * BADLANDS_OVERLAY_W) +
+              (x_offset * 8 + x * 2 + 1)) = right_pixel;
+        }
+    }
+}
+
+void badlands::draw_shoot(const char* w, int x_offset, int y_offset, Uint8 game)
+{
+    if (game > GAME_BADLANDS) y_offset++;
+
+    for (int i = 0; w[i] != '\0'; i++)
+    {
+        Uint8 l = w[i] - 0x40;
+        draw_char(l, x_offset + i, y_offset);
+    }
+}
+
 // updates badlands's video
 void badlands::repaint()
 {
@@ -469,8 +498,7 @@ void badlands::repaint()
         }
     }
 
-    if (shoot_led)
-        video::draw_shoot(0x126, 0xd7, m_video_overlay[m_active_video_overlay]);
+    if (shoot_led) draw_shoot("shoot", 0x22, 0x1b, m_game_type);
 }
 
 // this gets called when the user presses a key or moves the joystick

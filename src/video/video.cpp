@@ -750,8 +750,6 @@ bool load_bmps()
     g_other_bmps[B_ANUN_ON]     = load_one_png("annunon.png");
     g_other_bmps[B_ANUN_OFF]    = load_one_png("annunoff.png");
 
-    g_other_bmps[B_SHOOT]       = load_one_bmp("shoot.bmp", true);
-
     // check to make sure they all loaded
     for (index = 0; index < B_EMPTY; index++) {
         if (g_other_bmps[index] == NULL && index != B_MIA) {
@@ -900,7 +898,7 @@ bool draw_annunciator2(int which)
     dest.h = 40;
     dest.w = 220;
 
-    for (int i = B_ACE_OFF; i < B_SHOOT; i++) {
+    for (int i = B_ACE_OFF; i < B_EMPTY; i++) {
         g_sb_surface = g_other_bmps[i];
         dest.y = (ANUN_RANK_HEIGHT * (i - B_ACE_OFF));
         SDL_FillRect(g_aux_blit_surface, &dest, 0x00000000);
@@ -1431,20 +1429,6 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 
     SDL_BlitSurface(text_surface, NULL, surface, &dest);
     SDL_FreeSurface(text_surface);
-}
-
-void draw_shoot(int col, int row, SDL_Surface *surface)
-{
-    g_sb_surface = g_other_bmps[B_SHOOT];
-
-    SDL_Rect dest;
-    dest.x = (short)(col);
-    dest.y = (short)(row);
-    dest.w = (unsigned short) g_sb_surface->w;
-    dest.h = (unsigned short) g_sb_surface->h;
-
-    SDL_SetColorKey(g_sb_surface, SDL_TRUE, 0x00000000);
-    SDL_BlitSurface(g_sb_surface, NULL, surface, &dest);
 }
 
 void draw_subtitle(char *s, bool insert, bool center)
