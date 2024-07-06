@@ -498,7 +498,7 @@ void badlands::repaint()
         }
     }
 
-    if (shoot_led) draw_shoot("shoot", 0x22, 0x1b, m_game_type);
+    if (shoot_led) draw_shoot("shoot", 0x1e, 0x01, m_game_type);
 }
 
 // this gets called when the user presses a key or moves the joystick
