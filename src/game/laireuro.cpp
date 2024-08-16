@@ -184,9 +184,6 @@ Uint8 laireuro::cpu_mem_read(Uint16 addr)
 
     // video ram
     else if (addr >= 0xc000 && addr <= 0xc7ff) {
-        // MPO : video shouldn't change on a READ.  I'm assuming this was an
-        // oversight.
-        // m_video_overlay_needs_update = true;
     }
 
     // ?
@@ -236,6 +233,7 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
     // video ram
     else if (addr >= 0xc000 && addr <= 0xc7ff) {
         m_video_overlay_needs_update = true;
+        palette::set_yuv_transparency(false);
         m_cpumem[addr]               = value;
     }
 
@@ -265,6 +263,7 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
         }
 
         m_video_overlay_needs_update = true;
+        palette::set_yuv_transparency(true);
         m_cpumem[addr] = value;
     }
     // watchdog reset

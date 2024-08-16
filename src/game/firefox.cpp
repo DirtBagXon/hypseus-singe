@@ -34,7 +34,6 @@
 #include "../io/conout.h"
 #include "../ldp-in/vp931.h"
 #include "../ldp-out/ldp.h"
-#include "../video/video.h"
 #include "../video/palette.h"
 #include "../cpu/cpu-debug.h" // for cpu debugging
 

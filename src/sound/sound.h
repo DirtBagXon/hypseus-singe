@@ -209,9 +209,11 @@ void set_chip_volume(struct chip *cur, unsigned int uChannel, unsigned int uVolu
 
 // so the user can override the default VLDP volume
 void set_chip_vldp_volume(unsigned int uVolume);
+unsigned int get_chip_vldp_volume();
 
 // so the user can override the default volume of all soundchips besides VLDP
 void set_chip_nonvldp_volume(unsigned int uVolume);
+unsigned int get_chip_nonvldp_volume();
 
 // Recalculates uVolume based on values of drivervolume and basevolume
 // Also calculates which rshift and callback to use

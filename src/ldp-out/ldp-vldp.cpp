@@ -1605,6 +1605,6 @@ void blank_overlay()
 {
     // only do this if the HW overlay has already been allocated
     if (video::get_yuv_overlay_ready()) {
-        video::set_yuv_video_blank(true);
+        video::set_yuv_shutter_blank();
     }
 }

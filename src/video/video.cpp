@@ -194,8 +194,8 @@ bool g_scoreboard_needs_update = false;
 bool g_softsboard_needs_update = false;
 bool g_overlay_needs_update    = false;
 bool g_yuv_video_needs_update  = false;
-bool g_yuv_video_needs_blank   = false;
-bool g_yuv_video_blank         = false;
+bool g_yuv_shutter_blank       = false;
+bool g_yuv_lock_blank          = false;
 bool g_aux_needs_update        = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -299,6 +299,14 @@ bool init_display()
 
             if (strlen(g_window_title) > 0)
                 SDL_SetWindowTitle(g_window, g_window_title);
+
+            SDL_RWops* ops = SDL_RWFromConstMem(ghci, sizeof(ghci));
+            SDL_Surface *rep = IMG_Load_RW(ops, 1);
+
+            if (rep != NULL) {
+                SDL_SetWindowIcon(g_window, rep);
+                SDL_FreeSurface(rep);
+            }
 
             SDL_RaiseWindow(g_window);
             Uint8 sdl_sb_render_flags = sdl_render_flags;
@@ -1134,7 +1142,7 @@ bool get_fullscreen() { return g_fullscreen; }
 bool get_aux_bezel() { return (g_aux_texture != NULL); }
 bool get_fullwindow() { return g_fakefullscreen; }
 bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
-bool get_video_blank() { return g_yuv_video_blank; }
+bool get_video_blank() { return g_yuv_lock_blank; }
 bool get_video_resized() { return g_vid_resized; }
 bool use_old_font() { return g_game->use_old_overlay(); }
 
@@ -1148,14 +1156,13 @@ void set_grabmouse(bool value) { g_grabmouse = value; }
 void set_vsync(bool value) { g_vsync = value; }
 void set_intro(bool value) { g_intro = value; }
 void set_yuv_blue(bool value) { g_yuv_blue = value; }
+void set_yuv_shutter_blank() { g_yuv_shutter_blank = true; }
 void set_scanlines(bool value) { g_scanlines = value; }
 void set_shunt(int value) { s_shunt = value; }
 void set_alpha(int value) { s_alpha = value; }
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 void set_scale_linear(bool value) { g_scale_linear = value; }
 void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
-void set_yuv_video_blank(bool value) { g_yuv_video_needs_blank = value; }
-void set_video_blank(bool value) { g_yuv_video_blank = value; }
 void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
 void set_sboverlay_white(bool value) { sboverlay_white = value; }
 void set_subtitle_display(char *s) { subchar = strdup(s); }
@@ -1172,6 +1179,15 @@ void set_ded_annun_bezel(bool value) { g_ded_annun_bezel = value; }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 void set_score_screen(int value) { g_score_screen = value; }
+
+void set_yuv_lock_blank(bool value)
+{
+     g_yuv_lock_blank = value;
+     if (value)
+         vid_update_yuv_overlay(g_yuv_surface->Yplane, g_yuv_surface->Uplane,
+             g_yuv_surface->Vplane, g_yuv_surface->Ypitch, g_yuv_surface->Upitch,
+                 g_yuv_surface->Vpitch);
+}
 
 void set_scalefactor(int value)
 {
@@ -1351,6 +1367,7 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
          v = g_aux_rect.y;
          break;
      default:
+         if (g_keyboard_bezel) g_scaled = true;
          if (vert) g_scale_v_shift = value;
          else g_scale_h_shift = value;
          h = g_scale_h_shift - 0x64;
@@ -1606,28 +1623,25 @@ SDL_Texture *vid_create_yuv_texture (int width, int height) {
     return g_yuv_texture;
 }
 
-void vid_blank_yuv_texture (bool s) {
+void vid_blank_yuv_texture (bool init) {
 
-    if (g_yuv_blue) {
-        // Blue: YUV#1DEB6B
-        memset(g_yuv_surface->Yplane, 0x1d, g_yuv_surface->Ysize);
-        memset(g_yuv_surface->Uplane, 0xeb, g_yuv_surface->Usize);
-        memset(g_yuv_surface->Vplane, 0x6b, g_yuv_surface->Vsize);
-    } else {
-        // Black: YUV#108080, YUV(16,0,0)
-        memset(g_yuv_surface->Yplane, 0x10, g_yuv_surface->Ysize);
-        memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
-        memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
-    }
+    // Blue: YUV#1DEB6B - Black: YUV#108080
+    uint8_t Y_value = g_yuv_blue ? 0x1d : 0x10;
+    uint8_t U_value = g_yuv_blue ? 0xeb : 0x80;
+    uint8_t V_value = g_yuv_blue ? 0x6b : 0x80;
 
-    if (s) SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+    memset(g_yuv_surface->Yplane, Y_value, g_yuv_surface->Ysize);
+    memset(g_yuv_surface->Uplane, U_value, g_yuv_surface->Usize);
+    memset(g_yuv_surface->Vplane, V_value, g_yuv_surface->Vsize);
+
+    if (init) SDL_UpdateYUVTexture(g_yuv_texture, NULL,
 	    g_yuv_surface->Yplane, g_yuv_surface->width,
             g_yuv_surface->Uplane, g_yuv_surface->width/2,
             g_yuv_surface->Vplane, g_yuv_surface->width/2);
 }
 
 // REMEMBER it updates the YUV surface ONLY: the YUV texture is updated on vid_blit().
-int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
+int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 	int Ypitch, int Upitch, int Vpitch)
 {
     // This function is called from the vldp thread, so access to the
@@ -1637,14 +1651,14 @@ int vid_update_yuv_overlay ( uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     // until the mutex is free and we can lock(=get) it here.
     SDL_LockMutex(g_yuv_surface->mutex);
 
-    if (g_yuv_video_blank) {
+    if (g_yuv_lock_blank) {
 
         vid_blank_yuv_texture(false);
 
-    } else if (g_yuv_video_needs_blank) {
+    } else if (g_yuv_shutter_blank) {
 
         vid_blank_yuv_texture(false);
-        g_yuv_video_needs_blank = false;
+        g_yuv_shutter_blank = false;
 
     } else {
 
@@ -1803,7 +1817,6 @@ void vid_blit () {
     // simultaneously from the vldp thread and from here, the main thread (to update
     // the YUV texture from the YUV surface), so access to that surface and it's
     // boolean DO need to be protected with a mutex.
-
 
     // First clear the renderer before the SDL_RenderCopy() calls for this frame.
     // Prevents stroboscopic effects on the background in fullscreen mode,

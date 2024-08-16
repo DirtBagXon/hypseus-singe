@@ -72,6 +72,7 @@ thayers::thayers() : m_pScoreboard(NULL)
     cpu::add(&cpu);
 
     m_irq_status = 0x3f;
+    video::set_score_bezel_alpha(1);
     ldv1000::enable_instant_seeking();
     m_use_speech = true; // Even though not truly emulated, speech synthesis is
                          // the default.
@@ -901,6 +902,9 @@ void thayers::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 
 
 void thayers::set_preset(int preset)
 {
-    if (preset == 1) m_show_timerboard = false; // Display full scoreboard
+    if (preset == 1) {
+        m_show_timerboard = false; // Display full scoreboard
+        video::set_score_bezel_alpha(0);
+    }
     if (preset == 2) m_show_startup = false; // Don't display the COIN UP
 }
