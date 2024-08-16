@@ -62,6 +62,7 @@ const int JOY_AXIS_MID  = (int)(32768 * (0.75));  // how far they have to move t
 bool g_use_gamepad       = false;
 bool g_use_joystick      = true;  // use a joystick by default
 bool g_invert_hat        = false; // invert joystick hat up/down
+bool g_open_hat          = false; // multiverse HAT (old behaviour)
 unsigned int idle_timer;          // added by JFA for -idleexit
 
 string g_inputini_file = "hypinput.ini"; // Default keymap file
@@ -83,6 +84,7 @@ Uint64 g_last_coin_cycle_used = 0; // the cycle value that our last coin press
 static int available_mice = 0;
 static ManyMouseEvent mm_event;
 
+static int g_assigned_hat = 0;
 static int g_mouse_mode = SDL_MOUSE;
 static SDL_GameController *g_gamepad_id[MAX_GAMECONTROLLER];
 static SDL_Haptic *g_gamepad_haptic[MAX_GAMECONTROLLER];
@@ -230,6 +232,15 @@ void CFG_Keys()
                                             warn = false;
                                         }
                                         val3 = atoi(sval3.c_str());
+                                        if (strcasecmp(key_name.c_str(), g_key_names[0]) == 0) {
+                                            if (!g_open_hat && g_use_joystick &&
+                                                    SDL_NumJoysticks() > 0) {
+                                                int divider = (sval3.length() == 4) ? 1000 : 100;
+                                                g_assigned_hat = (val3 / divider);
+                                                LOGI << fmt("Joystick HAT enabled on stick: [%d]",
+                                                    g_assigned_hat);
+                                            }
+                                        }
                                     }
                                     val4 = 0;
                                     if (find_word(cur_line.c_str(), sval4, cur_line)) {
@@ -520,7 +531,7 @@ int SDL_input_init()
             // if joystick usage is enabled
             if (g_use_joystick) {
                 // open joysticks
-                for (int i=0; i < SDL_NumJoysticks(); i++) {
+                for (int i = 0; i < SDL_NumJoysticks(); i++) {
                     SDL_Joystick* joystick = SDL_JoystickOpen(i);
                     if (joystick != NULL) {
                         LOGD << "Joystick #" << i << " was successfully opened";
@@ -1111,46 +1122,72 @@ void process_joystick_motion(SDL_Event *event)
 // processes movement of the joystick hat
 void process_joystick_hat_motion(SDL_Event *event)
 {
+    if (!g_open_hat && (event->jaxis.which != g_assigned_hat)) return;
 
     static Uint8 prev_hat_position = SDL_HAT_CENTERED;
+    Uint8 hat_movement = event->jhat.value ^ prev_hat_position;
 
-    if ((event->jhat.value & SDL_HAT_UP) && !(prev_hat_position & SDL_HAT_UP)) {
-        // hat moved to the up position
-        if (g_invert_hat) input_enable(SWITCH_DOWN, NOMOUSE);
-        else input_enable(SWITCH_UP, NOMOUSE);
-    } else if (!(event->jhat.value & SDL_HAT_UP) && (prev_hat_position & SDL_HAT_UP)) {
-        // up hat released
-        if (g_invert_hat) input_disable(SWITCH_DOWN, NOMOUSE);
-        else input_disable(SWITCH_UP, NOMOUSE);
+    switch (hat_movement)
+    {
+        case SDL_HAT_UP:
+            if (event->jhat.value & SDL_HAT_UP) {
+                if (g_invert_hat) {
+                    input_enable(SWITCH_DOWN, NOMOUSE);
+                } else {
+                    input_enable(SWITCH_UP, NOMOUSE);
+                }
+                prev_hat_position |= SDL_HAT_UP;
+            } else {
+                if (g_invert_hat) {
+                    input_disable(SWITCH_DOWN, NOMOUSE);
+                } else {
+                    input_disable(SWITCH_UP, NOMOUSE);
+                }
+                prev_hat_position &= ~SDL_HAT_UP;
+            }
+            break;
+
+        case SDL_HAT_RIGHT:
+            if (event->jhat.value & SDL_HAT_RIGHT) {
+                input_enable(SWITCH_RIGHT, NOMOUSE);
+                prev_hat_position |= SDL_HAT_RIGHT;
+            } else {
+                input_disable(SWITCH_RIGHT, NOMOUSE);
+                prev_hat_position &= ~SDL_HAT_RIGHT;
+            }
+            break;
+
+        case SDL_HAT_DOWN:
+            if (event->jhat.value & SDL_HAT_DOWN) {
+                if (g_invert_hat) {
+                    input_enable(SWITCH_UP, NOMOUSE);
+                } else {
+                    input_enable(SWITCH_DOWN, NOMOUSE);
+                }
+                prev_hat_position |= SDL_HAT_DOWN;
+            } else {
+                if (g_invert_hat) {
+                    input_disable(SWITCH_UP, NOMOUSE);
+                } else {
+                    input_disable(SWITCH_DOWN, NOMOUSE);
+                }
+                prev_hat_position &= ~SDL_HAT_DOWN;
+            }
+            break;
+
+        case SDL_HAT_LEFT:
+            if (event->jhat.value & SDL_HAT_LEFT) {
+                input_enable(SWITCH_LEFT, NOMOUSE);
+                prev_hat_position |= SDL_HAT_LEFT;
+            } else {
+                input_disable(SWITCH_LEFT, NOMOUSE);
+                prev_hat_position &= ~SDL_HAT_LEFT;
+            }
+            break;
+
+        default:
+            break;
     }
-
-    if ((event->jhat.value & SDL_HAT_RIGHT) && !(prev_hat_position & SDL_HAT_RIGHT)) {
-        // hat moved to the right position
-        input_enable(SWITCH_RIGHT, NOMOUSE);
-    } else if (!(event->jhat.value & SDL_HAT_RIGHT) && (prev_hat_position & SDL_HAT_RIGHT)) {
-        // right hat released
-        input_disable(SWITCH_RIGHT, NOMOUSE);
-    }
-
-    if ((event->jhat.value & SDL_HAT_DOWN) && !(prev_hat_position & SDL_HAT_DOWN)) {
-        // hat moved to the down position
-        if (g_invert_hat) input_enable(SWITCH_UP, NOMOUSE);
-        else input_enable(SWITCH_DOWN, NOMOUSE);
-    } else if (!(event->jhat.value & SDL_HAT_DOWN) && (prev_hat_position & SDL_HAT_DOWN)) {
-        // down hat released
-        if (g_invert_hat) input_disable(SWITCH_UP, NOMOUSE);
-        else input_disable(SWITCH_DOWN, NOMOUSE);
-    }
-
-    if ((event->jhat.value & SDL_HAT_LEFT) && !(prev_hat_position & SDL_HAT_LEFT)) {
-        // hat moved to the left position
-        input_enable(SWITCH_LEFT, NOMOUSE);
-    } else if (!(event->jhat.value & SDL_HAT_LEFT) && (prev_hat_position & SDL_HAT_LEFT)) {
-        // left hat released
-        input_disable(SWITCH_LEFT, NOMOUSE);
-    }
-
-    prev_hat_position = event->jhat.value;
 }
 
 // if user has pressed a key/moved the joystick/pressed a button
@@ -1260,6 +1297,7 @@ void reset_idle(void)
 // primarily to disable joystick use if user wishes not to use one
 void set_use_joystick(bool val) { g_use_joystick = val; }
 void set_invert_hat(bool val) { g_invert_hat = val; }
+void set_open_hat(bool val) { g_open_hat = val; }
 
 // Allow us to specify an alternate keymap.ini file
 void set_inputini_file(const char *inputFile) {

@@ -750,6 +750,11 @@ void set_chip_volume(struct chip *cur, unsigned int uChannel, unsigned int uVolu
     }
 }
 
+unsigned int get_chip_vldp_volume()
+{
+    return g_uVolumeVLDP;
+}
+
 void set_chip_vldp_volume(unsigned int uVolume)
 {
     if (uVolume <= MAX_VOLUME) {
@@ -760,6 +765,11 @@ void set_chip_vldp_volume(unsigned int uVolume)
     } else {
         LOGW << "request VLDP volume is out of range";
     }
+}
+
+unsigned int get_chip_nonvldp_volume()
+{
+    return g_uVolumeNonVLDP;
 }
 
 void set_chip_nonvldp_volume(unsigned int uVolume)

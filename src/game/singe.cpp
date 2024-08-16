@@ -269,7 +269,7 @@ void singe::start()
             if (blanking) {
                 if (video::get_video_blank()) {
                     if (intTimer > delay)
-                        video::set_video_blank(false);
+                        palette::set_yuv_transparency(true);
                     intTimer++;
                 } else intTimer = 0;
             }

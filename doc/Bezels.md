@@ -59,5 +59,3 @@ Refer also to **CmdLine arguments** [here](CmdLine.md)
 | ace      | - bezels/offcadet.bmp      |
 |          |                            |
 | tq       | - bezels/tqkeys.png        |
-|          |                            |
-| badlands | - bezels/shoot.bmp         |

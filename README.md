@@ -203,7 +203,9 @@ Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [Game
 
 ## Extended arguments and keys
 
-The following additional, and reimplemented, arguments have been added to Hypseus Singe:
+Highlighted additional, and reimplemented, arguments that have been added to Hypseus Singe:
+
+Refer to [CmdLine.md](doc/CmdLine.md) for a full argument list.
 
     -bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
     -blank_blue                [ VLDP blank using YUV#1DEB6B                   ]

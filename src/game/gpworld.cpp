@@ -46,7 +46,6 @@
 #include "../ldp-in/ldv1000.h"
 #include "../ldp-out/ldp.h"
 #include "../video/palette.h"
-#include "../video/video.h"
 #include "../sound/sound.h"
 #include "../sound/samples.h"
 #include "../cpu/cpu.h"
@@ -84,11 +83,12 @@ gpworld::gpworld()
     ldp_output_latch    = 0xff;
     nmie                = false;
     m_align             = false;
+    m_shifter           = true;
 
     m_num_sounds = 10;
     // With the lack of any hardware reference....
-    m_sound_name[S_GP_ENGINE1] = "gp_engine1.wav";
-    m_sound_name[S_GP_ENGINE2] = "gp_engine2.wav";
+    m_sound_name[S_GP_ENG1]    = "gp_engine1.wav";
+    m_sound_name[S_GP_ENG2]    = "gp_engine2.wav";
     m_sound_name[S_GP_COUNT]   = "gp_count.wav";
     m_sound_name[S_GP_START]   = "gp_signal.wav";
     m_sound_name[S_GP_TIRE]    = "gp_tires.wav";
@@ -292,9 +292,7 @@ void gpworld::cpu_mem_write(Uint16 addr, Uint8 value)
                     break;
                  case 0xfe:
                     if (++ign > 0x0a) {
-                        if (banks[2])
-                            sound::play(S_GP_ENGINE2);
-                        else sound::play(S_GP_ENGINE1);
+                        sound::play(banks[2] ? S_GP_ENG2 : S_GP_ENG1);
                         ign--;
                     }
                    break;
@@ -519,16 +517,50 @@ void gpworld::recalc_palette()
     palette_modified = false;
 }
 
+void gpworld::draw_char(char l, int x_offset, int y_offset)
+{
+    int i = -1;
+    Uint8 c = 0x01;
+
+    switch (l) {
+        case 0x44: i = 0; c = 0xf3; break;
+        case 0x48: i = 1; break;
+        case 0x49: i = 2; break;
+        case 0x4c: i = 3; break;
+        case 0x4f: i = 4; break;
+        case 0x55: i = 5; c = 0xeb; break;
+        default: return;
+    }
+
+    const Uint8* char_bitmap = gear[i];
+
+    for (int y = 0; y < 8; y++) {
+        Uint8 pixel_row = char_bitmap[y];
+        for (int x = 0; x < 8; x++) {
+            Uint8 pixel = (pixel_row & (0x80 >> x)) >> (7 - x);
+
+            if (pixel) {
+                int pixel_index = (y_offset * 8 + y) * GPWORLD_OVERLAY_W + (x_offset * 8 + x);
+                *((Uint8 *)m_video_overlay[m_active_video_overlay]->pixels + pixel_index) = c;
+            }
+        }
+    }
+}
+
+void gpworld::draw_shift(const char* w)
+{
+    const int x_offset = 0x01, y_offset = 0x1c;
+
+    for (int i = 0; w[i] != '\0'; i++) {
+        draw_char(w[i], x_offset + i, y_offset);
+    }
+}
+
 // updates gpworld's video
 void gpworld::repaint()
 {
     // This should be much faster
     SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
-
-    // draw low or high depending on the state of the shifter
-    const char *t = "HIGH";
-    if (banks[2]) t = "LOW";
-    video::draw_string(t, 1, 225, m_video_overlay[m_active_video_overlay]);
 
     // The sprites are bottom priority so we draw them first
     // START modified Mame code
@@ -591,16 +623,8 @@ void gpworld::repaint()
         }
     }
 
-    // test - make an 8x8 block of every color
-    //		for (x = 0; x < 256; x++)
-    //		{
-    //			for (int y = 0; y <256; y++)
-    //			{
-    //				*((Uint8 *) m_video_overlay[m_active_video_overlay]->pixels + y *
-    //GPWORLD_OVERLAY_W + x) = x / 16 + (y / 16) * 16;
-    //			}
-    //		}
-
+    // draw state of the shifter
+    if (m_shifter) draw_shift(banks[2] ? "DLO" : "UHI");
 }
 
 // this gets called when the user presses a key or moves the joystick
@@ -822,6 +846,7 @@ void gpworld::draw_sprite(int spr_number)
 void gpworld::set_preset(int preset)
 {
     if (preset == 1) m_align = true;
+    if (preset == 2) m_shifter = false;
 }
 
 void gpworld::align()

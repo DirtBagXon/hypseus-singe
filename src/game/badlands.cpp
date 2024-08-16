@@ -36,7 +36,6 @@
 #include "../ldp-in/ldv1000.h"
 #include "../ldp-out/ldp.h"
 #include "../video/palette.h"
-#include "../video/video.h"
 #include "../video/led.h"
 #include "../sound/sound.h"
 
@@ -84,6 +83,7 @@ badlands::badlands()
     shoot_led         = false;
     shoot_led_overlay = false;
     shoot_led_numlock = false;
+    m_shoot           = 0x0A;
     char_base         = 0x4000;
     charx_offset      = 6;
     chary_offset      = 2;
@@ -109,6 +109,7 @@ badlandp::badlandp()
 {
     m_shortgamename = "badlandp";
     irq_on = firq_on = nmi_on = true;
+    m_shoot      = 0x01;
     char_base    = 0x2000;
     charx_offset = 12;
     chary_offset = 1;
@@ -162,8 +163,8 @@ void badlands::do_nmi()
     }
 
     if (!yuv_on)
-        if (video::get_yuv_overlay_ready()) {
-            video::set_video_blank(true);
+        if (palette::get_yuv_overlay_ready()) {
+            palette::set_yuv_transparency(false);
             yuv_on = true;
         }
 
@@ -229,14 +230,7 @@ void badlands::cpu_mem_write(Uint16 addr, Uint8 value)
 
     // DSP On
     else if (addr == 0x1003) {
-
-        if (yuv_on) {
-            if (value) {
-                video::set_video_blank(true);
-            } else {
-                video::set_video_blank(false);
-            }
-        }
+        palette::set_yuv_transparency(!value);
     }
 
     // nmi on
@@ -360,14 +354,7 @@ void badlandp::cpu_mem_write(Uint16 addr, Uint8 value)
     }
     // display disable
     else if (addr == 0x0803) {
-
-        if (yuv_on) {
-            if (value) {
-                video::set_video_blank(true);
-            } else {
-                video::set_video_blank(false);
-            }
-        }
+        palette::set_yuv_transparency(!value);
     }
     // ?
     else if (addr == 0x0804) {
@@ -461,15 +448,20 @@ void badlands::draw_char(Uint8 char_value, int x_offset, int y_offset)
     }
 }
 
-void badlands::draw_shoot(const char* w, int x_offset, int y_offset, Uint8 game)
+void badlands::draw_shoot()
 {
-    if (game > GAME_BADLANDS) y_offset++;
+    const char f[6] = "shoot";
+    int i, x_offset = 0x1f;
+    int y_offset = (m_shoot & 0x01) ? 0x02 : 0x01;
 
-    for (int i = 0; w[i] != '\0'; i++)
+    draw_char(m_shoot, x_offset - 0x02, y_offset);
+
+    for (i = 0; f[i] != '\0'; i++)
     {
-        Uint8 l = w[i] - 0x40;
-        draw_char(l, x_offset + i, y_offset);
+        draw_char(f[i] - 0x40, x_offset + i, y_offset);
     }
+
+    draw_char(m_shoot, x_offset + ++i, y_offset);
 }
 
 // updates badlands's video
@@ -498,7 +490,7 @@ void badlands::repaint()
         }
     }
 
-    if (shoot_led) draw_shoot("shoot", 0x1e, 0x01, m_game_type);
+    if (shoot_led) draw_shoot();
 }
 
 // this gets called when the user presses a key or moves the joystick

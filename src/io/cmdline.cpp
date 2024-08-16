@@ -738,6 +738,9 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-tiphat") == 0) {
                 set_invert_hat(true);
             }
+            else if (strcasecmp(s, "-openhat") == 0) {
+                set_open_hat(true);
+            }
             // if want data sent to the server
             else if (strcasecmp(s, "-serversend") == 0) {
                 net_server_send();
@@ -880,7 +883,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-scorepanel_position") == 0 ||
                          strcasecmp(s, "-scorebezel_position") == 0 ||
                             strcasecmp(s, "-auxbezel_position") == 0) {
-                const int vMax = 3840 + 1; // This should handle 4k
+                const int vMax = 5120 + 1; // This should handle DQHD+
                 int xVal = 0;
                 int yVal = 0;
 

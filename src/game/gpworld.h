@@ -56,7 +56,7 @@ class gpworld : public game
   public:
 
     typedef enum {
-        S_GP_ENGINE1, S_GP_ENGINE2, S_GP_CRASH, S_GP_COUNT, S_GP_START,
+        S_GP_ENG1, S_GP_ENG2, S_GP_CRASH, S_GP_COUNT, S_GP_START,
         S_GP_COIN, S_GP_DINK, S_GP_TIRE, S_GP_GEAR, S_GP_REV
     } GPWorldSound;
 
@@ -80,6 +80,8 @@ class gpworld : public game
     void align();
     void recalc_palette();
     void draw_sprite(int);
+    void draw_char(char, int, int);
+    void draw_shift(const char*);
     Uint8 rombank[0x8000];
     Uint8 character[0x1000];
     Uint8 sprite[0x30000];
@@ -95,7 +97,17 @@ class gpworld : public game
     Uint8 ign;
     bool nmie;
     bool m_align;
+    bool m_shifter;
     Uint8 banks[7];
+
+    const Uint8 gear[6][8] = {
+      {0x00,0x18,0x18,0x18,0x7e,0x7e,0x3c,0x18},
+      {0x24,0x24,0x24,0x7E,0x24,0x24,0x24,0x24},
+      {0x00,0x00,0x38,0x10,0x10,0x10,0x10,0x38},
+      {0x70,0x20,0x20,0x20,0x20,0x20,0x24,0x7c},
+      {0x00,0x00,0x38,0x44,0x44,0x44,0x44,0x38},
+      {0x18,0x3c,0x7e,0x7e,0x18,0x18,0x18,0x00}
+    };
 };
 
 #endif

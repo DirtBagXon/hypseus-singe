@@ -47,7 +47,6 @@
 #include "../ldp-in/vip9500sg.h"
 #include "../ldp-out/ldp.h"
 #include "../video/palette.h"
-#include "../video/video.h"
 #include "../sound/sound.h"
 #include "../cpu/cpu.h"
 #include "../cpu/generic_z80.h"

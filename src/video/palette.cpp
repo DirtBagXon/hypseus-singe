@@ -176,10 +176,15 @@ void shutdown(void)
     }
 }
 
+bool get_yuv_overlay_ready()
+{
+    return video::get_yuv_overlay_ready();
+}
+
 void set_yuv_transparency(bool transparent)
 {
     if (video::get_yuv_overlay_ready())
-        video::set_video_blank(!transparent);
+        video::set_yuv_lock_blank(!transparent);
 }
 
 }

@@ -45,7 +45,6 @@
 #include "../ldp-in/ldp1000.h"
 #include "../ldp-out/ldp.h"
 #include "../video/palette.h"
-#include "../video/video.h"
 
 ////////////////
 

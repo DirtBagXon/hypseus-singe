@@ -47,7 +47,6 @@
 #include "../sound/sound.h"
 #include "../timer/timer.h"
 #include "../video/palette.h"
-#include "../video/video.h"
 
 #define SUPERDON_TRANSPARENT_COLOR 15
 

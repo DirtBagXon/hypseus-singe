@@ -169,8 +169,8 @@ void set_ignore_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
 void set_shunt(int value);
 void set_alpha(int value);
-void set_yuv_video_blank(bool value);
-void set_video_blank(bool value);
+void set_yuv_shutter_blank();
+void set_yuv_lock_blank(bool value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void scalekeyboard(int value);

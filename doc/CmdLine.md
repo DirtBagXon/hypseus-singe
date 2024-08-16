@@ -86,6 +86,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -nospeech                        | Disables speech for Thayer's Quest.                   |
 | -novsync                         | Disable VSYNC presentation on Renderer.               |
 | -opengl                          | Enforces SDL_WINDOW_OPENGL                            |
+| -openhat                         | Allow HAT input from any Joystick                     |
 | -original_overlay                | Enable daphne style overlays (lair, ace, lair2)       |
 | -pal_dl                          | Tells Hypseus that you are using a PAL Philips Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_dl_sc                       | Tells Hypseus that you are using a PAL Software Corner Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
