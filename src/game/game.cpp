@@ -601,10 +601,15 @@ void game::set_32bit_overlay(bool value)
 	m_overlay_upgrade = value;
 }
 
-void game::set_stretch_value(int value) {
-
+void game::set_stretch_value(int value)
+{
 	if (m_stretch == TMS_VERTICAL_OFFSET)
+	{
+	    if (m_game_type == GAME_CLIFF)
+	        video::set_yuv_scale(value, YUV_V);
+
 	    m_stretch -= value;
+        }
 }
 
 // generic preset function, does nothing

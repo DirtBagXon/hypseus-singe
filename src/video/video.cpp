@@ -77,7 +77,10 @@ int s_shunt = 2;
 
 int g_viewport_width = g_vid_width, g_viewport_height = g_vid_height;
 int g_aspect_width = 0, g_aspect_height = 0;
+int g_alloc_screen = 0;
 int g_score_screen = 0;
+int g_displays = 0;
+int g_display = 0;
 
 int sb_window_pos_x = 0, sb_window_pos_y = 0;
 int aux_bezel_pos_x = 0, aux_bezel_pos_y = 0;
@@ -115,6 +118,7 @@ SDL_Rect g_sb_bezel_rect = {0, 0, 0, 0};
 SDL_Rect g_blit_size_rect = {0, 0, g_bw, g_bh};
 SDL_Rect g_render_size_rect = g_blit_size_rect;
 SDL_Rect g_annu_rect = { 0, 0, g_an_w, g_an_h };
+SDL_Rect *g_yuv_rect[2] = { NULL };
 
 SDL_DisplayMode g_displaymode;
 
@@ -169,12 +173,16 @@ bool g_bSubtitleShown = false;
 char g_window_title[TITLE_LENGTH] = "";
 char *subchar = NULL;
 
+std::string g_bezel_path = "bezels";
 std::string g_bezel_file;
 std::string g_tqkeys;
 
 // degrees in clockwise rotation
 float g_fRotateDegrees = 0.0f;
 double g_aux_ratio = 1.0f;
+
+// YUV stretching
+float g_yuv_scale[2] = { 1.0f, 1.0f };
 
 // YUV structure
 typedef struct {
@@ -218,7 +226,7 @@ bool init_display()
 
         if (g_fullscreen)
             sdl_flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-        else if (g_fakefullscreen)
+        else if (g_fakefullscreen && g_alloc_screen == 0)
             sdl_flags |= SDL_WINDOW_MAXIMIZED | SDL_WINDOW_BORDERLESS;
 
         if (g_forcetop)
@@ -283,8 +291,22 @@ bool init_display()
             }
         }
 
-        g_window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                         g_viewport_width, g_viewport_height, sdl_flags);
+        g_displays = SDL_GetNumVideoDisplays();
+        SDL_Rect displayDimensions[g_displays];
+
+        for (int i = 0; i < g_displays; i++) {
+            SDL_GetDisplayBounds(i, &displayDimensions[i]);
+        }
+
+        if (g_alloc_screen > g_display && g_alloc_screen < g_displays)
+            g_display = g_alloc_screen;
+
+        g_window = SDL_CreateWindow(title,
+	    displayDimensions[g_display].x +
+                ((displayDimensions[g_display].w - g_viewport_width) >> 1),
+	    displayDimensions[g_display].y +
+                ((displayDimensions[g_display].h - g_viewport_height) >> 1),
+	    g_viewport_width, g_viewport_height, sdl_flags);
 
         if (!g_window) {
             LOGE << fmt("Could not initialize window: %s", SDL_GetError());
@@ -327,7 +349,7 @@ bool init_display()
 
                     g_aux_needs_update = true;
 
-                    g_tqkeys = "bezels/tqkeys.png";
+                    g_tqkeys = g_bezel_path + "/tqkeys.png";
 
                     if (!mpo_file_exists(g_tqkeys.c_str()))
                         g_tqkeys = "pics/tqkeys.png";
@@ -354,12 +376,6 @@ bool init_display()
                     if (g_sb_bezel_alpha > 1)
                         SDL_SetColorKey(g_sb_blit_surface, SDL_TRUE, 0x000000ff);
 
-                    int displays = SDL_GetNumVideoDisplays();
-                    SDL_Rect displayDimensions[displays];
-
-                    for (int i = 0; i < displays; i++)
-                        SDL_GetDisplayBounds(i, &displayDimensions[i]);
-
                     if (g_sb_bezel) {
 
                         if (!g_sb_bezel_alpha)
@@ -379,11 +395,13 @@ bool init_display()
                             set_quitflag();
                         }
 
-			if (displays > 1) {
+			if (g_displays > 1) {
 
                             int s = 1;
-                            if (g_score_screen > s && g_score_screen <= displays)
+                            if (g_score_screen > s && g_score_screen <= g_displays)
                                 s = g_score_screen;
+
+                            s = (g_display == 1 && s == 1) ? 0 : s;
 
                             SDL_SetWindowPosition(g_sb_window,
                                displayDimensions[s].x + sb_window_pos_x,
@@ -408,7 +426,7 @@ bool init_display()
                                (sdl_flags & SDL_WINDOW_MAXIMIZED) != 0) {
 
                     if ((sdl_flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
-                        SDL_GetDisplayBounds(0, &g_logical_rect);
+                        SDL_GetDisplayBounds(g_display, &g_logical_rect);
                     } else {
 
                         if (SDL_GetDesktopDisplayMode(0, &g_displaymode) != 0) {
@@ -594,6 +612,11 @@ bool deinit_display()
     if (g_aux_texture)
         SDL_DestroyTexture(g_aux_texture);
 
+    for (int i = 0; i < 2; ++i) {
+        delete g_yuv_rect[i];
+        g_yuv_rect[i] = NULL;
+    }
+
     g_bezel_texture = NULL;
     g_aux_texture = NULL;
 
@@ -773,7 +796,7 @@ SDL_Surface *load_one_bmp(const char *filename, bool bezel)
     std::string filepath;
 
     if (bezel)
-        filepath = fmt("bezels/%s", filename);
+        filepath = fmt("%s/%s", g_bezel_path.c_str(), filename);
 
     if (!mpo_file_exists(filepath.c_str()))
         filepath = fmt("pics/%s", filename);
@@ -789,7 +812,7 @@ SDL_Surface *load_one_bmp(const char *filename, bool bezel)
 
 SDL_Surface *load_one_png(const char *filename)
 {
-    std::string filepath = fmt("bezels/%s", filename);
+    std::string filepath = fmt("%s/%s", g_bezel_path.c_str(), filename);
 
     if (!mpo_file_exists(filepath.c_str()))
         filepath = fmt("pics/%s", filename);
@@ -1178,15 +1201,22 @@ void set_aux_bezel_alpha(int8_t value) { g_aux_bezel_alpha = value; }
 void set_ded_annun_bezel(bool value) { g_ded_annun_bezel = value; }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
+void set_display_screen(int value) { g_alloc_screen = value; }
 void set_score_screen(int value) { g_score_screen = value; }
+
+void toggle_grabmouse()
+{
+     g_grabmouse = !g_grabmouse;
+     SDL_SetWindowGrab(g_window, g_grabmouse ? SDL_TRUE : SDL_FALSE);
+}
 
 void set_yuv_lock_blank(bool value)
 {
      g_yuv_lock_blank = value;
      if (value)
          vid_update_yuv_overlay(g_yuv_surface->Yplane, g_yuv_surface->Uplane,
-             g_yuv_surface->Vplane, g_yuv_surface->Ypitch, g_yuv_surface->Upitch,
-                 g_yuv_surface->Vpitch);
+         g_yuv_surface->Vplane, g_yuv_surface->Ypitch, g_yuv_surface->Upitch,
+         g_yuv_surface->Vpitch);
 }
 
 void set_scalefactor(int value)
@@ -1277,6 +1307,13 @@ void set_bezel_file(const char *bezelFile)
      }
 }
 
+void set_bezel_path(const char *bezelPath)
+{
+     g_bezel_path = bezelPath;
+     if (g_bezel_path.back() == '/')
+         g_bezel_path.pop_back();
+}
+
 void set_fRotateDegrees(float fDegrees)
 {
      if (!g_fullscreen && g_scaled) return;
@@ -1289,24 +1326,63 @@ void set_fRotateDegrees(float fDegrees)
      g_fRotateDegrees = fDegrees;
 }
 
+SDL_Rect* copy_rect(const SDL_Rect* src)
+{
+     if (src == NULL) return NULL;
+
+     SDL_Rect* dst = new SDL_Rect(*src);
+     return dst;
+}
+
+bool allocate_rect(SDL_Rect** rect)
+{
+     if (*rect == NULL) {
+         *rect = new(std::nothrow) SDL_Rect();
+         if (*rect == nullptr) {
+             printerror("Failed in allocate_rect: g_yuv_rect");
+             set_quitflag();
+             return false;
+         }
+     }
+     return true;
+}
+
+void reset_yuv_rect()
+{
+     delete g_yuv_rect[0];
+     g_yuv_rect[0] = copy_rect(g_yuv_rect[1]);
+}
+
+void set_yuv_rect(int x, int y, int w, int h)
+{
+     if (allocate_rect(&g_yuv_rect[0]))
+         *g_yuv_rect[0] = {x, y, w, h};
+}
+
+void set_yuv_scale(int v, uint8_t axis)
+{
+     if (allocate_rect(&g_yuv_rect[0]))
+         g_yuv_scale[axis] = -0.01043f * v + 1.00043f;
+}
+
 void calc_annun_rect()
 {
-    double scale = 9.0f - double((g_aux_bezel_scale << 1) / 10.0f);
-    g_aux_rect.w = (g_bezel_scalewidth / scale);
-    g_aux_rect.h = (g_aux_rect.w * g_aux_ratio);
+     double scale = 9.0f - double((g_aux_bezel_scale << 1) / 10.0f);
+     g_aux_rect.w = (g_bezel_scalewidth / scale);
+     g_aux_rect.h = (g_aux_rect.w * g_aux_ratio);
 }
 
 void reset_scalefactor(int value, uint8_t bezel)
 {
-     bool e = true;
+     bool rst = true;
 
      switch(bezel) {
      case 1: // Scoreboard
-         if (!g_sb_texture) { e = false ; break; }
+         if (!g_sb_texture) { rst = false ; break; }
          g_sb_bezel_scale = value;
          break;
      case 2: // Aux
-         if (!g_aux_texture) { e = false ; break; }
+         if (!g_aux_texture) { rst = false ; break; }
          g_aux_bezel_scale = value;
          calc_annun_rect();
          break;
@@ -1316,7 +1392,7 @@ void reset_scalefactor(int value, uint8_t bezel)
      }
 
      char s[32]; // In-game
-     if (e) {
+     if (rst) {
          (g_fullscreen) ? format_fullscreen_render() : format_window_render();
          snprintf(s, sizeof(s), "scale: %d", value);
          g_scaled = true;
@@ -1328,9 +1404,9 @@ void reset_scalefactor(int value, uint8_t bezel)
 
 void calc_kb_rect()
 {
-    double scale = (double)((g_aux_bezel_scale / 25.0f) + 0.52f);
-    g_aux_rect.w = (g_bezel_scalewidth / 2.25f) * scale;
-    g_aux_rect.h = (g_aux_rect.w * g_aux_ratio);
+     double scale = (double)((g_aux_bezel_scale / 25.0f) + 0.52f);
+     g_aux_rect.w = (g_bezel_scalewidth / 2.25f) * scale;
+     g_aux_rect.h = (g_aux_rect.w * g_aux_ratio);
 }
 
 void scalekeyboard(int value)
@@ -1349,18 +1425,18 @@ void scalekeyboard(int value)
 void reset_shiftvalue(int value, bool vert, uint8_t bezel)
 {
      int h, v;
-     bool e = true;
+     bool rst = true;
 
      switch(bezel) {
      case 1: // Scoreboard
-         if (!g_sb_texture) { e = false ; break; }
+         if (!g_sb_texture) { rst = false ; break; }
          if (vert) sb_window_pos_y = value;
          else sb_window_pos_x = value;
          h = sb_window_pos_x;
          v = sb_window_pos_y;
          break;
      case 2: // Aux
-         if (!g_aux_texture) { e = false ; break; }
+         if (!g_aux_texture) { rst = false ; break; }
          if (vert) g_aux_rect.y = value;
          else g_aux_rect.x = value;
          h = g_aux_rect.x;
@@ -1376,7 +1452,7 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
      }
 
      char s[32]; // In-game
-     if (e) {
+     if (rst) {
          (g_fullscreen) ? format_fullscreen_render() : format_window_render();
          snprintf(s, sizeof(s), "x:%d, y:%d", h, v);
      }
@@ -1437,8 +1513,7 @@ void draw_string(const char *t, int col, int row, SDL_Surface *surface)
 
     SDL_Surface *text_surface;
 
-    if (g_game->use_old_overlay()) dest.x = (short)((col * 6));
-    else dest.x = (short)((col * 5));
+    dest.x = (short)(col * (g_game->use_old_overlay() ? 6 : 5));
 
     SDL_FillRect(surface, &dest, 0x00000000);
     SDL_Color color = {0xf0, 0xf0, 0xf0, 0xff};
@@ -1459,9 +1534,7 @@ void draw_subtitle(char *s, bool insert, bool center)
         m_message_timer = 0;
         g_bSubtitleShown = true;
         set_subtitle_display(s);
-
-        if (center) align = true;
-        else align = false;
+        align = center;
 
     } else if (m_message_timer > timeout) {
         g_bSubtitleShown = false;
@@ -1505,7 +1578,7 @@ void vid_toggle_fullscreen()
          (flags & SDL_WINDOW_MAXIMIZED) != 0) {
 
         if ((flags & SDL_WINDOW_FULLSCREEN_DESKTOP) != 0) {
-            SDL_GetDisplayBounds(0, &g_logical_rect);
+            SDL_GetDisplayBounds(g_display, &g_logical_rect);
         } else {
             g_logical_rect.w = g_displaymode.w;
             g_logical_rect.h = g_displaymode.h;
@@ -1522,9 +1595,13 @@ void vid_toggle_fullscreen()
     g_fullscreen = false;
     format_window_render();
     notify_stats(g_overlay_width, g_overlay_height, "u");
+
+    SDL_Rect dimensions;
+    SDL_GetDisplayBounds(g_display, &dimensions);
+
     SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
-    SDL_SetWindowPosition(g_window, SDL_WINDOWPOS_CENTERED,
-                          SDL_WINDOWPOS_CENTERED);
+    SDL_SetWindowPosition(g_window, dimensions.x + ((dimensions.w - g_viewport_width) >> 1),
+                dimensions.y + ((dimensions.h - g_viewport_height) >> 1));
 }
 
 void vid_toggle_scanlines()
@@ -1567,16 +1644,15 @@ void vid_scoreboard_switch()
     if (!g_sb_window) return;
 
     char s[16] = "screen: 0";
-    int displays = SDL_GetNumVideoDisplays();
 
-    if (displays > 1) {
-        SDL_Rect displayDimensions[displays];
+    if (g_displays > 1) {
+        SDL_Rect displayDimensions[g_displays];
         int winId = SDL_GetWindowDisplayIndex(g_sb_window);
 
-        for (int i = 0; i < displays; i++)
+        for (int i = 0; i < g_displays; i++)
             SDL_GetDisplayBounds(i, &displayDimensions[i]);
 
-        if (++winId == displays) winId = 0;
+        if (++winId == g_displays) winId = 0;
         snprintf(s, sizeof(s), "screen: %d", (unsigned char)winId);
 
         SDL_SetWindowPosition(g_sb_window,
@@ -1614,6 +1690,14 @@ void vid_setup_yuv_overlay (int width, int height) {
 
     // Setup the threaded access stuff, since this surface is accessed from the vldp thread, too.
     g_yuv_surface->mutex = SDL_CreateMutex();
+
+    if (g_yuv_rect[0]) {
+        g_yuv_rect[0]->w = width * g_yuv_scale[YUV_H];
+        g_yuv_rect[0]->h = height * g_yuv_scale[YUV_V];
+        g_yuv_rect[0]->x = (width >> 1) - (g_yuv_rect[0]->w >> 1);
+        g_yuv_rect[0]->y = (height >> 1) - (g_yuv_rect[0]->h >> 1);
+        g_yuv_rect[1] = copy_rect(g_yuv_rect[0]);
+    }
 }
 
 SDL_Texture *vid_create_yuv_texture (int width, int height) {
@@ -1759,7 +1843,7 @@ void vid_render_bezels () {
 
     if (!g_bezel_load) {
         if (!g_bezel_file.empty() && !g_bezel_texture) {
-            std::string bezelpath = "bezels" + std::string(PATH_SEPARATOR) + g_bezel_file;
+            std::string bezelpath =  g_bezel_path + std::string(PATH_SEPARATOR) + g_bezel_file;
             g_bezel_texture = IMG_LoadTexture(g_renderer, bezelpath.c_str());
 
             if (g_bezel_texture) {
@@ -1863,7 +1947,7 @@ void vid_blit () {
     // Sadly, we have to RenderCopy the YUV texture on every blitting strike, because
     // the image on the renderer gets "dirty" with previous overlay frames on top of the yuv.
     if (g_yuv_texture)
-        SDL_RenderCopy(g_renderer, g_yuv_texture, NULL, &g_scaling_rect);
+        SDL_RenderCopy(g_renderer, g_yuv_texture, g_yuv_rect[0], &g_scaling_rect);
 
     // If there's an overlay texture, it means we are using some kind of overlay,
     // be it LEDs or any other thing, so RenderCopy it to the renderer ON TOP of the YUV video.
@@ -1936,6 +2020,8 @@ void take_screenshot()
         { LOGW << fmt("'%s' directory does not exist.", dir); return; }
     else if (!(info.st_mode & S_IFDIR))
         { LOGW << fmt("'%s' is not a directory.", dir); return; }
+    else if (g_display != 0)
+        { LOGE << "Screenshots require the primary display."; return; }
 
     SDL_Surface *screenshot = NULL;
 

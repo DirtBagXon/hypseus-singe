@@ -152,8 +152,6 @@ class ldp_vldp : public ldp
     bool m_audio_file_opened; // whether we have audio to accompany the video
     bool m_blank_on_searches; // should we blank while searching?
     bool m_blank_on_skips;    // should we blank while skipping?
-    unsigned int m_vertical_stretch; // vertically stretch video (value of 24 to
-                                     // remove letterboxing for Cliffhanger)
     double m_seek_frames_per_ms;     // max # of frames that VLDP will seek per
                                      // millisecond (0 = no limit)
     unsigned int m_min_seek_delay;   // min # of milliseconds to force seek to

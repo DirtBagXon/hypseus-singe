@@ -115,7 +115,7 @@ void zipath (lua_State *L) {
 /*
 ** This function changes the working (current) directory
 */
-static int change_dir (lua_State *L) {
+static int lfs_change_dir (lua_State *L) {
 
 	if (get_zipath()) zipath(L);
 
@@ -833,7 +833,7 @@ static void set_info (lua_State *L) {
 
 static const struct luaL_reg fslib[] = {
 	{"attributes", file_info},
-	{"chdir", change_dir},
+	{"chdir", lfs_change_dir},
 	{"currentdir", get_dir},
 	{"dir", dir_iter_factory},
 	{"lock", file_lock},

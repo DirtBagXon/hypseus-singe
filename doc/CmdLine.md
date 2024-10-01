@@ -100,6 +100,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -scanlines                      | Simulate scanline effect. See also -scanline_alpha and -scanline_shunt                               |
 | -scoreboard                      | Enables external Scoreboard.                           |
 | -scoreport \<port>               | Sets which parallel port to use with the scoreboard. 0 correspond to LPT1. *As of v1.0.12, any value over 1 will indicate the address of the parallel port in hexadecimal. So instead of passing in 0, I could pass in 378 which would achieve the same result.* |
+| -screen \<1-254>                 | Defines the screen _hypseus_ should use for display. |
 | -script                          | Defines the location of the primary Singe LUA game script. Required for Singe games. `-zlua` is an alias. |
 | -shiftx \<-100 to 100>           | Shift x-axis on video window [%]                                        |
 | -shifty \<-100 to 100>           | Shift y-axis on video window [%]                                        |

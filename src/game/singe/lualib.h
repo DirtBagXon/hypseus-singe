@@ -42,6 +42,12 @@ LUALIB_API int (luaopen_package) (lua_State *L);
 #define LUA_LOADLFSNAME	"lfs"
 LUALIB_API int (luaopen_lfs) (lua_State *L);
 
+#define LUA_LOADBITNAME "bit"
+LUALIB_API int (luaopen_bit) (lua_State *L);
+
+#define LUA_LOADMD5NAME "md5"
+LUALIB_API int (luaopen_md5_core) (lua_State *L);
+
 #define LUA_LOAD232NAME	"rs232"
 LUALIB_API int (luaopen_luars232) (lua_State *L);
 

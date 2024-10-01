@@ -451,7 +451,7 @@ void badlands::draw_char(Uint8 char_value, int x_offset, int y_offset)
 void badlands::draw_shoot()
 {
     const char f[6] = "shoot";
-    int i, x_offset = 0x1f;
+    int i, x_offset = 0x1e;
     int y_offset = (m_shoot & 0x01) ? 0x02 : 0x01;
 
     draw_char(m_shoot, x_offset - 0x02, y_offset);

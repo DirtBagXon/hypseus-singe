@@ -4,9 +4,8 @@ set( LIB_SOURCES
     lauxlib.c ldblib.c ldump.c linit.c lmathlib.c lobject.c
     lparser.c lstring.c ltablib.c lvm.c random.c lbaselib.c
     ldebug.c lfunc.c liolib.c lmem.c lopcodes.c lrandom.c
-    luretro.c luars232.c rs232.c lstrlib.c ltm.c lzio.c
-    lfs.c singe_utils.cpp SDL2_GFX/SDL2_rotozoom.c
-
+    luretro.c luars232.c rs232.c lstrlib.c ltm.c lzio.c lbit.c
+    md5lib.c md5.c lfs.c singe_utils.cpp SDL2_GFX/SDL2_rotozoom.c
 )
 
 set( LIB_HEADERS
@@ -14,7 +13,7 @@ set( LIB_HEADERS
     lstring.h ltm.h lua.h lundump.h lzio.h singeproxy.h
     lauxlib.h ldebug.h lfunc.h llex.h lmem.h lopcodes.h luretro.h
     lstate.h ltable.h luaconf.h lualib.h lvm.h singe_interface.h
-    lfs.h rs232.h SDL2_GFX/SDL2_rotozoom.h
+    lfs.h md5.h rs232.h SDL2_GFX/SDL2_rotozoom.h
 )
 
 if( WIN32 )
