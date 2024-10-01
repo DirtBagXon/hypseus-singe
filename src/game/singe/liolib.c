@@ -162,8 +162,23 @@ static int io_tostring (lua_State *L) {
 static int io_open (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   const char *mode = luaL_optstring(L, 2, "r");
+  char retroname[RETRO_MAXPATH] = {0};
   FILE **pf = newfile(L);
   *pf = fopen(filename, mode);
+  if (*pf == NULL) {
+    int len = strlen(filename) + RETRO_PAD;
+    if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+    if (get_retropath())
+      lua_retropath(filename, retroname, len);
+    else {
+      lua_rampath(filename, retroname, len);
+      if (strncmp(mode, "w", 1) == 0)
+        if (lua_chkdir(retroname) != 0)
+          return pushresult(L, 0, retroname);
+    }
+    *pf = fopen(retroname, mode);
+    filename = retroname;
+  }
   return (*pf == NULL) ? pushresult(L, 0, filename) : 1;
 }
 
@@ -209,7 +224,11 @@ static int g_iofile (lua_State *L, int f, const char *mode) {
         char ramname[RETRO_MAXPATH] = {0};
         if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
         lua_rampath(filename, ramname, len);
-        *pf = fopen(ramname, mode);
+        if (strncmp(mode, "w", 1) == 0 && lua_chkdir(ramname) != 0) {
+            *pf = NULL;
+        } else {
+            *pf = fopen(ramname, mode);
+        }
         if (*pf == NULL) fileerror(L, 1, ramname);
 
       } else {
@@ -275,8 +294,19 @@ static int io_lines (lua_State *L) {
   }
   else {
     const char *filename = luaL_checkstring(L, 1);
+    char retroname[RETRO_MAXPATH] = {0};
     FILE **pf = newfile(L);
     *pf = fopen(filename, "r");
+    if (*pf == NULL) {
+      int len = strlen(filename) + RETRO_PAD;
+      if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+      if (get_retropath())
+        lua_retropath(filename, retroname, len);
+      else
+        lua_rampath(filename, retroname, len);
+      *pf = fopen(retroname, "r");
+      filename = retroname;
+    }
     if (*pf == NULL)
       fileerror(L, 1, filename);
     aux_lines(L, lua_gettop(L), 1);

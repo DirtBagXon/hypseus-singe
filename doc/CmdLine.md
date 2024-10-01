@@ -69,9 +69,10 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -gamepad_reorder 3 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3]_|
 | -grabmouse                       | Capture mouse in SDL window.                           |
 | -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.         |
+| -horizontal_stretch \<value>     | Horizontally stretches the video screen outward from the center. |
 | -idleexit \<seconds>             | Tells Hypseus to exit after a certain number of seconds if no input has been received. |
 | -ignore_aspect_ratio             | Tells Hypseus to ignore the aspect ratio defined in the MPEG header. |
-| -keymapfile \<config>            | Specify an alternate hypinput.ini file.                |
+| -keymapfile \<config>            | Specify an alternate hypinput.ini file. `-config` is an alias.                |
 | -latency \<ms>                   | Adds a delay before all searches occur which causes scenes to last a little longer. Useful for Dragon's Lair F2 ROMs that cut some scenes off prematurely. |
 | -linear_scale                    | Enable linear filtering when scaling.                  |
 | -manymouse                       | Use the alternate ManyMouse input system. Provides *Absolute* coordinates on supported devices. |
@@ -101,6 +102,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -scanlines                      | Simulate scanline effect. See also -scanline_alpha and -scanline_shunt                               |
 | -scoreboard                      | Enables external Scoreboard.                           |
 | -scoreport \<port>               | Sets which parallel port to use with the scoreboard. 0 correspond to LPT1. *As of v1.0.12, any value over 1 will indicate the address of the parallel port in hexadecimal. So instead of passing in 0, I could pass in 378 which would achieve the same result.* |
+| -screen \<1-254>                 | Defines the screen _hypseus_ should use for display. |
 | -script                          | Defines the location of the primary Singe LUA game script. Required for Singe games. `-zlua` is an alias. |
 | -shiftx \<-100 to 100>           | Shift x-axis on video window [%]                                        |
 | -shifty \<-100 to 100>           | Shift y-axis on video window [%]                                        |
@@ -130,9 +132,13 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -bootsilent                      | Mute sound during initVLDP() - if possible.                                                 |
 | -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                |
 | -nocrosshair                     | Request game does not display crosshairs.                                                   |
-| -retropath                       | Singe LUA data path rewrites [.daphne]                                                      |
 | -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                 |
 | -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*) |
+| -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.  |
+
+## Singe Emulationstation helpers
+| -retropath                       | Singe LUA data path _relative_ rewrite in ES [.daphne] extensions. Uses `roms` traversal.   |
+| -singedir \<path>                | Singe LUA data path _absolute_ rewrite in ES [.daphne] extensions. Uses absolute path.      |
 
 ## Shortcuts
 | Shortcut                         | Description                                                              |

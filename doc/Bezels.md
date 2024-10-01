@@ -15,6 +15,7 @@ Refer also to **CmdLine arguments** [here](CmdLine.md)
 | Option    | Description                   |
 |--------------|-------------------------------|
 | -bezel _\<lair.png\>_              | Specify a _png_ bezel within the 'bezels' sub-folder  |
+| -bezeldir _\<path\>_               | Specify an absolute path to an alternate folder       |
 | -bezelflip                         | Reverse the priority bezels are rendered to screen    |
 |                                    |                                                       |
 | -scorebezel                        | Built-in bezel: ace/lair/tq scoreboard                |

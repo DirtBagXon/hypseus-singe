@@ -1,4 +1,4 @@
-name: CMake-MacOS
+name: CMake-MacOS-Brew-MPEG2
 
 on:
  workflow_dispatch:
@@ -8,17 +8,20 @@ on:
         required: true
         default: 'warning'
       tags:
-        description: 'MacOS Build'
+        description: 'MacOS (brew libmpeg2) Build'
 env:
   BUILD_TYPE: Release
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - uses: actions/checkout@master
+        with:
+          ref: libmpeg2
       - name: Install Homebrew
+
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
         if: success()
@@ -29,6 +32,8 @@ jobs:
           brew install sdl2_image
           brew install automake
           brew install libvorbis
+          brew install libmpeg2
+          brew install libzip
         if: success()
       - name: Build
         run: |

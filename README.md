@@ -83,7 +83,7 @@ Ensure you have data in the following `daphne` HOME folders:
 
     pics, fonts, ram, roms, sound, singe, (vldp and vldp_dl)
 
-Run `hypseus` with `daphne` [arguments](doc/CmdLine.md) on the command line: Also refer to additional arguments [below](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys)
+Run `hypseus` with `daphne` [arguments](doc/CmdLine.md) on the command line:
 
     hypseus lair vldp -framefile vldp_dl/lair/lair.txt -scorebezel
 
@@ -136,9 +136,9 @@ Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 *(Click images for YouTube playlist)*
 
-[![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
+[![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/@DirtBagXon/videos)
 
-[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe2.png)](https://www.youtube.com/playlist?list=PLRLuhkf2c3OeRoXydn0upKyIBUXNMK13x)
+[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe2.png)](https://www.youtube.com/@DirtBagXon/videos)
 
 
 
@@ -232,7 +232,7 @@ Refer to [CmdLine.md](doc/CmdLine.md) for a full argument list.
     -usbscoreboard <args>      [ Enable USB serial support for scoreboard:     ]
                                [ Arguments: (i)mplementation, (p)ort, (b)aud   ]
     -vertical_screen           [ Reorient calculations in logical fullscreen   ]
-    -vertical_stretch <1-24>   [ Overlay stretch (cliff/gtg only)              ]
+    -vertical_stretch <1-24>   [ YUV vertical stretching. Useful in cliff/gtg  ]
 
     -8bit_overlay              [ Restore original 8bit Singe overlays          ]
     -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]

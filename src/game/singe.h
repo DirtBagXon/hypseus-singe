@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.88 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.90 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -297,6 +297,8 @@ class singe : public game
 
     string m_strName;       // name of the game
     string m_strGameScript; // script name for the game
+    string m_strDataPaths;  // force absolute path in ES to singe subfolder
+    string m_zipAltName;    // alternate script in zip
 
     DLL_INSTANCE m_dll_instance; // pointer to DLL we load (if we aren't
                                  // statically linked)

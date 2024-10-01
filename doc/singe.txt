@@ -9,11 +9,14 @@ takeScreenshot,         sep_screenshot
 
 rewriteStatus,          sep_lua_rewrite            (return bool) -- (-retropath enabled)
 vldpGetScale,           sep_mpeg_get_scale         (return int) -- (-scalefactor value)
+vldpFocusArea,          sep_mpeg_focus_area        (x, y, w, h) -- Rect
+vldpGetYUVPixel,        sep_mpeg_get_rawpixel      (return Y, U, V)
+vldpResetFocus,         sep_mpeg_reset_focus       (void)
 
 scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
 scoreBezelClear,        sep_bezel_clear            (void)
 scoreBezelCredits,      sep_bezel_credits          (credits)
-scoreBezelTwinScoreOn,  sep_bezel_second_score     (return bool)
+scoreBezelTwinScoreOn,  sep_bezel_second_score     (bool)
 scoreBezelScore,        sep_bezel_player_score     (player, score)
 scoreBezelLives,        sep_bezel_player_lives     (player, lives)
 scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
@@ -24,6 +27,7 @@ spriteFrameHeight,      sep_sprite_height          (spr)
 spriteFrameWidth,       sep_frame_width            (spr)
 spriteGetFrames,        sep_sprite_frames          (spr) -- (0 = no animation)
 spriteLoadFrames,       sep_sprite_loadframes      (no of frames, png)
+spriteLoadData,         sep_sprite_loadata         (spr data)
 spriteResetColorKey,    sep_sprite_color_rekey     (bool, spr) -- Following GFX operations
 spriteRotateFrame,      sep_sprite_rotateframe     (rotation, frame, spr)
 

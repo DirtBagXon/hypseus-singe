@@ -37,6 +37,9 @@
 #define NOSQUARE 0x2D0
 #define TITLE_LENGTH 42
 
+#define YUV_H 0
+#define YUV_V 1
+
 #include "SDL_FontCache.h"
 #include <SDL.h>
 
@@ -158,6 +161,7 @@ void set_forcetop(bool value);
 int get_textureaccess();
 void set_textureaccess(int value);
 void set_grabmouse(bool value);
+void toggle_grabmouse();
 void set_vsync(bool value);
 void set_intro(bool value);
 void set_yuv_blue(bool value);
@@ -202,6 +206,7 @@ void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
+void set_bezel_path(const char *);
 void set_bezel_reverse(bool display);
 void set_aspect_change(int aspectWidth, int aspectHeight);
 void set_sb_window_position(int, int);
@@ -217,8 +222,12 @@ void set_ded_annun_bezel(bool bEnabled);
 void set_aux_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
+void set_display_screen(int value);
 void set_score_screen(int value);
 void set_fRotateDegrees(float fDegrees);
+void set_yuv_scale(int value, uint8_t axis);
+void set_yuv_rect(int, int, int, int);
+void reset_yuv_rect();
 
 void set_vertical_orientation(bool);
 void format_fullscreen_render();

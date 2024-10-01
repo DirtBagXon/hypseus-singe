@@ -27,6 +27,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <SDL.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
 
 #ifdef MAC_OSX
 #include <mach/host_info.h>
@@ -338,9 +340,20 @@ char *get_sdl_compile()
     static char result[NET_LONGSTRSIZE] = {0};
 
     SDL_version compiled;
+    SDL_version imgCompiled;
+    SDL_version ttfCompiled;
+
     SDL_VERSION(&compiled);
-    snprintf(result, sizeof(result), "SDL(CC): %d.%d.%d", compiled.major,
-		    compiled.minor, compiled.patch);
+    SDL_IMAGE_VERSION(&imgCompiled);
+    SDL_TTF_VERSION(&ttfCompiled);
+
+    snprintf(result, sizeof(result),
+         "(CC) SDL: %d.%d.%d, "
+         "IMAGE: %d.%d.%d, "
+         "TTF: %d.%d.%d",
+         compiled.major, compiled.minor, compiled.patch,
+         imgCompiled.major, imgCompiled.minor, imgCompiled.patch,
+         ttfCompiled.major, ttfCompiled.minor, ttfCompiled.patch);
 
     return result;
 }
@@ -350,9 +363,18 @@ char *get_sdl_linked()
     static char result[NET_LONGSTRSIZE] = {0};
 
     SDL_version linked;
+
     SDL_GetVersion(&linked);
-    snprintf(result, sizeof(result), "SDL(LD): %d.%d.%d", linked.major,
-		    linked.minor, linked.patch);
+    const SDL_version* imgLinked = IMG_Linked_Version();
+    const SDL_version* ttfLinked = TTF_Linked_Version();
+
+    snprintf(result, sizeof(result),
+         "(LD) SDL: %d.%d.%d, "
+         "IMAGE: %d.%d.%d, "
+         "TTF: %d.%d.%d",
+         linked.major, linked.minor, linked.patch,
+         imgLinked->major, imgLinked->minor, imgLinked->patch,
+         ttfLinked->major, ttfLinked->minor, ttfLinked->patch);
 
     return result;
 }

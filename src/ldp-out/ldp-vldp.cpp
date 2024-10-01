@@ -67,7 +67,6 @@ bool g_bGotParseUpdate = false;
 // if true, a screenshot will be taken at the next available opportunity
 bool g_take_screenshot = false;
 
-unsigned int g_vertical_stretch = 0;
 // what type of filter to use on our data (if any)
 unsigned int g_filter_type = FILTER_NONE;
 

@@ -181,6 +181,9 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
     case SDLK_KP_9:
         video::set_fRotateDegrees(fmod(r + 1.0, 360.0));
         break;
+    case SDLK_m:
+        video::toggle_grabmouse();
+        break;
     default:
         break;
     }

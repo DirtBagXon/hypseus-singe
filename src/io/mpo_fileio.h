@@ -110,6 +110,8 @@ bool mpo_write(const void *buf, size_t bytes_to_write,
 bool mpo_seek(int64_t offset, seek_type type, mpo_io *io);
 void mpo_close(mpo_io *io);
 
+bool safe_dir(const char*, int);
+
 // Attempts to create a directory (with permissions such that only the user can
 // access that dir)
 // 'dirname' is the name of the directory to create, returns on true on success

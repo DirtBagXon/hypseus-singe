@@ -31,6 +31,7 @@
 
 #include <SDL.h>
 #include <plog/Log.h>
+#include <string>
 
 #include "../sound/sound.h"
 
@@ -79,8 +80,9 @@ void printnowookin(const char *s)
 
 void printusage()
 {
-  const char * usage = R"USAGE(
-  Hypseus Singe (c) 2021-2024 DirtBagXon
+  const std::string version = hypseus_VERSION;
+  const std::string usage = R"USAGE(
+  Hypseus Singe (c) 2021-2024 DirtBagXon )USAGE" + version + R"USAGE(
 
   Usage: hypseus <game> vldp -framefile <framefile.txt> ...
 
@@ -88,8 +90,8 @@ void printusage()
 
       - <game> consists of a supported Daphne ROM or 'singe'
 
-      - Singe games require an extra '-script <game.singe>'
-        <game.singe> defines the main Singe LUA game file.
+      - Singe requires the '-script <game.singe>' argument
+        <game.singe> defines the startup Singe LUA file.
 
         Zipped LUA ROM files are supported in Singe via:
 
@@ -107,6 +109,7 @@ void printusage()
 
         -script <game.singe>  : (One argument is required)
         -zlua <game.zip>
+        -usealt <game>
         -blend_sprites
         -manymouse
 
@@ -114,16 +117,16 @@ void printusage()
 
   Visit: https://github.com/DirtBagXon/hypseus-singe
 
-  Use -v to display version and build information.
+  Use -v to display build information.
 
 )USAGE";
 
 #ifdef WIN32
-    MessageBox(NULL, usage, "Usage", MB_OK | MB_ICONINFORMATION);
+    MessageBox(NULL, usage.c_str(), "Usage", MB_OK | MB_ICONINFORMATION);
 #elif __APPLE__
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", usage, NULL);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", usage.c_str(), NULL);
 #else
-    fprintf(stdout, "%s", usage);
+    fprintf(stdout, "%s", usage.c_str());
 #endif
 
     g_usage = true;

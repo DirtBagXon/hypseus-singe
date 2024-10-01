@@ -4,7 +4,7 @@
  *
  * ____ HYPSEUS COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2021 DirtBagXon
+ * Copyright (C) 2024 DirtBagXon
  *
  * This file is part of HYPSEUS SINGE, a laserdisc arcade game emulator
  *
@@ -32,8 +32,11 @@
 unsigned char get_retropath();
 unsigned char get_zipath();
 
+int lua_chkdir(const char *path);
+
 void lua_set_retropath(unsigned char value);
 void lua_set_zipath(unsigned char value);
+void lua_set_abpath(const char *value);
 
 void lua_retropath(const char *src, char *dst, int len);
 void lua_rampath(const char *src, char *dst, int len);
