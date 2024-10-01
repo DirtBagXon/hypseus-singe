@@ -52,14 +52,12 @@ include(GNUInstallDirs)
 include(GetGitRevisionDescription)
 include(InstallRequiredSystemLibraries)
 include(FindPkgConfig)
-include(ExternalProject)
-include(BuildLibMPEG2)
 
 use_cxx11( )
 
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
-build_libmpeg2( )
+PKG_SEARCH_MODULE(MPEG2 REQUIRED libmpeg2)
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
 
@@ -87,6 +85,7 @@ message(STATUS "Version: ${VER_TAG}")
 include_directories(
     ${PROJECT_BINARY_DIR} # config.h
     ${SDL2_INCLUDE_DIRS}
+    ${MPEG2_INCLUDE_DIRS}
 )
 
 if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
@@ -113,17 +112,13 @@ add_subdirectory(timer)
 add_subdirectory(video)
 add_subdirectory(vldp)
 
-add_dependencies( vldp libmpeg2 )
-add_dependencies( ldp-out vldp )
-add_dependencies( game vldp )
-add_dependencies( sound vldp )
-
 find_package(SDL2 REQUIRED)
 find_package(SDL2TTF REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
 find_package(Vorbis REQUIRED)
 
 if(APPLE)
+    find_package(MPEG2 REQUIRED)
     set( SDL2_LIBRARIES ${SDL2_LIBRARY} )
 endif(APPLE)
 
@@ -133,6 +128,11 @@ target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_L
 if(ASAN)
     target_link_options(hypseus PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
 endif()
+
+if(APPLE)
+    target_link_libraries( hypseus ${MPEG2_LIBRARIES} )
+endif(APPLE)
+
 
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
