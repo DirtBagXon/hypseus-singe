@@ -751,7 +751,8 @@ bool game::load_roms()
             else {
                 string s = "ROM ";
                 s += rom->filename;
-                s += " couldn't be found in roms/";
+                string dir = g_homedir.get_romdir();
+                s += " couldn't be found in " + (dir.empty() ? "roms" : dir) + "/";
                 s += path;
                 s += "/, or in ";
                 s += zip_path;

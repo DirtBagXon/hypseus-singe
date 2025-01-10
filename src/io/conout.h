@@ -35,6 +35,7 @@ void outchr(const char ch);
 void printline(const char *fmt, ...);
 void noflood_printline(char *s);
 void safe_itoa(int num, char *a, int sizeof_a);
+static const int instr_size = 160;
 
 // enables/disables log from being written to disk
 void set_log_enabled(bool val);

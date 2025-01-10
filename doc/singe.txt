@@ -31,6 +31,17 @@ spriteLoadData,         sep_sprite_loadata         (spr data)
 spriteResetColorKey,    sep_sprite_color_rekey     (bool, spr) -- Following GFX operations
 spriteRotateFrame,      sep_sprite_rotateframe     (rotation, frame, spr)
 
+musicLoad,              sep_music_load             (MP3 or MIDI music file)
+musicPlay,              sep_music_play             (music, [loops]) -1 = infinite
+musicPause,             sep_music_pause            (void)
+musicIsPlaying,         sep_music_playing          (return bool)
+musicResume,            sep_music_resume           (void)
+musicStop,              sep_music_stop             (void)
+musicSetVolume,         sep_music_volume           (0 - 128)
+musicUnload,            sep_music_unload           (music)
+
+soundLoadData,          sep_sound_loadata          (wav data)
+
 spriteAnimGetFrame,     sep_sprite_get_frame       (spr)
 spriteAnimIsPlaying,    sep_sprite_playing         (return bool)
 spriteAnimLoop,         sep_sprite_loop            (bool, spr)

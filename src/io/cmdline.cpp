@@ -82,6 +82,7 @@
 int g_argc      = 0;
 char **g_argv   = NULL;
 int g_arg_index = 0;
+bool g_altmouse = true;
 
 // Win32 doesn't use strcasecmp, it uses stricmp (lame)
 #ifdef WIN32
@@ -118,7 +119,6 @@ bool parse_homedir()
         // Primary used for OSX/linux to keep roms, framefiles and saverams in
         // the user-writable space.
         else if (strcasecmp(s, "-homedir") == 0) {
-            // Ignore this one, already handled
             get_next_word(s, sizeof(s));
             if (s[0] == 0) {
                 printerror("Homedir switch used but no homedir specified!");
@@ -167,6 +167,57 @@ bool parse_homedir()
     } // end if homedir was not set
 
     // Reset arg index and return
+    g_arg_index = 1;
+    return result;
+}
+
+// parses the command line looking for the -romdir switch, returns true if
+// found and valid (or not found)
+bool parse_romdir() {
+    bool result = true;
+    char s[81] = {0};
+    char e[128];
+
+    for (;;) {
+        get_next_word(s, sizeof(s));
+        if (s[0] == 0) {
+            break;
+        }
+        else if (strcasecmp(s, "-romdir") == 0) {
+            get_next_word(s, sizeof(s));
+            if (s[0] == 0) {
+                printerror("Romdir switch used but no romdir specified!");
+                result = false;
+                break;
+            } else {
+                g_homedir.set_romdir(s);
+                snprintf(e, sizeof(e), "Setting alternate rom dir: %s", s);
+                printline(e);
+                break;
+            }
+        }
+    }
+
+    g_arg_index = 1;
+    return result;
+}
+
+// Some distros enforce subsystems early, provide a means to
+// negate this in a later argument.
+bool parse_subsystems() {
+    bool result = true;
+    char s[81] = {0};
+
+    for (;;) {
+        get_next_word(s, sizeof(s));
+        if (s[0] == 0) {
+            break;
+        }
+        else if (strcasecmp(s, "-nomanymouse") == 0) {
+            g_altmouse = false;
+        }
+    }
+
     g_arg_index = 1;
     return result;
 }
@@ -491,7 +542,8 @@ bool parse_cmd_line(int argc, char **argv)
     g_arg_index = 1; // skip name of executable from command line
 
     // if game and ldp types are correct
-    if (parse_homedir() && parse_game_type() && parse_ldp_type()) {
+    if (parse_subsystems() && parse_romdir() && parse_homedir() &&
+            parse_game_type() && parse_ldp_type()) {
         // while we have stuff left in the command line to parse
         for (;;) {
             get_next_word(s, sizeof(s));
@@ -506,6 +558,12 @@ bool parse_cmd_line(int argc, char **argv)
             // Primary used for OSX/linux to keep roms, framefiles and saverams
             // in the user-writable space.
             else if (strcasecmp(s, "-homedir") == 0) {
+                // Ignore this one, already handled
+                get_next_word(s, sizeof(s));
+            }
+
+            // if they are defining an alternate 'roms' directory.
+            else if (strcasecmp(s, "-romdir") == 0) {
                 // Ignore this one, already handled
                 get_next_word(s, sizeof(s));
             }
@@ -1104,11 +1162,14 @@ bool parse_cmd_line(int argc, char **argv)
             // Capture mouse within SDL window and enable manymouse
             else if (strcasecmp(s, "-grabmouse") == 0) {
                 video::set_grabmouse(true);
-                g_game->set_manymouse(true);
+                if (g_altmouse) g_game->set_manymouse(true);
             }
             // Make manymouse a global argument
             else if (strcasecmp(s, "-manymouse") == 0) {
-                g_game->set_manymouse(true);
+                if (g_altmouse) g_game->set_manymouse(true);
+            }
+            else if (strcasecmp(s, "-nomanymouse") == 0) {
+                // Ignore this one, already handled
             }
             // Enable SDL_HINT_RENDER_SCALE_QUALITY(linear)
             else if (strcasecmp(s, "-linear_scale") == 0) {

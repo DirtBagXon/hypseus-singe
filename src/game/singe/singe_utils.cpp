@@ -24,7 +24,21 @@
 * This is SINGE - the Somewhat Interactive Nostalgic Game Engine!
 */
 
+#include <string>
 #include "../singe.h"
+#include "../../io/homedir.h"
+
+extern "C" {
+
+const char* get_romdir_path()
+{
+    static std::string romdir = g_homedir.get_romdir();
+    romdir = romdir.empty() ? "roms" : romdir;
+
+    return romdir.c_str();
+}
+
+}
 
 int singe::scoreboard_format(int value)
 {

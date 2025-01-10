@@ -28,6 +28,7 @@ jobs:
         sudo apt install libsdl2-dev
         sudo apt install libsdl2-ttf-dev
         sudo apt install libsdl2-image-dev
+        sudo apt install libsdl2-mixer-dev
         sudo apt install libzip-dev
         sudo apt install libvorbis-dev
         sudo apt install zlib1g-dev
@@ -70,6 +71,7 @@ jobs:
         cp Hypseus_Singe-x86_64.AppImage hypseus-singe
         ln -s Hypseus_Singe-x86_64.AppImage hypseus-singe/hypseus.bin
         cp -r ../fonts hypseus-singe
+        cp -r ../midi hypseus-singe
         cp -r ../roms hypseus-singe
         cp -r ../sound hypseus-singe
         cp -r ../pics hypseus-singe

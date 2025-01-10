@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.90 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.9001 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -153,6 +153,7 @@ class singe : public game
     // Lets give Singe the ability to query for this.
     static int get_status() { return g_ldp->get_status(); }
     static double get_singe_version(); // Returns version of the Singe engine
+    static string show_version();
     // Controls VLDP message displays on hypseus.log
     static void set_ldp_verbose(bool thisBol) { g_ldp->setVerbose(thisBol); }
 

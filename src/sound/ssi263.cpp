@@ -238,7 +238,8 @@ void reg0(unsigned char value, Uint8 *irq_status)
 
                 if (p_start) {
                     // We have a phoneme to add to the word/phrase.
-                    phones_len += sprintf(&phones_text[phones_len], "%s", p_start);
+                    phones_len += snprintf(&phones_text[phones_len],
+                                      SSI_PHRASE_BUF_LEN - phones_len, "%s", p_start);
                 }
             }
 

@@ -51,6 +51,7 @@ using namespace std;
 
 #include <SDL_main.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #ifdef WIN32
 // win32 doesn't have regular chdir apparently
@@ -245,8 +246,10 @@ int main(int argc, char **argv)
                                 }
                                 g_ldp->pre_shutdown();
                             } else {
-                                printerror(
-                                    "Could not initialize laserdisc player!");
+                                if (!quitflag) {
+                                    printerror(
+                                        "Could not initialize laserdisc player!");
+                                }
                             }
                             g_game->shutdown_video();
                         } // end if game video was initted properly
@@ -301,6 +304,9 @@ int main(int argc, char **argv)
 
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)
+
+    Mix_CloseAudio();
+    Mix_Quit();
 
     TTF_Quit();
     IMG_Quit();

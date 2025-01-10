@@ -4559,9 +4559,9 @@ const char *z80_info(void *context, int regnum)
 unsigned z80_dasm( char *buffer, unsigned pc )
 {
 #ifdef CPU_DEBUG
-	return DasmZ80( buffer, pc );
+	return DasmZ80(buffer, pc);
 #else
-	sprintf( buffer, "$%02X", cpu_readop(pc) );
+	snprintf(buffer, instr_size, "$%02X", cpu_readop(pc));
 	return 1;
 #endif
 }

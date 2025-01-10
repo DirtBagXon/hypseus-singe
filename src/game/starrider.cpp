@@ -102,7 +102,7 @@ starrider::starrider()
 
 // we cheat here... we call do_irq 10 times per hblank and do 8 firq's, 1 irq,
 // and 1 nmi
-void starrider::do_irq()
+void starrider::do_irq(unsigned int which_irq)
 {
     static int int_count = 0;
 

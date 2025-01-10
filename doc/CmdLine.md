@@ -82,6 +82,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -noissues                        | Don't display warnings about game driver problems.    |
 | -nojoystick                      | Disables any joysticks that may be plugged in. Joysticks will normally be used if available. |
 | -nolog                           | Disables writing to the log file (hypseus.log).    |
+| -nomanymouse                     | Disables the ability to enable ManyMouse input system.        |
 | -noserversend                    | A legacy argument. No usage statistics are collected or sent. |
 | -nosound                         | Disables all sound.                                   |
 | -nospeech                        | Disables speech for Thayer's Quest.                   |
@@ -95,6 +96,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
+| -romdir \<path>                  | Sets an alternate `roms` directory path.         |
 | -rotate \<degrees>               | Rotates the screen a certain number of degrees counter-clockwise. Valid values are from 0-359. *This is a somewhat limited feature.* |
 | -sboverlaymono                   | Use white LED's in (lair, ace) scoreboard overlay     |
 | -seek_frames_per_ms \<frames> | The # of frames that we can seek per millisecond (to simulate seek delay). Typical values for real laserdisc players are about 30.0 for 29.97fps discs and 20.0 for 23.976fps discs (dragon's lair and space ace). FLOATING POINT VALUES ARE ALLOWED HERE. Minimum value is 12.0 (5 seconds for 60,000 frames), maximum value is 600.0 (100 milliseconds for 60,000 frames). If you want a value higher than the max, you should just use 0 (as fast as possible). *This option may be replaced by something more accurate in the future.* |
@@ -125,18 +127,23 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -y \<vertical resolution>         | Specifies the height of the game window (in pixels).   |
 
 ## Singe Game Options
+| Option                           | Description                                                                                                                 |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| -8bit_overlay                    | Restore original 8bit Singe overlays.                                                                                       |
+| -blend_sprites                   | Restore BLENDMODE outline on Singe sprites.                                                                                 |
+| -bootsilent                      | Mute sound during initVLDP() - if possible.                                                                                 |
+| -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                                                |
+| -nocrosshair                     | Request game does not display crosshairs.                                                                                   |
+| -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                                                 |
+| -zlua                            | As above for Zipped ROMS.                                                                                                   |
+| -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |
+| -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.<br>`-altscript` is an alias.     |
+| -xratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the horizontal scale.<br>_1.33_ adjusts _4:3_ to _16:9_ |
+| -yratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the vertical scale.<br>Requires game LUA interaction.   |
+
+## Singe EmulationStation helpers
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
-| -8bit_overlay                    | Restore original 8bit Singe overlays.                                                       |
-| -blend_sprites                   | Restore BLENDMODE outline on Singe sprites.                                                 |
-| -bootsilent                      | Mute sound during initVLDP() - if possible.                                                 |
-| -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                |
-| -nocrosshair                     | Request game does not display crosshairs.                                                   |
-| -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                 |
-| -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*) |
-| -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.  |
-
-## Singe Emulationstation helpers
 | -retropath                       | Singe LUA data path _relative_ rewrite in ES [.daphne] extensions. Uses `roms` traversal.   |
 | -singedir \<path>                | Singe LUA data path _absolute_ rewrite in ES [.daphne] extensions. Uses absolute path.      |
 

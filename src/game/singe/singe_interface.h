@@ -2,7 +2,7 @@
 #define SINGE_INTERFACE_H
 
 // increase this number every time you change something in this file!!!
-#define SINGE_INTERFACE_API_VERSION 8
+#define SINGE_INTERFACE_API_VERSION 10
 
 #define SINGE_ERROR_INIT      0xA0
 #define SINGE_ERROR_RUNTIME   0xA1

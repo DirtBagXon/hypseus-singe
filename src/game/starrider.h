@@ -33,7 +33,7 @@ class starrider : public game
   public:
     starrider();
     void do_nmi();                                // does an NMI tick
-    void do_irq();                                // does an IRQ tick
+    void do_irq(unsigned int);                    // does an IRQ tick
     void do_firq();                               // does a FIRQ tick
     Uint8 cpu_mem_read(Uint16 addr);              // memory read routine
     void cpu_mem_write(Uint16 addr, Uint8 value); // memory write routine
