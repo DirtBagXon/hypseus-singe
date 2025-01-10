@@ -239,7 +239,7 @@ void singe::start()
     char s1[100];
     int intTimer = 0;
     int intReturn = 0;
-    snprintf(s1, sizeof(s1), "Starting Singe version %.2f", get_singe_version());
+    snprintf(s1, sizeof(s1), "Starting Singe version: %s", show_version().c_str());
     printline(s1);
     g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
@@ -423,7 +423,7 @@ bool singe::handle_cmdline_arg(const char *arg)
             printerror(strErrMsg.c_str());
         }
     }
-    else if (strcasecmp(arg, "-usealt") == 0) {
+    else if (strcasecmp(arg, "-usealt") == 0 || strcasecmp(arg, "-altscript") == 0) {
         get_next_word(s, sizeof(s));
         bResult = true;
 
@@ -773,6 +773,21 @@ double singe::get_singe_version()
 {
     double thisVersion = SINGE_VERSION;
     return thisVersion;
+}
+
+string singe::show_version()
+{
+    int major = static_cast<int>(SINGE_VERSION);
+    double sub = SINGE_VERSION - major;
+
+    int scale = static_cast<int>(round(sub * 10000));
+    int minor = scale / 100;
+    int patch = scale % 100;
+
+    string breakpoints = to_string(major) + "." + to_string(minor)
+         + "." + to_string(patch);
+
+    return breakpoints;
 }
 
 // Have SINGE deal directly with SDL input

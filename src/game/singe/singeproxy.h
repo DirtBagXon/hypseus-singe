@@ -30,9 +30,11 @@
 // Ubuntu Linux complains if SDL includes are used with quotes.
 #ifdef WIN32
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #include "SDL_ttf.h"
 #else
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 #endif
 
@@ -77,6 +79,7 @@ void          sep_datapaths(const char *path);
 void          sep_altgame(const char *altgame);
 void          sep_unload_fonts(void);
 void          sep_unload_sounds(void);
+void          sep_unload_mixers(void);
 void          sep_unload_sprites(void);
 void          sep_set_retropath(void);
 void          sep_mute_vldp_init(void);
@@ -133,6 +136,7 @@ static int sep_set_disc_fps(lua_State *L);
 static int sep_skip_backward(lua_State *L);
 static int sep_skip_blanking(lua_State *L);
 static int sep_sound_load(lua_State *L);
+static int sep_sound_loadata(lua_State *L);
 static int sep_sound_unload(lua_State *L);
 static int sep_sound_play(lua_State *L);
 static int sep_sound_getvolume(lua_State *L);
@@ -174,6 +178,14 @@ static int sep_sound_get_flag(lua_State *L);
 static int sep_sound_stop(lua_State *L);
 static int sep_sound_flush_queue(lua_State *L);
 // by DBX - Singe 2
+static int sep_music_load(lua_State *L);
+static int sep_music_play(lua_State *L);
+static int sep_music_playing(lua_State *L);
+static int sep_music_pause(lua_State *L);
+static int sep_music_resume(lua_State *L);
+static int sep_music_stop(lua_State *L);
+static int sep_music_volume(lua_State *L);
+static int sep_music_unload(lua_State *L);
 static int sep_sprite_rotate(lua_State *L);
 static int sep_sprite_scale(lua_State *L);
 static int sep_sprite_rotatescale(lua_State *L);

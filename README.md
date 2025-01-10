@@ -37,7 +37,7 @@ For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further **RetroPie** and **Raspberry Pi** information can be found [here](src/3rdparty/retropie/RETROPIE.md)
+Further **RetroPie** and **Raspberry Pi** information can be found [here](doc/RETROPIE.md)
 
 ### Compilation with CMake
 
@@ -52,7 +52,7 @@ Build:
 
 Ensure you have data in the following `daphne` HOME folders:
 
-    pics, fonts, ram, roms, sound, singe, (vldp and vldp_dl)
+    pics, fonts, ram, roms, midi, sound, singe, (vldp and vldp_dl)
 
 Run `hypseus` with `daphne` [arguments](http://www.daphne-emu.com/mediawiki/index.php/CmdLine) on the command line:
 
@@ -67,7 +67,7 @@ Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
 **Retro gaming** systems will require adoption within the relevant emulation scripts.
 
-The singe `-retropath` argument can ease integration into libretro style systems. See [RetroPie](src/3rdparty/retropie/RETROPIE.md#extended-argument-summary) as an example.
+The singe `-retropath` argument can ease integration into libretro style systems. See [RetroPie](doc/RETROPIE.md#extended-argument-summary) as an example.
 
 `bash` scripts are provided for systems that support this shell.
 
@@ -77,7 +77,7 @@ The singe `-retropath` argument can ease integration into libretro style systems
     mkdir -p ~/.daphne/vldp_dl ~/.daphne/singe
     cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
     cp doc/hypinput_gamepad.ini ~/.daphne
-    cp -R pics sound fonts ~/.daphne
+    cp -R pics sound midi fonts ~/.daphne
     
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
     sudo cp scripts/run.sh /usr/local/bin/hypseus
@@ -257,7 +257,7 @@ project would not be possible.
 ## License
 
 **Hypseus Singe**, Being Retro Orientated This Humble Emulator Regenerates  
-Copyright (C) 2021-2024  [DirtBagXon][owner]
+Copyright (C) 2021-2025  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]
@@ -292,15 +292,27 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [gcc]: https://gcc.gnu.org/
 [zlib]: http://www.zlib.net/
 [libzip]: https://libzip.org/
+[libzippp]: https://github.com/ctabin/libzippp
 [libmpeg2]: http://libmpeg2.sourceforge.net/
 [SDL2]: https://www.libsdl.org/download-2.0.php
-[SDL_Image]: https://www.libsdl.org/projects/SDL_image/
-[SDL_Mixer]: https://www.libsdl.org/projects/SDL_mixer/
-[SDL_ttf]: https://www.libsdl.org/projects/SDL_ttf/
+[SDL2_image]: https://www.libsdl.org/projects/SDL_image/
+[SDL2_mixer]: https://www.libsdl.org/projects/SDL_mixer/
+[SDL2_ttf]: https://www.libsdl.org/projects/SDL_ttf/
+[SDL2_gfx]: https://sourceforge.net/projects/sdl2gfx/
+[ManyMouse]: https://github.com/icculus/manymouse
+[serialib]: https://github.com/imabot2/serialib
+[plog]: https://github.com/SergiusTheBest/plog
 [GLEW]: http://glew.sourceforge.net/
 [ogg]: https://en.wikipedia.org/wiki/Ogg
 [vorbis]: https://en.wikipedia.org/wiki/Vorbis
 [cmake]: https://cmake.org
+[lua]: https://lua.org/
+[lua_cjson]: https://github.com/mpx/lua-cjson
+[lua_md5]: https://github.com/lunarmodules/md5
+[lua_sha2]: https://code.google.com/archive/p/sha2/
+[luars232]: https://github.com/ynezz/librs232
+[lua_bitop]: https://bitop.luajit.org/index.html
+[luafilesystem]: https://lunarmodules.github.io/luafilesystem/
 [autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
 [libtool]: https://www.gnu.org/software/libtool/manual/libtool.html
 [peneus]: https://en.wikipedia.org/wiki/Peneus

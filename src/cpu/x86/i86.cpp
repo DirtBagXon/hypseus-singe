@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include "../mamewrap.h"
+#include "../../io/conout.h"
 
 // MPO
 #ifdef CPU_DEBUG
@@ -470,7 +471,7 @@ unsigned i86_dasm(char *buffer, unsigned pc)
 #ifdef MAME_DEBUG
 	return DasmI86(buffer, pc);
 #else
-	sprintf(buffer, "$%02X", cpu_readop(pc));
+	snprintf(buffer, instr_size, "$%02X", cpu_readop(pc));
 	return 1;
 #endif
 }
@@ -573,7 +574,7 @@ unsigned i186_dasm(char *buffer, unsigned pc)
 #ifdef MAME_DEBUG
 	return DasmI186(buffer, pc);
 #else
-	sprintf(buffer, "$%02X", cpu_readop(pc));
+	snprintf(buffer, instr_size, "$%02X", cpu_readop(pc));
 	return 1;
 #endif
 }
@@ -764,7 +765,7 @@ unsigned v30_dasm(char *buffer, unsigned pc)
 #ifdef MAME_DEBUG
 	return DasmV30(buffer, pc);
 #else
-	sprintf(buffer, "$%02X", cpu_readop(pc));
+	snprintf(buffer, instr_size, "$%02X", cpu_readop(pc));
 	return 1;
 #endif
 }

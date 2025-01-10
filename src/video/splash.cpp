@@ -97,6 +97,7 @@ void splash() {
         while (SDL_PollEvent(&event))
             if (event.type == SDL_KEYDOWN)
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    set_quitflag();
                     goto exit;
                 }
 

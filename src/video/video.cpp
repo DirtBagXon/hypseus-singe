@@ -111,6 +111,7 @@ SDL_Texture *g_aux_texture         = NULL;
 SDL_Texture *g_rtr_texture         = NULL;
 
 SDL_Rect g_aux_rect;
+SDL_Rect g_border_rect;
 SDL_Rect g_overlay_size_rect;
 SDL_Rect g_scaling_rect = {0, 0, 0, 0};
 SDL_Rect g_logical_rect = {0, 0, 0, 0};
@@ -246,7 +247,7 @@ bool init_display()
         g_overlay_height = g_game->get_video_overlay_height();
 
         // Enforce a minimum window size
-        if ((int)g_probe_width < g_vid_width) g_probe_width = g_vid_width;
+        if ((int)g_probe_width < g_vid_height) g_probe_width = g_vid_height;
         if ((int)g_probe_height < g_vid_height) g_probe_height = g_vid_height;
 
         if (g_vid_resized) {
@@ -488,6 +489,9 @@ bool init_display()
 
                 if (g_scanlines)
                     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+
+                if (g_game->get_sinden_border())
+                    g_scale_h_shift = g_scale_v_shift = 100;
 
 		g_overlay_blitter =
 		    SDL_CreateRGBSurface(SDL_SWSURFACE, g_overlay_width, g_overlay_height,
@@ -1443,6 +1447,7 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
          v = g_aux_rect.y;
          break;
      default:
+         if (g_game->get_sinden_border()) return;
          if (g_keyboard_bezel) g_scaled = true;
          if (vert) g_scale_v_shift = value;
          else g_scale_h_shift = value;
@@ -1965,11 +1970,11 @@ void vid_blit () {
     // If there's a subtitle overlay
     if (g_bSubtitleShown) draw_subtitle(subchar, false, false);
 
+    if (g_bezel_toggle) vid_render_bezels();
+
     if (g_game->get_sinden_border())
         draw_border(g_game->get_sinden_border(),
             g_game->get_sinden_border_color());
-
-    if (g_bezel_toggle) vid_render_bezels();
 
     if (g_fRotateDegrees != 0) vid_render_rotate();
 
@@ -2097,6 +2102,8 @@ void format_window_render() {
     g_scaling_rect.x = ((g_viewport_width - g_scaling_rect.w) >> 1);
     g_scaling_rect.y = ((g_viewport_height - g_scaling_rect.h) >> 1);
 
+    g_border_rect = (SDL_Rect){0, 0, g_viewport_width, g_viewport_height};
+
     g_scaling_rect.x = (g_scaling_rect.x * g_scale_h_shift) / 100;
     g_scaling_rect.y = (g_scaling_rect.y * g_scale_v_shift) / 100;
 
@@ -2144,6 +2151,11 @@ void format_fullscreen_render() {
     g_scaling_rect.h = (h * g_scalefactor) / 100;
     g_scaling_rect.x = ((g_logical_rect.w - g_scaling_rect.w) >> 1);
     g_scaling_rect.y = ((g_logical_rect.h - g_scaling_rect.h) >> 1);
+
+    g_border_rect = (SDL_Rect){
+        (g_logical_rect.w - w) >> 1,
+        (g_logical_rect.h - h) >> 1, w, h
+    };
 
     if (g_keyboard_bezel && !g_scaled) {
         g_scaling_rect.y = g_scaling_rect.y >> 2;
@@ -2240,13 +2252,13 @@ void draw_border(int s, int c) {
 
     SDL_SetRenderDrawColor(g_renderer, r, g, b, SDL_ALPHA_OPAQUE);
 
-    tb.x = lb.x = bb.x = g_scaling_rect.x;
-    tb.y = lb.y = rb.y = g_scaling_rect.y;
-    rb.x = (g_scaling_rect.w + g_scaling_rect.x) - s;
-    bb.y = (g_scaling_rect.h - s) + g_scaling_rect.y;
-    tb.w = bb.w = g_scaling_rect.w;
+    tb.x = lb.x = bb.x = g_border_rect.x;
+    tb.y = lb.y = rb.y = g_border_rect.y;
+    rb.x = (g_border_rect.w + g_border_rect.x) - s;
+    bb.y = (g_border_rect.h - s) + g_border_rect.y;
+    tb.w = bb.w = g_border_rect.w;
     tb.h = bb.h = lb.w = rb.w = s;
-    lb.h = rb.h = g_scaling_rect.h;
+    lb.h = rb.h = g_border_rect.h;
 
     SDL_RenderFillRect(g_renderer, &tb);
     SDL_RenderFillRect(g_renderer, &lb);

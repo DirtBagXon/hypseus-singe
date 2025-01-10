@@ -780,10 +780,12 @@ void gpworld::draw_sprite(int spr_number)
         y = sy + row;
 
         while (1) {
-            int data_lo, data_high;
 
-            data_lo   = sprite[(src2 & 0x7fff) | (sprite_bank << 16)];
-            data_high = sprite[(src2 & 0x7fff) | 0x8000 | (sprite_bank << 16)];
+            int spr_index = (src2 & 0x7fff) | (sprite_bank << 16);
+            if (spr_index > max_sprites) break;
+
+            int data_lo = sprite[spr_index];
+            int data_high = sprite[spr_index | 0x8000];
 
             Uint8 pixel1 = data_high >> 0x04;
             Uint8 pixel2 = data_high & 0x0f;

@@ -4046,13 +4046,13 @@ unsigned int m80_dasm( char *buffer, unsigned pc )
 {
 #ifdef CPU_DEBUG
 	#ifdef USE_MAME_Z80_DEBUGGER
-		return DasmZ80( buffer, m80_get_pc() );
+		return DasmZ80(buffer, m80_get_pc());
 	#else
-		sprintf(buffer, "<NOT AVAILABLE>");
+		snprintf(buffer, instr_size, "<NOT AVAILABLE>");
 		return 1;
 	#endif
 #else
-	sprintf( buffer, "$%02X", cpu_readop(m80_get_pc()) );
+	snprintf(buffer, instr_size, "$%02X", cpu_readop(m80_get_pc()));
 	return 1;
 #endif
 }

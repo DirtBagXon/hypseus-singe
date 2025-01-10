@@ -1199,7 +1199,7 @@ static uint8 dead_page[NES6502_BANKSIZE];
 #define  ZP_WRITEBYTE(addr, value)  ram[(addr)] = (uint8) (value)
 
 
-INLINE uint32 zp_readword(register uint8 address)
+INLINE uint32 zp_readword(uint8 address)
 {
 #ifdef HOST_LITTLE_ENDIAN
    /* TODO: this fails if host architecture doesn't support byte alignment */
@@ -1214,12 +1214,12 @@ INLINE uint32 zp_readword(register uint8 address)
 #endif /* HOST_LITTLE_ENDIAN */
 }
 
-INLINE uint8 bank_readbyte(register uint32 address)
+INLINE uint8 bank_readbyte(uint32 address)
 {
    return cpu.mem_page[address >> NES6502_BANKSHIFT][address & NES6502_BANKMASK];
 }
 
-INLINE uint32 bank_readword(register uint32 address)
+INLINE uint32 bank_readword(uint32 address)
 {
 #ifdef HOST_LITTLE_ENDIAN
    /* TODO: this fails if src address is $xFFF */
@@ -1235,7 +1235,7 @@ INLINE uint32 bank_readword(register uint32 address)
 #endif /* HOST_LITTLE_ENDIAN */
 }
 
-INLINE void bank_writebyte(register uint32 address, register uint8 value)
+INLINE void bank_writebyte(uint32 address, uint8 value)
 {
    cpu.mem_page[address >> NES6502_BANKSHIFT][address & NES6502_BANKMASK] = value;
 }

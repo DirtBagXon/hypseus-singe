@@ -72,6 +72,7 @@ class gpworld : public game
     bool set_bank(Uint8, Uint8);
     void palette_calculate();
     void repaint(); // function to repaint video
+    static constexpr int max_sprites = 0x30000;
     virtual void write_ldp(Uint8, Uint16);
     virtual Uint8 read_ldp(Uint16);
     void set_preset(int);
@@ -84,7 +85,7 @@ class gpworld : public game
     void draw_shift(const char*);
     Uint8 rombank[0x8000];
     Uint8 character[0x1000];
-    Uint8 sprite[0x30000];
+    Uint8 sprite[max_sprites];
     Uint8 miscprom[0x220];
     SDL_Color palette_lookup[4096]; // all possible color entries
     int tile_color_pointer[256];

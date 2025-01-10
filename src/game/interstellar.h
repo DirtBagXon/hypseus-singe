@@ -65,7 +65,6 @@ class interstellar : public game
     Uint8 cpu_latch1;
     Uint8 cpu_latch2;
     Uint8 sound_latch;
-    bool sound_data;
     void draw_8x8(int character_number, int xcoord, int ycoord, int xflip,
                   int yflip, int palette);
     void draw_16x16(int character_number, int xcoord, int ycoord, int xflip,

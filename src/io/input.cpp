@@ -136,14 +136,14 @@ int g_key_defs[SWITCH_COUNT][2] = {
 
 ////////////
 
-int joystick_buttons_map[MAX_GAMECONTROLLER][SWITCH_COUNT][3] = { {0} };
+int joystick_buttons_map[MAX_GAMECONTROLLER][SWITCH_COUNT][3] = {{{0}}};
 
 //  {0, 0, 2, -1}, // up
 //  {0, 0, 1, -1}, // left
 //  {0, 0, 2, 1},  // down
 //  {0, 0, 1, 1}   // right
 
-int joystick_axis_map[MAX_GAMECONTROLLER][SWITCH_START1][4] = { {0} };
+int joystick_axis_map[MAX_GAMECONTROLLER][SWITCH_START1][4] = {{{0}}};
 
 // Game controller triggers activated
 bool controller_trigger_pressed[MAX_GAMECONTROLLER][SDL_CONTROLLER_AXIS_MAX] = { {false} };
@@ -402,6 +402,8 @@ static void manymouse_update_mice()
 
         static Mouse mice[MAX_MICE];
         mouse = &mice[mm_event.device];
+        int max_width = video::get_video_width();
+        int max_height = video::get_video_height();
 
 #ifndef WIN32
         float val, maxval;
@@ -409,34 +411,37 @@ static void manymouse_update_mice()
 
         switch(mm_event.type) {
         case MANYMOUSE_EVENT_RELMOTION:
-            if (mm_event.item == 0)
+
+            if (mm_event.item == 0) {
                 mouse->x += mm_event.value;
-            else if (mm_event.item == 1)
+                mouse->relx = mm_event.value;
+            } else if (mm_event.item == 1) {
                 mouse->y += mm_event.value;
+                mouse->rely = mm_event.value;
+            }
 
             if (mouse->x < 0) mouse->x = 0;
-            else if (mouse->x >= video::get_video_width()) mouse->x = video::get_video_width();
+            else if (mouse->x >= max_width) mouse->x = max_width;
 
             if (mouse->y < 0) mouse->y = 0;
-            else if (mouse->y >= video::get_video_height()) mouse->y = video::get_video_height();
+            else if (mouse->y >= max_height) mouse->y = max_height;
 
             g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely, mm_event.device);
             break;
         case MANYMOUSE_EVENT_ABSMOTION:
 
 #ifdef WIN32
-            mouse->x = int((mm_event.minval / 65535.0f) * video::get_video_width());
-            mouse->y = int((mm_event.maxval / 65535.0f) * video::get_video_height());
+            mouse->x = int((mm_event.minval / 65535.0f) * max_width);
+            mouse->y = int((mm_event.maxval / 65535.0f) * max_height);
 #else
             val = (float) (mm_event.value - mm_event.minval);
             maxval = (float) (mm_event.maxval - mm_event.minval);
 
             if (mm_event.item == 0)
-                mouse->x = (val / maxval) * video::get_video_width();
+                mouse->x = (val / maxval) * max_width;
             else if (mm_event.item == 1)
-                mouse->y = (val / maxval) * video::get_video_height();
+                mouse->y = (val / maxval) * max_height;
 #endif
-
             g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely, mm_event.device);
             break;
         case MANYMOUSE_EVENT_BUTTON:
@@ -631,8 +636,15 @@ void SDL_gamepad_init()
             }
         }
     }
+    SDL_Event event;
     SDL_JoystickEventState(SDL_ENABLE);
     SDL_GameControllerEventState(SDL_ENABLE);
+
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_CONTROLLERDEVICEADDED) {
+            SDL_FlushEvent(SDL_CONTROLLERDEVICEADDED);
+        }
+    }
 
     if (g_index_reset) reOrderIndex();
 

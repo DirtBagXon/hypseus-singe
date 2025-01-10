@@ -82,7 +82,7 @@ void printusage()
 {
   const std::string version = hypseus_VERSION;
   const std::string usage = R"USAGE(
-  Hypseus Singe (c) 2021-2024 DirtBagXon )USAGE" + version + R"USAGE(
+  Hypseus Singe (c) 2021-2025 DirtBagXon )USAGE" + version + R"USAGE(
 
   Usage: hypseus <game> vldp -framefile <framefile.txt> ...
 
@@ -109,6 +109,7 @@ void printusage()
 
         -script <game.singe>  : (One argument is required)
         -zlua <game.zip>
+
         -usealt <game>
         -blend_sprites
         -manymouse

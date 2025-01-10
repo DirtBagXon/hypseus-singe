@@ -288,8 +288,8 @@ void debug_disassemble(unsigned int addr)
 void print_cpu_context()
 {
 
-	char tmpstr[160] = { 0 };
-	char nextinstr[160];
+	char tmpstr[instr_size] = { 0 };
+	char nextinstr[instr_size];
 	cpudef *cpu = get_cpu_struct(g_which_cpu);
 	const char *s = NULL;	// results returned by CPU ascii callback
 	int reg = CPU_INFO_REG;	// base register

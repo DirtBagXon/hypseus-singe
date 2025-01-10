@@ -100,8 +100,14 @@ void lua_retropath(const char *src, char *dst, int len)
                     memcpy(dst, g_abpath, strlen(g_abpath));
                     dst += strlen(g_abpath);
                 } else {
-                    memcpy(dst, "roms/../", 8);
-                    dst += 8;
+                    const char* traverse = "/../";
+                    const char* romdir = get_romdir_path();
+
+                    memcpy(dst, romdir, strlen(romdir));
+                    dst += strlen(romdir);
+
+                    memcpy(dst, traverse, strlen(traverse));
+                    dst += strlen(traverse);
                 }
             }
             if (*src == '/' && r < 0xf) {

@@ -30,7 +30,7 @@
 #include "../../io/limits.h"
 #include "../../io/homedir.h"
 #include "../../io/mpo_fileio.h"
-#include "SDL2_GFX/SDL2_rotozoom.h"
+#include "sdl2_gfx/SDL2_rotozoom.h"
 
 #include <plog/Log.h>
 #include <string>
@@ -50,6 +50,11 @@ typedef struct g_soundType {
 	Uint8          *buffer;
 	bool           load;
 } g_soundT;
+
+typedef struct g_mixerType {
+	Mix_Music *data;
+	bool      load = false;
+} g_mixerT;
 
 typedef struct g_spriteType {
 	double  angle  = 0.0f;
@@ -102,6 +107,7 @@ const struct singe_in_info  *g_pSingeIn = NULL;
 SDL_Color             g_colorForeground     = {255, 255, 255, 0};
 SDL_Color             g_colorBackground     = {0, 0, 0, 0};
 vector<TTF_Font *>    g_fontList;
+vector<g_mixerT>      g_mixerList;
 vector<g_soundT>      g_soundList;
 vector<g_spriteT>     g_sprites;
 int                   g_fontCurrent         = -1;
@@ -117,6 +123,7 @@ bool                  g_trace               = false;
 bool                  g_rom_zip             = false;
 bool                  g_firstload           = true;
 bool                  g_firstfont           = true;
+bool                  g_firstmix            = true;
 bool                  g_firstsnd            = true;
 bool                  g_pixelready          = false;
 uint32_t              g_format              = 0;
@@ -133,6 +140,12 @@ const char*           g_zipFile             = NULL;
 SDL_AudioSpec*        g_sound_load          = NULL;
 vector<ZipEntry>      g_zipList;
 vector<ZipEntry>::iterator iter;
+
+const vector<Mix_MusicType> supportedMusic = { MUS_MP3, MUS_MID };
+const vector<std::pair<int, std::string>> mixerFlags = {
+    { MIX_INIT_MP3, "MP3" },
+    { MIX_INIT_MID, "MIDI" }
+};
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                int Ypitch, int Upitch, int Vpitch);
@@ -223,6 +236,16 @@ std::string sep_fmt(const std::string fmt_str, ...)
     va_end(ap_copy);
 
     return formatted;
+}
+
+bool audio_format()
+{
+    if ((SDL_BYTEORDER == SDL_LIL_ENDIAN && g_sound_load->format == AUDIO_S16SYS)
+    || (SDL_BYTEORDER == SDL_BIG_ENDIAN && g_sound_load->format == AUDIO_S16LSB))
+        return true;
+
+    LOGE << sep_fmt("soundLoad: Invalid audio format detected");
+    return false;
 }
 
 void sep_trace(lua_State *L)
@@ -326,7 +349,7 @@ void sep_call_lua(const char *func, const char *sig, ...)
     int narg, nres;  /* number of arguments and results */
     int popCount;
     const int top = lua_gettop(g_se_lua_context);
-    static unsigned char e;
+    static uint8_t err = 0;
 	
     va_start(vl, sig);
 	
@@ -365,8 +388,11 @@ void sep_call_lua(const char *func, const char *sig, ...)
     if (lua_pcall(g_se_lua_context, narg, nres, 0) != 0) { /* do the call */
         sep_trace(g_se_lua_context);
         LOGE << sep_fmt("error running function '%s': %s", func, lua_tostring(g_se_lua_context, -1));
-        if (e) { sep_die("Multiple errors, cannot continue..."); exit(SINGE_ERROR_RUNTIME); }
-        e++;
+        if (err > 0) {
+            sep_die("Multiple errors, cannot continue...");
+            exit(SINGE_ERROR_RUNTIME);
+        }
+        err++;
         return;
     }
 	
@@ -398,7 +424,7 @@ void sep_call_lua(const char *func, const char *sig, ...)
         nres++;
     }
     va_end(vl);
-    e = 0;
+    err = 0;
 	
     if (popCount > 0)
         lua_pop(g_se_lua_context, popCount);
@@ -437,6 +463,48 @@ void sep_die(const char *fmt, ...)
 
     // force (clean) shutdown
     g_pSingeIn->set_quitflag();
+}
+
+bool sep_valid_music(Mix_MusicType type)
+{
+    for (const auto& music : supportedMusic) {
+        if (type == music) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool sep_init_mixer()
+{
+    SDL_setenv("SDL_FORCE_SOUNDFONTS", "1", 1);
+    SDL_setenv("SDL_SOUNDFONTS", "midi/soundfont.sf2", 1);
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        sep_die("SDL Mixer library is not available.");
+        return false;
+    }
+
+    int flags = 0;
+
+    for (const auto& flag : mixerFlags) {
+        flags |= flag.first;
+    }
+
+    int setup = Mix_Init(flags);
+
+    if ((setup & flags) != flags) {
+
+        for (const auto& type : mixerFlags) {
+            if (!(setup & type.first)) {
+                sep_die("SDL_Mixer %s support is not available.", type.second.c_str());
+            }
+        }
+        return false;
+    }
+
+    Mix_VolumeMusic(10);
+    return true;
 }
 
 void sep_do_blit(SDL_Surface *srfDest)
@@ -499,7 +567,7 @@ int sep_lua_error(lua_State *L)
     while (lua_getstack(L, level, &ar) != 0)
     {
         lua_getinfo(L, "nSl", &ar);
-        LOGW << sep_fmt(" %d: function `%s' at line %d %s", level, ar.name, ar.currentline, ar.short_src);
+        LOGW << sep_fmt(" %d: function '%s' at line %d %s", level, ar.name, ar.currentline, ar.short_src);
         level++;
     }
     sep_print("Trace complete.");
@@ -600,6 +668,7 @@ void sep_shutdown(void)
 {
     sep_release_vldp();
 
+    sep_unload_mixers();
     sep_unload_fonts();
     sep_unload_sounds();
     sep_unload_sprites();
@@ -629,7 +698,14 @@ void sep_sound_reset()
     g_firstsnd = false;
 }
 
-inline bool sep_range_sprites(const vector<g_spriteT>& vec, int index)
+void sep_mixer_reset()
+{
+    g_mixerList.clear();
+    g_firstmix = false;
+}
+
+template <typename T>
+inline bool sep_vector_range(const std::vector<T>& vec, int index)
 {
     return index >= 0 && index < static_cast<int>(vec.size());
 }
@@ -637,7 +713,7 @@ inline bool sep_range_sprites(const vector<g_spriteT>& vec, int index)
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 inline bool sep_animation_valid(lua_State *L, int sprite, IMG_Animation *animation, const char* func)
 {
-    if (!sep_range_sprites(g_sprites, sprite) || animation == NULL) {
+    if (!sep_vector_range(g_sprites, sprite) || animation == NULL) {
 
         static bool die = false;
         if (!die) {
@@ -653,7 +729,7 @@ inline bool sep_animation_valid(lua_State *L, int sprite, IMG_Animation *animati
 
 inline bool sep_sprite_valid(lua_State *L, int sprite, SDL_Surface *surface, const char* func)
 {
-    if (!sep_range_sprites(g_sprites, sprite) || surface == NULL) {
+    if (!sep_vector_range(g_sprites, sprite) || surface == NULL) {
 
         static bool die = false;
         if (!die) {
@@ -666,17 +742,23 @@ inline bool sep_sprite_valid(lua_State *L, int sprite, SDL_Surface *surface, con
     return true;
 }
 
-inline bool sep_range_sound(const vector<g_soundT>& vec, int index)
-{
-    return index >= 0 && index < static_cast<int>(vec.size());
-}
-
 inline bool sep_sound_valid(int sound, const char* func)
 {
-    if (!sep_range_sound(g_soundList, sound) ||
+    if (!sep_vector_range(g_soundList, sound) ||
         !g_soundList[sound].load) {
 
         sep_print("Called an invalid Sound: %s()", func);
+        return false;
+    }
+    return true;
+}
+
+inline bool sep_mixer_valid(int mixer, const char* func)
+{
+    if (!sep_vector_range(g_mixerList, mixer) ||
+        !g_mixerList[mixer].load) {
+
+        sep_print("Called an invalid MIDI: %s()", func);
         return false;
     }
     return true;
@@ -956,6 +1038,7 @@ SDL_RWops* sep_unzip(std::string s)
         g_zipList.clear();
         zf.close();
     }
+
     return SDL_RWFromConstMem(found, size);
 }
 
@@ -974,6 +1057,13 @@ TTF_Font* sep_font_zip(std::string s, int points)
     TTF_Font *font = TTF_OpenFontRW(sep_unzip(s), 1, points);
 
     return font;
+}
+
+Mix_Music* sep_mixer_zip(std::string s)
+{
+    Mix_Music *mix = Mix_LoadMUS_RW(sep_unzip(s), 1);
+
+    return mix;
 }
 
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
@@ -1006,8 +1096,10 @@ void sep_altgame(const char *data)
 
 void sep_startup(const char *data)
 {
+    g_mixerT mixer;
     g_soundT sound;
     g_spriteT sprite;
+    mixer.load = false;
     sound.load = false;
     sprite.store = nullptr;
     sprite.frame = nullptr;
@@ -1016,6 +1108,7 @@ void sep_startup(const char *data)
     sprite.animation = nullptr;
 #endif
     g_sprites.push_back(sprite);
+    g_mixerList.push_back(mixer);
     g_soundList.push_back(sound);
     g_fontList.push_back(nullptr);
 
@@ -1121,6 +1214,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "spriteLoadData",         sep_sprite_loadata);
     lua_register(g_se_lua_context, "spriteFrameHeight",      sep_sprite_height);
     lua_register(g_se_lua_context, "spriteFrameWidth",       sep_frame_width);
+    lua_register(g_se_lua_context, "soundLoadData",          sep_sound_loadata);
     lua_register(g_se_lua_context, "takeScreenshot",         sep_screenshot);
     lua_register(g_se_lua_context, "rewriteStatus",          sep_lua_rewrite);
     lua_register(g_se_lua_context, "vldpGetScale",           sep_mpeg_get_scale);
@@ -1128,6 +1222,15 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "vldpResetFocus",         sep_mpeg_reset_focus);
     lua_register(g_se_lua_context, "vldpGetYUVPixel",        sep_mpeg_get_rawpixel);
     lua_register(g_se_lua_context, "dofile",                 sep_doluafile);
+
+    lua_register(g_se_lua_context, "musicLoad",              sep_music_load);
+    lua_register(g_se_lua_context, "musicPlay",              sep_music_play);
+    lua_register(g_se_lua_context, "musicIsPlaying",         sep_music_playing);
+    lua_register(g_se_lua_context, "musicPause",             sep_music_pause);
+    lua_register(g_se_lua_context, "musicResume",            sep_music_resume);
+    lua_register(g_se_lua_context, "musicStop",              sep_music_stop);
+    lua_register(g_se_lua_context, "musicSetVolume",         sep_music_volume);
+    lua_register(g_se_lua_context, "musicUnload",            sep_music_unload);
 
     lua_register(g_se_lua_context, "scoreBezelEnable",       sep_bezel_enable);
     lua_register(g_se_lua_context, "scoreBezelClear",        sep_bezel_clear);
@@ -1227,7 +1330,7 @@ void sep_startup(const char *data)
 
              if (g_rom_zip) sep_set_rampath();
 
-             if(size > 0 && luaL_loadbuffer(g_se_lua_context, init, size, data) == 0) {
+             if (size > 0 && luaL_loadbuffer(g_se_lua_context, init, size, data) == 0) {
 
                 if (lua_pcall(g_se_lua_context, 0, 0, 0) != 0)
                     sep_lua_failure(g_se_lua_context, startup.c_str());
@@ -1278,6 +1381,18 @@ void sep_unload_sounds(void)
               SDL_FreeWAV(g_soundList[x].buffer);
 
       g_soundList.clear();
+  }
+}
+
+void sep_unload_mixers(void)
+{
+  if (g_mixerList.size() > 0) {
+
+      for (int x = 0; x < (int)g_mixerList.size(); x++)
+          if (g_mixerList[x].load)
+              Mix_FreeMusic(g_mixerList[x].data);
+
+      g_mixerList.clear();
   }
 }
 
@@ -2134,92 +2249,128 @@ static int sep_skip_forward(lua_State *L)
 
 static int sep_skip_to_frame(lua_State *L)
 {
-    int n = lua_gettop(L);
-    static bool debounced = false;
+  int n = lua_gettop(L);
+  static bool debounced = false;
 
-    if (g_init_mute && debounced) {
-        g_pSingeIn->enable_audio1();
-        g_pSingeIn->enable_audio2();
-        g_init_mute = false;
-    }
+  if (g_init_mute && debounced) {
+      g_pSingeIn->enable_audio1();
+      g_pSingeIn->enable_audio2();
+      g_init_mute = false;
+  }
 
-    if (n == 1)
-    {
-        if (lua_isnumber(L, 1))
-        {
-            char s[7] = { 0 };
+  if (n == 1)
+  {
+      if (lua_isnumber(L, 1))
+      {
+          char s[7] = { 0 };
 
-            if (g_pSingeIn->g_local_info->blank_during_skips)
-                palette::set_yuv_transparency(false);
+          if (g_pSingeIn->g_local_info->blank_during_skips)
+              palette::set_yuv_transparency(false);
 
-            g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
-            g_pSingeIn->pre_search(s, true);
-            g_pSingeIn->pre_play();
-            g_pause_state = false; // BY RDG2010
-            debounced = true;
-        }
-    }
-    return 0;
+          g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
+          g_pSingeIn->pre_search(s, true);
+          g_pSingeIn->pre_play();
+          g_pause_state = false; // BY RDG2010
+          debounced = true;
+      }
+  }
+  return 0;
 }
 
 static int sep_sound_unload(lua_State *L)
 {
-    int n = lua_gettop(L);
+  int n = lua_gettop(L);
 
-    if (n == 1) {
-        if (lua_isnumber(L, 1)) {
-            int id = lua_tonumber(L, 1);
-            if (!sep_sound_valid(id, __func__)) return 0;
-            SDL_FreeWAV(g_soundList[id].buffer);
-            g_soundList[id].load = false;
-        }
-    }
-    return 0;
+  if (n == 1) {
+      if (lua_isnumber(L, 1)) {
+          int id = lua_tonumber(L, 1);
+          if (!sep_sound_valid(id, __func__)) return 0;
+          SDL_FreeWAV(g_soundList[id].buffer);
+          g_soundList[id].load = false;
+      }
+  }
+  return 0;
+}
+
+static int sep_sound_loadata(lua_State *L)
+{
+  int n = lua_gettop(L);
+  int result = -1;
+
+  if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
+  {
+      size_t len;
+      const char *data = lua_tolstring(L, 1, &len);
+      SDL_RWops *ops = SDL_RWFromConstMem(data, (int)len);
+
+      if (ops != NULL)
+      {
+          g_soundT temp;
+          g_sound_load = SDL_LoadWAV_RW(ops, 1, &temp.audioSpec,
+                               &temp.buffer, &temp.length);
+
+          if (g_sound_load && audio_format()) {
+              if (g_firstsnd) sep_sound_reset();
+              g_soundList.push_back(temp);
+              result = g_soundList.size() - 1;
+              g_soundList[result].load = true;
+
+          } else {
+
+              if (g_sound_load) SDL_FreeWAV(temp.buffer);
+              sep_die("Unable to load data as sound");
+              return result;
+          }
+      }
+  }
+
+  lua_pushnumber(L, result);
+  return 1;
 }
 
 static int sep_sound_load(lua_State *L)
 {
-    int n = lua_gettop(L);
-    int result = -1;
+  int n = lua_gettop(L);
+  int result = -1;
 
-    if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
-    {
-        std::string filepath = lua_tostring(L, 1);
-        g_soundT temp;
+  if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
+  {
+      std::string filepath = lua_tostring(L, 1);
+      g_soundT temp;
 
-        if (g_rom_zip) {
+      if (g_rom_zip) {
 
-            temp = sep_sound_zip(filepath);
+          temp = sep_sound_zip(filepath);
 
-        } else {
+      } else {
 
-            if (g_pSingeIn->get_retro_path())
-            {
-                char tmpPath[RETRO_MAXPATH] = {0};
-                int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
-                lua_retropath(filepath.c_str(), tmpPath, len);
-                filepath = tmpPath;
-            }
+          if (g_pSingeIn->get_retro_path())
+          {
+              char tmpPath[RETRO_MAXPATH] = {0};
+              int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
+              lua_retropath(filepath.c_str(), tmpPath, len);
+              filepath = tmpPath;
+          }
 
-            g_sound_load = SDL_LoadWAV(filepath.c_str(), &temp.audioSpec,
-                                 &temp.buffer, &temp.length);
+          g_sound_load = SDL_LoadWAV(filepath.c_str(), &temp.audioSpec,
+                               &temp.buffer, &temp.length);
 
-        }
+      }
 
-        if (g_sound_load) {
-            if (g_firstsnd) sep_sound_reset();
-            g_soundList.push_back(temp);
-            result = g_soundList.size() - 1;
-            g_soundList[result].load = true;
-        } else {
-            sep_trace(L);
-            sep_die("Could not open %s: %s", filepath.c_str(), SDL_GetError());
-            return result;
-        }
-    }
+      if (g_sound_load) { // check audio_format() ?
+          if (g_firstsnd) sep_sound_reset();
+          g_soundList.push_back(temp);
+          result = g_soundList.size() - 1;
+          g_soundList[result].load = true;
+      } else {
+          sep_trace(L);
+          sep_die("Could not open %s: %s", filepath.c_str(), SDL_GetError());
+          return result;
+      }
+  }
 
-    lua_pushnumber(L, result);
-    return 1;
+  lua_pushnumber(L, result);
+  return 1;
 }
 
 static int sep_sound_play(lua_State *L)
@@ -2232,8 +2383,119 @@ static int sep_sound_play(lua_State *L)
       {
           int sound = lua_tonumber(L, 1);
           if (!sep_sound_valid(sound, __func__)) return 0;
-          if (sound < (int)g_soundList.size())
           result = g_pSingeIn->samples_play_sample(g_soundList[sound].buffer, g_soundList[sound].length, g_soundList[sound].audioSpec.channels, -1, sep_sound_ended);
+      }
+
+  lua_pushnumber(L, result);
+  return 1;
+}
+
+static int sep_music_unload(lua_State *L)
+{
+  int n = lua_gettop(L);
+
+  if (n == 1) {
+      if (lua_isnumber(L, 1)) {
+          int id = lua_tonumber(L, 1);
+          if (!sep_mixer_valid(id, __func__)) return 0;
+          Mix_FreeMusic(g_mixerList[id].data);
+          g_mixerList[id].load = false;
+      }
+  }
+  return 0;
+}
+
+static int sep_music_volume(lua_State *L)
+{
+  int n = lua_gettop(L);
+
+  if (n == 1) {
+      if (lua_isnumber(L, 1)) {
+          int vol = lua_tonumber(L, 1);
+
+          vol = (vol > MIX_MAX_VOLUME) ? MIX_MAX_VOLUME : (vol < 0) ? 0 : vol;
+          Mix_VolumeMusic(vol);
+      }
+  }
+  return 0;
+}
+
+static int sep_music_load(lua_State *L)
+{
+  int n = lua_gettop(L);
+  int result = -1;
+
+  if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
+  {
+      if (g_firstmix) {
+          if (!sep_init_mixer())
+              return result;
+      }
+
+      std::string mixpath = lua_tostring(L, 1);
+      Mix_Music *temp;
+
+      if (g_rom_zip) {
+          temp = sep_mixer_zip(mixpath);
+      } else {
+          if (g_pSingeIn->get_retro_path())
+          {
+              char tmpPath[RETRO_MAXPATH] = {0};
+              int len = std::min((int)mixpath.size() + RETRO_PAD, RETRO_MAXPATH);
+              lua_retropath(mixpath.c_str(), tmpPath, len);
+              mixpath = tmpPath;
+          }
+
+          temp = Mix_LoadMUS(mixpath.c_str());
+      }
+
+      if (temp && sep_valid_music(Mix_GetMusicType(temp)))
+      {
+          g_mixerT mixer;
+          if (g_firstmix) sep_mixer_reset();
+          mixer.data = temp;
+          mixer.load = true;
+
+          g_mixerList.push_back(mixer);
+          result = g_mixerList.size() - 1;
+
+      } else {
+
+          sep_trace(L);
+          if (temp) Mix_FreeMusic(temp);
+
+          for (const auto& format : mixerFlags) {
+              LOGW << sep_fmt("%s music is supported", format.second.c_str());
+          }
+
+          sep_die("Could not load %s as music data: %s", mixpath.c_str(), SDL_GetError());
+          return result;
+      }
+  }
+
+  lua_pushnumber(L, result);
+  return 1;
+}
+
+static int sep_music_play(lua_State *L)
+{
+  int n = lua_gettop(L);
+  const uint8_t lm = 64;
+  int result = -1;
+  int loop = 0;
+
+  if (n == 1 || n == 2)
+      if (lua_isnumber(L, 1))
+      {
+          int num = lua_tonumber(L, 1);
+
+          if (lua_isnumber(L, 2))
+              loop = lua_tonumber(L, 2);
+
+          loop = (loop > lm) ? lm : (loop < -1) ? -1 : loop;
+
+          if (!sep_mixer_valid(num, __func__)) return 0;
+          result = Mix_PlayMusic(g_mixerList[num].data, loop);
       }
 
   lua_pushnumber(L, result);
@@ -3644,6 +3906,37 @@ static int sep_ldp_verbose(lua_State *L)
 		}
 	}	
 	
+	return 0;
+}
+
+static int sep_music_playing(lua_State *L)
+{
+        bool result = Mix_PlayingMusic();
+
+        lua_pushboolean(L, result);
+        return 1;
+}
+
+static int sep_music_pause(lua_State *L)
+{
+	if (Mix_PlayingMusic() && !Mix_PausedMusic())
+		Mix_PauseMusic();
+
+	return 0;
+}
+
+static int sep_music_resume(lua_State *L)
+{
+	if (Mix_PausedMusic())
+		Mix_ResumeMusic();
+
+	return 0;
+}
+
+static int sep_music_stop(lua_State *L)
+{
+	Mix_HaltMusic();
+
 	return 0;
 }
 

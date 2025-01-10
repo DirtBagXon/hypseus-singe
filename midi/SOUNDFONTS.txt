@@ -1,0 +1,14 @@
+MIDI soundfonts for Hypseus
+===========================
+
+The Hypseus distribution contains the GPL'd 'TimGM6mb.sf2' soundfont by default.
+
+See COPYING.txt - This is a small but complete GM soundfont.
+
+
+Installing a custom soundfont
+=============================
+
+If you own, and have preference for, a different SF2 soundfont:
+
+Rename the .sf2 file to overwrite the 'soundfont.sf2' file in this 'midi' sub-folder.

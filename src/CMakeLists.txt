@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(PKG_VERSION "v2.11.3-RPi")
+set(PKG_VERSION "v2.11.4-RPi")
 
 project(hypseus)
 
@@ -53,6 +53,7 @@ use_cxx11( )
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
 PKG_SEARCH_MODULE(SDL2_IMAGE REQUIRED SDL2_image)
+PKG_SEARCH_MODULE(SDL2_MIXER REQUIRED SDL2_mixer)
 PKG_SEARCH_MODULE(MPEG2 REQUIRED libmpeg2)
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
@@ -113,8 +114,9 @@ add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
 find_package(SDL2 REQUIRED)
-find_package(SDL2TTF REQUIRED)
+find_package(SDL2_TTF REQUIRED)
 find_package(SDL2_IMAGE REQUIRED)
+find_package(SDL2_MIXER REQUIRED)
 find_package(Vorbis REQUIRED)
 
 if(APPLE)
@@ -122,12 +124,12 @@ if(APPLE)
 endif(APPLE)
 
 add_executable( hypseus hypseus.cpp globals.h )
-target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${LIBZIP_LIBRARY} )
+target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${LIBZIP_LIBRARY} )
 
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
-target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARY} ${SDL2IMAGE_LIBRARY})
+target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2IMAGE_LIBRARY})
 ]]
 
 if(BUILDBOT)

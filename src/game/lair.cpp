@@ -754,7 +754,7 @@ void lair::cpu_mem_write(Uint16 Addr, Uint8 Value)
 Uint8 lair::cpu_mem_read(Uint16 Addr)
 {
 
-    register Uint8 result; // I intentionally left this uninitialized for speed
+    Uint8 result; // I intentionally left this uninitialized for speed
 
     // RAM/ROM
     if (Addr < 0xC000) {

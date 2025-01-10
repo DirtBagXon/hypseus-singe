@@ -2888,7 +2888,7 @@ short clip(float input)
 /* Generic resonator function */
 float resonator(resonator_ptr r, float input)
 {
-    register float x = r->a * input + r->b * r->p1 + r->c * r->p2;
+    float x = r->a * input + r->b * r->p1 + r->c * r->p2;
 
     r->p2 = r->p1;
     r->p1 = x;
@@ -2906,7 +2906,7 @@ float resonator(resonator_ptr r, float input)
 */
 float antiresonator(resonator_ptr r, float input)
 {
-    register float x = r->a * input + r->b * r->p1 + r->c * r->p2;
+    float x = r->a * input + r->b * r->p1 + r->c * r->p2;
 
     r->p2 = r->p1;
     r->p1 = input;

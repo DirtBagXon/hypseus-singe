@@ -29,6 +29,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 
 #ifdef MAC_OSX
 #include <mach/host_info.h>
@@ -342,18 +343,22 @@ char *get_sdl_compile()
     SDL_version compiled;
     SDL_version imgCompiled;
     SDL_version ttfCompiled;
+    SDL_version mixCompiled;
 
     SDL_VERSION(&compiled);
     SDL_IMAGE_VERSION(&imgCompiled);
     SDL_TTF_VERSION(&ttfCompiled);
+    SDL_MIXER_VERSION(&mixCompiled);
 
     snprintf(result, sizeof(result),
          "(CC) SDL: %d.%d.%d, "
-         "IMAGE: %d.%d.%d, "
-         "TTF: %d.%d.%d",
+         "IMG: %d.%d.%d, "
+         "TTF: %d.%d.%d, "
+         "MIX: %d.%d.%d",
          compiled.major, compiled.minor, compiled.patch,
          imgCompiled.major, imgCompiled.minor, imgCompiled.patch,
-         ttfCompiled.major, ttfCompiled.minor, ttfCompiled.patch);
+         ttfCompiled.major, ttfCompiled.minor, ttfCompiled.patch,
+         mixCompiled.major, mixCompiled.minor, mixCompiled.patch);
 
     return result;
 }
@@ -367,14 +372,17 @@ char *get_sdl_linked()
     SDL_GetVersion(&linked);
     const SDL_version* imgLinked = IMG_Linked_Version();
     const SDL_version* ttfLinked = TTF_Linked_Version();
+    const SDL_version* mixLinked = Mix_Linked_Version();
 
     snprintf(result, sizeof(result),
          "(LD) SDL: %d.%d.%d, "
-         "IMAGE: %d.%d.%d, "
-         "TTF: %d.%d.%d",
+         "IMG: %d.%d.%d, "
+         "TTF: %d.%d.%d, "
+         "MIX: %d.%d.%d",
          linked.major, linked.minor, linked.patch,
          imgLinked->major, imgLinked->minor, imgLinked->patch,
-         ttfLinked->major, ttfLinked->minor, ttfLinked->patch);
+         ttfLinked->major, ttfLinked->minor, ttfLinked->patch,
+         mixLinked->major, mixLinked->minor, mixLinked->patch);
 
     return result;
 }
