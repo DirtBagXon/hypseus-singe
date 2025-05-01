@@ -40,7 +40,7 @@ bool initialize(unsigned int num_colors);
 // The default is for color #0 to be transparent, and this will be
 //  set in initialize.
 void set_transparency(unsigned int uColorIndex, bool transparent);
-void set_yuv_transparency(bool transparent);
+void set_yuv_transparency(int state);
 bool get_yuv_overlay_ready();
 
 void set_color(unsigned int color_num, SDL_Color color_value);

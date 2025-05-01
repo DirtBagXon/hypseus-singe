@@ -64,16 +64,15 @@ void LogicalPosition(SDL_Rect *port, SDL_Rect *dst, int x, int y)
 }
 }
 
-namespace video
-{
+namespace video {
+
 int g_vid_width = 640, g_vid_height = 480; // default video dimensions
-const int g_bw = g_vid_width >> 1, g_bh = g_vid_height >> 1;
+
 unsigned int g_probe_width = g_vid_width;
 unsigned int g_probe_height = g_vid_height;
+
 const int g_an_w = 220, g_an_h = 128;
 const int g_sb_w = 340, g_sb_h = 480;
-int s_alpha = 128;
-int s_shunt = 2;
 
 int g_viewport_width = g_vid_width, g_viewport_height = g_vid_height;
 int g_aspect_width = 0, g_aspect_height = 0;
@@ -90,7 +89,6 @@ int g_scale_h_shift = 100, g_scale_v_shift = 100;
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
 
 FC_Font *g_font                    = NULL;
-FC_Font *g_fixfont                 = NULL;
 TTF_Font *g_ttfont                 = NULL;
 SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
@@ -116,19 +114,20 @@ SDL_Rect g_overlay_size_rect;
 SDL_Rect g_scaling_rect = {0, 0, 0, 0};
 SDL_Rect g_logical_rect = {0, 0, 0, 0};
 SDL_Rect g_sb_bezel_rect = {0, 0, 0, 0};
-SDL_Rect g_blit_size_rect = {0, 0, g_bw, g_bh};
+
+SDL_Rect g_blit_size_rect = {0, 0, g_vid_width >> 1, g_vid_height >> 1};
 SDL_Rect g_render_size_rect = g_blit_size_rect;
-SDL_Rect g_annu_rect = { 0, 0, g_an_w, g_an_h };
+SDL_Rect g_annu_rect = g_blit_size_rect;
+
 SDL_Rect *g_yuv_rect[2] = { NULL };
 
 SDL_DisplayMode g_displaymode;
-
-LDP1450_CharStruct LDP1450_CharSet[OVERLAY_LDP1450_LINES];
 
 bool queue_take_screenshot = false;
 bool g_scale_linear = false;
 bool g_singe_blend_sprite = false;
 bool g_scanlines = false;
+bool g_yuv_grayscale = false;
 bool g_fakefullscreen = false;
 bool g_opengl = false;
 bool g_vulkan = false;
@@ -140,9 +139,8 @@ bool g_yuv_blue = false;
 bool g_vid_resized = false;
 bool g_enhance_overlay = false;
 bool g_overlay_resize = false;
-bool g_bForceAspectRatio = false;
-bool g_bIgnoreAspectRatio = false;
-bool g_LDP1450_overlay = false;
+bool g_bForceAspect = false;
+bool g_bIgnoreAspect = false;
 bool g_fullscreen = false; // initialize video in fullscreen
 bool g_bezel_toggle = false;
 bool g_bezel_reverse = false;
@@ -155,19 +153,25 @@ bool g_aux_bezel = false;
 bool g_ded_annun_bezel = false;
 bool g_annun_lamps = false;
 bool g_vertical_orientation = false;
-bool sboverlay_white = false;
+bool g_mousemotion = false;
+bool g_sboverlay_white = false;
 
 int g_scalefactor = 100;   // by RDG2010 -- scales the image to this percentage
 int g_aspect_ratio = 0;
 int sboverlay_characterset = 2;
 int g_texture_access = SDL_TEXTUREACCESS_TARGET;
+int g_yuv_display = YUV_VISIBLE;
 
 int8_t g_sb_bezel_alpha = 0;
 int8_t g_aux_bezel_alpha = 0;
+int8_t g_rescale = 0;
 
 int g_sb_bezel_scale = 14;
 int g_aux_bezel_scale = 12;
 int g_bezel_scalewidth = 0;
+
+uint8_t g_scanline_alpha = 128;
+uint8_t g_scanline_shunt = 2;
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
@@ -203,9 +207,8 @@ bool g_scoreboard_needs_update = false;
 bool g_softsboard_needs_update = false;
 bool g_overlay_needs_update    = false;
 bool g_yuv_video_needs_update  = false;
-bool g_yuv_shutter_blank       = false;
-bool g_yuv_lock_blank          = false;
 bool g_aux_needs_update        = false;
+bool g_yuv_skip                = true;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -247,8 +250,8 @@ bool init_display()
         g_overlay_height = g_game->get_video_overlay_height();
 
         // Enforce a minimum window size
-        if ((int)g_probe_width < g_vid_height) g_probe_width = g_vid_height;
-        if ((int)g_probe_height < g_vid_height) g_probe_height = g_vid_height;
+        g_probe_width = std::max((int)g_probe_width, 320);
+        g_probe_height = std::max((int)g_probe_height, 240);
 
         if (g_vid_resized) {
             g_viewport_width  = g_vid_width;
@@ -256,7 +259,7 @@ bool init_display()
 
         } else {
 
-            if (!g_bIgnoreAspectRatio && g_aspect_width > 0) {
+            if (!g_bIgnoreAspect && g_aspect_width > 0) {
                 g_viewport_width  = g_aspect_width;
                 g_viewport_height = g_aspect_height;
 
@@ -266,15 +269,24 @@ bool init_display()
             }
         }
 
+        if (g_aspect_ratio == ASPECTPD) {
+            if (!g_game->get_manymouse()) {
+                if (!g_fullscreen) {
+                    SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+                }
+                g_mousemotion = true;
+            }
+        }
+
         // Enforce 4:3 aspect ratio
-        if (g_bForceAspectRatio) {
-            double dCurAspectRatio = (double)g_viewport_width / g_viewport_height;
+        if (g_bForceAspect) {
+            double dCurAspect = (double)g_viewport_width / g_viewport_height;
             const double dTARGET_ASPECT_RATIO = 4.0 / 3.0;
 
-            if (dCurAspectRatio < dTARGET_ASPECT_RATIO) {
+            if (dCurAspect < dTARGET_ASPECT_RATIO) {
                 g_viewport_height = (g_viewport_width * 3) / 4;
             }
-            else if (dCurAspectRatio > dTARGET_ASPECT_RATIO) {
+            else if (dCurAspect > dTARGET_ASPECT_RATIO) {
                 g_viewport_width = (g_viewport_height * 4) / 3;
             }
         }
@@ -285,6 +297,9 @@ bool init_display()
             switch(g_aspect_ratio) {
             case ASPECTWS:
                 g_scalefactor = (!g_scaled) ? 56 : g_scalefactor;
+                break;
+            case ASPECTPD:
+                g_scalefactor = (!g_scaled) ? 100 : g_scalefactor;
                 break;
             default:
                 g_scalefactor = (!g_scaled) ? 75 : g_scalefactor;
@@ -302,12 +317,20 @@ bool init_display()
         if (g_alloc_screen > g_display && g_alloc_screen < g_displays)
             g_display = g_alloc_screen;
 
-        g_window = SDL_CreateWindow(title,
-	    displayDimensions[g_display].x +
+        if (notify && g_window) {
+            SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
+            SDL_SetWindowPosition(g_window, displayDimensions[g_display].x +
                 ((displayDimensions[g_display].w - g_viewport_width) >> 1),
-	    displayDimensions[g_display].y +
-                ((displayDimensions[g_display].h - g_viewport_height) >> 1),
-	    g_viewport_width, g_viewport_height, sdl_flags);
+		    displayDimensions[g_display].y +
+                        ((displayDimensions[g_display].h - g_viewport_height) >> 1));
+        } else {
+            g_window = SDL_CreateWindow(title,
+	        displayDimensions[g_display].x +
+                    ((displayDimensions[g_display].w - g_viewport_width) >> 1),
+	        displayDimensions[g_display].y +
+                    ((displayDimensions[g_display].h - g_viewport_height) >> 1),
+	        g_viewport_width, g_viewport_height, sdl_flags);
+        }
 
         if (!g_window) {
             LOGE << fmt("Could not initialize window: %s", SDL_GetError());
@@ -331,13 +354,15 @@ bool init_display()
                 SDL_FreeSurface(rep);
             }
 
-            SDL_RaiseWindow(g_window);
             Uint8 sdl_sb_render_flags = sdl_render_flags;
 
             if (g_vsync && (sdl_render_flags & SDL_RENDERER_ACCELERATED))
                 sdl_render_flags |= SDL_RENDERER_PRESENTVSYNC;
 
             g_renderer = SDL_CreateRenderer(g_window, -1, sdl_render_flags);
+
+            SDL_RaiseWindow(g_window);
+            SDL_SetWindowInputFocus(g_window);
 
             if (!g_renderer) {
                 LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
@@ -516,11 +541,8 @@ bool init_display()
                     ConvertSurface(&g_aux_blit_surface, g_overlay_blitter->format);
                 }
 
-                if (g_game->use_old_overlay()) {
-                    ConvertSurface(&g_other_bmps[B_OVERLAY_LDP1450],
-                                   g_overlay_blitter->format);
-                    SDL_SetColorKey(g_other_bmps[B_OVERLAY_LDP1450], SDL_TRUE, 0x000000ff);
-                }
+                ConvertSurface(&g_other_bmps[B_OVERLAY_LDP1450], g_overlay_blitter->format);
+                SDL_SetColorKey(g_other_bmps[B_OVERLAY_LDP1450], SDL_TRUE, 0x000000ff);
 
                 // MAC: If the game uses an overlay, create a texture for it.
                 // The g_screen_blitter surface is used from game.cpp anyway, so we always create it, used or not.
@@ -556,7 +578,7 @@ exit:
 
 void reset_yuv_overlay()
 {
-    vid_setup_yuv_overlay(g_viewport_width, g_viewport_height);
+    vid_setup_yuv_overlay(g_probe_width, g_probe_height);
     SDL_Delay(2);
 }
 
@@ -607,7 +629,6 @@ bool deinit_display()
     g_blit_surface  = NULL;
 
     FC_FreeFont(g_font);
-    FC_FreeFont(g_fixfont);
     TTF_CloseFont(g_ttfont);
 
     if (g_bezel_texture)
@@ -640,8 +661,6 @@ bool deinit_display()
 
 void resize_cleanup()
 {
-    SDL_SetWindowGrab(g_window, SDL_FALSE);
-
     g_rotate = false;
     g_bezel_load = false;
 
@@ -663,14 +682,16 @@ void resize_cleanup()
 
     if (g_rtr_texture) SDL_DestroyTexture(g_rtr_texture);
     if (g_overlay_texture) SDL_DestroyTexture(g_overlay_texture);
-    if (g_renderer) SDL_DestroyRenderer(g_renderer);
 
-    SDL_DestroyWindow(g_window);
+    if (g_renderer) {
+        SDL_RenderClear(g_renderer);
+        SDL_RenderPresent(g_renderer);
+        SDL_DestroyRenderer(g_renderer);
+    }
 
     g_rtr_texture = NULL;
     g_overlay_texture = NULL;
     g_renderer = NULL;
-    g_window = NULL;
 
     SDL_Delay(100);
 }
@@ -692,7 +713,7 @@ void vid_blank()
 
 void colorLeds(SDL_Surface *src)
 {
-    if (sboverlay_white) return;
+    if (g_sboverlay_white) return;
     SDL_Surface* tmp = SDL_CreateRGBSurface(0, src->w, src->h,
                            src->format->BitsPerPixel,
                            src->format->Rmask, src->format->Gmask,
@@ -763,6 +784,7 @@ bool load_bmps()
     g_other_bmps[B_DL_PLAYER2]     = load_one_bmp("player2.bmp", false);
     g_other_bmps[B_DL_LIVES]       = load_one_bmp("lives.bmp", false);
     g_other_bmps[B_DL_CREDITS]     = load_one_bmp("credits.bmp", false);
+    g_other_bmps[B_TQ_TIME]        = load_one_bmp("time.bmp", false);
 
     if (sboverlay_characterset != 2)
 	g_other_bmps[B_OVERLAY_LEDS] = load_led_strip("overlayleds1.bmp", false);
@@ -988,54 +1010,6 @@ void draw_overlay_leds(unsigned int values[], int num_digits,
     // with the YUV texture and the overlay on top (which is issued from vldp for now) in VIDEO_RUN_BLIT.
 }
 
-// Draw LDP1450 overlay characters to the screen - rewrite for SDL2 (DBX)
-void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y)
-{
-    float x;
-    int s, i, j = 0;
-    int LDP1450_strlen;
-    int fontwidth = FC_GetWidth(g_fixfont, "0123456789");
-    int index = (int)((y / OVERLAY_LDP1450_HEIGHT) + 0.5f);
-
-    LDP1450_CharSet[index].enable = false;
-    LDP1450_strlen = strlen(LDP1450_String);
-
-    if (!LDP1450_strlen)
-    {
-        return;
-    }
-    else {
-	if (LDP1450_strlen <= 11)
-        {
-            for (i = LDP1450_strlen; i <= 11; i++)
-                 LDP1450_String[i] = 32;
-
-            LDP1450_strlen = strlen(LDP1450_String);
-        }
-    }
-
-    g_LDP1450_overlay = true;
-
-    s = (start_x > 0x80) ? (g_scaling_rect.w >> 2) : 0x00;
-    x = (double)((g_scaling_rect.w - fontwidth) >> 1) + g_scaling_rect.x + s;
-
-    for (i = 0; i < LDP1450_strlen; i++)
-    {
-         if (LDP1450_String[i] == 0x13)
-             LDP1450_String[i] = 0x5f;
-
-         if (LDP1450_String[i] != 32) j++;
-    }
-
-    if (j > 0) {
-        LDP1450_CharSet[index].enable = true;
-        LDP1450_CharSet[index].x = x;
-        LDP1450_CharSet[index].y = (y * (double)(g_scaling_rect.h * 0.00415f))
-                                       + g_scaling_rect.y;
-        LDP1450_CharSet[index].OVERLAY_LDP1450_String = LDP1450_String;
-    }
-}
-
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y)
 {
     SDL_Rect src, dest;
@@ -1145,7 +1119,6 @@ SDL_Rect get_sb_rect() { return g_sb_bezel_rect; }
 SDL_Rect get_aux_rect() { return g_aux_rect; }
 
 FC_Font *get_font() { return g_font; }
-FC_Font *get_ffont() { return g_fixfont; }
 
 Uint16 get_video_width() { return g_vid_width; }
 Uint16 get_video_height() { return g_vid_height; }
@@ -1169,7 +1142,6 @@ bool get_fullscreen() { return g_fullscreen; }
 bool get_aux_bezel() { return (g_aux_texture != NULL); }
 bool get_fullwindow() { return g_fakefullscreen; }
 bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
-bool get_video_blank() { return g_yuv_lock_blank; }
 bool get_video_resized() { return g_vid_resized; }
 bool use_old_font() { return g_game->use_old_overlay(); }
 
@@ -1177,24 +1149,24 @@ void set_fullscreen(bool value) { g_fullscreen = value; }
 void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 void set_opengl(bool value) { g_opengl = value; }
 void set_vulkan(bool value) { g_vulkan = value; }
+void set_grayscale(bool value) { g_yuv_grayscale = value; }
 void set_forcetop(bool value) { g_forcetop = value; }
 void set_textureaccess(int value) { g_texture_access = value; }
 void set_grabmouse(bool value) { g_grabmouse = value; }
 void set_vsync(bool value) { g_vsync = value; }
 void set_intro(bool value) { g_intro = value; }
 void set_yuv_blue(bool value) { g_yuv_blue = value; }
-void set_yuv_shutter_blank() { g_yuv_shutter_blank = true; }
 void set_scanlines(bool value) { g_scanlines = value; }
-void set_shunt(int value) { s_shunt = value; }
-void set_alpha(int value) { s_alpha = value; }
+void set_shunt(uint8_t value) { g_scanline_shunt = value; }
+void set_alpha(uint8_t value) { g_scanline_alpha = value; }
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 void set_scale_linear(bool value) { g_scale_linear = value; }
 void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
 void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
-void set_sboverlay_white(bool value) { sboverlay_white = value; }
+void set_sboverlay_white(bool value) { g_sboverlay_white = value; }
 void set_subtitle_display(char *s) { subchar = strdup(s); }
-void set_force_aspect_ratio(bool value) { g_bForceAspectRatio = value; }
-void set_ignore_aspect_ratio(bool value) { g_bIgnoreAspectRatio = value; }
+void set_force_aspect_ratio(bool value) { g_bForceAspect = value; }
+void set_ignore_aspect_ratio(bool value) { g_bIgnoreAspect = value; }
 void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
@@ -1214,13 +1186,14 @@ void toggle_grabmouse()
      SDL_SetWindowGrab(g_window, g_grabmouse ? SDL_TRUE : SDL_FALSE);
 }
 
-void set_yuv_lock_blank(bool value)
+void set_yuv_blank(int value)
 {
-     g_yuv_lock_blank = value;
-     if (value)
-         vid_update_yuv_overlay(g_yuv_surface->Yplane, g_yuv_surface->Uplane,
-         g_yuv_surface->Vplane, g_yuv_surface->Ypitch, g_yuv_surface->Upitch,
-         g_yuv_surface->Vpitch);
+    g_yuv_display = value;
+
+    if (value == YUV_BLANK)
+        vid_update_yuv_overlay(g_yuv_surface->Yplane, g_yuv_surface->Uplane,
+        g_yuv_surface->Vplane, g_yuv_surface->Ypitch, g_yuv_surface->Upitch,
+        g_yuv_surface->Vpitch);
 }
 
 void set_scalefactor(int value)
@@ -1262,6 +1235,8 @@ void set_rotate_degrees(float fDegrees)
 void set_score_bezel(bool bEnabled)
 {
      if (bEnabled) {
+         if (!g_fullscreen && g_yuv_surface)
+             vid_toggle_fullscreen();
          g_fullscreen = true;
      }
      g_sb_bezel = bEnabled;
@@ -1318,14 +1293,17 @@ void set_bezel_path(const char *bezelPath)
          g_bezel_path.pop_back();
 }
 
-void set_fRotateDegrees(float fDegrees)
+void set_fRotateDegrees(float fDegrees, bool verbose)
 {
      if (!g_fullscreen && g_scaled) return;
 
      char d[8]; // In-game
      if (fDegrees == 0) SDL_SetRenderTarget(g_renderer, NULL);
-     snprintf(d, sizeof(d), "%d\xC2\xB0", int(fDegrees));
-     draw_subtitle(d, true, true);
+
+     if (verbose) {
+         snprintf(d, sizeof(d), "%d\xC2\xB0", int(fDegrees));
+         draw_subtitle(d, true, true);
+     }
 
      g_fRotateDegrees = fDegrees;
 }
@@ -1376,7 +1354,7 @@ void calc_annun_rect()
      g_aux_rect.h = (g_aux_rect.w * g_aux_ratio);
 }
 
-void reset_scalefactor(int value, uint8_t bezel)
+void reset_scalefactor(int value, uint8_t bezel, bool verbose)
 {
      bool rst = true;
 
@@ -1396,10 +1374,13 @@ void reset_scalefactor(int value, uint8_t bezel)
      }
 
      char s[32]; // In-game
-     if (rst) {
-         (g_fullscreen) ? format_fullscreen_render() : format_window_render();
-         snprintf(s, sizeof(s), "scale: %d", value);
+     if (rst)
+     {
+         g_rescale = g_fullscreen ? 1 : 2;
          g_scaled = true;
+
+         if (!verbose) return;
+         snprintf(s, sizeof(s), "scale: %d", value);
      }
      else snprintf(s, sizeof(s), "invalid layer");
 
@@ -1458,7 +1439,7 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
 
      char s[32]; // In-game
      if (rst) {
-         (g_fullscreen) ? format_fullscreen_render() : format_window_render();
+         g_rescale = g_fullscreen ? 1 : 2;
          snprintf(s, sizeof(s), "x:%d, y:%d", h, v);
      }
      else snprintf(s, sizeof(s), "invalid layer");
@@ -1556,17 +1537,6 @@ void draw_subtitle(char *s, bool insert, bool center)
     m_message_timer++;
 }
 
-void draw_LDP1450_overlay()
-{
-    for (int i = 0; i < OVERLAY_LDP1450_LINES; i++) {
-        if (LDP1450_CharSet[i].enable) {
-		FC_Draw(g_fixfont, g_renderer,
-		   LDP1450_CharSet[i].x, LDP1450_CharSet[i].y,
-		   LDP1450_CharSet[i].OVERLAY_LDP1450_String);
-	}
-    }
-}
-
 // toggles fullscreen mode
 void vid_toggle_fullscreen()
 {
@@ -1613,22 +1583,20 @@ void vid_toggle_scanlines()
 {
     char s[16] = "scanlines off";
 
-    SDL_BlendMode mode;
-    SDL_GetRenderDrawBlendMode(g_renderer, &mode);
-    if (mode != SDL_BLENDMODE_BLEND && !g_scanlines)
-        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
-
     if (g_scanlines) {
-        if (s_shunt < 10) {
-            s_shunt++;
+        if (g_scanline_shunt < 10) {
+            g_scanline_shunt++;
         } else {
             g_scanlines = false;
             SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
-            s_shunt = 2;
+            g_scanline_shunt = 2;
         }
-    } else g_scanlines = true;
+    } else {
+        g_scanlines = true;
+        SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
+    }
 
-    if (g_scanlines) snprintf(s, sizeof(s), "shunt: %d", s_shunt);
+    if (g_scanlines) snprintf(s, sizeof(s), "shunt: %d", g_scanline_shunt);
 
     draw_subtitle(s, true, true);
 }
@@ -1693,6 +1661,10 @@ void vid_setup_yuv_overlay (int width, int height) {
     g_yuv_surface->width  = width;
     g_yuv_surface->height = height;
 
+    g_yuv_surface->Ypitch = g_yuv_surface->width;
+    g_yuv_surface->Upitch = g_yuv_surface->width / 2;
+    g_yuv_surface->Vpitch = g_yuv_surface->width / 2;
+
     // Setup the threaded access stuff, since this surface is accessed from the vldp thread, too.
     g_yuv_surface->mutex = SDL_CreateMutex();
 
@@ -1705,14 +1677,7 @@ void vid_setup_yuv_overlay (int width, int height) {
     }
 }
 
-SDL_Texture *vid_create_yuv_texture (int width, int height) {
-    g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
-        g_texture_access, width, height);
-    vid_blank_yuv_texture(true);
-    return g_yuv_texture;
-}
-
-void vid_blank_yuv_texture (bool init) {
+void vid_blank_yuv_surface () {
 
     // Blue: YUV#1DEB6B - Black: YUV#108080
     uint8_t Y_value = g_yuv_blue ? 0x1d : 0x10;
@@ -1722,11 +1687,43 @@ void vid_blank_yuv_texture (bool init) {
     memset(g_yuv_surface->Yplane, Y_value, g_yuv_surface->Ysize);
     memset(g_yuv_surface->Uplane, U_value, g_yuv_surface->Usize);
     memset(g_yuv_surface->Vplane, V_value, g_yuv_surface->Vsize);
+}
 
-    if (init) SDL_UpdateYUVTexture(g_yuv_texture, NULL,
-	    g_yuv_surface->Yplane, g_yuv_surface->width,
-            g_yuv_surface->Uplane, g_yuv_surface->width/2,
-            g_yuv_surface->Vplane, g_yuv_surface->width/2);
+ void vid_blank_yuv_texture()
+ {
+    int w, h;
+    SDL_QueryTexture(g_yuv_texture, NULL, NULL, &w, &h);
+
+    uint8_t *y_plane = NULL;
+    uint8_t *u_plane = NULL;
+    uint8_t *v_plane = NULL;
+
+    uint8_t Y_value = g_yuv_blue ? 0x1d : 0x10;
+    uint8_t U_value = g_yuv_blue ? 0xeb : 0x80;
+    uint8_t V_value = g_yuv_blue ? 0x6b : 0x80;
+
+    y_plane = (uint8_t *)malloc(w * h);
+    u_plane = (uint8_t *)malloc(w * h / 4);
+    v_plane = (uint8_t *)malloc(w * h / 4);
+
+    memset(y_plane, Y_value, w * h);
+    memset(u_plane, U_value, w * h / 4);
+    memset(v_plane, V_value, w * h / 4);
+
+    SDL_UpdateYUVTexture(g_yuv_texture, NULL, y_plane, w,
+                             u_plane, w / 2, v_plane, w / 2);
+    free(y_plane);
+    free(u_plane);
+    free(v_plane);
+}
+
+SDL_Texture *vid_create_yuv_texture (int width, int height) {
+    g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
+        g_texture_access, width, height);
+
+    g_yuv_skip = true;
+
+    return g_yuv_texture;
 }
 
 // REMEMBER it updates the YUV surface ONLY: the YUV texture is updated on vid_blit().
@@ -1740,24 +1737,43 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
     // until the mutex is free and we can lock(=get) it here.
     SDL_LockMutex(g_yuv_surface->mutex);
 
-    if (g_yuv_lock_blank) {
+    switch(g_yuv_display) {
+    case YUV_BLANK:
+        vid_blank_yuv_surface();
+        break;
+    case YUV_SHUTTER:
+        vid_blank_yuv_surface();
+        g_yuv_display = YUV_VISIBLE;
+        break;
+    default:
+        if (g_yuv_grayscale) {
 
-        vid_blank_yuv_texture(false);
+            uint8_t* dst_row = g_yuv_surface->Yplane;
+            uint8_t* src_row = Yplane;
 
-    } else if (g_yuv_shutter_blank) {
+            for (int y = 0; y < g_yuv_surface->height; ++y) {
+                if ((dst_row + g_yuv_surface->width <= g_yuv_surface->Yplane + g_yuv_surface->Ysize) &&
+                        (src_row + g_yuv_surface->width <= Yplane + g_yuv_surface->Ysize)) {
+                    memcpy(dst_row, src_row, g_yuv_surface->width);
 
-        vid_blank_yuv_texture(false);
-        g_yuv_shutter_blank = false;
+                } else break;
 
-    } else {
+                dst_row += g_yuv_surface->Ypitch;
+                src_row += Ypitch;
+            }
+            memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
+            memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
 
-        memcpy (g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
-        memcpy (g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);
-        memcpy (g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+        } else {
+            memcpy(g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
+            memcpy(g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);
+            memcpy(g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+        }
 
         g_yuv_surface->Ypitch = Ypitch;
         g_yuv_surface->Upitch = Upitch;
         g_yuv_surface->Vpitch = Vpitch;
+        break;
     }
 
     g_yuv_video_needs_update = true;
@@ -1907,9 +1923,22 @@ void vid_blit () {
     // the YUV texture from the YUV surface), so access to that surface and it's
     // boolean DO need to be protected with a mutex.
 
-    // First clear the renderer before the SDL_RenderCopy() calls for this frame.
+    // Handle any rescaling that occurred.
+    switch(g_rescale) {
+    case 1:
+       format_fullscreen_render();
+       break;
+    case 2:
+       format_window_render();
+       break;
+    default:
+       break;
+    }
+
+    // Clear the renderer before the SDL_RenderCopy() calls for this frame.
     // Prevents stroboscopic effects on the background in fullscreen mode,
     // and is recommended by SDL_Rendercopy() documentation.
+
     SDL_RenderClear(g_renderer);
 
     // Does YUV texture need update from the YUV "surface"?
@@ -1926,11 +1955,19 @@ void vid_blit () {
 				    g_yuv_surface->height);
 	    }
 
-	    SDL_UpdateYUVTexture(g_yuv_texture, NULL,
+	    g_yuv_video_needs_update = false;
+
+	    if (g_yuv_skip)
+	    {
+		if (g_yuv_display == YUV_VISIBLE)
+		    g_yuv_skip = false;
+
+		vid_blank_yuv_texture();
+	    }
+	    else SDL_UpdateYUVTexture(g_yuv_texture, NULL,
 		g_yuv_surface->Yplane, g_yuv_surface->Ypitch,
 		g_yuv_surface->Uplane, g_yuv_surface->Vpitch,
 		g_yuv_surface->Vplane, g_yuv_surface->Vpitch);
-	    g_yuv_video_needs_update = false;
 	}
 	SDL_UnlockMutex(g_yuv_surface->mutex);
     }
@@ -1961,11 +1998,8 @@ void vid_blit () {
 
     if (g_aux_needs_update) vid_render_aux();
 
-    // LDP1450 overlay
-    if (g_LDP1450_overlay) draw_LDP1450_overlay();
-
     if (g_scanlines)
-        draw_scanlines(s_shunt);
+        draw_scanlines(g_scanline_shunt);
 
     // If there's a subtitle overlay
     if (g_bSubtitleShown) draw_subtitle(subchar, false, false);
@@ -1989,6 +2023,8 @@ void vid_blit () {
         queue_take_screenshot = false;
         take_screenshot();
     }
+
+    g_rescale = 0;
 }
 
 int get_yuv_overlay_width() {
@@ -2066,27 +2102,16 @@ void take_screenshot()
 void load_fonts() {
 
     const char *ttfont;
-    int fs = g_scaling_rect.w / 36;
-    int ffs = g_aspect_ratio == ASPECTWS ? g_scaling_rect.w / 24 : g_scaling_rect.w / 18;
+    int fs = g_scaling_rect.w / ((g_aspect_ratio == ASPECTPD) ? 24 : 36);
 
     FC_FreeFont(g_font);
     g_font = FC_CreateFont();
     FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", fs,
                 FC_MakeColor(0xff, 0xff, 0xff, 0xff), TTF_STYLE_NORMAL);
 
-    FC_FreeFont(g_fixfont);
-    g_fixfont = FC_CreateFont();
-    FC_LoadFont(g_fixfont, g_renderer, "fonts/timewarp.ttf", ffs,
-                FC_MakeColor(0xff, 0xff, 0xff, 0xff), TTF_STYLE_NORMAL);
-
     TTF_CloseFont(g_ttfont);
-    if (g_game->use_old_overlay()) {
-        ttfont = "fonts/daphne.ttf";
-        g_ttfont = TTF_OpenFont(ttfont, 12);
-    } else {
-        ttfont = "fonts/digital.ttf";
-        g_ttfont = TTF_OpenFont(ttfont, 14);
-    }
+    ttfont = g_game->use_old_overlay() ? "fonts/daphne.ttf" : "fonts/digital.ttf";
+    g_ttfont = TTF_OpenFont(ttfont, g_game->use_old_overlay() ? 12 : 14);
 
     if (g_ttfont == NULL) {
         LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
@@ -2099,97 +2124,100 @@ void format_window_render() {
 
     g_scaling_rect.w = (g_viewport_width * g_scalefactor) / 100;
     g_scaling_rect.h = (g_viewport_height * g_scalefactor) / 100;
-    g_scaling_rect.x = ((g_viewport_width - g_scaling_rect.w) >> 1);
-    g_scaling_rect.y = ((g_viewport_height - g_scaling_rect.h) >> 1);
 
-    g_border_rect = (SDL_Rect){0, 0, g_viewport_width, g_viewport_height};
+    int diff_w = (g_viewport_width - g_scaling_rect.w) >> 1;
+    int diff_h = (g_viewport_height - g_scaling_rect.h) >> 1;
 
-    g_scaling_rect.x = (g_scaling_rect.x * g_scale_h_shift) / 100;
-    g_scaling_rect.y = (g_scaling_rect.y * g_scale_v_shift) / 100;
+    g_scaling_rect.x = (diff_w * g_scale_h_shift) / 100;
+    g_scaling_rect.y = (diff_h * g_scale_v_shift) / 100;
 
     g_logical_rect.w = g_scaling_rect.w;
     g_logical_rect.h = g_scaling_rect.h;
 
-    load_fonts();
+    if (g_mousemotion)
+        SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+
+    if (!g_rescale) {
+        g_border_rect = (SDL_Rect){0, 0, g_viewport_width, g_viewport_height};
+        load_fonts();
+    }
 }
 
 void format_fullscreen_render() {
-
     int w, h;
-    double ratio = (double)g_viewport_width /
-             (double)g_viewport_height;
+    double ratio = static_cast<double>(g_viewport_width) / g_viewport_height;
 
     if (g_vid_resized) {
-
         w = g_viewport_width;
         h = g_viewport_height;
-
     } else {
-
-        if (g_vertical_orientation)
-            h = g_logical_rect.w;
-        else h = g_logical_rect.h;
+        h = g_vertical_orientation ? g_logical_rect.w : g_logical_rect.h;
 
         switch (g_aspect_ratio) {
-        case ASPECTWS:
-            w = (h * 16) / 9;
-            break;
-        case ASPECTSD:
-            w = (h * 4) / 3;
-            break;
-        default:
-            w = h * ratio;
-            break;
+            case ASPECTWS:  w = (h * 16) / 9; break;
+            case ASPECTSD:  w = (h * 4) / 3; break;
+            case ASPECTPD:
+                if (g_vertical_orientation) h = static_cast<int>(h * 1.33);
+                w = (h * 3) / 4;
+                if (g_mousemotion) SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
+                break;
+            default: w = static_cast<int>(h * ratio); break;
         }
     }
 
-    if (g_bForceAspectRatio) w = (h * 4) / 3;
-    if (g_bIgnoreAspectRatio) w = h * ratio;
+    w = g_bForceAspect ? (h * 4) / 3 : (g_bIgnoreAspect ? static_cast<int>(h * ratio) : w);
 
-    g_bezel_scalewidth = w;
     g_scaling_rect.w = (w * g_scalefactor) / 100;
     g_scaling_rect.h = (h * g_scalefactor) / 100;
-    g_scaling_rect.x = ((g_logical_rect.w - g_scaling_rect.w) >> 1);
-    g_scaling_rect.y = ((g_logical_rect.h - g_scaling_rect.h) >> 1);
-
-    g_border_rect = (SDL_Rect){
-        (g_logical_rect.w - w) >> 1,
-        (g_logical_rect.h - h) >> 1, w, h
-    };
+    g_scaling_rect.x = (g_logical_rect.w - g_scaling_rect.w) / 2;
+    g_scaling_rect.y = (g_logical_rect.h - g_scaling_rect.h) / 2;
 
     if (g_keyboard_bezel && !g_scaled) {
-        g_scaling_rect.y = g_scaling_rect.y >> 2;
+        g_scaling_rect.y /= 4;
         g_scale_v_shift = 0;
-    }
-    else
-    {
+    } else {
         g_scaling_rect.x = (g_scaling_rect.x * g_scale_h_shift) / 100;
         g_scaling_rect.y = (g_scaling_rect.y * g_scale_v_shift) / 100;
     }
 
     if (g_sb_bezel) {
+        g_bezel_scalewidth = w;
+        double bezel_ratio = static_cast<double>(g_sb_h) / g_sb_w;
+        double scale = 9.0 - (static_cast<double>(g_sb_bezel_scale) * 2.0 / 10.0);
 
-        double ratio = (float)g_sb_h / (float)g_sb_w;
-        double scale = 9.0f - double((g_sb_bezel_scale << 1) / 10.0f);
-
-        g_sb_bezel_rect.x = sb_window_pos_x;
-        g_sb_bezel_rect.y = sb_window_pos_y;
-        g_sb_bezel_rect.w = (g_bezel_scalewidth / scale);
-        g_sb_bezel_rect.h = (g_sb_bezel_rect.w * ratio);
+        g_sb_bezel_rect = {sb_window_pos_x, sb_window_pos_y,
+                           static_cast<int>(g_bezel_scalewidth / scale),
+                           static_cast<int>((g_bezel_scalewidth / scale) * bezel_ratio)};
         g_bezel_toggle = true;
     }
 
-    load_fonts();
+    if (!g_rescale) {
+        g_border_rect = {
+            (g_logical_rect.w - w) / 2,
+            (g_logical_rect.h - h) / 2,
+            w, h
+        };
+        load_fonts();
+    }
 }
 
 void draw_scanlines(int l) {
 
-    int x = g_scaling_rect.x + g_scaling_rect.w, y;
-    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, s_alpha);
+    int xe = g_scaling_rect.x + g_scaling_rect.w;
+    int ye = g_scaling_rect.y + g_scaling_rect.h;
 
-    for (int i = 0; i < g_scaling_rect.h; i+=l) {
-       y = g_scaling_rect.y + i;
-       SDL_RenderDrawLine(g_renderer, g_scaling_rect.x, y, x, y);
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, g_scanline_alpha);
+
+    if (g_aspect_ratio == ASPECTPD) {
+        for (int i = 0; i < g_scaling_rect.w; i += l) {
+            int x = g_scaling_rect.x + i;
+            SDL_RenderDrawLine(g_renderer, x, g_scaling_rect.y, x, ye);
+        }
+    } else {
+        for (int i = 0; i < g_scaling_rect.h; i += l) {
+            int y = g_scaling_rect.y + i;
+            SDL_RenderDrawLine(g_renderer, g_scaling_rect.x, y, xe, y);
+        }
     }
 
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);

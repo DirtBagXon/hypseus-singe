@@ -342,29 +342,14 @@ void game::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
 // palette_shutdown
 bool game::init_video()
 {
-    static unsigned int m_area = 0;
-    static unsigned char v_init = 0;
     bool result = false;
     int index   = 0;
 
-    unsigned int area = m_video_overlay_width * m_video_overlay_height;
+    video::reset_yuv_overlay();
+    video::init_display();
 
-    // Set up SDL display (create window, renderer, surfaces, textures...)
-    if (m_area < area || m_overlay_depth == GAME_OVERLAY_DEPTH) {
-
-        if (video::get_video_resized() && v_init > 1) {
-            LOGE << "Resizing [-x/-y] is not supported in overlay switching.";
-            set_quitflag();
-        } else if (video::get_yuv_overlay_ready())
-            video::reset_yuv_overlay();
-
-        video::init_display();
-        m_area = area;
-        v_init++;
-
-        if (get_game_type() != GAME_SINGE)
-            video::set_game_window(m_shortgamename);
-    }
+    if (get_game_type() != GAME_SINGE)
+        video::set_game_window(m_shortgamename);
 
     // if this particular game uses video overlay (most do)
     if (m_game_uses_video_overlay) {
@@ -383,7 +368,7 @@ bool game::init_video()
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {
-                    LOGW << "ODD ERROR : SDL_CreateRGBSurface failed in init_video!";
+                    LOGE << "SDL_CreateRGBSurface failed in init_video!";
                     result = false;
                 }
             }

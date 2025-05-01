@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(PKG_VERSION "v2.11.4")
+set(PKG_VERSION "v2.11.5")
 
 project(hypseus)
 
@@ -12,8 +12,8 @@ option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
 option(ASAN             "Address Sanitizer"     OFF)
 
-# Abstract out -retropath ES extension: Use .singe NOT .daphne
-option(ABSTRACT_SINGE   "Redefine Singe LUA Rewrites"     OFF)
+# Abstract out -retropath ES extension: Use .hypseus NOT .daphne
+option(ABSTRACT_SINGE   "Redefine Singe LUA Rewrites"     ON)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
@@ -26,8 +26,9 @@ if (UNIX)
   endif()
 endif()
 
+set(DOWNLOAD_ARGS)
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
-    cmake_policy(SET CMP0135 OLD)
+    list(APPEND DOWNLOAD_ARGS DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 endif()
 
 add_compile_options(-Wall)

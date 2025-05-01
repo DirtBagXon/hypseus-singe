@@ -82,6 +82,7 @@ Uint32 g_samples_played = 0; // how many samples have played since we've been
                              // timing
 bool g_audio_left_muted  = false; // left audio channel enabled
 bool g_audio_right_muted = false; // right audio channel enabled
+string m_oggpath         = "";
 
 #ifdef AUDIO_DEBUG
 Uint64 g_u64CallbackByteCount      = 0;
@@ -306,11 +307,32 @@ void ldp_vldp::set_audiocopy_callback()
     }
 }
 
+// Allow ogg file switching via LUA API based on suffix (ala -altaudio)
+bool ldp_vldp::switch_altaudio(const char* suffix)
+{
+    string oggfile = m_oggpath;
+    oggfile.replace(oggfile.length() - 4, 4, suffix);
+    oggfile += ".ogg";
+
+    m_altaudio_suffix = suffix;
+    audio_pause();
+
+    if (open_audio_stream(oggfile.c_str())) {
+        if (get_status() == LDP_PLAYING) {
+            audio_play(0);
+            pre_change_speed(1, 1);
+        }
+        return true;
+    }
+
+    return false;
+}
+
 // changes file extension of m2vpath so it ends in .ogg (and add suffix for alt
 // soundtrack if needed)
 void ldp_vldp::oggize_path(string &oggpath, string m2vpath)
 {
-    oggpath = m2vpath;
+    oggpath = m_oggpath = m2vpath;
     oggpath.replace(oggpath.length() - 4, 4,
                     m_altaudio_suffix); // append optional alternate audio
                                         // suffix (if this string is blank it

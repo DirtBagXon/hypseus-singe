@@ -270,13 +270,8 @@ void write(unsigned char value)
                     // Display LDP1450 overlay
                     for (i = 0; i < 3; i++) {
 
-                        if (g_game->use_old_overlay()) {
-                            video::draw_singleline_LDP1450(g_LDP1450_Strings[i].String,
-                                                overlay_ldp1450_x, overlay_ldp1450_y);
-                        } else {
-                            video::draw_charline_LDP1450(g_LDP1450_Strings[i].String,
-                                                overlay_ldp1450_x, overlay_ldp1450_y);
-                        }
+                        video::draw_singleline_LDP1450(g_LDP1450_Strings[i].String,
+                                            overlay_ldp1450_x, overlay_ldp1450_y);
                         overlay_ldp1450_y += video::OVERLAY_LDP1450_LINE_SPACING; // line spacing
                     }
 

@@ -8,10 +8,17 @@ getFValue,              sep_get_fvalue             (return double)
 takeScreenshot,         sep_screenshot
 
 rewriteStatus,          sep_lua_rewrite            (return bool) -- (-retropath enabled)
+vldpGetRotate,          sep_mpeg_get_rotate        (return float) -- (-rotate value)
+vldpSetRotate,          sep_mpeg_set_rotate        (degree)
 vldpGetScale,           sep_mpeg_get_scale         (return int) -- (-scalefactor value)
+vldpSetScale,           sep_mpeg_set_scale         (scale) - return bool on update
 vldpFocusArea,          sep_mpeg_focus_area        (x, y, w, h) -- Rect
 vldpGetYUVPixel,        sep_mpeg_get_rawpixel      (return Y, U, V)
 vldpResetFocus,         sep_mpeg_reset_focus       (void)
+vldpSetMonochrome,      sep_mpeg_set_grayscale     (bool)
+discAudioSuffix,        sep_audio_suffix           (string) -- (return bool on load success)
+
+overlaySetMonochrome,   sep_overlay_set_grayscale  (bool)
 
 scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
 scoreBezelClear,        sep_bezel_clear            (void)
@@ -21,8 +28,9 @@ scoreBezelScore,        sep_bezel_player_score     (player, score)
 scoreBezelLives,        sep_bezel_player_lives     (player, lives)
 scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
 
-spriteDrawFrame,        sep_sprite_animate         (x, y, [scale], frame, spr)
-spriteDrawRotatedFrame, sep_sprite_animate_rotated (x, y, [scale], spr)
+drawTransparent,        sep_draw_transparent       (bool) -- Transparent Keying
+spriteDrawFrame,        sep_sprite_animate         (x, y, [scale], [scaley], frame, spr)
+spriteDrawRotatedFrame, sep_sprite_animate_rotated (x, y, [scale], [scaley], spr)
 spriteFrameHeight,      sep_sprite_height          (spr)
 spriteFrameWidth,       sep_frame_width            (spr)
 spriteGetFrames,        sep_sprite_frames          (spr) -- (0 = no animation)
@@ -39,6 +47,8 @@ musicResume,            sep_music_resume           (void)
 musicStop,              sep_music_stop             (void)
 musicSetVolume,         sep_music_volume           (0 - 128)
 musicUnload,            sep_music_unload           (music)
+
+keyboardCatchQuit,      sep_keyboard_block_quit    (bool) -- KEY_QUIT/SWITCH_QUIT
 
 soundLoadData,          sep_sound_loadata          (wav data)
 

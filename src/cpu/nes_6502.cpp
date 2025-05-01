@@ -31,13 +31,13 @@
 static NES_6502 *NES_6502_nes = NULL;
 
 // MATT : removed the 'static' on here in order to compile in linux
-void NES_write(uint32 address, uint8 value)
+void NES_write(uint32_t address, uint8_t value)
 {
   NES_6502_nes->MemoryWrite(address, value);
 }
 
 // MATT : removed the 'static' on here in order to compile in linux
-uint8 NES_read(uint32 address)
+uint8_t NES_read(uint32_t address)
 {
   return NES_6502_nes->MemoryRead(address);
 }
@@ -45,13 +45,13 @@ uint8 NES_read(uint32 address)
 static nes6502_memread NESReadHandler[] =
 {
    { 0x0000, 0xFFFF, NES_read },
-   { (uint32) -1,     (uint32) -1,     NULL }
+   { (uint32_t) -1,     (uint32_t) -1,     NULL }
 };
 
 static nes6502_memwrite NESWriteHandler[] =
 {
    { 0x0000, 0xFFFF, NES_write },
-   { (uint32) -1,    (uint32) -1,     NULL}
+   { (uint32_t) -1,    (uint32_t) -1,     NULL}
 };
 
 
@@ -90,22 +90,22 @@ void NES_6502::GetContext(Context *cpu)
   cpu->write_handler = NESWriteHandler;
 }
 /*
-uint8 NES_6502::MemoryRead(uint32 addr)
+uint8_t NES_6502::MemoryRead(uint32_t addr)
 {
   return ParentNES->MemoryRead(addr);
 }
 
-void NES_6502::MemoryWrite(uint32 addr, uint8 data)
+void NES_6502::MemoryWrite(uint32_t addr, uint8_t data)
 {
   ParentNES->MemoryWrite(addr, data);
 }
 */
-uint8 NES_6502::MemoryRead(uint32 addr)
+uint8_t NES_6502::MemoryRead(uint32_t addr)
 {
-  return g_game->cpu_mem_read(static_cast<uint16>(addr & 0xffff));
+  return g_game->cpu_mem_read(static_cast<uint16_t>(addr & 0xffff));
 }
 
-void NES_6502::MemoryWrite(uint32 addr, uint8 data)
+void NES_6502::MemoryWrite(uint32_t addr, uint8_t data)
 {
-  g_game->cpu_mem_write(static_cast<uint16>(addr & 0xffff), data);
+  g_game->cpu_mem_write(static_cast<uint16_t>(addr & 0xffff), data);
 }

@@ -38,6 +38,10 @@ while [[ $# -gt 0 ]]; do
         GAMEPAD="-gamepad"
         shift
         ;;
+      -grabmouse)
+        GRABMOUSE="-grabmouse"
+        shift
+        ;;
       -linear)
         LINEAR="-linear_scale"
         shift
@@ -85,6 +89,7 @@ if [ -z $1 ] ; then
 	exit 1
 fi
 
+ROMSTART="-script"
 ROMFILE="$HYPSEUS_SHARE/singe/$1/$1.singe"
 
 if [ ! -f $ROMFILE ]; then
@@ -92,6 +97,7 @@ if [ ! -f $ROMFILE ]; then
         echo "Missing: $HYPSEUS_SHARE/singe/$1/$1.singe" | STDERR
         echo "Will attempt to load from Zip..."
         echo
+        ROMSTART="-zlua"
         ROMFILE="$HYPSEUS_SHARE/roms/$1.zip"
 fi
 
@@ -107,7 +113,7 @@ fi
 
 $HYPSEUS_BIN singe vldp \
 -framefile $FRAMEFILE \
--script $ROMFILE \
+$ROMSTART $ROMFILE \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
@@ -115,6 +121,7 @@ $LINEAR \
 $BLANK \
 $BLEND \
 $GAMEPAD \
+$GRABMOUSE \
 $LOG \
 $ROTATE \
 $SCANLINES \

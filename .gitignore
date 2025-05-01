@@ -1,5 +1,3 @@
-hypseus
-.deps
 *.o
 *.d
 *.a

@@ -35,6 +35,7 @@ unsigned char get_zipath();
 int lua_chkdir(const char *path);
 
 const char* get_romdir_path();
+const char* get_ramdir_path();
 
 void lua_set_retropath(unsigned char value);
 void lua_set_zipath(unsigned char value);

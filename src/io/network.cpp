@@ -284,34 +284,13 @@ char *get_os_description()
 
 #ifdef LINUX
     struct utsname buf;
-    unsigned int i         = 0;
     int uname_result       = uname(&buf);
-    int found_first_period = 0;
 
     // if uname did not return any error ...
     if (uname_result == 0) {
-        // find the second period in the linux version, so we can terminate
-        // there
-        for (i = 0; i < (sizeof(result) - 10); i++) {
-            if (buf.release[i] == '.') {
-                // if we haven't found the first period in the linux version yet
-                if (!found_first_period) {
-                    found_first_period = 1;
-                }
-
-                // if we have already found the first period, then this is the
-                // second period,
-                // so get out of the loop
-                else {
-                    break;
-                }
-            }
-        }
-
         strcpy(result, "Linux ");
-        strncpy(&result[6], buf.release, i);
-        result[i + 6] = 0; // terminate string just in case
-    }                      // end if uname worked
+        snprintf(&result[6], sizeof(result) - 6, "%s", buf.release);
+    }
 
 #endif
 

@@ -15,6 +15,7 @@ externalproject_add( libmpeg2
 	BUILD_COMMAND make V=0
 	INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty
 	INSTALL_COMMAND make LIBTOOLFLAGS=--silent install
+	${DOWNLOAD_ARGS}
 )
 
 set( MPEG2_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/include/mpeg2dec )

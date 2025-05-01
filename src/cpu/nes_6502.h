@@ -42,13 +42,13 @@ public:
 
   // Functions that govern the 6502's execution
   void Init()                           { /*nes6502_init();*/ }
-  static void Reset()                          { nes6502_reset(); }
+  static void Reset()                   { nes6502_reset(); }
   int  Execute(int total_cycles)        { return nes6502_execute(total_cycles); }
   void DoNMI(void)                      { nes6502_nmi(); }
   void DoIRQ(void)                      { nes6502_irq(); }
   void SetDMA(int cycles)               { nes6502_burn(cycles); }
-  uint8  GetByte(uint32 address)        { return nes6502_getbyte(address); }
-  uint32 GetCycles(boolean reset_flag)  { return nes6502_getcycles(reset_flag); }
+  uint8_t  GetByte(uint32_t address)    { return nes6502_getbyte(address); }
+  uint32_t GetCycles(bool reset_flag)   { return nes6502_getcycles(reset_flag); }
 
   // Context get/set
   void SetContext(Context *cpu);
@@ -58,11 +58,11 @@ protected:
 
   NES* ParentNES;
 
-  uint8 MemoryRead(uint32 addr);
-  void  MemoryWrite(uint32 addr, uint8 data);
+  uint8_t MemoryRead(uint32_t addr);
+  void  MemoryWrite(uint32_t addr, uint8_t data);
 
-  friend void NES_write(uint32 address, uint8 value);
-  friend uint8 NES_read(uint32 address);
+  friend void NES_write(uint32_t address, uint8_t value);
+  friend uint8_t NES_read(uint32_t address);
 
 };
 

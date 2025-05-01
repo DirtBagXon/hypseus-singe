@@ -1025,6 +1025,12 @@ void ldp::disable_audio2()
     if (m_bVerbose) { LOGD << "Audio2 disable received (ignored)"; }
 }
 
+bool ldp::switch_altaudio(const char* suffix)
+{
+    if (m_bVerbose) { LOGD << "Alt Audio command received (ignored)"; }
+    return false;
+}
+
 // asks LDP to take a screenshot if that's possible
 // it's only possible with VLDP as of this time
 void ldp::request_screenshot()

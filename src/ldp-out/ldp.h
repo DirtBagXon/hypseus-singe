@@ -203,6 +203,7 @@ class ldp
     virtual void enable_audio2();
     virtual void disable_audio1();
     virtual void disable_audio2();
+    virtual bool switch_altaudio(const char* suffix);
     virtual void request_screenshot();
     virtual void set_search_blanking(bool enabled);
     virtual void set_skip_blanking(bool enabled);

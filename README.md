@@ -15,7 +15,7 @@ Features:
 * Daphne VLDP 32bit upgrade
 * Integrated _(active)_ [bezel](screenshots/bezel.png?raw=true) support
 * Daphne and Singe 4k 4Gb+ M2V support
-* Singe libretro emulation path integration
+* Singe EmulationStation LUA path integration
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
 * Singe 2 full 32bit overlay support (details below)
 * Sinden support in Singe games
@@ -97,7 +97,7 @@ Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
 **Retro gaming** systems will require adoption within the relevant emulation scripts.
 
-The singe `-retropath` argument can ease integration into libretro style systems. See [RetroPie](doc/RETROPIE.md#extended-argument-summary) as an example.
+The singe `-retropath` argument can ease integration into EmulationStation style systems.
 
 `bash` scripts are provided for systems that support this shell.
 
@@ -105,8 +105,6 @@ The singe `-retropath` argument can ease integration into libretro style systems
 
     mkdir -p ~/.daphne/roms ~/.daphne/ram ~/.daphne/vldp
     mkdir -p ~/.daphne/vldp_dl ~/.daphne/singe
-    cp doc/hypinput.ini doc/flightkey.ini ~/.daphne
-    cp doc/hypinput_gamepad.ini ~/.daphne
     cp -R pics sound fonts midi ~/.daphne
     
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
@@ -125,7 +123,7 @@ By default SDL2 Keycodes and the Joystick API configuration options will be used
 
 SDL GameController API configuration can now be enabled for supported controllers.
 
-Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput.ini](doc/hypinput_gamepad.ini)
+Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput_gamepad.ini](doc/hypinput_gamepad.ini)
 
 Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus home folder.
 
