@@ -73,9 +73,10 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -ignore_aspect_ratio             | Tells Hypseus to ignore the aspect ratio defined in the MPEG header. |
 | -keymapfile \<config>            | Specify an alternate hypinput.ini file.                |
 | -latency \<ms>                   | Adds a delay before all searches occur which causes scenes to last a little longer. Useful for Dragon's Lair F2 ROMs that cut some scenes off prematurely. |
-| -linear_scale                    | Enable linear filtering when scaling.                  |
+| -linear_scale                    | Enable [bi]linear filtering when scaling.                  |
 | -manymouse                       | Use the alternate ManyMouse input system. Provides *Absolute* coordinates on supported devices. |
 | -min_seek_delay \<ms>            | The minimum amount of milliseconds to force a seek to take (artificial delay). 0 = disabled. |
+| -monochrome                      | Display VLDP video as grayscale monochrome [Just a gimmick] |
 | -nocrc                           | Disables CRC32 checking (not recommended).            |
 | -nohwaccel                       | Disables hardware acceleration for SDL2. Only use this if hardware acceleration doesn't work. |
 | -noissues                        | Don't display warnings about game driver problems.    |
@@ -102,7 +103,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -scoreboard                      | Enables external Scoreboard.                           |
 | -scoreport \<port>               | Sets which parallel port to use with the scoreboard. 0 correspond to LPT1. *As of v1.0.12, any value over 1 will indicate the address of the parallel port in hexadecimal. So instead of passing in 0, I could pass in 378 which would achieve the same result.* |
 | -screen \<1-254>                 | Defines the screen _hypseus_ should use for display. |
-| -script                          | Defines the location of the primary Singe LUA game script. Required for Singe games. `-zlua` is an alias. |
+| -script                          | Defines the location of the primary Singe LUA game script. This or `-zlua` are required for Singe games. |
 | -shiftx \<-100 to 100>           | Shift x-axis on video window [%]                                        |
 | -shifty \<-100 to 100>           | Shift y-axis on video window [%]                                        |
 | -sound_buffer \<number of samples> | Sets the number of samples in the sound buffer. Hypseus runs at 44,100 kHz which means 44,100 samples per second. The sound buffer size is typically 2048 samples. Lower values make the sound more responsive but choppier, while higher values make the sound smoother but more sluggish. |

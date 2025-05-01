@@ -20,8 +20,10 @@ class homedir
     // Properties
     string get_homedir();
     string get_romdir();
+    string get_ramdir();
     void set_homedir(const string &s);
     void set_romdir(const string &s);
+    void set_ramdir(const string &s);
     string get_romfile(const string &s);
     string get_ramfile(const string &s);
     string get_framefile(const string &s);
@@ -34,6 +36,7 @@ class homedir
     // Returns the found path,
     //  or an empty string if neither location yielded the file.
     string find_file(string fileName, bool bFallback = true);
+    string find_romfile(string fileName, bool bFallback = true);
 
   private:
     void make_dir(const string &dir);
@@ -42,6 +45,7 @@ class homedir
     string m_appdir; // Directory the app was launched from
     string m_homedir; //"Home" directory to search first (defaults to appdir)
     string m_romdir; // ROMS directory
+    string m_ramdir; // RAM directory
 };
 
 extern homedir g_homedir; // our global game class.  Instead of having every

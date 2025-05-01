@@ -72,13 +72,12 @@ static int os_tmpname (lua_State *L) {
   return 1;
 }
 
-
 static int os_getenv (lua_State *L) {
   lua_pushstring(L, getenv(luaL_checkstring(L, 1)));  /* if NULL push nil */
   return 1;
 }
 
-static int os_clock(lua_State *L) {
+static int os_clock (lua_State *L) {
 #ifdef _WIN32
   lua_pushnumber(L, ((lua_Number)clock())/(lua_Number)CLOCKS_PER_SEC);
 #else

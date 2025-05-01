@@ -734,7 +734,12 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         Proto *p;
         Closure *ncl;
         int nup, j;
-        p = cl->p->p[GETARG_Bx(i)];
+        int bx = GETARG_Bx(i);
+        p = (bx >= 0 && bx < cl->p->sizep) ? cl->p->p[bx] : NULL;
+        if (p == NULL) {
+          Protect(luaC_checkGC(L));
+          luaG_runerror(L, "OP_CLOSURE: Invalid Bx field");
+        }
         nup = p->nups;
         ncl = luaF_newLclosure(L, nup, cl->env);
         ncl->l.p = p;

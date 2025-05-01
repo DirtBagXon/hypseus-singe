@@ -23,6 +23,7 @@
 // Handles SDL input functions (low-level keyboard/joystick input)
 
 #include "config.h"
+#include "configfile.h"
 
 #include <time.h>
 #include <plog/Log.h>
@@ -164,6 +165,27 @@ int mouse_buttons_map[6] = {
 
 ////////////
 
+static void DefaultConfig(string config, bool gamepad)
+{
+    FILE *pf = fopen(config.c_str(), "r");
+
+    if (pf) {
+        fclose(pf);
+        return;
+    }
+
+    pf = fopen(config.c_str(), "w");
+
+    if (!pf) {
+        LOGE << fmt("Unable to create a default keymap file: %s", config.c_str());
+        return;
+    }
+
+    fputs(gamepad ? k_defaultGamePad : k_defaultJoystick, pf);
+    LOGI << fmt("Wrote a default keymap file to: %s", config.c_str());
+    fclose(pf);
+}
+
 void CFG_Keys()
 {
     struct mpo_io *io;
@@ -175,13 +197,17 @@ void CFG_Keys()
     bool end = false;
 
     if (m_altInputFileSet && !g_index_reset) {
-       string keyinput_notice = "Loading alternate keymap file: ";
-       keyinput_notice += g_inputini_file.c_str();
-       LOGI << keyinput_notice.c_str();
+        string keyinput_notice = "Loading alternate keymap file: ";
+        keyinput_notice += g_inputini_file.c_str();
+        LOGI << keyinput_notice.c_str();
     }
 
-    // find where the keymap ini file is (if the file doesn't exist, this string will be empty)
+    // Find the keymap ini file location
     string strDapInput = g_homedir.find_file(g_inputini_file.c_str(), true);
+
+    if (!m_altInputFileSet)
+        DefaultConfig(strDapInput, g_use_gamepad);
+
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
         LOGD << "Remapping input ...";
@@ -388,7 +414,6 @@ static void manymouse_init_mice(void)
             mice[i].connected = 1;
             LOGI << fmt("#%d: %s", i, mice[i].name);
         }
-        SDL_SetWindowGrab(video::get_window(), SDL_TRUE);
     }
 }
 
@@ -1321,6 +1346,9 @@ void set_inputini_file(const char *inputFile) {
 void set_use_gamepad(bool value) {
     g_use_gamepad = value;
     g_use_joystick = !value;
+
+    if (!m_altInputFileSet && value)
+        g_inputini_file = "hypinput_gamepad.ini";
 }
 
 void set_gamepad_order(int *c, int max) {
@@ -1335,15 +1363,15 @@ void set_gamepad_order(int *c, int max) {
 void disable_haptics() { enabled_haptic = false; }
 
 void set_haptic(Uint8 value) {
-    g_haptic[0] = (1 << (value + 0xC)) - 1;
+    g_haptic[0] = (1 << (value + 0xc)) - 1;
     g_haptic[1] = 0x96;
 }
 
 void do_gamepad_rumble(Uint8 str, Uint8 len, Uint8 id)
 {
     if (g_gamepad_id[id] && g_gamepad_haptic[id]) {
-        Uint16 s = (1 << (str + 0xC)) - 1;
-        SDL_GameControllerRumble(g_gamepad_id[id], s, s, (0x4B << len));
+        Uint16 s = (1 << (str + 0xc)) - 1;
+        SDL_GameControllerRumble(g_gamepad_id[id], s, s, (0x4b << len));
     }
 }
 

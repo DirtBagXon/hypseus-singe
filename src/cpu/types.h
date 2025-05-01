@@ -45,6 +45,7 @@
 #endif
 
 /* These should be changed depending on the platform */
+/*
 typedef  char     int8;
 typedef  short    int16;
 typedef  int      int32;
@@ -54,6 +55,7 @@ typedef  unsigned short uint16;
 typedef  unsigned int   uint32;
 
 typedef  uint8    boolean;
+*/
 
 #ifndef  TRUE
 #define  TRUE     1

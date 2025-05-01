@@ -30,6 +30,7 @@
 #include "homedir.h"
 #include "numstr.h"
 #include "conout.h"
+#include <plog/Log.h>
 
 int sram_load(const char *filename, unsigned char *mem, unsigned int size)
 {
@@ -47,11 +48,11 @@ int sram_load(const char *filename, unsigned char *mem, unsigned int size)
         // read compressed data
         if (gzread(loadfile, (voidp)mem, size) == (int)size) {
             s = "Loaded " + numstr::ToStr(size) + " bytes from " + sramFile;
-            printline(s.c_str());
+            LOGI << fmt(s.c_str());
             result = 1;
         } else {
             s = "Error loading from " + sramFile;
-            printline(s.c_str());
+            LOGE << fmt(s.c_str());
         }
         gzclose(loadfile);
     }
@@ -59,7 +60,7 @@ int sram_load(const char *filename, unsigned char *mem, unsigned int size)
     // if loading the file failed
     else {
         s = "NOTE : RAM file " + sramFile + " was not found (it'll be created)";
-        printline(s.c_str());
+        LOGW << fmt(s.c_str());
     }
 
     return result;
@@ -67,7 +68,7 @@ int sram_load(const char *filename, unsigned char *mem, unsigned int size)
 
 int sram_save(const char *filename, unsigned char *mem, unsigned int size)
 {
-    char s[81];
+    string s;
     gzFile savefile;
     int result = 0;
 
@@ -83,19 +84,19 @@ int sram_save(const char *filename, unsigned char *mem, unsigned int size)
         gzsetparams(savefile, Z_BEST_COMPRESSION, Z_DEFAULT_STRATEGY);
 
         if (gzwrite(savefile, (voidp)mem, size) == (int)size) {
-            snprintf(s, sizeof(s), "Saved %d bytes to %s", size, filename);
-            printline(s);
+            s =  "Saved " + numstr::ToStr(size) + " bytes to " + sramFile;
+            LOGI << fmt(s.c_str());
             result = 1;
         } else {
-            snprintf(s, sizeof(s), "Error saving %d bytes to %s", size, filename);
-            printline(s);
+            s = "Error saving "+ numstr::ToStr(size) + " bytes to " + sramFile;
+            LOGE << fmt(s.c_str());
         }
         gzclose(savefile);
     }
 
     else {
-        snprintf(s, sizeof(s), "Error saving RAM to file ram/%s", filename);
-        printline(s);
+        s = "Error saving RAM to file " + sramFile;
+        LOGE << fmt(s.c_str());
     }
 
     return result;

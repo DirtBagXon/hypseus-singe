@@ -32,6 +32,7 @@
 #define PATH_SEPARATOR "/"
 #endif
 
+#define ASPECTPD 75
 #define ASPECTSD 133
 #define ASPECTWS 178 // Round up
 #define NOSQUARE 0x2D0
@@ -64,18 +65,12 @@ static const uint8_t ANUN_CHAR_HEIGHT = 15;
 static const uint8_t ANUN_RANK_HEIGHT = 46;
 static const uint8_t ANUN_LEVELS = 3;
 
-typedef struct LDP1450_CharStruct {
-    bool enable = false;
-    char* OVERLAY_LDP1450_String;
-    float x;
-    float y;
-} LDP1450_CharStruct;
-
 enum {
     B_DL_PLAYER1,
     B_DL_PLAYER2,
     B_DL_LIVES,
     B_DL_CREDITS,
+    B_TQ_TIME,
     B_OVERLAY_LEDS,
     B_OVERLAY_LDP1450,
     B_ANUN_OFF,
@@ -93,6 +88,12 @@ enum {
     B_EMPTY
 }; // bitmaps
 
+enum {
+    YUV_BLANK = 0,
+    YUV_VISIBLE,
+    YUV_SHUTTER
+};
+
 bool init_display();
 
 // MAC: YUV surface protection block: it needs protection because it's accessed from both
@@ -106,7 +107,6 @@ void vid_setup_yuv_overlay (int width, int height);
 // MAC : REMEMBER, vid_update_yuv_overlay() ONLY updates the YUV surface. The YUV texture is updated on vid_blit()
 int vid_update_yuv_overlay (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
 int vid_update_yuv_texture (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
-void vid_blank_yuv_texture (bool value);
 void vid_free_yuv_overlay ();
 
 void vid_update_overlay_surface(SDL_Surface *tx);
@@ -130,7 +130,6 @@ bool load_bmps();
 bool draw_led(int, int, int, unsigned char);
 void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
-void draw_charline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
 void free_bmps();
 SDL_Surface *load_one_bmp(const char *, bool);
@@ -145,7 +144,6 @@ SDL_Surface *get_screen_leds();
 SDL_Rect get_aux_rect();
 SDL_Rect get_sb_rect();
 FC_Font *get_font();
-FC_Font *get_ffont();
 bool use_old_font();
 bool get_opengl();
 bool get_vulkan();
@@ -153,10 +151,10 @@ bool get_fullscreen();
 bool get_aux_bezel();
 bool get_fullwindow();
 bool get_singe_blend_sprite();
-bool get_video_blank();
 bool get_video_resized();
 void set_opengl(bool value);
 void set_vulkan(bool value);
+void set_grayscale(bool value);
 void set_forcetop(bool value);
 int get_textureaccess();
 void set_textureaccess(int value);
@@ -171,14 +169,13 @@ void set_scale_linear(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_ignore_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
-void set_shunt(int value);
-void set_alpha(int value);
-void set_yuv_shutter_blank();
-void set_yuv_lock_blank(bool value);
+void set_shunt(uint8_t value);
+void set_alpha(uint8_t value);
+void set_yuv_blank(int value);
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void scalekeyboard(int value);
-void reset_scalefactor(int, uint8_t);
+void reset_scalefactor(int, uint8_t, bool);
 void set_rotate_degrees(float fDegrees);
 void set_sboverlay_characterset(int value);
 void set_sboverlay_white(bool value);
@@ -194,7 +191,6 @@ void draw_scanlines(int);
 void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, bool, bool);
-void draw_LDP1450_overlay();
 void vid_toggle_fullscreen();
 void vid_toggle_scanlines();
 void vid_toggle_bezel();
@@ -224,7 +220,7 @@ void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
 void set_display_screen(int value);
 void set_score_screen(int value);
-void set_fRotateDegrees(float fDegrees);
+void set_fRotateDegrees(float fDegrees, bool);
 void set_yuv_scale(int value, uint8_t axis);
 void set_yuv_rect(int, int, int, int);
 void reset_yuv_rect();

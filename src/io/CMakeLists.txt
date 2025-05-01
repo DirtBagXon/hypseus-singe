@@ -6,10 +6,9 @@ set( LIB_SOURCES
 )
 
 set( LIB_HEADERS
-    cmdline.h conout.h error.h fileparse.h homedir.h input.h
-    mpo_fileio.h mpo_mem.h my_stdio.h keycodes.h serialib.h
-    network.h numstr.h parallel.h sram.h zippp.h unzip.h
-    limits.h
+    cmdline.h conout.h configfile.h error.h fileparse.h homedir.h
+    input.h limits.h mpo_fileio.h mpo_mem.h my_stdio.h keycodes.h
+    serialib.h network.h numstr.h parallel.h sram.h unzip.h zippp.h
 )
 
 find_package(ZLIB REQUIRED)
@@ -36,7 +35,24 @@ find_package_handle_standard_args(
         _libzip_pkgcfg
 )
 
+set(LIBZIP_VERSION "unknown")
+if (_libzip_pkgcfg)
+    file(READ "${_libzip_pkgcfg}" _libzip_pkgcfg_content)
+    string(REGEX MATCH "Version: ([0-9]+\\.[0-9]+\\.[0-9]+)"
+        _libzip_version_match "${_libzip_pkgcfg_content}")
+    if (_libzip_version_match)
+        string(REGEX REPLACE "Version: ([0-9]+\\.[0-9]+\\.[0-9]+)" "\\1"
+            LIBZIP_VERSION "${_libzip_version_match}")
+    endif()
+endif()
+
 if (LIBZIP_FOUND)
+    message(STATUS "libzip found: Version ${LIBZIP_VERSION}")
+
+    if (LIBZIP_VERSION VERSION_LESS "1.3.0")
+        message(FATAL_ERROR "- Version 1.3.0 or newer is required.")
+    endif()
+
     if (NOT TARGET libzip::zip)
         add_library(libzip::zip UNKNOWN IMPORTED)
         set_target_properties(libzip::zip
@@ -46,6 +62,8 @@ if (LIBZIP_FOUND)
                 IMPORTED_LOCATION ${LIBZIP_LIBRARY}
         )
     endif()
+else()
+    message(FATAL_ERROR "libzip not found")
 endif()
 
 include_directories( ${ZLIB_INCLUDE_DIRS} )

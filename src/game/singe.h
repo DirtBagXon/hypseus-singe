@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.9001 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.9002 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -54,10 +54,9 @@ typedef struct singeJoyStruct {
     int16_t ypos;
     int16_t jrelx;
     int16_t jrely;
-    int16_t xmov; // signed
-    int16_t ymov; // ...
-    bool bjx = false;
-    bool bjy = false;
+    int16_t xmov = 320; // signed
+    int16_t ymov = 240; // ...
+    uint8_t trip = 0;
 } singeJoyStruct;
 
 typedef struct singeScoreboard {
@@ -146,6 +145,11 @@ class singe : public game
     static void set_singe_errors(short value)
     {
         g_ldp->set_runtime_error(value);
+    }
+
+    static bool switch_altaudio(const char* suffix)
+    {
+        return g_ldp->switch_altaudio(suffix);
     }
 
     // by RDG2010
@@ -283,6 +287,12 @@ class singe : public game
         pSingeInstance->player2_lives(thisVal);
     }
 
+    static void gfm_block_quit(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->block_quit(bEnable);
+    }
+
     void set_keyboard_mode(int); // Sets value of private member i_keyboard_mode
     int get_keyboard_mode();     // Retrieves the value of i_keyboard_mode
 
@@ -327,6 +337,8 @@ class singe : public game
     uint16_t m_custom_overlay_w;
     uint16_t m_custom_overlay_h;
 
+    void block_quit(bool);
+
     void bezel_enable(bool);
     void bezel_type(uint8_t);
     void bezel_clear(bool);
@@ -342,11 +354,14 @@ class singe : public game
     bool m_upgrade_overlay;
     bool singe_joymouse;
     bool singe_trace;
-    bool m_muteinit;
     bool m_notarget;
     bool m_running;
+    bool m_zlua;
 
     IScoreboard *m_pScoreboard;
+
+    Sint32 i_keyboard_escape;
+    Uint8 i_keyboard_quit;
 
     // by RDG2010
 

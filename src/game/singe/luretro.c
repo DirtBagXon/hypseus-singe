@@ -4,7 +4,7 @@
  *
  * ____ HYPSEUS COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2024 DirtBagXon
+ * Copyright (C) 2025 DirtBagXon
  *
  * This file is part of HYPSEUS SINGE, a laserdisc arcade game emulator
  *
@@ -59,11 +59,9 @@ void lua_set_abpath(const char *value)
     g_abpath[sizeof(g_abpath) - 1] = '\0';
 }
 
-unsigned char inPath(const char* src, char* path)
+unsigned char bPath(const char* src, const char* path)
 {
-    char *s = strstr(src, path);
-    if (s != NULL) return 1;
-    return 0;
+    return (strncmp(src, path, strlen(path)) == 0);
 }
 
 // We block in lfs, isolate to zip rampath via io
@@ -82,20 +80,23 @@ int lua_mkdir(const char *path)
 
 void lua_retropath(const char *src, char *dst, int len)
 {
-    unsigned char r = 0, fin = 0, folder = 0, path = PATH_DAPHNE;
+    unsigned char bSet = 0, end = 0, folder = 0, path = PATH_DAPHNE;
 
-    if (inPath(src, "Framework")) path = PATH_FRAMEWORK;
-    if (inPath(src, "singe/")) {
+    if (bPath(src, "singe/Framework")) {
+        path = PATH_FRAMEWORK;
+    }
+
+    if (bPath(src, "singe/")) {
         folder = PATH_SINGE;
         src += 6;
     }
 
     for (int i = 0; i < (len - 2); src++, i++) {
-        if (fin != PATH_END) {
+        if (end != PATH_END) {
             if (*src == '\0') {
-                fin = PATH_END;
+                end = PATH_END;
             }
-            if (folder == PATH_SINGE && i == 0) {
+            if (i == 0 && folder == PATH_SINGE) {
                 if (g_abpath[0] != 0) {
                     memcpy(dst, g_abpath, strlen(g_abpath));
                     dst += strlen(g_abpath);
@@ -110,27 +111,28 @@ void lua_retropath(const char *src, char *dst, int len)
                     dst += strlen(traverse);
                 }
             }
-            if (*src == '/' && r < 0xf) {
-                r++;
-                continue;
+            if (*src == '/') {
+                if (bSet < 0xf) {
+                    bSet++;
+                    continue;
+                }
             }
-            if (r == 1) {
+            if (bSet == 1) {
                 switch(path) {
                 case (PATH_FRAMEWORK):
-                    memcpy(dst, "/", 1);
-                    dst += 1;
+                    *dst++ = '/';
                     break;
                 default:
 #ifdef ABSTRACT_SINGE
-                    memcpy(dst, ".singe/", 7);
-                    dst += 7;
+                    memcpy(dst, ".hypseus/", 9);
+                    dst += 9;
 #else
                     memcpy(dst, ".daphne/", 8);
                     dst += 8;
 #endif
                     break;
                 }
-                r = 0xf; //bool
+                bSet = 0xf; //bool
             }
             *dst = *src;
             dst++;
@@ -141,20 +143,19 @@ void lua_retropath(const char *src, char *dst, int len)
 
 void lua_rampath(const char *src, char *dst, int len)
 {
-    unsigned char r = 0, fin = 0;
+    const char *ramdir = get_ramdir_path();
+    size_t ramdir_len = strlen(ramdir);
+    unsigned char end = 0;
 
-    for (int i = 0; i < (len); src++, i++) {
-        if (fin != PATH_END) {
+    memcpy(dst, ramdir, ramdir_len);
+    dst += ramdir_len;
+
+    while (*src && len-- > 0) {
+        if (end != PATH_END) {
             if (*src == '\0') {
-                fin = PATH_END;
+                end = PATH_END;
             }
-            if (r == 0) {
-                memcpy(dst, "ram/", 4);
-                dst += 4;
-                r++;
-            }
-            *dst = *src;
-            dst++;
+            *dst++ = *src++;
         }
     }
     *dst = '\0';

@@ -38,6 +38,10 @@ while [[ $# -gt 0 ]]; do
         GAMEPAD="-gamepad"
         shift
         ;;
+      -grabmouse)
+        GRABMOUSE="-grabmouse"
+        shift
+        ;;
       -linear)
         LINEAR="-linear_scale"
         shift
@@ -99,6 +103,7 @@ $LINEAR \
 $BLANK \
 $BLEND \
 $GAMEPAD \
+$GRABMOUSE \
 $LOG \
 $OVERLAY \
 $SCANLINES \

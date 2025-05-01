@@ -87,28 +87,28 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
     case SDLK_KP_MINUS:
         switch(layer) {
         case 1:
-            video::reset_scalefactor(std::max(1, (int)fmod(s - 1.0, 30.0)), layer);
+            video::reset_scalefactor(std::max(1, (int)fmod(s - 1.0, 30.0)), layer, true);
             break;
         case 2:
             if (thayers) video::scalekeyboard(std::max(1, (int)fmod(s - 1.0, 30.0)));
-            else video::reset_scalefactor(std::max(1, (int)fmod(s - 1.0, 30.0)), layer);
+            else video::reset_scalefactor(std::max(1, (int)fmod(s - 1.0, 30.0)), layer, true);
             break;
         default:
-            video::reset_scalefactor(std::max(25, (int)fmod(s - 1.0, 110.0)), layer);
+            video::reset_scalefactor(std::max(25, (int)fmod(s - 1.0, 110.0)), layer, true);
             break;
         }
         break;
     case SDLK_KP_PLUS:
         switch(layer) {
         case 1:
-            video::reset_scalefactor(std::min(25, (int)fmod(s + 1.0, 30.0)), layer);
+            video::reset_scalefactor(std::min(25, (int)fmod(s + 1.0, 30.0)), layer, true);
             break;
         case 2:
             if (thayers) video::scalekeyboard(std::min(25, (int)fmod(s + 1.0, 30.0)));
-            else video::reset_scalefactor(std::min(25, (int)fmod(s + 1.0, 30.0)), layer);
+            else video::reset_scalefactor(std::min(25, (int)fmod(s + 1.0, 30.0)), layer, true);
             break;
         default:
-            video::reset_scalefactor(std::min(100, (int)fmod(s + 1.0, 110.0)), layer);
+            video::reset_scalefactor(std::min(100, (int)fmod(s + 1.0, 110.0)), layer, true);
             break;
         }
         break;
@@ -168,7 +168,7 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
         }
         break;
     case SDLK_KP_7:
-        video::set_fRotateDegrees(fmod(r - 1.0, 360.0));
+        video::set_fRotateDegrees(fmod(r - 1.0, 360.0), true);
         break;
     case SDLK_KP_8:
         switch(layer) {
@@ -181,7 +181,7 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
         }
         break;
     case SDLK_KP_9:
-        video::set_fRotateDegrees(fmod(r + 1.0, 360.0));
+        video::set_fRotateDegrees(fmod(r + 1.0, 360.0), true);
         break;
     case SDLK_m:
         video::toggle_grabmouse();

@@ -30,6 +30,7 @@ struct singe_in_info
 
 	// shuts down hypseus
 	void (*set_quitflag)();
+	void (*cfm_block_quit)(void *, bool);
 
 	// print a line to the debug console, and the log file (and to stdout on some platforms)
 	void (*printline)(const char *, ...);
@@ -40,7 +41,6 @@ struct singe_in_info
 	// From video/video.h
 	Uint16 (*get_video_width)();
 	Uint16 (*get_video_height)();
-	int (*get_scalefactor)();
 	void (*draw_string)(const char*, int, int, SDL_Surface*);
 	
 	// From sound/samples.h
@@ -56,6 +56,7 @@ struct singe_in_info
 	void (*disable_audio1)();
 	void (*disable_audio2)();
 	void (*request_screenshot)();
+	bool (*switch_altaudio)(const char *);
 	void (*set_search_blanking)(bool enabled);
 	void (*set_skip_blanking)(bool enabled);
 	bool (*pre_change_speed)(unsigned int uNumerator, unsigned int uDenominator);
@@ -129,11 +130,12 @@ struct singe_out_info
 	void (*sep_startup)(const char *script);
 	void (*sep_datapaths)(const char *path);
 	void (*sep_altgame)(const char *altgame);
+	void (*sep_minseek)(unsigned int seek);
 	void (*sep_set_retropath)(void);
 	void (*sep_keyboard_set_state)(int key, bool state);
 	void (*sep_controller_set_axis)(uint8_t axis, int16_t value, uint8_t id);
-	void (*sep_mute_vldp_init)(void);
 	void (*sep_no_crosshair)(void);
+	void (*sep_rom_compressed)(void);
 	void (*sep_upgrade_overlay)(void);
 	void (*sep_enable_trace)(void);
 	

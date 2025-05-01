@@ -1440,12 +1440,10 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
 int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                            int Ypitch, int Upitch, int Vpitch)
 {
-    int result = VLDP_FALSE;
-
     // MAC: We only update the YUV surface we have invented (because YUV surfaces
     // don't exist in SDL2).
     // The corresponding YUV texture is updated by the main thread "hypseus" in vid_blit().
-    result = (video::vid_update_yuv_overlay (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
+    int result = (video::vid_update_yuv_overlay (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
 
@@ -1604,6 +1602,6 @@ void blank_overlay()
 {
     // only do this if the HW overlay has already been allocated
     if (video::get_yuv_overlay_ready()) {
-        video::set_yuv_shutter_blank();
+        video::set_yuv_blank(video::YUV_SHUTTER);
     }
 }

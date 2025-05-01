@@ -181,10 +181,10 @@ bool get_yuv_overlay_ready()
     return video::get_yuv_overlay_ready();
 }
 
-void set_yuv_transparency(bool transparent)
+void set_yuv_transparency(int state)
 {
     if (video::get_yuv_overlay_ready())
-        video::set_yuv_lock_blank(!transparent);
+        video::set_yuv_blank(state);
 }
 
 }

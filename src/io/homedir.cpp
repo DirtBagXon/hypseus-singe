@@ -27,14 +27,15 @@ homedir g_homedir; // our main homedir class (statically allocated to minimize
 // no arguments because this is statically allocated
 homedir::homedir()
 {
-    m_appdir = "."; // our current directory must be our app directory, so a '.'
-                    // here is sufficient
+    m_appdir  = "."; // our current directory must be our app directory, a '.'
     m_homedir = "."; // using curdir is a sensible default for the constructor
-    m_romdir = "";
+    m_romdir  = "";
+    m_ramdir  = "";
 }
 
 string homedir::get_homedir() { return m_homedir; }
 string homedir::get_romdir() { return m_romdir; }
+string homedir::get_ramdir() { return m_ramdir; }
 
 // helper function
 void homedir::make_dir(const string &dir)
@@ -55,12 +56,14 @@ void homedir::set_homedir(const string &s)
 
     // create writable directories if they don't exist
     make_dir(m_homedir);
-    make_dir(m_homedir + "/ram");
     make_dir(m_homedir + "/logs");
     make_dir(m_homedir + "/midi");
     make_dir(m_homedir + "/fonts");
     make_dir(m_homedir + "/bezels");
     make_dir(m_homedir + "/screenshots");
+
+    if (m_ramdir.empty())
+        make_dir(m_homedir + "/ram");
 
     if (m_romdir.empty())
         make_dir(m_homedir + "/roms");
@@ -77,6 +80,17 @@ void homedir::set_romdir(const string &s)
     make_dir(m_romdir);
 }
 
+void homedir::set_ramdir(const string &s)
+{
+    m_ramdir = s;
+
+    while (!m_ramdir.empty() && m_ramdir.back() == '/') {
+        m_ramdir.pop_back();
+    }
+
+    make_dir(m_ramdir);
+}
+
 string homedir::get_romfile(const string &s)
 {
     string romDir = "roms/";
@@ -87,12 +101,17 @@ string homedir::get_romfile(const string &s)
         fallback = false;
     }
 
-    return find_file(romDir + s, fallback);
+    return find_romfile(romDir + s, fallback);
 }
 
 string homedir::get_ramfile(const string &s)
 {
-    return find_file("ram/" + s, false);
+    string ramDir = "ram/";
+
+    if (!m_ramdir.empty())
+        ramDir = m_ramdir + "/";
+
+    return m_ramdir.empty() ? m_homedir + "/" + ramDir + s : ramDir + s;
 }
 
 string homedir::get_framefile(const string &s)
@@ -111,14 +130,25 @@ string homedir::find_file(string fileName, bool bFallback)
     string strFile = fileName;
     string result  = "";
 
-    result = m_romdir.empty() ? m_homedir + "/" + strFile : strFile;
+    result = m_homedir + "/" + strFile;
 
-    // if file does not exist in home directory and we are allowed to fallback
-    // to app dir
     if (bFallback && !mpo_file_exists(result.c_str())) {
         result = m_appdir + "/" + strFile;
     }
-    // else file either exists or we cannot fall back
+
+    return result;
+}
+
+string homedir::find_romfile(string fileName, bool bFallback)
+{
+    string strFile = fileName;
+    string result  = "";
+
+    result = m_romdir.empty() ? m_homedir + "/" + strFile : strFile;
+
+    if (bFallback && !mpo_file_exists(result.c_str())) {
+        result = m_appdir + "/" + strFile;
+    }
 
     return result;
 }
@@ -131,8 +161,13 @@ void homedir::create_dirs(const string &s) {
     for (size_t i = 0; i < p.length(); i++) {
         if (p[i] == '/') {
             string sub = p.substr(0, i);
-            if (!mpo_file_exists(sub.c_str()))
-                make_dir(m_homedir + "/" + sub);
+            if (!mpo_file_exists(sub.c_str())) {
+                if (m_ramdir.empty()) {
+                    make_dir(m_homedir + "/" + sub);
+                } else {
+                    make_dir(sub);
+                }
+            }
         }
     }
 }

@@ -38,6 +38,17 @@ const char* get_romdir_path()
     return romdir.c_str();
 }
 
+const char* get_ramdir_path()
+{
+    static std::string dir = [] {
+        std::string ramdir = g_homedir.get_ramdir();
+        if (ramdir.empty()) ramdir = "ram";
+        return ramdir + "/";
+    }();
+
+    return dir.c_str();
+}
+
 }
 
 int singe::scoreboard_format(int value)

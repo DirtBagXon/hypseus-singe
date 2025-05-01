@@ -176,6 +176,7 @@ class ldp_vldp : public ldp
     void enable_audio2();
     void disable_audio1();
     void disable_audio2();
+    bool switch_altaudio(const char *);
 
   private:
     void set_audiocopy_callback();

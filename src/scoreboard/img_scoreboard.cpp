@@ -26,7 +26,9 @@ const int credits_y = player2_lives_y + LED_HEIGHT + 23;
 const int credits_title_y = credits_y + 18;
 
 const int thayers_time_x = 130;
-const int thayers_time_y = 20;
+const int thayers_time_y = 18;
+const int time_title_x = thayers_time_x + (LED_WIDTH * 2.6);
+const int time_title_y = thayers_time_y + (LED_HEIGHT / 2.5);
 
 void ImgScoreboard::DeleteInstance()
 {
@@ -48,11 +50,15 @@ bool ImgScoreboard::RepaintIfNeeded()
 
 	if (m_bNeedsRepaint)
 	{
-		if (!m_bThayers)
-		{
-			bool (*decor)(int, int, int);
-			decor = video::draw_othergfx;
+		bool (*decor)(int, int, int);
+		decor = video::draw_othergfx;
 
+		if (m_bThayers)
+		{
+			decor(video::B_TQ_TIME, time_title_x, time_title_y);
+		}
+		else
+		{
 			// draw all scoreboard decorations
 			decor(video::B_DL_PLAYER1, player_title_x, player1_title_y);
 			decor(video::B_DL_PLAYER2, player_title_x, player2_title_y);

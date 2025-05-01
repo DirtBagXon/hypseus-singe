@@ -121,7 +121,7 @@ bool parse_homedir()
         else if (strcasecmp(s, "-homedir") == 0) {
             get_next_word(s, sizeof(s));
             if (s[0] == 0) {
-                printerror("Homedir switch used but no homedir specified!");
+                printerror("homedir switch used but no homedir specified!");
                 result = false;
                 break;
             } else {
@@ -186,12 +186,41 @@ bool parse_romdir() {
         else if (strcasecmp(s, "-romdir") == 0) {
             get_next_word(s, sizeof(s));
             if (s[0] == 0) {
-                printerror("Romdir switch used but no romdir specified!");
+                printerror("romdir switch used but no romdir specified!");
                 result = false;
                 break;
             } else {
                 g_homedir.set_romdir(s);
                 snprintf(e, sizeof(e), "Setting alternate rom dir: %s", s);
+                printline(e);
+                break;
+            }
+        }
+    }
+
+    g_arg_index = 1;
+    return result;
+}
+
+bool parse_ramdir() {
+    bool result = true;
+    char s[81] = {0};
+    char e[128];
+
+    for (;;) {
+        get_next_word(s, sizeof(s));
+        if (s[0] == 0) {
+            break;
+        }
+        else if (strcasecmp(s, "-ramdir") == 0) {
+            get_next_word(s, sizeof(s));
+            if (s[0] == 0) {
+                printerror("ramdir switch used but no ramdir specified!");
+                result = false;
+                break;
+            } else {
+                g_homedir.set_ramdir(s);
+                snprintf(e, sizeof(e), "Setting alternate ram dir: %s", s);
                 printline(e);
                 break;
             }
@@ -542,7 +571,7 @@ bool parse_cmd_line(int argc, char **argv)
     g_arg_index = 1; // skip name of executable from command line
 
     // if game and ldp types are correct
-    if (parse_subsystems() && parse_romdir() && parse_homedir() &&
+    if (parse_subsystems() && parse_romdir() && parse_ramdir() && parse_homedir() &&
             parse_game_type() && parse_ldp_type()) {
         // while we have stuff left in the command line to parse
         for (;;) {
@@ -568,13 +597,23 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
             }
 
+            // if they are defining an alternate 'ram' directory.
+            else if (strcasecmp(s, "-ramdir") == 0) {
+                // Ignore this one, already handled
+                get_next_word(s, sizeof(s));
+            }
+
             // If they are defining an alternate 'data' directory, where all
             // other files aside from the executable live.
             // Primary used for linux to separate binary file (eg. hypseus.bin)
             // and other datafiles .
             else if (strcasecmp(s, "-datadir") == 0) {
                 get_next_word(s, sizeof(s));
-                change_dir(s);
+
+                if (s[0] == 0) {
+                    printerror("datadir switch used but no datadir specified!");
+                    result = false;
+                } else change_dir(s);
             }
 
             // if user wants laserdisc player to blank video while searching
@@ -1102,6 +1141,10 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("Enabling SDL_VULKAN");
                 if (video::get_opengl()) result = false;
             }
+            else if (strcasecmp(s, "-monochrome") == 0) {
+                video::set_grayscale(true);
+                printline("VLDP video will be displayed in monochrome");
+            }
             else if (strcasecmp(s, "-alwaysontop") == 0) {
                 video::set_forcetop(true);
                 printline("Setting WINDOW_ALWAYS_ON_TOP");
@@ -1126,7 +1169,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 if (i > 1 && i < 11) {
-                    video::set_shunt(i);
+                    video::set_shunt((uint8_t)i);
                 } else {
                     printerror("Shunt values: 2-10");
                     result = false;
@@ -1136,7 +1179,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
                 if (i >= 1 && i <= 255) {
-                    video::set_alpha(i);
+                    video::set_alpha((uint8_t)i);
                 } else {
                     printerror("Scanline alpha values: 1-255");
                     result = false;
@@ -1226,11 +1269,15 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 bool path = true;
 
-                if (!safe_dir(s, 0xff)) {
+                if (s[0] == 0) {
+                    printerror("bezeldir switch used but no bezeldir specified!");
+                    path = false;
+                } else if (!safe_dir(s, 0xff)) {
                     printerror("Invalid charaters in bezelpath");
-                    path = result = false;
+                    path = false;
                 }
 
+                result = path;
                 if (path) video::set_bezel_path(s);
             }
             // by DBX - This switches logical axis calculations
@@ -1372,7 +1419,7 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-stoponquit") == 0) {
                 g_ldp->set_stop_on_quit(true);
             }
-            // Use old style overlays (lair, ace, lair2 & tq)
+            // Use old style overlays (lair, ace, tq)
             else if (strcasecmp(s, "-original_overlay") == 0) {
                 g_game->m_old_overlay = true;
                 video::set_sboverlay_white(true);
