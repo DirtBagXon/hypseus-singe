@@ -113,13 +113,15 @@ The singe `-retropath` argument can ease integration into EmulationStation style
     hypseus
     singe
 
-## Configuration
+## Input Configurations
 
-See [CmdLine](doc/CmdLine.md)
-
-Configuration of keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
+Configuration of button keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
 
 By default SDL2 Keycodes and the Joystick API configuration options will be used.
+
+Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
+
+Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 SDL GameController API configuration can now be enabled for supported controllers.
 
@@ -127,9 +129,6 @@ Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput_gamepa
 
 Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus home folder.
 
-Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
-
-Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 ## Screenshots
 
@@ -200,68 +199,9 @@ Adjust sensitivity via `-js_range <1-20>` in Singe arguments, or disable with `-
 
 Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [GameController](doc/hypinput_gamepad.ini)
 
-## Extended arguments and keys
+## Game Configuration arguments
 
-Highlighted additional, and reimplemented, arguments that have been added to Hypseus Singe:
-
-Refer to [CmdLine.md](doc/CmdLine.md) for a full argument list.
-
-    -bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
-    -blank_blue                [ VLDP blank using YUV#1DEB6B                   ]
-    -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
-    -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
-    -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
-    -gamepad                   [ Enable SDL_GameController configuration       ]
-    -grabmouse                 [ Capture mouse in SDL window                   ]
-    -ignore_aspect_ratio       [ Ignore MPEG aspect ratio header [01B3]        ]
-    -keymapfile <flight.ini>   [ Specify an alternate hypinput.ini file        ]
-    -linear_scale              [ Enable linear filtering when scaling          ]
-    -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
-    -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
-    -scalefactor <25-100>      [ Scale video display area [25-100]%            ]
-    -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
-    -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
-    -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
-    -scorebezel                [ Bezel layer software scoreboard               ]
-    -scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
-    -scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
-    -shiftx <-100 to 100>      [ Shift x-axis on video window [%]              ]
-    -shifty <-100 to 100>      [ Shift y-axis on video window [%]              ]
-    -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
-    -usbscoreboard <args>      [ Enable USB serial support for scoreboard:     ]
-                               [ Arguments: (i)mplementation, (p)ort, (b)aud   ]
-    -vertical_screen           [ Reorient calculations in logical fullscreen   ]
-    -vertical_stretch <1-24>   [ YUV vertical stretching. Useful in cliff/gtg  ]
-
-    -8bit_overlay              [ Restore original 8bit Singe overlays          ]
-    -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
-    -bootsilent                [ Mute sound during initVLDP() - if possible    ]
-    -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
-    -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
-    -nocrosshair               [ Request game does not display crosshairs      ]
-    -retropath                 [ Singe data path rewrites [.daphne]            ]
-    -sinden <1-10> <color>     [ Enable software border for lightguns          ]
-                               [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]
-
-    Alt-Enter                  [ Toggle fullscreen                             ]
-    Alt-Backspace              [ Toggle scanlines                              ]
-    [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
-    [KEY_COIN1]=|[KEY_START1]  [ Joystick hotkey combination for [KEY_QUIT]    ]
-    [KEY_TILT]                 [ Switch scorepanel display screen lair/ace/tq  ]
-
-
-Enforce SDL Window context when Renderer auto-detection fails (_no further extensions enabled_):
-
-    -opengl                    [ Enable OpenGL SDL Window context              ]
-    -vulkan                    [ Enable Vulkan SDL Window instance             ]
-
-
-Switch `SDL_TEXTUREACCESS` <sup>*</sup>
-
-    -texturestream             [ Enable SDL_TEXTUREACCESS_STREAMING            ]
-    -texturetarget             [ Enable SDL_TEXTUREACCESS_TARGET (Default)     ]
-
-<sup>* _This can aid SBC's with SDL2 =>_ 2.0.16</sup>
+Refer to [CmdLine.md](doc/CmdLine.md) for the full argument list.
 
 ## Support
 

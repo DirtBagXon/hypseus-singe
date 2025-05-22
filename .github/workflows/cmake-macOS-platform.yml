@@ -40,9 +40,8 @@ jobs:
       - name: Package
         run: |
           cp build/hypseus .
-          cp doc/hypinput.ini doc/hypinput_gamepad.ini .
           cp screenshots/hypseus-logo.png hypseus.png
-          FILES="hypseus LICENSE README.md hypseus.png hypinput.ini hypinput_gamepad.ini fonts/ midi/ pics/ roms/ sound/ scripts/"
+          FILES="hypseus LICENSE README.md hypseus.png fonts/ midi/ pics/ roms/ sound/ scripts/"
           zip -r hypseus-singe.zip $FILES
       - name: Create Distribution
         id: vars

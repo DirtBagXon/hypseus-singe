@@ -1543,8 +1543,12 @@ void vid_toggle_fullscreen()
     if (g_rtr_texture) return;
 
     g_bezel_toggle = false;
-    Uint32 flags = (SDL_GetWindowFlags(g_window) ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
-    if (SDL_SetWindowFullscreen(g_window, flags) < 0) {
+
+    Uint32 current = SDL_GetWindowFlags(g_window);
+    Uint32 flags = (current ^ SDL_WINDOW_FULLSCREEN_DESKTOP);
+    bool flip = current & SDL_WINDOW_FULLSCREEN_DESKTOP;
+
+    if (SDL_SetWindowFullscreen(g_window, flip ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP) < 0) {
         LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());
         return;
     }
@@ -1880,11 +1884,11 @@ void vid_render_bezels () {
     {
         vid_render_texture(g_sb_texture, g_sb_bezel_rect);
         vid_render_texture(g_aux_texture, g_aux_rect);
-        vid_render_texture(g_bezel_texture, g_logical_rect);
+        vid_render_texture(g_bezel_texture, SDL_Rect{0, 0, g_logical_rect.w, g_logical_rect.h});
     }
     else
     {
-        vid_render_texture(g_bezel_texture, g_logical_rect);
+        vid_render_texture(g_bezel_texture, SDL_Rect{0, 0, g_logical_rect.w, g_logical_rect.h});
         vid_render_texture(g_aux_texture, g_aux_rect);
         vid_render_texture(g_sb_texture, g_sb_bezel_rect);
     }
