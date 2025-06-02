@@ -137,17 +137,22 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                                                |
 | -nocrosshair                     | Request game does not display crosshairs.                                                                                   |
 | -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                                                 |
-| -zlua                            | As above for Zipped ROMS.                                                                                                   |
 | -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |
 | -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.<br>`-altscript` is an alias.     |
 | -xratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the horizontal scale.<br>_1.33_ adjusts _16:9_ to _4:3_ |
 | -yratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the vertical scale.<br>Requires game LUA interaction.   |
+| -zlua                            | The alternate **required** argument for Zipped LUA ROMS.                                                                                                   |
 
 ## Singe EmulationStation helpers
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
 | -retropath                       | Singe LUA data path _relative_ rewrite in ES [.hypseus] extensions. Uses `roms` traversal.  |
 | -singedir \<path>                | Singe LUA data path _absolute_ rewrite in ES [.hypseus] extensions. Uses absolute path.     |
+
+## Special Arguments
+| Option                           | Description                                                                                 |
+|----------------------------------|---------------------------------------------------------------------------------------------|
+| -filter-absolutes                | A _Linux_ only argument for filtering ABS mouse device types using ManyMouse evdev.         |
 
 ## Shortcuts
 | Shortcut                         | Description                                                              |

@@ -40,14 +40,14 @@ typedef struct
 typedef struct
 {
     const char *driver_name;
-    int (*init)(void);
+    int (*init)(const unsigned char);
     void (*quit)(void);
     const char *(*name)(unsigned int index);
     int (*poll)(ManyMouseEvent *event);
 } ManyMouseDriver;
 
 
-int ManyMouse_Init(void);
+int ManyMouse_Init(const unsigned char);
 const char *ManyMouse_DriverName(void);
 void ManyMouse_Quit(void);
 const char *ManyMouse_DeviceName(unsigned int index);

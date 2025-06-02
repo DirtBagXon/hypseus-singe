@@ -97,8 +97,8 @@ struct recElement
     long calMin; 							// min returned value
     long calMax; 							// max returned value (calibrate call)
     long userMin; 							// user set value to scale to (scale call)
-    long userMax;							
-    
+    long userMax;
+
 	struct recElement * pPrevious;			// previous element (NULL at list head)
     struct recElement * pChild;				// next child (only of collections)
     struct recElement * pSibling;			// next sibling (for elements and collections)
@@ -144,7 +144,7 @@ struct recDevice
     long sliders;							// number of sliders (calculated, not reported by device)
     long dials;								// number of dials (calculated, not reported by device)
     long wheels;							// number of wheels (calculated, not reported by device)
-    recElement* pListElements; 				// head of linked list of elements 
+    recElement* pListElements; 				// head of linked list of elements
     DisconnectState disconnect; // (ryan added this.)
     AbsoluteTime lastScrollTime;  // (ryan added this.)
     int logical;  // (ryan added this.)
@@ -673,7 +673,7 @@ static pRecElement hid_GetDeviceElement (pRecElement pElement, HIDElementTypeMas
 static unsigned long HIDCloseReleaseInterface (pRecDevice pDevice)
 {
 	IOReturn result = kIOReturnSuccess;
-	
+
 	if (HIDIsValidDevice(pDevice) && (NULL != pDevice->interface))
 	{
 		// close the interface
@@ -689,9 +689,9 @@ static unsigned long HIDCloseReleaseInterface (pRecDevice pDevice)
 		if (kIOReturnSuccess != result)
 			HIDREPORTERRORNUM ("HIDCloseReleaseInterface - Failed to release interface.", result);
 		pDevice->interface = NULL;
-	}	
+	}
 	return result;
-}      
+}
 
 
 // ---------------------------------
@@ -971,7 +971,7 @@ static unsigned long HIDCreateOpenDeviceInterface (UInt32 hidDevice, pRecDevice 
 static pRecDevice* hid_AddDevice (pRecDevice *ppListDeviceHead, pRecDevice pNewDevice)
 {
 	pRecDevice* result = NULL;
-	
+
     if (NULL == *ppListDeviceHead)
         result = ppListDeviceHead;
     else
@@ -1052,7 +1052,7 @@ static void hid_DeviceNotification( void *refCon,
         //printf("Device 0x%08x \"%s\"removed.\n", service, pDevice->product);
         // ryan added this.
         if (pDevice->disconnect == DISCONNECT_CONNECTED)
-    	    pDevice->disconnect = DISCONNECT_TELLUSER;
+            pDevice->disconnect = DISCONNECT_TELLUSER;
 
         // Free the data we're no longer using now that the device is going away
         // ryan commented this out.
@@ -1453,11 +1453,9 @@ static unsigned long  HIDQueueDevice (pRecDevice pDevice)
 		result = (*(IOHIDQueueInterface**) pDevice->queue)->start (pDevice->queue);
 		if (kIOReturnSuccess != result)
 			HIDREPORTERRORNUM ("HIDQueueDevice - Failed to start queue.", result);
-		
 	}
 	else
 		HIDREPORTERROR ("HIDQueueDevice - Invalid device.");
-
     return result;
 }
 
@@ -1581,7 +1579,7 @@ static void macosx_hidutilities_quit(void)
 } /* macosx_hidutilities_quit */
 
 
-static int macosx_hidutilities_init(void)
+static int macosx_hidutilities_init(const unsigned char filter)
 {
     macosx_hidutilities_quit();  /* just in case... */
 

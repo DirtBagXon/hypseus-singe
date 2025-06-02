@@ -365,7 +365,7 @@ static void macosx_hidmanager_quit(void)
 } /* macosx_hidmanager_quit */
 
 
-static int macosx_hidmanager_init(void)
+static int macosx_hidmanager_init(const unsigned char filter)
 {
     macosx_hidmanager_quit();  /* just in case... */
 
