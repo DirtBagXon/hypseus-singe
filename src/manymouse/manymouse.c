@@ -15,9 +15,9 @@ static const char *manymouse_copyright =
 
 extern const ManyMouseDriver *ManyMouseDriver_windows;
 extern const ManyMouseDriver *ManyMouseDriver_evdev;
+extern const ManyMouseDriver *ManyMouseDriver_xinput2;
 extern const ManyMouseDriver *ManyMouseDriver_hidmanager;
 extern const ManyMouseDriver *ManyMouseDriver_hidutilities;
-extern const ManyMouseDriver *ManyMouseDriver_xinput2;
 
 /*
  * These have to be in the favored order...obviously it doesn't matter if the
@@ -31,17 +31,17 @@ extern const ManyMouseDriver *ManyMouseDriver_xinput2;
  */
 static const ManyMouseDriver **mice_drivers[] =
 {
-    &ManyMouseDriver_xinput2,
     &ManyMouseDriver_evdev,
+    &ManyMouseDriver_xinput2,
     &ManyMouseDriver_windows,
     &ManyMouseDriver_hidmanager,
-    &ManyMouseDriver_hidutilities,
+    &ManyMouseDriver_hidutilities
 };
 
 
 static const ManyMouseDriver *driver = NULL;
 
-int ManyMouse_Init(void)
+int ManyMouse_Init(const unsigned char filter)
 {
     const int upper = (sizeof (mice_drivers) / sizeof (mice_drivers[0]));
     int i;
@@ -59,12 +59,18 @@ int ManyMouse_Init(void)
         const ManyMouseDriver *this_driver = *(mice_drivers[i]);
         if (this_driver != NULL) /* if not built for this platform, skip it. */
         {
-            const int mice = this_driver->init();
+            const int mice = this_driver->init(filter);
             if (mice > retval)
                 retval = mice; /* may move from "error" to "no mice found". */
 
-            if (mice >= 0)
+            if (mice > 0) {
                 driver = this_driver;
+                break;
+            } else {
+                this_driver->quit();
+                this_driver = NULL;
+                retval = -1;
+            }
         } /* if */
     } /* for */
 

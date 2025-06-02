@@ -560,6 +560,7 @@ bool parse_ldp_type()
 bool parse_cmd_line(int argc, char **argv)
 {
     bool result = true;
+    bool filter = false;
     char s[400] = {0}; // in case they pass in a huge folder as part of the framefile
     int i = 0;
 
@@ -1214,6 +1215,12 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-nomanymouse") == 0) {
                 // Ignore this one, already handled
             }
+#ifdef LINUX
+            // Manymouse only returns mice with absolute positioning [Linux evdev]
+            else if (strcasecmp(s, "-filter-absolutes") == 0) {
+                filter = true;
+            }
+#endif
             // Enable SDL_HINT_RENDER_SCALE_QUALITY(linear)
             else if (strcasecmp(s, "-linear_scale") == 0) {
                 video::set_scale_linear(true);
@@ -1506,6 +1513,10 @@ bool parse_cmd_line(int argc, char **argv)
     else {
         result = false;
     }
+
+    if (filter)
+        if (g_game->get_manymouse())
+            absolute_only();
 
     return (result);
 }

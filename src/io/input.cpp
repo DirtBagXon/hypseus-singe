@@ -84,6 +84,7 @@ Uint64 g_last_coin_cycle_used = 0; // the cycle value that our last coin press
 
 static int available_mice = 0;
 static ManyMouseEvent mm_event;
+static unsigned char mm_absolute_only = 0;
 
 static int g_assigned_hat = 0;
 static int g_mouse_mode = SDL_MOUSE;
@@ -380,10 +381,16 @@ void CFG_Keys()
         LOGW << fmt("%s not found, using defaults", g_inputini_file.c_str());
 }
 
+void absolute_only()
+{
+    mm_absolute_only = 1;
+    printline("Filtering absolute devices in ManyMouse [evdev].");
+}
+
 static void manymouse_init_mice(void)
 {
     LOGI << "Using ManyMouse for mice input.";
-    available_mice = ManyMouse_Init();
+    available_mice = ManyMouse_Init(mm_absolute_only);
     static Mouse mice[MAX_MICE];
 
     if (available_mice > MAX_MICE)

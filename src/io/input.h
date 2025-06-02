@@ -119,6 +119,7 @@ void set_gamepad_order(int *c, int);
 void do_gamepad_rumble(Uint8, Uint8, Uint8);
 void disable_haptics();
 void set_haptic(Uint8);
+void absolute_only();
 
 void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers);
 
