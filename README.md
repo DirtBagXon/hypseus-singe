@@ -16,10 +16,10 @@ Features:
 * Integrated _(active)_ [bezel](screenshots/bezel.png?raw=true) support
 * Daphne and Singe 4k 4Gb+ M2V support
 * Singe EmulationStation LUA path integration
+* Singe full 32bit overlay support (details below)
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
-* Singe 2 full 32bit overlay support (details below)
-* Sinden support in Singe games
-* For Singe games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
+* Sinden support in LUA games
+* For Singe LUA games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
 * Daphne alternate overlay choices
 * Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
@@ -129,6 +129,9 @@ Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput_gamepa
 
 Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus home folder.
 
+## Game Configuration arguments
+
+Refer to [CmdLine.md](doc/CmdLine.md) for the full argument list.
 
 ## Screenshots
 
@@ -136,7 +139,7 @@ Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus hom
 
 [![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/@DirtBagXon/videos)
 
-[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe2.png)](https://www.youtube.com/@DirtBagXon/videos)
+[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe.png)](https://www.youtube.com/@DirtBagXon/videos)
 
 
 
@@ -199,14 +202,10 @@ Adjust sensitivity via `-js_range <1-20>` in Singe arguments, or disable with `-
 
 Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [GameController](doc/hypinput_gamepad.ini)
 
-## Game Configuration arguments
-
-Refer to [CmdLine.md](doc/CmdLine.md) for the full argument list.
-
 ## Support
 
-This software intended for educational purposes only. Please submit [issues] or
-[pull requests] directly to the [project].
+This software intended for educational purposes only.  
+Please submit [issues] or [pull requests] directly to the [project].
 
 **DO NOT submit issues or request support from the official Daphne forums!**
 

@@ -148,6 +148,7 @@ bool use_old_font();
 bool get_opengl();
 bool get_vulkan();
 bool get_fullscreen();
+void set_teardown();
 bool get_aux_bezel();
 bool get_fullwindow();
 bool get_singe_blend_sprite();

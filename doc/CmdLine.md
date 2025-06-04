@@ -152,7 +152,8 @@ Refer also to **bezel arguments** [here](Bezels.md)
 ## Special Arguments
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
-| -filter-absolutes                | A _Linux_ only argument for filtering ABS mouse device types using ManyMouse evdev.         |
+| -filter-absolutes                | _Linux_ only argument for filtering ABS mouse device types using ManyMouse _evdev_.         |
+| -teardown_window                 | Teardown application window with VLDP resolution changes. [_pre 2.11.5 behavior_]           |
 
 ## Shortcuts
 | Shortcut                         | Description                                                              |

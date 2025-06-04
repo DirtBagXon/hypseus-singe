@@ -390,7 +390,10 @@ void absolute_only()
 static void manymouse_init_mice(void)
 {
     LOGI << "Using ManyMouse for mice input.";
-    available_mice = ManyMouse_Init(mm_absolute_only);
+
+    const char *selected_driver = nullptr;
+    available_mice = ManyMouse_Init(mm_absolute_only, &selected_driver);
+
     static Mouse mice[MAX_MICE];
 
     if (available_mice > MAX_MICE)
@@ -404,7 +407,8 @@ static void manymouse_init_mice(void)
     }
     else
     {
-        int i;
+        LOGI << fmt("Driver: %s", selected_driver ? selected_driver : "none");
+
         if (available_mice == 1) {
             LOGI << "Only 1 mouse found.";
         }
@@ -413,7 +417,7 @@ static void manymouse_init_mice(void)
             LOGI << fmt("Found %d mice devices:", available_mice);
         }
 
-        for (i = 0; i < available_mice; i++)
+        for (int i = 0; i < available_mice; i++)
         {
             const char *name = ManyMouse_DeviceName(i);
             strncpy(mice[i].name, name, sizeof (mice[i].name));
