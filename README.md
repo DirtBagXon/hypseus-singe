@@ -16,10 +16,10 @@ Features:
 * Daphne VLDP 32bit upgrade
 * Daphne and Singe 4k 4Gb+ M2V support
 * Singe EmulationStation path integration
+* Singe full 32bit overlay support (details below)
 * Singe Joystick, Lightgun _EV_ABS_ [mouse] support
-* Singe 2 full 32bit overlay support (details below)
-* Sinden support in Singe games
-* For Singe games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
+* Sinden support in LUA games
+* For Singe LUA games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
 * Daphne alternate overlay choices
 * Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
@@ -83,11 +83,15 @@ The singe `-retropath` argument can ease integration into EmulationStation style
     hypseus
     singe
 
-## Configuration
+## Input Configurations
 
-Configuration of keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
+Configuration of button keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
 
 By default SDL2 Keycodes and the Joystick API configuration options will be used.
+
+Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
+
+Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 SDL GameController API configuration can now be enabled for supported controllers.
 
@@ -95,9 +99,9 @@ Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput_gamepa
 
 Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus home folder.
 
-Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
+## Game Configuration arguments
 
-Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
+Refer to [CmdLine.md](doc/CmdLine.md) for the full argument list.
 
 ## Screenshots
 
@@ -105,7 +109,7 @@ Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 [![Hypseus](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/screenshot.png)](https://www.youtube.com/@DirtBagXon/videos)
 
-[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe2.png)](https://www.youtube.com/@DirtBagXon/videos)
+[![singe](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/master/screenshots/singe.png)](https://www.youtube.com/@DirtBagXon/videos)
 
 
 
@@ -168,68 +172,10 @@ Adjust sensitivity via `-js_range <1-20>` in Singe arguments, or disable with `-
 
 Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [GameController](doc/hypinput_gamepad.ini)
 
-## Extended arguments and keys
-
-The following additional, and reimplemented, arguments have been added to Hypseus Singe:
-
-    -bezel <lair.png>          [ Specify a png bezel in 'bezels' sub-folder    ]
-    -blank_blue                [ VLDP blank using YUV#1DEB6B                   ]
-    -blank_searches            [ VLDP blanking [adjust: -min_seek_delay]       ]
-    -blank_skips               [ VLDP blanking [adjust: -min_seek_delay]       ]
-    -force_aspect_ratio        [ Force 4:3 aspect ratio                        ]
-    -gamepad                   [ Enable SDL_GameController configuration       ]
-    -grabmouse                 [ Capture mouse in SDL window                   ]
-    -ignore_aspect_ratio       [ Ignore MPEG aspect ratio header [01B3]        ]
-    -keymapfile <flight.ini>   [ Specify an alternate hypinput.ini file        ]
-    -nolinear_scale            [ Disable bilinear scaling                      ]
-    -novsync                   [ Disable VSYNC presentation on Renderer [crt]  ]
-    -original_overlay          [ Enable daphne style overlays (lair,ace,lair2) ]
-    -scalefactor <25-100>      [ Scale video display area [25-100]%            ]
-    -scanlines                 [ Simulate scanlines [adjust: -scanline_shunt]  ]
-    -scanline_alpha <1-255>    [ Adjust scanline alpha blending                ]
-    -scanline_shunt <2-10>     [ Shunt scanline spacing [adjust: -x -y]        ]
-    -scorebezel                [ Bezel layer software scoreboard               ]
-    -scorepanel                [ Enable software scoreboard in lair/ace/tq     ]
-    -scorepanel_position <x y> [ Adjust position of software_scorepanel        ]
-    -tiphat                    [ Invert joystick SDL_HAT_UP and SDL_HAT_DOWN   ]
-    -usbscoreboard <args>      [ Enable USB serial support for scoreboard:     ]
-                               [ Arguments: (i)mplementation, (p)ort, (b)aud   ]
-    -vertical_stretch <1-24>   [ Overlay stretch (cliff/gtg only)              ]
-
-    -8bit_overlay              [ Restore original 8bit Singe overlays          ]
-    -blend_sprites             [ Restore BLENDMODE outline on Singe sprites    ]
-    -bootsilent                [ Mute sound during initVLDP() - if possible    ]
-    -js_range <1-20>           [ Adjust Singe joystick sensitivity: [def:5]    ]
-    -manymouse                 [ Enable ABS mouse input [lightguns] [gungames] ]
-    -nocrosshair               [ Request game does not display crosshairs      ]
-    -retropath                 [ Singe data path rewrites [.daphne]            ]
-    -sinden <1-10> <color>     [ Enable software border for lightguns          ]
-                               [ Color: (w)hite, (r)ed, (g)reen, (b)lue or (x) ]
-
-    Alt-Enter                  [ Toggle fullscreen                             ]
-    Alt-Backspace              [ Toggle scanlines                              ]
-    [KEY_BUTTON3]              [ Toggle scoreboard display in lair/ace         ]
-    [KEY_COIN1]=|[KEY_START1]  [ Joystick hotkey combination for [KEY_QUIT]    ]
-    [KEY_TILT]                 [ Switch scorepanel display screen lair/ace/tq  ]
-
-
-Enforce SDL Window context when Renderer auto-detection fails (_no further extensions enabled_):
-
-    -opengl                    [ Enable OpenGL SDL Window context              ]
-    -vulkan                    [ Enable Vulkan SDL Window instance             ]
-
-
-Switch `SDL_TEXTUREACCESS` <sup>*</sup>
-
-    -texturestream             [ Enable SDL_TEXTUREACCESS_STREAMING            ]
-    -texturetarget             [ Enable SDL_TEXTUREACCESS_TARGET (Default)     ]
-
-<sup>* _This can aid SBC's with SDL2 =>_ 2.0.16</sup>
-
 ## Support
 
-This software intended for educational purposes only. Please submit [issues] or
-[pull requests] directly to the [project].
+This software intended for educational purposes only.  
+Please submit [issues] or [pull requests] directly to the [project].
 
 **DO NOT submit issues or request support from the official Daphne forums!**
 

@@ -1,6 +1,6 @@
 # CmdLine
 
-#### Derived from Daphne [CmdLine](http://www.daphne-emu.com/mediawiki/index.php/CmdLine)
+#### Derived from Daphne [CmdLine](https://www.daphne-emu.com:9443/mediawiki/index.php/CmdLine)
 
 ### Command Line Format
 The command line format is:
@@ -66,12 +66,13 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -fullscreen                      | Runs Hypseus in fullscreen mode (instead of windowed mode). |
 | -fullscreen_window               | Runs Hypseus in a fullscreen window.                    |
 | -gamepad                         | Enable SDL_GameController configuration. Use -haptic [0-4] to configure rumble. |
-| -gamepad_focus <0> <3>           | Specify 2 SDL_GameController indexes, focus polling on the specified Controllers for 'Pad' definitions in hypinput.ini:  &nbsp;_[Default: 0 1]_|
+| -gamepad_reorder 3 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput_gamepad.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3]_|
 | -grabmouse                       | Capture mouse in SDL window.                           |
 | -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.         |
+| -horizontal_stretch \<value>     | Horizontally stretches the video screen outward from the center. |
 | -idleexit \<seconds>             | Tells Hypseus to exit after a certain number of seconds if no input has been received. |
 | -ignore_aspect_ratio             | Tells Hypseus to ignore the aspect ratio defined in the MPEG header. |
-| -keymapfile \<config>            | Specify an alternate hypinput.ini file.                |
+| -keymapfile \<config>            | Specify an alternate hypinput.ini file. `-config` is an alias.                |
 | -latency \<ms>                   | Adds a delay before all searches occur which causes scenes to last a little longer. Useful for Dragon's Lair F2 ROMs that cut some scenes off prematurely. |
 | -linear_scale                    | Enable [bi]linear filtering when scaling.                  |
 | -manymouse                       | Use the alternate ManyMouse input system. Provides *Absolute* coordinates on supported devices. |
@@ -82,20 +83,23 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -noissues                        | Don't display warnings about game driver problems.    |
 | -nojoystick                      | Disables any joysticks that may be plugged in. Joysticks will normally be used if available. |
 | -nolog                           | Disables writing to the log file (hypseus.log).    |
+| -nomanymouse                     | Disables the ability to enable ManyMouse input system.        |
 | -noserversend                    | A legacy argument. No usage statistics are collected or sent. |
 | -nosound                         | Disables all sound.                                   |
 | -nospeech                        | Disables speech for Thayer's Quest.                   |
 | -novsync                         | Disable VSYNC presentation on Renderer.               |
 | -opengl                          | Enforces SDL_WINDOW_OPENGL                            |
-| -original_overlay                | Enable daphne style overlays (lair, ace, lair2)       |
+| -openhat                         | Allow HAT input from any Joystick                     |
+| -original_overlay                | Enable daphne style overlays (lair, ace, tq)          |
 | -pal_dl                          | Tells Hypseus that you are using a PAL Philips Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_dl_sc                       | Tells Hypseus that you are using a PAL Software Corner Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_sa                          | Tells Hypseus that you are using a PAL Philips Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
+| -ramdir \<path>                  | Sets an alternate `ram` directory path.          |
 | -romdir \<path>                  | Sets an alternate `roms` directory path.         |
-| -rotate \<degrees>               | Rotates the screen a certain number of degrees counter-clockwise. Valid values are from 0-359. *This is a somewhat limited feature.* |
+| -rotate \<degrees>               | Rotates the screen a certain number of degrees clockwise. Valid values are from 0-359.   |
 | -sboverlaymono                   | Use white LED's in (lair, ace) scoreboard overlay     |
 | -seek_frames_per_ms \<frames> | The # of frames that we can seek per millisecond (to simulate seek delay). Typical values for real laserdisc players are about 30.0 for 29.97fps discs and 20.0 for 23.976fps discs (dragon's lair and space ace). FLOATING POINT VALUES ARE ALLOWED HERE. Minimum value is 12.0 (5 seconds for 60,000 frames), maximum value is 600.0 (100 milliseconds for 60,000 frames). If you want a value higher than the max, you should just use 0 (as fast as possible). *This option may be replaced by something more accurate in the future.* |
 | -scalefactor \<25-100>            | Scale video display area [25-100]%.                    |
@@ -117,24 +121,39 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -usbserial_rts_on                | Enable RTS on USB serial port setup [Default: off] |
 | -use_annunciator                 | Use this when using a real Space Ace scoreboard with the annunciator board attached. *Space Ace only.* |
 | -useoverlaysb \<overlay number>   | Enables a graphical scoreboard for Dragon's Lair, Space Ace, or Thayer's Quest. The 'overlay number' is the style of scoreboard. Currently the two choices for the 'overlay number' are 0 and 1. |
-| -vertical_screen                  | Reorient calculations in the logical fullscreen |
+| -vertical_screen                  | Reorient calculations in the logical fullscreen when using portrait displays. |
 | -vertical_stretch \<value>        | Vertically stretches the screen outward from the center. The purpose of this is to remove the black bars on the top and bottom of Cliff Hanger and Goal to Go. To get rid of the black bars completely, use a value of 24. |
 | -volume_nonvldp \<volume>         | Sets the volume of all audio besides the laserdisc audio when using VLDP (max value is 64, 0 means muted). |
 | -volume_vldp \<volume>            | Sets the volume of the laserdisc audio when using VLDP (max value is 64, 0 means muted). |
 | -x \<horizontal resolution>      | Specifies the width of the game window (in pixels).    |
 | -y \<vertical resolution>         | Specifies the height of the game window (in pixels).   |
+| -zlua                            | Defines the location of the primary Singe ZLUA game zip. This or `-script` are required for Singe games. |
 
 ## Singe Game Options
+| Option                           | Description                                                                                                                 |
+|----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| -8bit_overlay                    | Restore original 8bit Singe overlays.                                                                                       |
+| -blend_sprites                   | Restore BLENDMODE outline on Singe sprites.                                                                                 |
+| -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                                                |
+| -nocrosshair                     | Request game does not display crosshairs.                                                                                   |
+| -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                                                 |
+| -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |
+| -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.<br>`-altscript` is an alias.     |
+| -xratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the horizontal scale.<br>_1.33_ adjusts _16:9_ to _4:3_ |
+| -yratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the vertical scale.<br>Requires game LUA interaction.   |
+| -zlua                            | The alternate **required** argument for Zipped LUA ROMS.                                                                                                   |
+
+## Singe EmulationStation helpers
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
-| -8bit_overlay                    | Restore original 8bit Singe overlays.                                                       |
-| -blend_sprites                   | Restore BLENDMODE outline on Singe sprites.                                                 |
-| -bootsilent                      | Mute sound during initVLDP() - if possible.                                                 |
-| -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                |
-| -nocrosshair                     | Request game does not display crosshairs.                                                   |
-| -retropath                       | Singe LUA data path rewrites [.daphne]                                                      |
-| -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                 |
-| -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*) |
+| -retropath                       | Singe LUA data path _relative_ rewrite in ES [.hypseus] extensions. Uses `roms` traversal.  |
+| -singedir \<path>                | Singe LUA data path _absolute_ rewrite in ES [.hypseus] extensions. Uses absolute path.     |
+
+## Special Arguments
+| Option                           | Description                                                                                 |
+|----------------------------------|---------------------------------------------------------------------------------------------|
+| -filter-absolutes                | _Linux_ only argument for filtering ABS mouse device types using ManyMouse _evdev_.         |
+| -teardown_window                 | Teardown application window with VLDP resolution changes. [_pre 2.11.5 behavior_]           |
 
 ## Shortcuts
 | Shortcut                         | Description                                                              |
@@ -146,4 +165,4 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | [KEY_COIN1]=\|[KEY_START1]       | *Joystick* hotkey combination for [KEY_QUIT]                             |
 | [KEY_TILT]                       | Switch *scorepanel* display screen lair/ace/tq.                          |
 
-Credits: [Daphne Wiki](http://www.daphne-emu.com/mediawiki/index.php/CmdLine)
+Credits: [Daphne Wiki](https://www.daphne-emu.com:9443/mediawiki/index.php/CmdLine)

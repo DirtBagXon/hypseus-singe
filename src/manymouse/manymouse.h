@@ -47,7 +47,7 @@ typedef struct
 } ManyMouseDriver;
 
 
-int ManyMouse_Init(const unsigned char);
+int ManyMouse_Init(const unsigned char, const char**);
 const char *ManyMouse_DriverName(void);
 void ManyMouse_Quit(void);
 const char *ManyMouse_DeviceName(unsigned int index);

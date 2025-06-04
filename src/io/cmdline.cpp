@@ -1193,6 +1193,9 @@ bool parse_cmd_line(int argc, char **argv)
                 if (i > 0 && i < 255)
                     video::set_display_screen(i);
             }
+            else if (strcasecmp(s, "-teardown_window") == 0) {
+                video::set_teardown();
+            }
             // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);

@@ -29,6 +29,7 @@ extern const ManyMouseDriver *ManyMouseDriver_hidutilities;
  *  it's not available (on 10.4 or earlier), fall back to trying the legacy
  *  code.
  */
+
 static const ManyMouseDriver **mice_drivers[] =
 {
     &ManyMouseDriver_evdev,
@@ -38,10 +39,9 @@ static const ManyMouseDriver **mice_drivers[] =
     &ManyMouseDriver_hidutilities
 };
 
-
 static const ManyMouseDriver *driver = NULL;
 
-int ManyMouse_Init(const unsigned char filter)
+int ManyMouse_Init(const unsigned char filter, const char **used)
 {
     const int upper = (sizeof (mice_drivers) / sizeof (mice_drivers[0]));
     int i;
@@ -73,6 +73,9 @@ int ManyMouse_Init(const unsigned char filter)
             }
         } /* if */
     } /* for */
+
+    if (driver != NULL)
+        *used = ManyMouse_DriverName();
 
     return retval;
 } /* ManyMouse_Init */

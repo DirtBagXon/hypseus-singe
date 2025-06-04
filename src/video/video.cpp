@@ -131,6 +131,7 @@ bool g_yuv_grayscale = false;
 bool g_fakefullscreen = false;
 bool g_opengl = false;
 bool g_vulkan = false;
+bool g_teardown = false;
 bool g_intro = true;
 bool g_forcetop = false;
 bool g_grabmouse = false;
@@ -317,13 +318,19 @@ bool init_display()
         if (g_alloc_screen > g_display && g_alloc_screen < g_displays)
             g_display = g_alloc_screen;
 
-        if (notify && g_window) {
+        if (notify && g_window && !g_teardown) {
             SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
             SDL_SetWindowPosition(g_window, displayDimensions[g_display].x +
                 ((displayDimensions[g_display].w - g_viewport_width) >> 1),
 		    displayDimensions[g_display].y +
                         ((displayDimensions[g_display].h - g_viewport_height) >> 1));
         } else {
+
+            if (g_teardown && g_window) {
+                SDL_DestroyWindow(g_window);
+                SDL_Delay(40);
+            }
+
             g_window = SDL_CreateWindow(title,
 	        displayDimensions[g_display].x +
                     ((displayDimensions[g_display].w - g_viewport_width) >> 1),
@@ -1149,6 +1156,7 @@ void set_fullscreen(bool value) { g_fullscreen = value; }
 void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 void set_opengl(bool value) { g_opengl = value; }
 void set_vulkan(bool value) { g_vulkan = value; }
+void set_teardown() { g_teardown = true; }
 void set_grayscale(bool value) { g_yuv_grayscale = value; }
 void set_forcetop(bool value) { g_forcetop = value; }
 void set_textureaccess(int value) { g_texture_access = value; }
