@@ -1,7 +1,7 @@
 /*
 * ____ DAPHNE COPYRIGHT NOTICE ____
 *
-* Copyright (C) 2006 Scott C. Duensing, 2024 DirtBagXon
+* Copyright (C) 2006 Scott C. Duensing, 2025 DirtBagXon
 *
 * This file is part of DAPHNE, a laserdisc arcade game emulator
 *
@@ -83,8 +83,8 @@ singe::singe() : m_pScoreboard(NULL)
     m_bezel_scoreboard        = false;
 
     m_overlay_size            = 0;
-    m_upgrade_overlay         = false;
-    m_notarget                = false;
+    m_upgrade_overlay         = 0;
+    m_crosshair               = true;
     m_running                 = false;
     m_zlua                    = false;
 
@@ -179,6 +179,7 @@ bool singe::init()
         g_SingeIn.cfm_get_number_of_mice = gfm_number_of_mice;
 
         // Extended args
+        g_SingeIn.cfm_joymouse_enable    = gfm_joymouse_enable;
         g_SingeIn.cfm_get_xratio         = gfm_get_xratio;
         g_SingeIn.cfm_get_yratio         = gfm_get_yratio;
         g_SingeIn.cfm_get_fvalue         = gfm_get_fvalue;
@@ -244,6 +245,11 @@ void singe::start()
     int intReturn = 0;
     snprintf(s1, sizeof(s1), "Starting Singe version: %s", show_version().c_str());
     printline(s1);
+
+    m_vid_w = g_SingeIn.get_video_width();
+    m_vid_h = g_SingeIn.get_video_height();
+    if (g_game->get_manymouse()) singe_joymouse = false;
+
     g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
     g_pSingeOut->sep_set_static_pointers(&m_disc_fps, &m_uDiscFPKS);
     g_pSingeOut->sep_datapaths(m_strDataPaths.c_str());
@@ -255,9 +261,17 @@ void singe::start()
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
-    if (m_upgrade_overlay) g_pSingeOut->sep_upgrade_overlay();
+    switch (m_upgrade_overlay) {
+    case (1 << 0):
+        g_pSingeOut->sep_upgrade_overlay();
+        break;
+    case (1 << 1):
+        g_pSingeOut->sep_fullalpha_overlay();
+        break;
+    }
+
+    if (!m_crosshair) g_pSingeOut->sep_no_crosshair();
     if (singe_trace) g_pSingeOut->sep_enable_trace();
-    if (m_notarget) g_pSingeOut->sep_no_crosshair();
 
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
 
@@ -271,8 +285,8 @@ void singe::start()
                 m_video_overlay_needs_update = true;
             }
 
-            if ((g_js.trip & 0b11) != 0)
-                JoystickMotion();
+            if (g_js.jrelx | g_js.jrely)
+                ProcessJoyStruct();
 
             blit();
             SDL_check_input();
@@ -309,22 +323,18 @@ void singe::input_enable(Uint8 input, Sint8 mouseID)
         case SWITCH_UP:
            g_js.ypos = -abs(g_js.slide);
            g_js.jrely--;
-           g_js.trip |= (1 << 0);
            break;
         case SWITCH_DOWN:
            g_js.ypos = g_js.slide;
            g_js.jrely++;
-           g_js.trip |= (1 << 0);
            break;
         case SWITCH_LEFT:
            g_js.xpos = -abs(g_js.slide);
            g_js.jrelx--;
-           g_js.trip |= (1 << 1);
            break;
         case SWITCH_RIGHT:
            g_js.xpos = g_js.slide;
            g_js.jrelx++;
-           g_js.trip |= (1 << 1);
            break;
         }
     }
@@ -341,13 +351,11 @@ void singe::input_disable(Uint8 input, Sint8 mouseID)
         case SWITCH_DOWN:
            g_js.ypos = 0;
            g_js.jrely = 0;
-           g_js.trip &= ~(1 << 0);
            break;
         case SWITCH_LEFT:
         case SWITCH_RIGHT:
            g_js.xpos = 0;
            g_js.jrelx = 0;
-           g_js.trip &= ~(1 << 1);
            break;
         }
     }
@@ -358,27 +366,22 @@ void singe::input_disable(Uint8 input, Sint8 mouseID)
 
 void singe::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID)
 {
-    if (g_pSingeOut) {
+    if (g_pSingeOut)
         g_pSingeOut->sep_do_mouse_move(x, y, xrel, yrel, mouseID);
-    }
 }
 
-void singe::JoystickMotion()
+void singe::ProcessJoyStruct()
 {
-    Uint16 cur_w = g_SingeIn.get_video_width();
-    Uint16 cur_h = g_SingeIn.get_video_height();
-
     g_js.xmov += g_js.xpos;
     g_js.ymov += g_js.ypos;
 
-    if (g_js.xmov > cur_w) { g_js.xmov = cur_w; g_js.jrelx = 0; }
-    if (g_js.ymov > cur_h) { g_js.ymov = cur_h; g_js.jrely = 0; }
-    if (g_js.xmov < 0) { g_js.xmov = abs(g_js.xmov); g_js.jrelx = 0; }
-    if (g_js.ymov < 0) { g_js.ymov = abs(g_js.ymov); g_js.jrely = 0; }
+    if (g_js.xmov < 0) { g_js.xmov = 0; g_js.jrelx = 0; }
+    else if (g_js.xmov > m_vid_w) { g_js.xmov = m_vid_w; g_js.jrelx = 0; }
 
-    if (g_pSingeOut) {
-        g_pSingeOut->sep_do_mouse_move(g_js.xmov, g_js.ymov, g_js.jrelx, g_js.jrely, NOMOUSE);
-    }
+    if (g_js.ymov < 0) { g_js.ymov = 0; g_js.jrely = 0; }
+    else if (g_js.ymov > m_vid_h) { g_js.ymov = m_vid_h; g_js.jrely = 0; }
+
+    g_pSingeOut->sep_do_mouse_move(g_js.xmov, g_js.ymov, g_js.jrelx, g_js.jrely, NOMOUSE);
 }
 
 // game-specific command line arguments handled here
@@ -394,7 +397,8 @@ bool singe::handle_cmdline_arg(const char *arg)
     if (!bInit) {
         game::set_32bit_overlay(true);
         game::set_dynamic_overlay(true);
-        m_upgrade_overlay = bInit = true;
+        m_upgrade_overlay |= (1 << 0);
+        bInit = true;
     }
 
     if (strcasecmp(arg, "-script") == 0 || strcasecmp(arg, "-zlua") == 0) {
@@ -465,13 +469,21 @@ bool singe::handle_cmdline_arg(const char *arg)
             game::set_console_flag(true);
         }
     }
+    else if (strcasecmp(arg, "-fullalpha") == 0) {
+
+        if (m_upgrade_overlay & (1 << 0)) {
+            printline("Enabling Singe full alpha-range overlay...");
+            m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 0)) | (1 << 1);
+            bResult = true;
+        }
+    }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
         game::set_32bit_overlay(false);
-        m_upgrade_overlay = false;
+        m_upgrade_overlay = 0;
         bResult = true;
     }
     else if (strcasecmp(arg, "-nocrosshair") == 0) {
-        m_notarget = true;
+        m_crosshair = false;
         bResult = true;
     }
     else if (strcasecmp(arg, "-sinden") == 0) {
@@ -538,11 +550,11 @@ bool singe::handle_cmdline_arg(const char *arg)
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
-        if ((i > 0) && (i < 21)) {
-           g_js.slide = i;
-           bResult = true;
+        if ((i > 0) && (i <= 20)) {
+            g_js.slide = i;
+            bResult = true;
         } else {
-           printerror("SINGE: js_range out of scope: <1-20>");
+            printerror("SINGE: js_range out of scope: <1-20>");
         }
     }
     return bResult;
@@ -696,6 +708,8 @@ void singe::set_keyboard_mode(int thisVal)
     } else
         i_keyboard_mode = thisVal;
 }
+
+void singe::joymouse_enable(bool bEnable) { singe_joymouse = bEnable; }
 
 double singe::get_xratio() { return singe_xratio; }
 double singe::get_yratio() { return singe_yratio; }

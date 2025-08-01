@@ -41,7 +41,7 @@ static const ManyMouseDriver **mice_drivers[] =
 
 static const ManyMouseDriver *driver = NULL;
 
-int ManyMouse_Init(const unsigned char filter, const char **used)
+int ManyMouse_Init(const unsigned char filter)
 {
     const int upper = (sizeof (mice_drivers) / sizeof (mice_drivers[0]));
     int i;
@@ -73,9 +73,6 @@ int ManyMouse_Init(const unsigned char filter, const char **used)
             }
         } /* if */
     } /* for */
-
-    if (driver != NULL)
-        *used = ManyMouse_DriverName();
 
     return retval;
 } /* ManyMouse_Init */

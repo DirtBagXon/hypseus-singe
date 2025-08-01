@@ -114,7 +114,7 @@ void set_invert_hat(bool val);
 void set_open_hat(bool val);
 void set_inputini_file(const char *inputFile);
 bool set_mouse_mode(int);
-void set_use_gamepad(bool value);
+void set_use_gamepad(bool);
 void set_gamepad_order(int *c, int);
 void do_gamepad_rumble(Uint8, Uint8, Uint8);
 void disable_haptics();

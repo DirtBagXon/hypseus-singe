@@ -4,10 +4,12 @@ ratioGetX,              sep_get_xratio             (return float)
 ratioGetY,              sep_get_yratio             (return float)
 setOverlaySize,         sep_set_overlaysize        (int)
 setOverlayResolution,   sep_set_custom_overlay     (int, int)
+setOverlayFullAlpha,    sep_set_overlayfullalpha   (void)
 getFValue,              sep_get_fvalue             (return double)
 takeScreenshot,         sep_screenshot
 
 rewriteStatus,          sep_lua_rewrite            (return bool) -- (-retropath enabled)
+vldpFlash               sep_mpeg_set_flash         (void) -- produces white frame
 vldpGetRotate,          sep_mpeg_get_rotate        (return float) -- (-rotate value)
 vldpSetRotate,          sep_mpeg_set_rotate        (degree)
 vldpGetScale,           sep_mpeg_get_scale         (return int) -- (-scalefactor value)
@@ -64,9 +66,12 @@ spriteRotateAndScale,   sep_sprite_rotatescale     (rotation, scale, [scaley], s
 spriteQuality,          sep_sprite_quality         (bool, spr)
 spriteScale,            sep_sprite_scale           (scale, [scaley], spr)
 
+JoyMouseEnable,         sep_joymouse_enable        (bool) -- Enable/Disable JoyMouse input
 controllerIsValid,      sep_controller_valid       (ctrl) -- Controller [id] (return bool)
 controllerDoRumble,     sep_controller_rumble      (ctrl, strength, duration) -- Values:[1-4]
 controllerGetButton     sep_controller_button      (ctrl, button, bool[framework adjust])
+controllerSetPadding,   sep_controller_setwad      (bool) -- Controller mouse index padding (+100)
+controllerGetPadding,   sep_controller_getwad      (return padding int)
 
 
 Singe 1 API functions

@@ -15,17 +15,12 @@ Features:
 * Daphne VLDP 32bit upgrade
 * Integrated _(active)_ [bezel](screenshots/bezel.png?raw=true) support
 * Daphne and Singe 4k 4Gb+ M2V support
-* Singe EmulationStation LUA path integration
 * Singe full 32bit overlay support (details below)
-* Singe Joystick, Lightgun _EV_ABS_ [mouse] support
-* Sinden support in LUA games
-* For Singe LUA games list see [here](https://github.com/DirtBagXon/hypseus_singe_data).
-* Daphne alternate overlay choices
 * Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
+* Joystick, GamePad, Lightgun _EV_ABS_ [mouse] support
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
 * 64bit Windows and MacOS X Ports
-* Coded exclusively in [vim](https://www.vim.org) using a Sun Microsystems [Type 5c keyboard](https://github.com/DirtBagXon/sunkbd).
 
 ## Windows
 
@@ -80,38 +75,36 @@ Build:
 
 ## Install and Run
 
-Ensure you have data in the following `daphne` HOME folders:
+Ensure you have data in the following `hypseus` HOME folders:
 
-    pics, fonts, ram, roms, midi, sound, singe, (vldp and vldp_dl)
+    pics, fonts, ram, roms, midi, sound, singe, vldp
 
-Run `hypseus` with `daphne` [arguments](doc/CmdLine.md) on the command line:
+Run `hypseus` with `daphne` style [arguments](doc/CmdLine.md) on the command line:
 
-    hypseus lair vldp -framefile vldp_dl/lair/lair.txt -scorebezel
+    hypseus lair vldp -framefile vldp/lair/lair.txt -scorebezel
 
-    hypseus singe vldp -framefile singe/timegal/timegal.txt -script singe/timegal/timegal.singe
+    hypseus singe vldp -framefile singe/timegal/timegal.txt -zlua roms/timegal.zip
 
 
-In **Windows** you are able to create `.bat` files with arguments for specific games.
+In **Windows**, create `.bat`, or `.vbs`, scripts with arguments for specific games.
 
 Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
 **Retro gaming** systems will require adoption within the relevant emulation scripts.
 
-The singe `-retropath` argument can ease integration into EmulationStation style systems.
+The singe `-retropath` argument can ease integration into EmulationStation style systems.  
+Although this is now discouraged in favor of the _Zipped LUA_ (`zlua`) packages.
 
 `bash` scripts are provided for systems that support this shell.
 
 **Build Hypseus home and install bash scripts:**
 
-    mkdir -p ~/.daphne/roms ~/.daphne/ram ~/.daphne/vldp
-    mkdir -p ~/.daphne/vldp_dl ~/.daphne/singe
-    cp -R pics sound fonts midi ~/.daphne
+    mkdir -p ~/.hypseus/roms ~/.hypseus/vldp ~/.hypseus/singe
+    cp -R pics sound fonts midi ~/.hypseus
     
     sudo cp build/hypseus /usr/local/bin/hypseus.bin
     sudo cp scripts/run.sh /usr/local/bin/hypseus
     sudo cp scripts/singe.sh /usr/local/bin/singe
-    hypseus
-    singe
 
 ## Input Configurations
 
@@ -147,11 +140,7 @@ Refer to [CmdLine.md](doc/CmdLine.md) for the full argument list.
 
 Edit **run.sh** and **singe.sh**, to reflect the location of your ROM folders:
 
-    HYPSEUS_SHARE=~/.daphne
-
-**Note:** The default Hypseus home directory, *created* when run without ``-homedir``:
-
-    ~/.hypseus
+    HYPSEUS_SHARE=~/.hypseus
 
 ## Bezels
 
@@ -159,7 +148,7 @@ Bezel arguments are documented in: [Bezels.md](doc/Bezels.md)
 
 ## Hardware USB Scoreboard
 
-Example arguments: `-usbscoreboard COM 4 19200`
+Example arguments: `-usbscoreboard COM 4 9600`
 
 Full details of the USB scoreboard [here](https://github.com/DirtBagXon/hypseus_scoreboard).
 
@@ -176,9 +165,9 @@ The scorepanel, or bezel, can be positioned using `-scorepanel_position x y` - *
 
 For Singe, provide the following arguments to *hypseus*:
 
-    hypseus singe vldp -framefile ~/.daphne/singe/timegal/timegal.txt -script ~/.daphne/singe/timegal/timegal.singe -homedir ~/.daphne/ -datadir ~/.daphne/
+    hypseus singe vldp -framefile ~/.hypseus/singe/timegal/timegal.txt -zlua ~/.hypseus/roms/timegal.zip -homedir ~/.hypseus/ -datadir ~/.hypseus/
 
-Check for Singe anomalies and replacement files [here](https://github.com/DirtBagXon/hypseus_singe_data).
+Check for Singe LUA game files [here](https://github.com/DirtBagXon/hypseus_singe_data).
 
 ## Singe 2
 
@@ -196,34 +185,31 @@ This argument enables *absolute* (``EV_ABS``) mouse input event codes.
 
 ## Singe joystick [mouse] support
 
-Singe now automatically interprets **joystick axis** change as mouse movement (*Gun Games*).
+Singe automatically interprets **joystick axis** change, on joystick _#0_, as basic digital mouse input.
 
-Adjust sensitivity via `-js_range <1-20>` in Singe arguments, or disable with `-nojoymouse`
+Adjust sensitivity via `-js_range <1-20>` in game arguments, or disable with `-nojoymouse`
 
-Configure **joystick controls** in [hypinput.ini](doc/hypinput.ini) or via [GameController](doc/hypinput_gamepad.ini)
+#### Game Controllers
+
+`-gamepad -manymouse` will enable multiple mouse inputs via multiple Game Controller analog inputs.
 
 ## Support
 
-This software intended for educational purposes only.  
+This software is intended for educational purposes only.  
 Please submit [issues] or [pull requests] directly to the [project].
-
-**DO NOT submit issues or request support from the official Daphne forums!**
 
 ## About
 
-Open development by the original author, [Matt Ownby][CUS], ceased years ago.
+Open development of Daphne, by [Matt Ownby][CUS], ceased several years ago.
 
-Singe was created by [Scott Duensing][SD] as a plugin to Daphne to allow the
-playing of [American Laser Games][ALG].
+Singe LUA games were originally a plugin to Daphne, created by [Scott Duensing][SD].
 
-This repository was created to expand the ``Hypseus`` project started
-by [Jeffrey Clark][JAC]. Many overlays were unimplemented in the original
-repository. Singe had also been removed.
+This repository builds upon the Hypseus project initiated by [Jeffrey Clark][JAC].  
+It marked the beginning of the transition to _SDL2_ for Daphne, but excluded Singe.
 
-The name of this application was changed to _Hypseus_ (_[sibling to Daphne][peneus]_)
-so the original authors of [Daphne] would not be burdened with requests for support.
+The name of this application, refers to a _[sibling of Daphne][peneus]_ in Greek mythology.
 
-A massive thanks goes out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
+Thanks go out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
 [Manuel Alfayate][MAC], [David Griffith][DG] and the many other developers
 who made their work available for me to build upon. Without them this
 project would not be possible.

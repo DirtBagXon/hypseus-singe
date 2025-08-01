@@ -24,7 +24,7 @@ Refer also to **CmdLine arguments** [here](CmdLine.md)
 | -scorebezel_scale _\<1-25\>_       | Software Scorepanel scale option                      |
 |                                    |                                                       |
 | -annunbezel                        | Built-in bezel: ace annunciator _[Conversion]_        |
-| -annunlamps                        | Built-in bezel: staggered: lamps only _[Conversion]_  |
+| -annunlamps                        | Built-in bezel: staggered lamps only _[Conversion]_   |
 | -dedannunbezel                     | Built-in bezel: ace annunciator _[Dedicated]_         |
 | -tqkeys                            | Built-in bezel: Interactive tq keyboard displayed     |
 |                                    |                                                       |

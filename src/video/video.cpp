@@ -88,8 +88,8 @@ int g_scale_h_shift = 100, g_scale_v_shift = 100;
 // the current game overlay dimensions
 unsigned int g_overlay_width = 0, g_overlay_height = 0;
 
-FC_Font *g_font                    = NULL;
-TTF_Font *g_ttfont                 = NULL;
+FC_Font *g_font                    = nullptr;
+TTF_Font *g_ttfont                 = nullptr;
 SDL_Surface *g_led_bmps[LED_RANGE] = {0};
 SDL_Surface *g_other_bmps[B_EMPTY] = {0};
 SDL_Window *g_window               = NULL;
@@ -127,7 +127,6 @@ bool queue_take_screenshot = false;
 bool g_scale_linear = false;
 bool g_singe_blend_sprite = false;
 bool g_scanlines = false;
-bool g_yuv_grayscale = false;
 bool g_fakefullscreen = false;
 bool g_opengl = false;
 bool g_vulkan = false;
@@ -173,6 +172,7 @@ int g_bezel_scalewidth = 0;
 
 uint8_t g_scanline_alpha = 128;
 uint8_t g_scanline_shunt = 2;
+uint8_t g_yuv_flags = 0;
 
 // Move subtitle rendering to SDL_RenderPresent(g_renderer);
 bool g_bSubtitleShown = false;
@@ -598,7 +598,8 @@ void vid_free_yuv_overlay () {
     free(g_yuv_surface->Vplane);
     free(g_yuv_surface);
 
-    SDL_DestroyTexture(g_yuv_texture);
+    if (g_yuv_texture)
+        SDL_DestroyTexture(g_yuv_texture);
 
     g_yuv_surface = NULL;
     g_yuv_texture = NULL;
@@ -637,6 +638,9 @@ bool deinit_display()
 
     FC_FreeFont(g_font);
     TTF_CloseFont(g_ttfont);
+
+    g_font = nullptr;
+    g_ttfont = nullptr;
 
     if (g_bezel_texture)
         SDL_DestroyTexture(g_bezel_texture);
@@ -686,6 +690,12 @@ void resize_cleanup()
     g_bezel_texture = NULL;
     g_aux_texture = NULL;
     g_sb_texture = NULL;
+
+    FC_FreeFont(g_font);
+    TTF_CloseFont(g_ttfont);
+
+    g_font = nullptr;
+    g_ttfont = nullptr;
 
     if (g_rtr_texture) SDL_DestroyTexture(g_rtr_texture);
     if (g_overlay_texture) SDL_DestroyTexture(g_overlay_texture);
@@ -1157,7 +1167,6 @@ void set_fakefullscreen(bool value) { g_fakefullscreen = value; }
 void set_opengl(bool value) { g_opengl = value; }
 void set_vulkan(bool value) { g_vulkan = value; }
 void set_teardown() { g_teardown = true; }
-void set_grayscale(bool value) { g_yuv_grayscale = value; }
 void set_forcetop(bool value) { g_forcetop = value; }
 void set_textureaccess(int value) { g_texture_access = value; }
 void set_grabmouse(bool value) { g_grabmouse = value; }
@@ -1188,10 +1197,27 @@ void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 void set_display_screen(int value) { g_alloc_screen = value; }
 void set_score_screen(int value) { g_score_screen = value; }
 
+void set_grayscale(bool value)
+{
+    if (value) g_yuv_flags |= YUV_FLAG_GRAYSCALE;
+    else g_yuv_flags &= ~YUV_FLAG_GRAYSCALE;
+}
+
+void set_blendfilter(bool value)
+{
+    if (value) g_yuv_flags |= YUV_FLAG_BLEND;
+    else g_yuv_flags &= ~YUV_FLAG_BLEND;
+}
+
 void toggle_grabmouse()
 {
      g_grabmouse = !g_grabmouse;
      SDL_SetWindowGrab(g_window, g_grabmouse ? SDL_TRUE : SDL_FALSE);
+}
+
+void set_yuv_flash()
+{
+    g_yuv_display = YUV_FLASH;
 }
 
 void set_yuv_blank(int value)
@@ -1689,6 +1715,14 @@ void vid_setup_yuv_overlay (int width, int height) {
     }
 }
 
+void vid_flash_yuv_surface () {
+
+    // White: YUV#ED8080 - D4 = 90%
+    memset(g_yuv_surface->Yplane, 0xd4, g_yuv_surface->Ysize);
+    memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
+    memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
+}
+
 void vid_blank_yuv_surface () {
 
     // Blue: YUV#1DEB6B - Black: YUV#108080
@@ -1729,6 +1763,21 @@ void vid_blank_yuv_surface () {
     free(v_plane);
 }
 
+static inline void blendPlane(const uint8_t *src, uint8_t *dst, int w, int h,
+	int srcPitch, int dstPitch)
+{
+    for (int y = 0; y < h; ++y) {
+        const uint8_t *line0 = src + ((y > 0 ? y - 1 : y) * srcPitch);
+        const uint8_t *line1 = src + ( y * srcPitch);
+        const uint8_t *line2 = src + ((y < h - 1 ? y + 1 : y) * srcPitch);
+        uint8_t *row = dst + y * dstPitch;
+
+        for (int x = 0; x < w; ++x)
+            row[x] = (uint8_t)(((uint32_t)
+		    line0[x] + line1[x] + line2[x] + 1U) * 341U >> 10);
+    }
+}
+
 SDL_Texture *vid_create_yuv_texture (int width, int height) {
     g_yuv_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_YV12,
         g_texture_access, width, height);
@@ -1757,36 +1806,42 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
         vid_blank_yuv_surface();
         g_yuv_display = YUV_VISIBLE;
         break;
+    case YUV_FLASH:
+        vid_flash_yuv_surface();
+        g_yuv_display = YUV_VISIBLE;
+        break;
     default:
-        if (g_yuv_grayscale) {
+        if (!g_yuv_flags) {
+            memcpy(g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
+            memcpy(g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);
+            memcpy(g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+            break;
+        }
 
-            uint8_t* dst_row = g_yuv_surface->Yplane;
-            uint8_t* src_row = Yplane;
+        if (g_yuv_flags & YUV_FLAG_BLEND) {
+            blendPlane(Yplane, g_yuv_surface->Yplane, g_yuv_surface->width,
+                g_yuv_surface->height, Ypitch, g_yuv_surface->Ypitch);
 
-            for (int y = 0; y < g_yuv_surface->height; ++y) {
-                if ((dst_row + g_yuv_surface->width <= g_yuv_surface->Yplane + g_yuv_surface->Ysize) &&
-                        (src_row + g_yuv_surface->width <= Yplane + g_yuv_surface->Ysize)) {
-                    memcpy(dst_row, src_row, g_yuv_surface->width);
+	} else {
+            memcpy(g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
+        }
 
-                } else break;
-
-                dst_row += g_yuv_surface->Ypitch;
-                src_row += Ypitch;
-            }
+        if (g_yuv_flags & YUV_FLAG_GRAYSCALE) {
             memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
             memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
 
         } else {
-            memcpy(g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
-            memcpy(g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);
-            memcpy(g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+            int w = g_yuv_surface->width  >> 1;
+            int h = g_yuv_surface->height >> 1;
+            blendPlane(Uplane, g_yuv_surface->Uplane, w, h, Upitch, g_yuv_surface->Upitch);
+            blendPlane(Vplane, g_yuv_surface->Vplane, w, h, Vpitch, g_yuv_surface->Vpitch);
         }
-
-        g_yuv_surface->Ypitch = Ypitch;
-        g_yuv_surface->Upitch = Upitch;
-        g_yuv_surface->Vpitch = Vpitch;
         break;
     }
+
+    g_yuv_surface->Ypitch = Ypitch;
+    g_yuv_surface->Upitch = Upitch;
+    g_yuv_surface->Vpitch = Vpitch;
 
     g_yuv_video_needs_update = true;
 
@@ -2116,16 +2171,24 @@ void load_fonts() {
     const char *ttfont;
     int fs = g_scaling_rect.w / ((g_aspect_ratio == ASPECTPD) ? 24 : 36);
 
-    FC_FreeFont(g_font);
+    if (g_font) {
+       FC_FreeFont(g_font);
+       g_font = nullptr;
+    }
+
     g_font = FC_CreateFont();
     FC_LoadFont(g_font, g_renderer, "fonts/default.ttf", fs,
                 FC_MakeColor(0xff, 0xff, 0xff, 0xff), TTF_STYLE_NORMAL);
 
-    TTF_CloseFont(g_ttfont);
+    if (g_ttfont) {
+        TTF_CloseFont(g_ttfont);
+        g_ttfont = nullptr;
+    }
+
     ttfont = g_game->use_old_overlay() ? "fonts/daphne.ttf" : "fonts/digital.ttf";
     g_ttfont = TTF_OpenFont(ttfont, g_game->use_old_overlay() ? 12 : 14);
 
-    if (g_ttfont == NULL) {
+    if (!g_ttfont) {
         LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
         g_game->set_game_errors(SDL_ERROR_FONT);
         set_quitflag();

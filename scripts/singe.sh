@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HYPSEUS_BIN=hypseus.bin
-HYPSEUS_SHARE=~/.daphne
+HYPSEUS_SHARE=~/.hypseus
 
 function STDERR () {
 	/bin/cat - 1>&2
@@ -23,11 +23,11 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
       -blend)
-        BLEND="-blend_sprites"
+        BLEND="-blend"
         shift
         ;;
-      -bootsilent)
-        SILENTBOOT="-bootsilent"
+      -fullalpha)
+        ALPHA="-fullalpha"
         shift
         ;;
       -fullscreen)
@@ -55,11 +55,15 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
       -scale)
-        SCALE="-scalefactor 50"
+        SCALE="-scalefactor 90"
         shift
         ;;
       -scanlines)
         SCANLINES="-scanlines"
+        shift
+        ;;
+      -spriteblend)
+        SPRITEBLEND="-blend_sprites"
         shift
         ;;
       *)
@@ -75,7 +79,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-scanlines] [-scale] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-grabmouse] [-scanlines] [-scale] [-spriteblend] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -126,7 +130,8 @@ $LOG \
 $ROTATE \
 $SCANLINES \
 $SCALE \
-$SILENTBOOT \
+$SPRITEBLEND \
+$ALPHA \
 $EIGHTBIT \
 -sound_buffer 2048 \
 -volume_nonvldp 5 \

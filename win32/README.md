@@ -9,7 +9,7 @@
 Latest build is: (_32bit_ and _64bit_ versions are available.)
 
     hypseus.exe -v
-    [version] Hypseus Singe: v2.11.5
+    [version] Hypseus Singe: v2.11.6
     [console] Windows 10
     [console] SDL(CC): 2.28.5
     [console] SDL(LD): 2.28.5
@@ -33,7 +33,7 @@ Example `.bat` files are provided in the repo. Run `hypseus.exe` with *Daphne* [
 
     hypseus.exe lair vldp -scorepanel -framefile vldp/lair/lair.txt
 
-    hypseus.exe singe vldp -framefile singe/timegal/timegal.txt -script singe/timegal/timegal.singe
+    hypseus.exe singe vldp -framefile singe/timegal/timegal.txt -zlua singe/timegal/timegal.zip
 
 Refer to additional arguments on the [main page](https://github.com/DirtBagXon/hypseus-singe#extended-arguments-and-keys).
 

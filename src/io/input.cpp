@@ -1,7 +1,7 @@
 /*
  * ____ DAPHNE COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2001 Matt Ownby
+ * Copyright (C) 2001 Matt Ownby / 2025 DirtBagXon
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -54,11 +54,11 @@ using namespace std;
 #define strcasecmp stricmp
 #endif
 
-static bool hotkey = false;
+static bool g_hotkey = false;
 
-const int JOY_AXIS_TRIG = (int)(32768 * (0.995)); // to trigger the trigger :)
-const int JOY_AXIS_MID  = (int)(32768 * (0.75));  // how far they have to move the
-                                                  // joystick before it 'grabs'
+const int JOY_AXIS_TRIG = (int)(MAX_AXIS * (0.995)); // to trigger the trigger :)
+const int JOY_AXIS_MID  = (int)(MAX_AXIS * (0.75));  // how far they have to move the
+                                                     // joystick before it 'grabs'
 
 bool g_use_gamepad       = false;
 bool g_use_joystick      = true;  // use a joystick by default
@@ -82,7 +82,7 @@ queue<struct coin_input> g_coin_queue; // keeps track of coin input to guarantee
 Uint64 g_last_coin_cycle_used = 0; // the cycle value that our last coin press
                                    // used
 
-static int available_mice = 0;
+static int g_available_mice = 0;
 static ManyMouseEvent mm_event;
 static unsigned char mm_absolute_only = 0;
 
@@ -93,6 +93,8 @@ static SDL_Haptic *g_gamepad_haptic[MAX_GAMECONTROLLER];
 static int g_padindex[MAX_GAMECONTROLLER] = {0};
 static uint8_t g_gamepad_attached = 0;
 static bool g_index_reset = false;
+
+static int g_gamepad_wad = 0;
 
 static bool enabled_haptic = true;
 Uint16 g_haptic[2] = {0, 0};
@@ -166,7 +168,7 @@ int mouse_buttons_map[6] = {
 
 ////////////
 
-static void DefaultConfig(string config, bool gamepad)
+static void defaultConfig(string config, bool gamepad)
 {
     FILE *pf = fopen(config.c_str(), "r");
 
@@ -185,6 +187,33 @@ static void DefaultConfig(string config, bool gamepad)
     fputs(gamepad ? k_defaultGamePad : k_defaultJoystick, pf);
     LOGI << fmt("Wrote a default keymap file to: %s", config.c_str());
     fclose(pf);
+}
+
+bool mouseButtonMap(SDL_Event *event, bool enable)
+{
+    const int which = controller_map[event->cdevice.which];
+    const int button = event->cbutton.button;
+
+    for (int j = 0; j < MAX_CONTROLLERCONFIG; j++) {
+        for (int i = SWITCH_BUTTON1; i < SWITCH_COIN1; ++i) {
+            if (button == joystick_buttons_map[controller_map[j]][i][1]-1) {
+
+                if (enable) input_enable(i, which + g_gamepad_wad);
+                else input_disable(i, which + g_gamepad_wad);
+
+                if (g_haptic[0] && g_gamepad_haptic[which])
+                    SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
+                        g_haptic[0], g_haptic[0], g_haptic[1]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+float absLevel(Sint16 limit)
+{
+    return (limit - MIN_AXIS) / float(MAX_AXIS - MIN_AXIS);
 }
 
 void CFG_Keys()
@@ -207,7 +236,7 @@ void CFG_Keys()
     string strDapInput = g_homedir.find_file(g_inputini_file.c_str(), true);
 
     if (!m_altInputFileSet)
-        DefaultConfig(strDapInput, g_use_gamepad);
+        defaultConfig(strDapInput, g_use_gamepad);
 
     io = mpo_open(strDapInput.c_str(), MPO_OPEN_READONLY);
     if (io) {
@@ -322,7 +351,7 @@ void CFG_Keys()
                                                 joystick_axis_map[id][i][1] = abs(val4 % divider);
                                                 joystick_axis_map[id][i][2] = (val4 == 0)?0:((val4 < 0) ? -1 : 1);
                                             }
-
+                                            // MAX_CONTROLLERCONFIG
                                             if (g_use_gamepad) {
                                                 if (val5 != 0)
                                                 {
@@ -391,40 +420,46 @@ static void manymouse_init_mice(void)
 {
     LOGI << "Using ManyMouse for mice input.";
 
-    const char *selected_driver = nullptr;
-    available_mice = ManyMouse_Init(mm_absolute_only, &selected_driver);
+    g_available_mice = ManyMouse_Init(mm_absolute_only);
 
     static Mouse mice[MAX_MICE];
 
-    if (available_mice > MAX_MICE)
-        available_mice = MAX_MICE;
+    if (g_available_mice > MAX_MICE)
+        g_available_mice = MAX_MICE;
 
-    g_game->set_mice_detected(available_mice);
+    g_game->set_mice_detected(g_available_mice);
 
-    if (available_mice <= 0) {
+    if (g_available_mice <= 0) {
         LOGW << "No mice detected!";
+        if (g_use_gamepad) g_game->set_mice_detected(g_gamepad_attached);
         return;
     }
     else
     {
-        LOGI << fmt("Driver: %s", selected_driver ? selected_driver : "none");
+        LOGI << fmt("Driver: %s", ManyMouse_DriverName());
 
-        if (available_mice == 1) {
+        if (g_available_mice == 1) {
             LOGI << "Only 1 mouse found.";
         }
         else
         {
-            LOGI << fmt("Found %d mice devices:", available_mice);
+            LOGI << fmt("Found %d mice devices:", g_available_mice);
         }
 
-        for (int i = 0; i < available_mice; i++)
+        for (int i = 0; i < g_available_mice; i++)
         {
             const char *name = ManyMouse_DeviceName(i);
             strncpy(mice[i].name, name, sizeof (mice[i].name));
             mice[i].name[sizeof (mice[i].name) - 1] = '\0';
             mice[i].connected = 1;
-            LOGI << fmt("#%d: %s", i, mice[i].name);
+            LOGI << fmt("Mouse #%d: %s", i, mice[i].name);
         }
+    }
+
+    if (g_use_gamepad) {
+        LOGI << "Avoid overlap in Mouse and Gamepad #id allocations when selecting devices.";
+        if (g_gamepad_attached > g_available_mice)
+            g_game->set_mice_detected(g_gamepad_attached);
     }
 }
 
@@ -433,13 +468,13 @@ static void manymouse_update_mice()
     while (ManyMouse_PollEvent(&mm_event))
     {
         Mouse *mouse;
-        if (mm_event.device >= (unsigned int) available_mice)
+        if (mm_event.device >= (unsigned int) g_available_mice)
             continue;
 
         static Mouse mice[MAX_MICE];
         mouse = &mice[mm_event.device];
-        int max_width = video::get_video_width();
-        int max_height = video::get_video_height();
+        static const int max_width = video::get_video_width();
+        static const int max_height = video::get_video_height();
 
 #ifndef WIN32
         float val, maxval;
@@ -481,14 +516,14 @@ static void manymouse_update_mice()
             g_game->OnMouseMotion(mouse->x, mouse->y, mouse->relx, mouse->rely, mm_event.device);
             break;
         case MANYMOUSE_EVENT_BUTTON:
-            if (mm_event.item < 32)
+            if (mm_event.item < MAX_MICE)
             {
                 if (mm_event.value == 1)
                 {
                     input_enable((Uint8)mouse_buttons_map[mm_event.item], mm_event.device);
                     mouse->buttons |= (1 << mm_event.item);
                 }
-                else
+                else if (mm_event.value == 0)
                 {
                     input_disable((Uint8)mouse_buttons_map[mm_event.item], mm_event.device);
                     mouse->buttons &= ~(1 << mm_event.item);
@@ -645,8 +680,8 @@ void SDL_gamepad_init()
              g_gamepad_id[g_gamepad_attached] = SDL_GameControllerOpen(i);
              SDL_Joystick* joy = SDL_GameControllerGetJoystick(g_gamepad_id[g_gamepad_attached]);
              if (joy != NULL) {
-
-                 LOGI << "Gamepad #" << i << ": "
+                 SDL_JoystickID id = SDL_JoystickInstanceID(joy);
+                 LOGI << "Gamepad #" << i << "|[" << id << "]" << ": "
 			 << SDL_GameControllerName(g_gamepad_id[g_gamepad_attached]) << " connected";
 
                  if (enabled_haptic)
@@ -655,7 +690,8 @@ void SDL_gamepad_init()
 
 		     if (g_gamepad_haptic[g_gamepad_attached] != NULL) {
                          if (SDL_HapticRumbleSupported(g_gamepad_haptic[g_gamepad_attached])) {
-                             LOGI << "Gamepad #" << i << ": Haptic Rumble support";
+                             LOGI << "Gamepad #" << i << "|[" << id << "]"
+                                     << ": Haptic Rumble support";
                          } else {
                              SDL_HapticClose(g_gamepad_haptic[g_gamepad_attached]);
                              g_gamepad_haptic[g_gamepad_attached] = NULL;
@@ -876,14 +912,16 @@ void process_event(SDL_Event *event)
                     g_gamepad_id[i] = SDL_GameControllerOpen(event->cdevice.which);
                     SDL_Joystick* joy = SDL_GameControllerGetJoystick(g_gamepad_id[i]);
                     if (joy != NULL) {
-                        LOGI << "Gamepad #" << i << ": "
+                        SDL_JoystickID newid = SDL_JoystickInstanceID(joy);
+                        LOGI << "Gamepad #" << i << "|[" << newid << "]" << ": "
                             << SDL_GameControllerName(g_gamepad_id[i]) << " connected";
                         if (enabled_haptic && !g_gamepad_haptic[i]) {
                             g_gamepad_haptic[i] = SDL_HapticOpenFromJoystick(joy);
 
                             if (g_gamepad_haptic[i] != NULL) {
                                 if (SDL_HapticRumbleSupported(g_gamepad_haptic[i])) {
-                                    LOGI << "Gamepad #" << i << ": Haptic Rumble support";
+                                    LOGI << "Gamepad #" << i << "|[" << newid << "]"
+                                            <<  ": Haptic Rumble support";
                                 } else {
                                     SDL_HapticClose(g_gamepad_haptic[i]);
                                     g_gamepad_haptic[i] = NULL;
@@ -902,13 +940,46 @@ void process_event(SDL_Event *event)
     case SDL_CONTROLLERAXISMOTION:
         process_controller_motion(event);
         break;
+    case SDL_CONTROLLERBUTTONDOWN:
+        reset_idle(); // added by JFA for -idleexit
+        if (g_mouse_mode == MANY_MOUSE)
+            if (mouseButtonMap(event, true))
+                break;
+        // loop through map and find corresponding action
+        for (i = 0; i < SWITCH_COUNT; i++) {
+            const int which = controller_map[event->cdevice.which];
+            if (event->cbutton.button == joystick_buttons_map[which][i][1]-1) {
+                if (i == SWITCH_COIN1) g_hotkey = true;
+                input_enable(i, (g_mouse_mode == MANY_MOUSE) ? which + g_gamepad_wad : NOMOUSE);
+                if (g_haptic[0] && g_gamepad_haptic[which])
+                    SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
+                        g_haptic[0], g_haptic[0], g_haptic[1]);
+                break;
+            }
+        }
+        break;
+    case SDL_CONTROLLERBUTTONUP:
+        reset_idle(); // added by JFA for -idleexit
+        g_hotkey = false;
+        if (g_mouse_mode == MANY_MOUSE)
+            if (mouseButtonMap(event, false))
+                break;
+        // loop through map and find corresponding action
+        for (i = 0; i < SWITCH_COUNT; i++) {
+            const int which = controller_map[event->cdevice.which];
+            if (event->cbutton.button == joystick_buttons_map[which][i][1]-1) {
+                input_disable(i, (g_mouse_mode == MANY_MOUSE) ? which + g_gamepad_wad : NOMOUSE);
+                break;
+            }
+        }
+        break;
     case SDL_JOYAXISMOTION:
         if (g_use_gamepad) break;
         process_joystick_motion(event);
         break;
     case SDL_JOYHATMOTION:
         if (g_use_gamepad) break;
-        // only process events for the first hat
+        // only process events for the first hat on device
         if (event->jhat.hat == 0) {
             reset_idle();
             process_joystick_hat_motion(event);
@@ -922,32 +993,16 @@ void process_event(SDL_Event *event)
         for (i = 0; i < SWITCH_COUNT; i++) {
             if (event->jbutton.which == joystick_buttons_map[0][i][0]
                             && event->jbutton.button == joystick_buttons_map[0][i][1]-1) {
-                if (i == SWITCH_COIN1) hotkey = true;
+                if (i == SWITCH_COIN1) g_hotkey = true;
                 input_enable(i, NOMOUSE);
                 break;
             }
         }
-
-        break;
-    case SDL_CONTROLLERBUTTONDOWN:
-        reset_idle(); // added by JFA for -idleexit
-        // loop through map and find corresponding action
-        for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->cbutton.button == joystick_buttons_map[controller_map[event->cdevice.which]][i][1]-1) {
-                if (i == SWITCH_COIN1) hotkey = true;
-                input_enable(i, NOMOUSE);
-                if (g_haptic[0] && g_gamepad_haptic[controller_map[event->cdevice.which]])
-                    SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
-                                                 g_haptic[0], g_haptic[0], g_haptic[1]);
-                break;
-            }
-        }
-
         break;
     case SDL_JOYBUTTONUP:
         if (g_use_gamepad) break;
         reset_idle(); // added by JFA for -idleexit
-        hotkey = false;
+        g_hotkey = false;
 
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
@@ -957,20 +1012,6 @@ void process_event(SDL_Event *event)
                 break;
             }
         }
-
-        break;
-    case SDL_CONTROLLERBUTTONUP:
-        reset_idle(); // added by JFA for -idleexit
-        hotkey = false;
-
-        // loop through map and find corresponding action
-        for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->cbutton.button == joystick_buttons_map[controller_map[event->cdevice.which]][i][1]-1) {
-                input_disable(i, NOMOUSE);
-                break;
-            }
-        }
-
         break;
     case SDL_QUIT:
         // if they are trying to close the window
@@ -1067,64 +1108,116 @@ void process_keyup(SDL_Keycode key)
 // game controller axis
 void process_controller_motion(SDL_Event *event)
 {
-    static int x_axis_in_use[MAX_GAMECONTROLLER] = { 0 }; // true if joystick is left or right
-    static int y_axis_in_use[MAX_GAMECONTROLLER] = { 0 }; // true if joystick is up or down
-
-    g_game->ControllerAxisProxy(event->caxis.axis, event->caxis.value, controller_map[event->cdevice.which]);
+    const int axis = event->caxis.axis;
+    const int value = event->caxis.value;
+    const int which = controller_map[event->cdevice.which];
+    g_game->ControllerAxisProxy(axis, value, which);
 
     // Deal with AXIS TRIGGERS
-    for (int i = 0; i < SWITCH_COUNT; i++) {
+    if (g_mouse_mode == MANY_MOUSE) {
 
-        if (event->caxis.axis == joystick_buttons_map[controller_map[event->cdevice.which]][i][1]-AXIS_TRIGGER) {
+        // Process the LEFT AXIS as absolute co-ordinates
+        static Sint16 x_axis[MAX_GAMECONTROLLER] = { 0 };
+        static Sint16 y_axis[MAX_GAMECONTROLLER] = { 0 };
+        static int prev_x[MAX_GAMECONTROLLER] = { 0 };
+        static int prev_y[MAX_GAMECONTROLLER] = { 0 };
 
-            if ((abs(event->caxis.value) > JOY_AXIS_TRIG)
-			    && !controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis]) {
-                input_enable(i, NOMOUSE);
-                if (g_haptic[0] && g_gamepad_haptic[controller_map[event->cdevice.which]])
-                    SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
-                                                 g_haptic[0], g_haptic[0], g_haptic[1]);
-                controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis] = true;
-            } else {
-                if (controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis]) {
-                    input_disable(i, NOMOUSE);
-                    controller_trigger_pressed[controller_map[event->cdevice.which]][event->caxis.axis] = false;
+        static const int width = video::get_video_width();
+        static const int height = video::get_video_height();
+
+        if (axis == SDL_CONTROLLER_AXIS_LEFTX) {
+            x_axis[which] = value;
+        } else if (axis == SDL_CONTROLLER_AXIS_LEFTY) {
+            y_axis[which] = value;
+        }
+
+        int x = (int)(absLevel(x_axis[which]) * width);
+        int y = (int)(absLevel(y_axis[which]) * height);
+
+        int relx = x - prev_x[which];
+        int rely = y - prev_y[which];
+
+        if (relx | rely) {
+            g_game->OnMouseMotion(x, y, relx, rely, which + g_gamepad_wad);
+
+            prev_x[which] = x;
+            prev_y[which] = y;
+        }
+
+        for (int j = 0; j < MAX_CONTROLLERCONFIG; j++) {
+            for (int i = 0; i < SWITCH_COUNT; i++) {
+                if (axis == joystick_buttons_map[controller_map[j]][i][1]-AXIS_TRIGGER) {
+
+                    if ((abs(value) > JOY_AXIS_TRIG) &&
+                        !controller_trigger_pressed[controller_map[j]][axis]) {
+                        input_enable(i, which + g_gamepad_wad);
+                        if (g_haptic[0] && g_gamepad_haptic[which])
+                            SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
+                                g_haptic[0], g_haptic[0], g_haptic[1]);
+                        controller_trigger_pressed[controller_map[j]][axis] = true;
+                    } else if (controller_trigger_pressed[controller_map[j]][axis]) {
+                        input_disable(i, which + g_gamepad_wad);
+                        controller_trigger_pressed[controller_map[j]][axis] = false;
+                    }
+                    return;
                 }
             }
-            return;
+        }
+
+    } else {
+        for (int i = 0; i < SWITCH_COUNT; i++) {
+            if (axis == joystick_buttons_map[which][i][1]-AXIS_TRIGGER) {
+
+                if ((abs(value) > JOY_AXIS_TRIG)
+                       && !controller_trigger_pressed[which][axis]) {
+                    input_enable(i, NOMOUSE);
+                    if (g_haptic[0] && g_gamepad_haptic[which])
+                        SDL_GameControllerRumble(SDL_GameControllerFromInstanceID(event->cdevice.which),
+                            g_haptic[0], g_haptic[0], g_haptic[1]);
+                    controller_trigger_pressed[which][axis] = true;
+                } else if (controller_trigger_pressed[which][axis]) {
+                    input_disable(i, NOMOUSE);
+                    controller_trigger_pressed[which][axis] = false;
+                }
+                return;
+            }
         }
     }
 
-    // loop through map and find corresponding action
     int key = -1;
-    for (int i = 0; i < SWITCH_START1; i++) {
 
-        if (event->caxis.axis == joystick_axis_map[controller_map[event->cdevice.which]][i][1]-1
-			&& ((event->caxis.value < 0) ? -1 : 1) == joystick_axis_map[controller_map[event->cdevice.which]][i][2]) {
+    for (int i = 0; i < SWITCH_START1; i++) {
+        if (axis == joystick_axis_map[which][i][1]-1 &&
+            ((value < 0) ? -1 : 1) == joystick_axis_map[which][i][2]) {
             key = i;
             break;
         }
     }
+
     if (key == -1) return;
 
-    if (abs(event->caxis.value) > JOY_AXIS_MID) {
+    static bool x_axis_in_use[MAX_GAMECONTROLLER] = { false };
+    static bool y_axis_in_use[MAX_GAMECONTROLLER] = { false };
+
+    if (abs(value) > JOY_AXIS_MID) {
         input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
-            y_axis_in_use[controller_map[event->cdevice.which]] = 1;
+            y_axis_in_use[which] = true;
         else
-            x_axis_in_use[controller_map[event->cdevice.which]] = 1;
+            x_axis_in_use[which] = true;
     }
     else {
-        if ((key == SWITCH_UP ||
-		key == SWITCH_DOWN) && y_axis_in_use[controller_map[event->cdevice.which]]) {
+        if ((key == SWITCH_UP || key == SWITCH_DOWN) &&
+                y_axis_in_use[which]) {
             input_disable(SWITCH_UP, NOMOUSE);
             input_disable(SWITCH_DOWN, NOMOUSE);
-            y_axis_in_use[controller_map[event->cdevice.which]] = 0;
+            y_axis_in_use[which] = false;
 
-        } else if ((key == SWITCH_LEFT ||
-		key == SWITCH_RIGHT) && x_axis_in_use[controller_map[event->cdevice.which]]) {
+        } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) &&
+                x_axis_in_use[which]) {
             input_disable(SWITCH_LEFT, NOMOUSE);
             input_disable(SWITCH_RIGHT, NOMOUSE);
-            x_axis_in_use[controller_map[event->cdevice.which]] = 0;
+            x_axis_in_use[which] = false;
         }
     }
 }
@@ -1132,8 +1225,8 @@ void process_controller_motion(SDL_Event *event)
 // processes movements of the joystick
 void process_joystick_motion(SDL_Event *event)
 {
-    static int x_axis_in_use = 0; // true if joystick is left or right
-    static int y_axis_in_use = 0; // true if joystick is up or down
+    static bool x_axis_in_use = false; // true if joystick is left or right
+    static bool y_axis_in_use = false; // true if joystick is up or down
 
     // loop through map and find corresponding action
     int key = -1;
@@ -1149,20 +1242,20 @@ void process_joystick_motion(SDL_Event *event)
     if (abs(event->jaxis.value) > JOY_AXIS_MID) {
         input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
-            y_axis_in_use = 1;
+            y_axis_in_use = true;
         else
-            x_axis_in_use = 1;
+            x_axis_in_use = true;
     }
     else {
         if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use) {
             input_disable(SWITCH_UP, NOMOUSE);
             input_disable(SWITCH_DOWN, NOMOUSE);
-            y_axis_in_use = 0;
+            y_axis_in_use = false;
 
         } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use) {
             input_disable(SWITCH_LEFT, NOMOUSE);
             input_disable(SWITCH_RIGHT, NOMOUSE);
-            x_axis_in_use = 0;
+            x_axis_in_use = false;
         }
     }
 }
@@ -1263,7 +1356,7 @@ void input_enable(Uint8 move, Sint8 mouseID)
         set_quitflag();
         break;
     case SWITCH_START1:
-        if (hotkey)
+        if (g_hotkey)
             set_quitflag();
         else
             g_game->input_enable(move, mouseID);
@@ -1369,6 +1462,16 @@ void set_gamepad_order(int *c, int max) {
     }
 
     g_index_reset = true;
+}
+
+void set_gamepad_wad(bool enable) {
+
+    g_gamepad_wad = enable ? 100 : 0;
+}
+
+int get_gamepad_wad() {
+
+    return g_gamepad_wad;
 }
 
 void disable_haptics() { enabled_haptic = false; }

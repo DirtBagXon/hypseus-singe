@@ -62,7 +62,6 @@ static int xi2_opcode = 0;
 static ManyMouseEvent input_events[MAX_EVENTS];
 static volatile int input_events_read = 0;
 static volatile int input_events_write = 0;
-static unsigned char absOnly = 0;
 
 static void queue_event(const ManyMouseEvent *event)
 {
@@ -267,7 +266,7 @@ static int register_for_events(Display *dpy)
 } /* register_for_events */
 
 
-static int x11_xinput2_init_internal(void)
+static int x11_xinput2_init_internal(unsigned char absOnly)
 {
     const char *ext = "XInputExtension";
     XIDeviceInfo *device_list = NULL;
@@ -294,7 +293,7 @@ static int x11_xinput2_init_internal(void)
     pXSetExtensionErrorHandler(Xext_handler);
     Xext_handler = NULL;
 
-    if (!available)
+    if (!available || absOnly)
         return -1;  /* no XInput2 support. */
 
     /*
@@ -320,8 +319,7 @@ static int x11_xinput2_init_internal(void)
 
 static int x11_xinput2_init(const unsigned char filter)
 {
-    absOnly = filter;
-    int retval = x11_xinput2_init_internal();
+    int retval = x11_xinput2_init_internal(filter);
     if (retval < 0)
         xinput2_cleanup();
     return retval;

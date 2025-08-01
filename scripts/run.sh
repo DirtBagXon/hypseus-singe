@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HYPSEUS_BIN=hypseus.bin
-HYPSEUS_SHARE=~/.daphne
+HYPSEUS_SHARE=~/.hypseus
 
 function STDERR () {
 	/bin/cat - 1>&2
@@ -16,6 +16,10 @@ while [[ $# -gt 0 ]]; do
     case $key in
       -blanking)
         BLANK="-blank_searches -blank_skips -min_seek_delay 500"
+        shift
+        ;;
+      -blend)
+        BLEND="-blend"
         shift
         ;;
       -fullscreen)
@@ -74,10 +78,10 @@ set -- "${POSITIONAL[@]}"
 if [ -z "$1" ] ; then
     echo "Specify a game to try: " | STDERR
     echo
-    echo  -e "$0 [-fullscreen] [-blanking] [-gamepad] [-linear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
+    echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-gamepad] [-linear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
     for game in ace aceeuro ace91 astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair laireuro lair_ita lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
-	if ls $HYPSEUS_SHARE/vldp*/$game >/dev/null 2>&1; then
+	if ls $HYPSEUS_SHARE/vldp/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
 	    uninstalled="$uninstalled $game"
@@ -85,14 +89,14 @@ if [ -z "$1" ] ; then
     done
     if [ "$uninstalled" ]; then
 	echo
-	echo "Games not found in $HYPSEUS_SHARE/vldp*: " | STDERR
+	echo "Games not found in $HYPSEUS_SHARE/vldp: " | STDERR
 	echo "$uninstalled" | fold -s -w60 | sed 's/^ //; s/^/    /' | STDERR
 	echo
     fi
     if [ -z "$installed" ]; then
 	cat <<EOF
 
-Error: Please put the required files in $HYPSEUS_SHARE/vldp_dl/gamename/ or $HYPSEUS_SHARE/vldp/gamename/
+Error: Please put the required files in $HYPSEUS_SHARE/vldp/gamename/
 EOF
     else
 	echo
@@ -105,56 +109,43 @@ fi
 
 case "$1" in
     ace)
-	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00000001 -bank 0 00000010"
 	;;
     aceeuro|ace91)
-	VLDP_DIR="vldp_dl"
 	;;
     astron)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     badlands)
-	VLDP_DIR="vldp"
 	BANKS="-blank_searches -blank_skips -min_seek_delay 600"
 	;;
     badlandp)
-	VLDP_DIR="vldp"
 	BANKS="-spritelite -preset 1"
 	;;
     bega)
-	VLDP_DIR="vldp"
 	;;
     blazer)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     cliff|cliffalt|cliffalt2)
-	VLDP_DIR="vldp"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00000000 -bank 0 00000000 -cheat"
 	;;
     cobra)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     cobraab)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     cobraconv)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     cobram3)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	FASTBOOT="-nocrc"
 	;;
     dle21)
-	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 
 	if [ "$PROTOTYPE" ]; then
@@ -165,58 +156,44 @@ case "$1" in
 	;;
     esh|eshalt|eshalt2)
 	# Run a fixed ROM so disable CRC
-	VLDP_DIR="vldp"
 	FASTBOOT="-nocrc"
 	;;
     galaxy|galaxyp)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     gpworld)
-	VLDP_DIR="vldp"
 	;;
     gtg)
-	VLDP_DIR="vldp"
 	FASTBOOT="-fastboot"
 	;;
     interstellar)
-	VLDP_DIR="vldp"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     mach3)
-	VLDP_DIR="vldp"
 	BANKS="-bank 0 01000001"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
     lair)
-	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00110111 -bank 0 10011001"
 	;;
     laireuro|lair_ita)
-	VLDP_DIR="vldp_dl"
 	;;
     lair2)
-	VLDP_DIR="vldp_dl"
 	;;
     roadblaster)
-	VLDP_DIR="vldp"
 	;;
     sae)
-	VLDP_DIR="vldp_dl"
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 01100111 -bank 0 10011000"
 	;;
     sdq|sdqshort|sdqshortalt)
-	VLDP_DIR="vldp"
 	BANKS="-bank 1 00000000 -bank 0 00000000"
 	;;
     tq|tq_alt|tq_swear)
-	VLDP_DIR="vldp_dl"
 	BANKS=" -bank 0 00010000"
 	;;
     uvt)
-	VLDP_DIR="vldp"
 	BANKS="-bank 0 01000000"
 	KEYINPUT="-keymapfile flightkey.ini"
 	;;
@@ -224,9 +201,9 @@ case "$1" in
        exit 1
 esac
 
-if [ ! -f $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt ]; then
+if [ ! -f $HYPSEUS_SHARE/vldp/$1/$1.txt ]; then
         echo
-        echo "Missing frame file: $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt ?" | STDERR
+        echo "Missing frame file: $HYPSEUS_SHARE/vldp/$1/$1.txt ?" | STDERR
         echo
         exit 1
 fi
@@ -237,6 +214,7 @@ $FULLSCREEN \
 $GAMEPAD \
 $LINEAR \
 $BLANK \
+$BLEND \
 $OVERLAY \
 $LOG \
 $ROTATE \
@@ -245,7 +223,7 @@ $SCALE \
 $SCOREBOARD \
 $KEYINPUT \
 $BANKS \
--framefile $HYPSEUS_SHARE/$VLDP_DIR/$1/$1.txt \
+-framefile $HYPSEUS_SHARE/vldp/$1/$1.txt \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 -sound_buffer 2048 \
