@@ -946,12 +946,14 @@ bool ldp_vldp::handle_cmdline_arg(const char *arg)
 {
     bool result = true;
 
-    if (strcasecmp(arg, "-blend") == 0) {
-        g_filter_type |= FILTER_BLEND;
+    if (strcasecmp(arg, "-monochrome") == 0) {
+        video::set_grayscale(true);
+    }
+    else if (strcasecmp(arg, "-blend") == 0) {
+        video::set_blendfilter(true);
     }
     else if (strcasecmp(arg, "-scanlines") == 0) {
         video::set_scanlines(true);
-        g_filter_type |= FILTER_SCANLINES;
     }
     // should we run a few VLDP tests when the player is initialized?
     else if (strcasecmp(arg, "-vldptest") == 0) {

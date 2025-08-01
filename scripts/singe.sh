@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HYPSEUS_BIN=hypseus.bin
-HYPSEUS_SHARE=~/.daphne
+HYPSEUS_SHARE=~/.hypseus
 
 function STDERR () {
 	/bin/cat - 1>&2
@@ -50,8 +50,12 @@ while [[ $# -gt 0 ]]; do
         LOG="-nolog"
         shift
         ;;
+      -rotate)
+        ROTATE="-rotate 90"
+        shift
+        ;;
       -scale)
-        SCALE="-scalefactor 50"
+        SCALE="-scalefactor 90"
         shift
         ;;
       -scanlines)
@@ -71,7 +75,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-scanlines] [-scale] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-grabmouse] [-scanlines] [-scale] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -85,17 +89,31 @@ if [ -z $1 ] ; then
 	exit 1
 fi
 
-if [ ! -f $HYPSEUS_SHARE/singe/$1/$1.singe ] || [ ! -f $HYPSEUS_SHARE/singe/$1/$1.txt ]; then
+ROMSTART="-script"
+ROMFILE="$HYPSEUS_SHARE/singe/$1/$1.singe"
+
+if [ ! -f $ROMFILE ]; then
         echo
-        echo "Missing file: $HYPSEUS_SHARE/singe/$1/$1.singe ?" | STDERR
-        echo "              $HYPSEUS_SHARE/singe/$1/$1.txt ?" | STDERR
+        echo "Missing: $HYPSEUS_SHARE/singe/$1/$1.singe" | STDERR
+        echo "Will attempt to load from Zip..."
         echo
-        exit 1
+        ROMSTART="-zlua"
+        ROMFILE="$HYPSEUS_SHARE/roms/$1.zip"
+fi
+
+FRAMEFILE="$HYPSEUS_SHARE/singe/$1/$1.txt"
+
+if [ ! -f $FRAMEFILE ]; then
+        echo
+        echo "Missing: $HYPSEUS_SHARE/singe/$1/$1.txt" | STDERR
+        echo "Will attempt to load from vldp folder..."
+        echo
+        FRAMEFILE="$HYPSEUS_SHARE/vldp/$1/$1.txt"
 fi
 
 $HYPSEUS_BIN singe vldp \
--framefile $HYPSEUS_SHARE/singe/$1/$1.txt \
--script $HYPSEUS_SHARE/singe/$1/$1.singe \
+-framefile $FRAMEFILE \
+$ROMSTART $ROMFILE \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
 $FULLSCREEN \
@@ -105,7 +123,7 @@ $BLEND \
 $GAMEPAD \
 $GRABMOUSE \
 $LOG \
-$OVERLAY \
+$ROTATE \
 $SCANLINES \
 $SCALE \
 $SILENTBOOT \

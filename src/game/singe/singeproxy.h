@@ -87,11 +87,17 @@ void          sep_rom_compressed(void);
 void          sep_no_crosshair(void);
 void          sep_enable_trace(void);
 void          sep_upgrade_overlay(void);
+void          sep_fullalpha_overlay(void);
 void          sep_keyboard_set_state(int key, bool state);
 void          sep_controller_set_axis(uint8_t axis, int16_t value, uint8_t id);
 bool          sep_format_monochrome(SDL_Surface *src, SDL_Surface *dst);
 bool          sep_format_srf32(SDL_Surface *src, SDL_Surface *dst);
+bool          sep_fullalpha_srf32(SDL_Surface *src, SDL_Surface *dst);
 bool          sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst);
+
+SDL_GameController* get_gamepad_id(int i);
+void                set_gamepad_wad(bool);
+int                 get_gamepad_wad();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -123,6 +129,7 @@ static int sep_mpeg_get_width(lua_State *L);
 static int sep_mpeg_get_scale(lua_State *L);
 static int sep_mpeg_get_rotate(lua_State *L);
 static int sep_mpeg_focus_area(lua_State *L);
+static int sep_mpeg_set_flash(lua_State *L);
 static int sep_mpeg_reset_focus(lua_State *L);
 static int sep_vldp_setvolume(lua_State *L);
 static int sep_vldp_getvolume(lua_State *L);
@@ -174,6 +181,8 @@ static int sep_keyboard_block_quit(lua_State *L);
 static int sep_controller_axis(lua_State *L);
 static int sep_controller_button(lua_State *L);
 static int sep_controller_valid(lua_State *L);
+static int sep_controller_setwad(lua_State *L);
+static int sep_controller_getwad(lua_State *L);
 static int sep_singe_quit(lua_State *L);
 static int sep_get_vldp_state(lua_State *L);
 static int sep_get_pause_flag(lua_State *L);
@@ -213,6 +222,7 @@ static int sep_get_yratio(lua_State *L);
 static int sep_get_fvalue(lua_State *L);
 static int sep_doluafile(lua_State *L);
 static int sep_set_overlaysize(lua_State *L);
+static int sep_set_overlayfullalpha(lua_State *L);
 static int sep_set_custom_overlay(lua_State *L);
 static int sep_controller_rumble(lua_State *L);
 static int sep_bezel_enable(lua_State *L);
@@ -225,6 +235,7 @@ static int sep_bezel_is_enabled(lua_State *L);
 static int sep_pseudo_audio_call(lua_State *L);
 static int sep_invalid_api_call(lua_State *L);
 static int sep_lua_rewrite(lua_State *L);
+static int sep_joymouse_enable(lua_State *L);
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 static int sep_sprite_get_frame(lua_State *L);
 static int sep_sprite_playing(lua_State *L);

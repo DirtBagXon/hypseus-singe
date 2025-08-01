@@ -12,10 +12,10 @@ Follow standard plugin documentation at: https://retropie.org.uk/docs/Daphne/
 
 * However, key and joystick control configuration should be within `hypinput.ini`
 
-### Install Singe games
+### Install Singe LUA games
 
 * Place ``timegal.daphne`` within ``/home/pi/RetroPie/roms/daphne/`` as normal.
-* Ensure the main ``.singe`` file matches the game directory name: *i.e.* ``timegal.singe``.
+* Ensure the main ``.singe`` or ``.zip`` ROM file matches the game directory name: *i.e.* ``timegal.zip``.
 
 The file structure is like so:
 
@@ -28,8 +28,7 @@ The file structure is like so:
     |    |    |-- timegal.txt
     |    |    |-- timegal.m2v
     |    |    |-- timegal.ogg
-    |    |    |-- timegal.singe
-    |    |    |-- *.*
+    |    |    |-- timegal.zip
     |    |
     |    +-- roms
     |
@@ -45,9 +44,9 @@ See discussion here: [Discussions](https://github.com/DirtBagXon/hypseus-singe/d
 
 * For compilation the following packages are required:
 
-    sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev libvorbis-dev libogg-dev zlib1g-dev cmake
+    sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libvorbis-dev libogg-dev zlib1g-dev cmake
 
-*  *  *  *  *
+  *  *  *  *  *
 
 ## Extended argument summary
 
@@ -76,8 +75,8 @@ The ``roms`` subdirectory is now purely traversed in the correct ROM location.
     drwxr-xr-x 9 root root    4096 Jul 12 12:24 .
     -rwxr-xr-x 1 root root 2485652 Jul 13 13:00 hypseus.bin
     -rwxr-xr-x 1 root root     522 Jul 12 12:24 hypseus.sh
+    lrwxrwxrwx 1 root root      36 Apr 29 20:23 bezels -> /opt/retropie/configs/daphne/bezels
     drwxr-xr-x 2 root root    4096 Jul  9 22:28 fonts
-    drwxr-xr-x 2 root root    4096 Apr 29 20:23 framefile
     lrwxrwxrwx 1 root root      41 Apr 29 20:01 hypinput.ini -> /opt/retropie/configs/daphne/hypinput.ini
     lrwxrwxrwx 1 root root    4096 Jul 12 12:26 logs -> /opt/retropie/configs/daphne/logs
     drwxr-xr-x 3 root root    4096 Apr 29 20:00 midi
@@ -101,7 +100,7 @@ This should allow easier integration within Retro gaming systems.
 
 ### Install hypseus-singe
 
-    sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev
+    sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 

@@ -1142,10 +1142,6 @@ bool parse_cmd_line(int argc, char **argv)
                 printline("Enabling SDL_VULKAN");
                 if (video::get_opengl()) result = false;
             }
-            else if (strcasecmp(s, "-monochrome") == 0) {
-                video::set_grayscale(true);
-                printline("VLDP video will be displayed in monochrome");
-            }
             else if (strcasecmp(s, "-alwaysontop") == 0) {
                 video::set_forcetop(true);
                 printline("Setting WINDOW_ALWAYS_ON_TOP");
@@ -1220,7 +1216,7 @@ bool parse_cmd_line(int argc, char **argv)
             }
 #ifdef LINUX
             // Manymouse only returns mice with absolute positioning [Linux evdev]
-            else if (strcasecmp(s, "-filter-absolutes") == 0) {
+            else if (strcasecmp(s, "-absolutes-only") == 0) {
                 filter = true;
             }
 #endif
@@ -1531,14 +1527,14 @@ void get_next_word(char *result, int result_size)
 {
     // make sure we still have command line left to parse
     if (g_arg_index < g_argc) {
-        strncpy(result, g_argv[g_arg_index], result_size-1);
-        result[result_size - 1] = 0; // terminate end of string just in case we
-                                     // hit the limit
+        strncpy(result, g_argv[g_arg_index], result_size - 1);
+        result[result_size - 1] = '\0'; // terminate end of string just in case we
+                                        // hit the limit
         g_arg_index++;
     }
 
     // if we have no command line left to parse ...
     else {
-        result[0] = 0; // return a null string
+        result[0] = '\0'; // return a null string
     }
 }

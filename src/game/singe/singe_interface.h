@@ -100,6 +100,7 @@ struct singe_in_info
 	void (*set_ldp_verbose)(bool);	
 
 	int  (*cfm_get_number_of_mice)(void *);
+	void (*cfm_joymouse_enable)(void *, bool);
 
 	bool (*get_retro_path)();
 	void (*set_singe_errors)(short);
@@ -137,6 +138,7 @@ struct singe_out_info
 	void (*sep_no_crosshair)(void);
 	void (*sep_rom_compressed)(void);
 	void (*sep_upgrade_overlay)(void);
+	void (*sep_fullalpha_overlay)(void);
 	void (*sep_enable_trace)(void);
 	
 	////////////////////////////////////////////////////////////

@@ -973,7 +973,7 @@ void tms9128nl_video_repaint_stretched()
                         else *(ptr320 + i) = blend[i][1];
                     }
                 } else {
-                   if ((*(ptr256 - 1)) == TMS_LAY1 && (*(ptr256)) == 0)
+                   if (x256 && (*(ptr256 - 1)) == TMS_LAY1 && (*(ptr256)) == 0)
                        *(ptr320 - 1) = TMS_LAY1 + 1;
                    *(ptr320 + i) = *(ptr256 + i); // else no blending required
                 }

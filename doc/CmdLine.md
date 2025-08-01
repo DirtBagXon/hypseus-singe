@@ -125,6 +125,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -vertical_stretch \<value>        | Vertically stretches the screen outward from the center. The purpose of this is to remove the black bars on the top and bottom of Cliff Hanger and Goal to Go. To get rid of the black bars completely, use a value of 24. |
 | -volume_nonvldp \<volume>         | Sets the volume of all audio besides the laserdisc audio when using VLDP (max value is 64, 0 means muted). |
 | -volume_vldp \<volume>            | Sets the volume of the laserdisc audio when using VLDP (max value is 64, 0 means muted). |
+| -vulkan                           | Enable a Vulkan SDL Window instance                   |
 | -x \<horizontal resolution>      | Specifies the width of the game window (in pixels).    |
 | -y \<vertical resolution>         | Specifies the height of the game window (in pixels).   |
 | -zlua                            | Defines the location of the primary Singe ZLUA game zip. This or `-script` are required for Singe games. |
@@ -132,11 +133,12 @@ Refer also to **bezel arguments** [here](Bezels.md)
 ## Singe Game Options
 | Option                           | Description                                                                                                                 |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| -8bit_overlay                    | Restore original 8bit Singe overlays.                                                                                       |
-| -blend_sprites                   | Restore BLENDMODE outline on Singe sprites.                                                                                 |
-| -js_range \<1-20>                | Adjust Singe joystick sensitivity: *[def:5]*                                                                                |
+| -8bit_overlay                    | Restore original 8bit overlays.                                                                                             |
+| -blend_sprites                   | Restore BLENDMODE outline on sprites.                                                                                       |
+| -js_range \<1-20>                | Adjust joystick-mouse sensitivity: *[def:5]*                                                                                |
 | -nocrosshair                     | Request game does not display crosshairs.                                                                                   |
-| -script                          | Defines the location of the Singe LUA script. **Required** for Singe games.                                                 |
+| -nojoymouse                      | Disable the joystick ability to control mouse input.                                                                        |
+| -script                          | Defines the location of the Singe LUA script. **Required** for LUA games.                                                   |
 | -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |
 | -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.<br>`-altscript` is an alias.     |
 | -xratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the horizontal scale.<br>_1.33_ adjusts _16:9_ to _4:3_ |
@@ -152,8 +154,8 @@ Refer also to **bezel arguments** [here](Bezels.md)
 ## Special Arguments
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
-| -filter-absolutes                | _Linux_ only argument for filtering ABS mouse device types using ManyMouse _evdev_.         |
-| -teardown_window                 | Teardown application window with VLDP resolution changes. [_pre 2.11.5 behavior_]           |
+| -absolutes-only                  | _Linux_ only argument for filtering ABS mouse device types using ManyMouse _evdev_.         |
+| -teardown_window                 | Teardown application window with VLDP resolution changes: [_pre 2.11.5 behavior_]           |
 
 ## Shortcuts
 | Shortcut                         | Description                                                              |

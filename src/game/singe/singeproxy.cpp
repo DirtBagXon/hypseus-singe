@@ -153,6 +153,9 @@ g_blankT              l_blank               = {0, 0, false};
 const std::string     m_ramfiles[]          = {".cfg", ".ram"};
 const char*           g_zipFile             = NULL;
 SDL_AudioSpec*        g_sound_load          = NULL;
+
+ZipArchive*           g_zf                  = nullptr;
+bool*                 g_zlfs                = nullptr;
 vector<ZipEntry>      g_zipList;
 vector<ZipEntry>::iterator m_iter;
 
@@ -193,6 +196,7 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
     g_SingeOut.sep_no_crosshair        = sep_no_crosshair;
     g_SingeOut.sep_rom_compressed      = sep_rom_compressed;
     g_SingeOut.sep_upgrade_overlay     = sep_upgrade_overlay;
+    g_SingeOut.sep_fullalpha_overlay   = sep_fullalpha_overlay;
     g_SingeOut.sep_keyboard_set_state  = sep_keyboard_set_state;
     g_SingeOut.sep_controller_set_axis = sep_controller_set_axis;
     g_SingeOut.sep_enable_trace        = sep_enable_trace;
@@ -204,8 +208,6 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-SDL_GameController* get_gamepad_id(int i);
 
 unsigned char sep_byte_clip(int value)
 {
@@ -307,11 +309,8 @@ void sep_set_rampath()
     void* found = NULL;
     int size = 0;
 
-    ZipArchive zf(g_zipFile);
-    zf.open(ZipArchive::ReadOnly);
-
-    if (zf.isOpen()) {
-        g_zipList = zf.getEntries();
+    if (g_zf->isOpen()) {
+        g_zipList = g_zf->getEntries();
         for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
              ZipEntry g_zipList = *m_iter;
              std::string name = g_zipList.getName();
@@ -349,7 +348,6 @@ void sep_set_rampath()
              }
         }
         g_zipList.clear();
-        zf.close();
     }
 }
 
@@ -538,6 +536,9 @@ bool sep_init_mixer()
 void sep_do_blit(SDL_Surface *srfDest)
 {
     switch (g_upgrade_overlay) {
+        case 4:
+            sep_fullalpha_srf32(g_se_surface, srfDest);
+            break;
         case 3:
             sep_format_monochrome(g_se_surface, srfDest);
             break;
@@ -713,6 +714,21 @@ void sep_shutdown(void)
     sep_unload_fonts();
     sep_unload_sounds();
     sep_unload_sprites();
+
+    if (g_zf)
+    {
+        if (*g_zlfs)
+            sep_print("Unloading Zip LFS.");
+
+        if (g_zf->isOpen())
+            g_zf->close();
+
+        delete g_zf;
+        g_zf = nullptr;
+    }
+
+    delete g_zlfs;
+    g_zlfs = nullptr;
 	
     if (g_bLuaInitialized)
     {
@@ -1002,6 +1018,23 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
     return bResult;
 }
 
+bool sep_fullalpha_srf32(SDL_Surface *src, SDL_Surface *dst)
+{
+    bool bResult = false;
+
+    if (
+        ((dst->w == src->w) && (dst->h == src->h)) &&
+        (dst->format->BitsPerPixel == 32) &&
+        (src->format->BitsPerPixel == 32)
+    )
+    {
+        SDL_FillRect(dst, NULL, SDL_MapRGBA(dst->format, 0, 0, 0, 0));
+        SDL_BlitSurface(src, NULL, dst, NULL);
+        bResult = true;
+    }
+    return bResult;
+}
+
 bool sep_format_srf32(SDL_Surface *src, SDL_Surface *dst)
 {
     bool bResult = false;
@@ -1119,22 +1152,21 @@ SDL_RWops* sep_unzip(std::string s)
     void* found = NULL;
     int size = 0;
 
-    ZipArchive zf(g_zipFile);
-    zf.open(ZipArchive::ReadOnly);
+    if (!g_zf->isOpen()) g_zf->open(ZipArchive::ReadOnly);
 
-    if (zf.isOpen()) {
-        g_zipList = zf.getEntries();
+    if (g_zf->isOpen()) {
+        g_zipList = g_zf->getEntries();
         for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
              ZipEntry g_zipList = *m_iter;
              std::string name = g_zipList.getName();
 
-             if ((int)name.find(s) != -1) {
+             if (name.find(s) != std::string::npos) {
                  found = g_zipList.readAsBinary();
                  size = g_zipList.getSize();
              }
         }
         g_zipList.clear();
-        zf.close();
+        if (!*g_zlfs) g_zf->close();
     }
 
     return SDL_RWFromConstMem(found, size);
@@ -1214,6 +1246,8 @@ void sep_startup(const char *data)
     g_mixerList.push_back(mixer);
     g_soundList.push_back(sound);
     g_fontList.push_back(nullptr);
+
+    g_zlfs = new bool(false);
 
     g_se_lua_context = lua_open();
     luaL_openlibs(g_se_lua_context);
@@ -1300,6 +1334,8 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "keyboardCatchQuit",      sep_keyboard_block_quit);
     lua_register(g_se_lua_context, "controllerGetAxis",      sep_controller_axis);
     lua_register(g_se_lua_context, "controllerGetButton",    sep_controller_button);
+    lua_register(g_se_lua_context, "controllerSetPadding",   sep_controller_setwad);
+    lua_register(g_se_lua_context, "controllerGetPadding",   sep_controller_getwad);
     lua_register(g_se_lua_context, "soundGetVolume",         sep_sound_getvolume);
     lua_register(g_se_lua_context, "soundSetVolume",         sep_sound_setvolume);
     lua_register(g_se_lua_context, "videoGetVolume",         sep_vldp_getvolume);
@@ -1310,6 +1346,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "ratioGetY",              sep_get_yratio);
     lua_register(g_se_lua_context, "getFValue",              sep_get_fvalue);
     lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
+    lua_register(g_se_lua_context, "setOverlayFullAlpha",    sep_set_overlayfullalpha);
     lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "spriteLoadFrames",       sep_sprite_loadframes);
@@ -1331,6 +1368,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "vldpFocusArea",          sep_mpeg_focus_area);
     lua_register(g_se_lua_context, "vldpResetFocus",         sep_mpeg_reset_focus);
     lua_register(g_se_lua_context, "vldpGetYUVPixel",        sep_mpeg_get_rawpixel);
+    lua_register(g_se_lua_context, "vldpFlash",              sep_mpeg_set_flash);
     lua_register(g_se_lua_context, "dofile",                 sep_doluafile);
 
     lua_register(g_se_lua_context, "discAudioSuffix",        sep_audio_suffix);
@@ -1352,6 +1390,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "scoreBezelGetState",     sep_bezel_is_enabled);
     lua_register(g_se_lua_context, "controllerDoRumble",     sep_controller_rumble);
     lua_register(g_se_lua_context, "controllerIsValid",      sep_controller_valid);
+    lua_register(g_se_lua_context, "JoyMouseEnable",         sep_joymouse_enable);
 
     // by RDG2010
     lua_register(g_se_lua_context, "keyboardGetMode",        sep_keyboard_get_mode);
@@ -1402,15 +1441,15 @@ void sep_startup(const char *data)
 
     if (g_zlua_arg || zip == 0) { // We have a zip
 
-         ZipArchive zf(data);
-         zf.open(ZipArchive::ReadOnly);
+         g_zf = new ZipArchive(data);
+         g_zf->open(ZipArchive::ReadOnly);
 
-         if (zf.isOpen()) {
+         if (g_zf->isOpen()) {
 
              const char *init = NULL;
              int size = 0;
              g_rom_zip = true;
-             g_zipList = zf.getEntries();
+             g_zipList = g_zf->getEntries();
              g_zipFile = data;
              std::string startup;
 
@@ -1436,15 +1475,14 @@ void sep_startup(const char *data)
 
                  startup = s;
 
-                 if ((int)name.find(s) != -1) {
+                 if (name.find(s) != std::string::npos) {
                      init = (const char*)g_zipList.readAsBinary();
                      size = g_zipList.getSize();
                  }
              }
              g_zipList.clear();
-             zf.close();
-
              sep_set_rampath();
+             g_zf->close();
 
              if (size > 0 && luaL_loadbuffer(g_se_lua_context, init, size, data) == 0) {
 
@@ -1548,6 +1586,11 @@ void sep_no_crosshair(void)
 void sep_upgrade_overlay(void)
 {
    g_upgrade_overlay |= (1 << 0);
+}
+
+void sep_fullalpha_overlay(void)
+{
+   g_upgrade_overlay = (1 << 2);
 }
 
 void sep_enable_trace(void)
@@ -1928,6 +1971,12 @@ static int sep_mpeg_focus_area(lua_State *L)
     return 0;
 }
 
+static int sep_mpeg_set_flash(lua_State *L)
+{
+    video::set_yuv_flash();
+    return 0;
+}
+
 static int sep_mpeg_reset_focus(lua_State *L)
 {
     video::reset_yuv_rect();
@@ -2204,6 +2253,12 @@ static int sep_set_overlaysize(lua_State *L)
            }
        }
    }
+   return 0;
+}
+
+static int sep_set_overlayfullalpha(lua_State *L)
+{
+   sep_fullalpha_overlay();
    return 0;
 }
 
@@ -3726,6 +3781,18 @@ static int sep_stop(lua_State *L)
     return 0;
 }
 
+static int sep_joymouse_enable(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1) {
+        if (lua_isboolean(L, 1))
+            g_pSingeIn->cfm_joymouse_enable(g_pSingeIn->pSingeInstance, lua_toboolean(L, 1));
+    }
+
+    return 0;
+}
+
 static int sep_get_number_of_mice(lua_State *L)
 {
     lua_pushnumber(L, g_pSingeIn->cfm_get_number_of_mice(g_pSingeIn->pSingeInstance));
@@ -3842,6 +3909,26 @@ static int sep_controller_valid(lua_State *L)
     }
 
     lua_pushboolean(L, valid);
+    return 1;
+}
+
+static int sep_controller_setwad(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isboolean(L, 1)) {
+            set_gamepad_wad(lua_toboolean(L, 1));
+        }
+
+    return 0;
+}
+
+static int sep_controller_getwad(lua_State *L)
+{
+    int padding = get_gamepad_wad();
+
+    lua_pushinteger(L, padding);
     return 1;
 }
 
@@ -4268,27 +4355,26 @@ static int sep_doluafile(lua_State *L)
                 std::string file = fname;
                 std::string found;
 
-                ZipArchive zf(g_zipFile);
-                zf.open(ZipArchive::ReadOnly);
+                if (!g_zf->isOpen()) g_zf->open(ZipArchive::ReadOnly);
 
-                if (zf.isOpen()) {
+                if (g_zf->isOpen()) {
 
                     int size = 0;
                     const char *entry = NULL;
-                    g_zipList = zf.getEntries();
+                    g_zipList = g_zf->getEntries();
 
                     for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
                         ZipEntry g_zipList = *m_iter;
                         std::string name = g_zipList.getName();
 
-                        if ((int)name.find(file) != -1) {
+                        if (name.find(file) != std::string::npos) {
                             entry = (const char*)g_zipList.readAsBinary();
                             size = g_zipList.getSize();
                             found = name;
                         }
                     }
                     g_zipList.clear();
-                    zf.close();
+                    if (!*g_zlfs) g_zf->close();
 
                     if (size > 0 && luaL_loadbuffer(L, entry, size, g_zipFile) == 0) {
 

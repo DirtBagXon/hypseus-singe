@@ -60,6 +60,7 @@
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lfs.h"
+#include "lfszippp.h"
 #include "luretro.h"
 
 /* Define 'strerror' for systems that do not implement it */
@@ -87,10 +88,6 @@ typedef struct dir_data {
 #endif
 } dir_data;
 
-void zipath (lua_State *L) {
-	luaL_error (L, "Unable to use \"lfs\" within zip file");
-}
-
 #define LOCK_METATABLE "lock metatable"
 
 #ifdef _WIN32
@@ -116,9 +113,7 @@ void zipath (lua_State *L) {
 ** This function changes the working (current) directory
 */
 static int lfs_change_dir (lua_State *L) {
-
-	if (get_zipath()) zipath(L);
-
+	if (get_zipath()) zip_noentry(L);
 	const char *path = luaL_checkstring(L, 1);
 	char filepath[RETRO_MAXPATH] = {0};
 	int len = strlen(path) + RETRO_PAD;
@@ -146,6 +141,7 @@ static int lfs_change_dir (lua_State *L) {
 **  and a string describing the error
 */
 static int get_dir (lua_State *L) {
+  if (get_zipath()) zip_noentry(L);
   char *path;
   if ((path = getcwd(NULL, 0)) == NULL) {
     lua_pushnil(L);
@@ -230,6 +226,7 @@ typedef struct lfs_Lock {
   HANDLE fd;
 } lfs_Lock;
 static int lfs_lock_dir(lua_State *L) {
+  if (get_zipath()) zip_noentry(L);
   size_t pathl; HANDLE fd;
   lfs_Lock *lock;
   char *ln;
@@ -267,6 +264,7 @@ typedef struct lfs_Lock {
   char *ln;
 } lfs_Lock;
 static int lfs_lock_dir(lua_State *L) {
+  if (get_zipath()) zip_noentry(L);
   lfs_Lock *lock;
   size_t pathl;
   char *ln;
@@ -333,6 +331,7 @@ static int lfs_g_setmode (lua_State *L, FILE *f, int arg) {
 #endif
 
 static int lfs_f_setmode(lua_State *L) {
+  if (get_zipath()) zip_noentry(L);
   return lfs_g_setmode(L, check_file(L, 1, "setmode"), 2);
 }
 
@@ -366,6 +365,7 @@ static int file_lock (lua_State *L) {
 ** @param #3 Number with length (optional).
 */
 static int file_unlock (lua_State *L) {
+	if (get_zipath()) zip_noentry(L);
 	FILE *fh = check_file (L, 1, "unlock");
 	const long start = luaL_optlong (L, 2, 0);
 	long len = luaL_optlong (L, 3, 0);
@@ -501,7 +501,7 @@ static int dir_close (lua_State *L) {
 */
 static int dir_iter_factory (lua_State *L) {
 
-	if (get_zipath()) zipath(L);
+	if (get_zipath()) return zip_iter_factory(L);
 
 	const char *path = luaL_checkstring (L, 1);
 	char dirpath[RETRO_MAXPATH] = {0};
@@ -744,7 +744,7 @@ struct _stat_members members[] = {
 */
 static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 
-	if (get_zipath()) zipath(L);
+	if (get_zipath()) return zip_file_info(L);
 
 	int i;
 	STAT_STRUCT info;
@@ -804,6 +804,7 @@ static int file_info (lua_State *L) {
 */
 #ifndef _WIN32
 static int link_info (lua_State *L) {
+	if (get_zipath()) zip_noentry(L);
 	return _file_info_ (L, LSTAT_FUNC);
 }
 #else
@@ -844,7 +845,7 @@ static const struct luaL_reg fslib[] = {
 	{"touch", file_utime},
 	{"unlock", file_unlock},
 	{"lock_dir", lfs_lock_dir},
-	{NULL, NULL},
+	{NULL, NULL}
 };
 
 int luaopen_lfs (lua_State *L) {

@@ -256,7 +256,8 @@ static int sort_devices(const void* a, const void* b)
 
     // no two devices can share event number
     if (arg1->eventNum < arg2->eventNum) return -1;
-    else return 1;
+
+    return 1;
 }
 
 

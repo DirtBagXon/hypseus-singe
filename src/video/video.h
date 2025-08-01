@@ -38,8 +38,10 @@
 #define NOSQUARE 0x2D0
 #define TITLE_LENGTH 42
 
-#define YUV_H 0
-#define YUV_V 1
+#define YUV_H 0x00
+#define YUV_V 0x01
+#define YUV_FLAG_BLEND  0x01
+#define YUV_FLAG_GRAYSCALE 0x02
 
 #include "SDL_FontCache.h"
 #include <SDL.h>
@@ -91,7 +93,8 @@ enum {
 enum {
     YUV_BLANK = 0,
     YUV_VISIBLE,
-    YUV_SHUTTER
+    YUV_SHUTTER,
+    YUV_FLASH
 };
 
 bool init_display();
@@ -112,10 +115,6 @@ void vid_free_yuv_overlay ();
 void vid_update_overlay_surface(SDL_Surface *tx);
 void vid_blit();
 // MAC: sdl_video_run thread block ends here
-
-#ifdef USE_OPENGL
-bool init_opengl();
-#endif // USE_OPENGL
 
 void shutdown_display();
 void resize_cleanup();
@@ -156,6 +155,7 @@ bool get_video_resized();
 void set_opengl(bool value);
 void set_vulkan(bool value);
 void set_grayscale(bool value);
+void set_blendfilter(bool value);
 void set_forcetop(bool value);
 int get_textureaccess();
 void set_textureaccess(int value);
@@ -173,6 +173,7 @@ void set_scanlines(bool value);
 void set_shunt(uint8_t value);
 void set_alpha(uint8_t value);
 void set_yuv_blank(int value);
+void set_yuv_flash();
 int get_scalefactor();           // by RDG2010
 void set_scalefactor(int value); // by RDG2010
 void scalekeyboard(int value);

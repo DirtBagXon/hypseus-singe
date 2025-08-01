@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.9002 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.9004 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -52,11 +52,10 @@ typedef struct singeJoyStruct {
     int8_t slide = 5;
     int16_t xpos;
     int16_t ypos;
-    int16_t jrelx;
-    int16_t jrely;
+    int16_t jrelx = 0;
+    int16_t jrely = 0;
     int16_t xmov = 320; // signed
     int16_t ymov = 240; // ...
-    uint8_t trip = 0;
 } singeJoyStruct;
 
 typedef struct singeScoreboard {
@@ -80,7 +79,6 @@ class singe : public game
     bool init();
     void start();
     void shutdown();
-    void JoystickMotion();
     void input_enable(Uint8, Sint8);
     void input_disable(Uint8, Sint8);
     void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);
@@ -177,6 +175,12 @@ class singe : public game
     {
         singe *pSingeInstance = (singe *)pInstance;
         return pSingeInstance->get_keyboard_mode();
+    }
+
+    static void gfm_joymouse_enable(void *pInstance, bool bEnable)
+    {
+        singe *pSingeInstance = (singe *)pInstance;
+        pSingeInstance->joymouse_enable(bEnable);
     }
 
     static int gfm_number_of_mice(void *pInstance)
@@ -324,6 +328,7 @@ class singe : public game
     double singe_yratio;
     double singe_fvalue;
 
+    void ProcessJoyStruct();
     struct singeJoyStruct g_js;
     struct singeScoreboard g_bezelboard;
 
@@ -334,6 +339,7 @@ class singe : public game
     uint8_t get_overlaysize();
 
     uint8_t m_overlay_size;
+    uint8_t m_upgrade_overlay;
     uint16_t m_custom_overlay_w;
     uint16_t m_custom_overlay_h;
 
@@ -350,16 +356,17 @@ class singe : public game
     void player2_lives(uint8_t);
     bool bezel_is_enabled();
 
+    void joymouse_enable(bool);
     bool m_bezel_scoreboard;
-    bool m_upgrade_overlay;
     bool singe_joymouse;
     bool singe_trace;
-    bool m_notarget;
+    bool m_crosshair;
     bool m_running;
     bool m_zlua;
 
     IScoreboard *m_pScoreboard;
 
+    Uint16 m_vid_w, m_vid_h;
     Sint32 i_keyboard_escape;
     Uint8 i_keyboard_quit;
 

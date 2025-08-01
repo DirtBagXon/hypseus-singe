@@ -1,7 +1,10 @@
 /*
+ * $Id$
+ * lfs within zip (libzippp)
+ *
  * ____ HYPSEUS COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2024 DirtBagXon
+ * Copyright (C) 2025 DirtBagXon
  *
  * This file is part of HYPSEUS SINGE, a laserdisc arcade game emulator
  *
@@ -20,14 +23,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef io_limits_h
-#define io_limits_h
-
-#define MAX_MICE 32
-#define AXIS_COUNT 6
-#define MAX_AXIS 32767
-#define MIN_AXIS -32768
-#define MAX_GAMECONTROLLER 4
-#define MAX_CONTROLLERCONFIG 2
-
-#endif
+extern int zip_iter_factory(lua_State* L);
+extern int zip_file_info(lua_State* L);
+extern void zip_noentry (lua_State *L);
