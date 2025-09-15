@@ -145,7 +145,8 @@ cliffalt::cliffalt()
     m_shortgamename = "cliffalt";
     memset(m_banks, 0xFF, sizeof(m_banks)); // clear all dip switches
 
-    // FIXME : set dip switches to a sensible value here
+    m_banks[1] = 0x4F;
+    m_banks[2] = 0xFF & DIP22_UNKNOWN & DIP23_UNKNOWN;;
 
     // NOTE : this must be static
     static struct rom_def roms[] =
@@ -164,7 +165,8 @@ cliffalt2::cliffalt2()
     m_shortgamename = "cliffalt2";
     memset(m_banks, 0xFF, sizeof(m_banks)); // clear all dip switches
 
-    // FIXME : set dip switches to a sensible value here
+    m_banks[1] = 0x4F;
+    m_banks[2] = 0xFF & DIP22_UNKNOWN & DIP23_UNKNOWN;;
 
     // NOTE : this must be static
     static struct rom_def roms[] =
@@ -172,6 +174,28 @@ cliffalt2::cliffalt2()
          {"cliff_alt2_1.bin", NULL, &m_cpumem[0x2000], 0x2000, 0x7BCE618E},
          {"cliff_alt2_2.bin", NULL, &m_cpumem[0x4000], 0x2000, 0x65D2B984},
          {"cliff_alt2_3.bin", NULL, &m_cpumem[0x6000], 0x2000, 0xF43A5269},
+         {NULL}};
+
+    m_rom_list = roms;
+}
+
+// cliff_ox constructor V1.1 (2025)
+cliff_ox::cliff_ox()
+{
+    m_shortgamename = "cliff_ox";
+    memset(m_banks, 0xFF, sizeof(m_banks)); // clear all dip switches
+
+    // Set defaults (+enable dip 27)
+    m_banks[1] = 0x4F;
+    m_banks[2] = 0x7F & DIP22_UNKNOWN & DIP23_UNKNOWN;;
+
+    // NOTE : this must be static
+    static struct rom_def roms[] =
+        {{"cliff-0X_u0.bin", NULL, &m_cpumem[0x0000], 0x2000, 0x8A3DFF2C},
+         {"cliff-0X_u1.bin", NULL, &m_cpumem[0x2000], 0x2000, 0xEC2C00A9},
+         {"cliff-0X_u2.bin", NULL, &m_cpumem[0x4000], 0x2000, 0x3423C748},
+         {"cliff-0X_u3.bin", NULL, &m_cpumem[0x6000], 0x2000, 0x60A8DE46},
+         {"cliff-0X_u4.bin", NULL, &m_cpumem[0x8000], 0x2000, 0xB05438f8},
          {NULL}};
 
     m_rom_list = roms;

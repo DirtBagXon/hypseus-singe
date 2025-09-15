@@ -310,6 +310,8 @@ bool parse_game_type()
     // Added by Buzz
     else if (strcasecmp(s, "cliffalt2") == 0) {
         g_game = new cliffalt2();
+    } else if (strcasecmp(s, "cliff_ox") == 0) {
+        g_game = new cliff_ox();
     } else if (strcasecmp(s, "cobra") == 0) {
         g_game = new cobra();
     } else if (strcasecmp(s, "cobraab") == 0) {

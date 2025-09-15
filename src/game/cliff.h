@@ -136,6 +136,13 @@ class cliffalt2 : public cliff
     cliffalt2();
 };
 
+// alternate ROM set for Cliff Hanger fixing Audio/Video Overruns
+class cliff_ox : public cliff
+{
+  public:
+    cliff_ox();
+};
+
 class gtg : public cliff
 {
   public:

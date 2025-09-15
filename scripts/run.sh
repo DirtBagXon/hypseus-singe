@@ -80,7 +80,7 @@ if [ -z "$1" ] ; then
     echo
     echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-gamepad] [-linear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
-    for game in ace aceeuro ace91 astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair laireuro lair_ita lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
+    for game in ace aceeuro ace91 astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cliff_ox cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair laireuro lair_ita lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -131,6 +131,9 @@ case "$1" in
     cliff|cliffalt|cliffalt2)
 	FASTBOOT="-fastboot"
 	BANKS="-bank 1 00000000 -bank 0 00000000 -cheat"
+	;;
+    cliff_ox)
+	FASTBOOT="-fastboot"
 	;;
     cobra)
 	KEYINPUT="-keymapfile flightkey.ini"
