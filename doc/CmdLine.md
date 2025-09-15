@@ -21,7 +21,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | badlands, badlandp | Badlands                  |
 | bega, begar1   | Bega's Battle               |
 | blazer        | Star Blazer                 |
-| cliff, cliffalt, cliffalt2 | Cliff Hanger         |
+| cliff, cliffalt, cliffalt2, cliff_ox | Cliff Hanger         |
 | cobra, cobraab, cobraconv, cobram3 | Cobra Command |
 | dle11         | Dragon's Lair Enhancement v1.1 |
 | dle21         | Dragon's Lair Enhancement v2.1 |
