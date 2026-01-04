@@ -2033,7 +2033,7 @@ void vid_blit () {
 	    }
 	    else SDL_UpdateYUVTexture(g_yuv_texture, NULL,
 		g_yuv_surface->Yplane, g_yuv_surface->Ypitch,
-		g_yuv_surface->Uplane, g_yuv_surface->Vpitch,
+		g_yuv_surface->Uplane, g_yuv_surface->Upitch,
 		g_yuv_surface->Vplane, g_yuv_surface->Vpitch);
 	}
 	SDL_UnlockMutex(g_yuv_surface->mutex);
