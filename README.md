@@ -189,7 +189,7 @@ project would not be possible.
 ## License
 
 **Hypseus Singe**, Being Retro Orientated This Humble Emulator Regenerates  
-Copyright (C) 2021-2025  [DirtBagXon][owner]
+Copyright (C) 2021-2026  [DirtBagXon][owner]
 
 **Hypseus**, Multiple Arcade Laserdisc Emulator  
 Copyright (C) 2016  [Jeffrey Clark][JAC]

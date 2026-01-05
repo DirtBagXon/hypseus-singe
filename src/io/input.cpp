@@ -690,8 +690,6 @@ void SDL_gamepad_init()
                          LOGI << "Gamepad #" << i << "|[" << id << "]"
                                  << ": Haptic Rumble support";
                          g_gamepad_haptic[g_gamepad_attached] = true;
-                     } else {
-                         g_gamepad_haptic[g_gamepad_attached] = false;
                      }
                  }
 
@@ -746,9 +744,6 @@ void SDL_input_shutdown(void)
 {
     if (g_use_gamepad) {
         for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
-            if (g_gamepad_haptic[i]) {
-                g_gamepad_haptic[i] = false;
-            }
             if (g_gamepad_id[i]) {
                 SDL_GameControllerClose(g_gamepad_id[i]);
                 g_gamepad_id[i] = NULL;
@@ -911,12 +906,10 @@ void process_event(SDL_Event *event)
                             << SDL_GameControllerName(g_gamepad_id[i]) << " connected";
                         if (enabled_haptic && !g_gamepad_haptic[i]) {
 
-	                    if (SDL_GameControllerHasRumble(g_gamepad_id[i])) {
+                            if (SDL_GameControllerHasRumble(g_gamepad_id[i])) {
                                 LOGI << "Gamepad #" << i << "|[" << newid << "]"
                                         <<  ": Haptic Rumble support";
                                 g_gamepad_haptic[i] = true;
-                            } else {
-                                g_gamepad_haptic[i] = false;
                             }
                         }
                         controller_map[SDL_JoystickInstanceID(

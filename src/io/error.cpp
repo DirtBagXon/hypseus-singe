@@ -82,7 +82,7 @@ void printusage()
 {
   const std::string version = hypseus_VERSION;
   const std::string usage = R"USAGE(
-  Hypseus Singe (c) 2021-2025 DirtBagXon )USAGE" + version + R"USAGE(
+  Hypseus Singe (c) 2021-2026 DirtBagXon )USAGE" + version + R"USAGE(
 
   Usage: hypseus <game> vldp -framefile <framefile.txt> ...
 
