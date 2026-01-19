@@ -89,7 +89,7 @@ static unsigned char mm_absolute_only = 0;
 static int g_assigned_hat = 0;
 static int g_mouse_mode = SDL_MOUSE;
 static SDL_GameController *g_gamepad_id[MAX_GAMECONTROLLER];
-static bool g_gamepad_haptic[MAX_GAMECONTROLLER];
+static SDL_Haptic *g_gamepad_haptic[MAX_GAMECONTROLLER];
 static int g_padindex[MAX_GAMECONTROLLER] = {0};
 static uint8_t g_gamepad_attached = 0;
 static bool g_index_reset = false;
@@ -567,7 +567,7 @@ int SDL_input_init()
                                                        // calculated once
 
     for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
-        g_gamepad_haptic[i] = false;
+        g_gamepad_haptic[i] = NULL;
         g_gamepad_id[i] = NULL;
         controller_map[i] = i;
     }
@@ -686,10 +686,16 @@ void SDL_gamepad_init()
 
                  if (enabled_haptic)
                  {
-                     if (SDL_GameControllerHasRumble(g_gamepad_id[g_gamepad_attached])) {
-                         LOGI << "Gamepad #" << i << "|[" << id << "]"
-                                 << ": Haptic Rumble support";
-                         g_gamepad_haptic[g_gamepad_attached] = true;
+                     g_gamepad_haptic[g_gamepad_attached] = SDL_HapticOpenFromJoystick(joy);
+
+		     if (g_gamepad_haptic[g_gamepad_attached] != NULL) {
+                         if (SDL_HapticRumbleSupported(g_gamepad_haptic[g_gamepad_attached])) {
+                             LOGI << "Gamepad #" << i << "|[" << id << "]"
+                                     << ": Haptic Rumble support";
+                         } else {
+                             SDL_HapticClose(g_gamepad_haptic[g_gamepad_attached]);
+                             g_gamepad_haptic[g_gamepad_attached] = NULL;
+                         }
                      }
                  }
 
@@ -744,6 +750,10 @@ void SDL_input_shutdown(void)
 {
     if (g_use_gamepad) {
         for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
+            if (g_gamepad_haptic[i]) {
+                SDL_HapticClose(g_gamepad_haptic[i]);
+                g_gamepad_haptic[i] = NULL;
+            }
             if (g_gamepad_id[i]) {
                 SDL_GameControllerClose(g_gamepad_id[i]);
                 g_gamepad_id[i] = NULL;
@@ -881,7 +891,8 @@ void process_event(SDL_Event *event)
                   SDL_GameControllerGetJoystick(g_gamepad_id[i]))) {
                 LOGI << "GamePad '" << SDL_GameControllerName(g_gamepad_id[i]) << "' disconnected";
                 if (g_gamepad_haptic[i]) {
-                    g_gamepad_haptic[i] = false;
+                    SDL_HapticClose(g_gamepad_haptic[i]);
+                    g_gamepad_haptic[i] = NULL;
                 }
                 SDL_GameControllerClose(g_gamepad_id[i]);
                 g_gamepad_id[i] = NULL;
@@ -905,11 +916,16 @@ void process_event(SDL_Event *event)
                         LOGI << "Gamepad #" << i << "|[" << newid << "]" << ": "
                             << SDL_GameControllerName(g_gamepad_id[i]) << " connected";
                         if (enabled_haptic && !g_gamepad_haptic[i]) {
+                            g_gamepad_haptic[i] = SDL_HapticOpenFromJoystick(joy);
 
-                            if (SDL_GameControllerHasRumble(g_gamepad_id[i])) {
-                                LOGI << "Gamepad #" << i << "|[" << newid << "]"
-                                        <<  ": Haptic Rumble support";
-                                g_gamepad_haptic[i] = true;
+                            if (g_gamepad_haptic[i] != NULL) {
+                                if (SDL_HapticRumbleSupported(g_gamepad_haptic[i])) {
+                                    LOGI << "Gamepad #" << i << "|[" << newid << "]"
+                                            <<  ": Haptic Rumble support";
+                                } else {
+                                    SDL_HapticClose(g_gamepad_haptic[i]);
+                                    g_gamepad_haptic[i] = NULL;
+                                }
                             }
                         }
                         controller_map[SDL_JoystickInstanceID(
