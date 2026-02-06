@@ -10,14 +10,12 @@ This version includes **Singe** support for Fan Made and [American Laser Games][
 
 Features:
 
-* SDL2 support
+* SDL2 Version
 * Updated MPEG2 decoder
 * Integrated bezel support
-* Daphne VLDP 32bit upgrade
-* Daphne and Singe 4k 4Gb+ M2V support
+* VLDP 32bit upgrade
 * Singe full 32bit overlay support (details below)
 * Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
-* Joystick, GamePad, Lightgun _EV_ABS_ [mouse] support
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
 

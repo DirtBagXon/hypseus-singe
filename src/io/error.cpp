@@ -118,7 +118,7 @@ void printusage()
 
   Visit: https://github.com/DirtBagXon/hypseus-singe
 
-  Use -v to display build information.
+  Use -version to display build information.
 
 )USAGE";
 

@@ -474,7 +474,11 @@ bool parse_game_type()
         g_game->set_version(3);
     } else if (strcasecmp(s, "uvt") == 0) {
         g_game = new uvt();
-    } else if (strcasecmp(s, "-v") == 0) {
+    } else if (strcasecmp(s, "-apiversion") == 0) {
+        std::fwrite(hypseus_VERSION, 1, sizeof(hypseus_VERSION) - 1, stdout);
+        std::fflush(stdout);
+        exit(0);
+    } else if (strcasecmp(s, "-version") == 0) {
 #if defined(WIN32) || defined(__APPLE__)
         const char* l = "Hypseus Singe: ";
         const char* l1 = get_hypseus_version();
