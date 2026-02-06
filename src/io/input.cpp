@@ -905,7 +905,6 @@ void process_event(SDL_Event *event)
                         LOGI << "Gamepad #" << i << "|[" << newid << "]" << ": "
                             << SDL_GameControllerName(g_gamepad_id[i]) << " connected";
                         if (enabled_haptic && !g_gamepad_haptic[i]) {
-
                             if (SDL_GameControllerHasRumble(g_gamepad_id[i])) {
                                 LOGI << "Gamepad #" << i << "|[" << newid << "]"
                                         <<  ": Haptic Rumble support";
@@ -913,7 +912,7 @@ void process_event(SDL_Event *event)
                             }
                         }
                         controller_map[SDL_JoystickInstanceID(
-				SDL_GameControllerGetJoystick(g_gamepad_id[i]))] = i;
+                            SDL_GameControllerGetJoystick(g_gamepad_id[i]))] = i;
                         g_gamepad_attached++;
                         break;
                     }

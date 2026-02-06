@@ -10,14 +10,12 @@ This version includes **Singe** support for Fan Made and [American Laser Games][
 
 Features:
 
-* SDL2 support
+* SDL2 Version
+* VLDP 32bit upgrade
 * Updated MPEG2 decoder
-* Daphne VLDP 32bit upgrade
 * Integrated _(active)_ [bezel](screenshots/bezel.png?raw=true) support
-* Daphne and Singe 4k 4Gb+ M2V support
 * Singe full 32bit overlay support (details below)
 * Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
-* Joystick, GamePad, Lightgun _EV_ABS_ [mouse] support
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
 * 64bit Windows and MacOS X Ports
@@ -25,6 +23,8 @@ Features:
 ## Windows
 
 **Windows** files and documentation can be found [here](win32/)
+
+![Borf Launcher](screenshots/borf.png)
 
 ## Compile
 
@@ -48,7 +48,7 @@ Use homebrew to install the following packages:
     brew install libogg
     brew install libzip
 
-Newer series Macs may need to use the _brew_ `libmpeg2` package:
+Sonoma and later versions of macOS may need to use the _brew_ `libmpeg2` package:
 
     brew install libmpeg2
 
@@ -62,7 +62,7 @@ For **Raspberry Pi** clone the ``RetroPie`` branch via:
 
     git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
 
-Further **RetroPie** and **Raspberry Pi** information can be found [here](doc/RETROPIE.md)
+For **RetroPie** and other `arm` based distributions, further information can be found [here](doc/RETROPIE.md)
 
 ### Compilation with CMake
 
@@ -79,14 +79,14 @@ Ensure you have data in the following `hypseus` HOME folders:
 
     pics, fonts, ram, roms, midi, sound, singe, vldp
 
-Run `hypseus` with `daphne` style [arguments](doc/CmdLine.md) on the command line:
+Run `hypseus` with [arguments](doc/CmdLine.md) on the command line:
 
     hypseus lair vldp -framefile vldp/lair/lair.txt -scorebezel
 
     hypseus singe vldp -framefile singe/timegal/timegal.txt -zlua roms/timegal.zip
 
 
-In **Windows**, create `.bat`, or `.vbs`, scripts with arguments for specific games.
+Using **Windows**, `.bat`, or `.vbs`, scripts can be created for specific games.
 
 Example `.bat` files  are provided within the [Windows](win32/) zip file.
 

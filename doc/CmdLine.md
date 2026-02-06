@@ -157,6 +157,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
 | -absolutes-only                  | _Linux_ only argument for filtering ABS mouse device types using ManyMouse _evdev_.         |
+| -apiversion                      | Print Hypseus compiled version string to STDOUT. Added for frontend usage.                  |
 | -teardown_window                 | Teardown application window with VLDP resolution changes: [_pre 2.11.5 behavior_]           |
 
 ## Shortcuts

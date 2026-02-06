@@ -70,7 +70,7 @@ The Singe specific ``-retropath`` argument, performs an *on-the-fly* rewrite of 
 
     roms/../timegal.daphne/
 
-Following ``2.11.5``, the ``ABSTRACT_SINGE`` option is enabled in ``CMakeLists.txt`` at _build_ time, the rewrite will be:
+Following ``2.11.5``, if the ``ABSTRACT_SINGE`` option is enabled in ``CMakeLists.txt`` at _build_ time, the rewrite will be:
 
     roms/../timegal.hypseus/
 
