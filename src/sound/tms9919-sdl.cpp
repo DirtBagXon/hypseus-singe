@@ -84,14 +84,6 @@ cSdlTMS9919::cSdlTMS9919()
 
     memcpy(&m_AudioSpec, &wanted, sizeof(SDL_AudioSpec));
 
-    /*  we don't want to initialize sdl audio here
-        SDL_InitSubSystem(SDL_INIT_AUDIO);
-        // Open the audio device, forcing the desired format
-        if ( SDL_OpenAudio ( &wanted, &m_AudioSpec ) < 0 ) {
-    //        ERROR ( "Couldn't open audio: " << SDL_GetError ());
-        } else {
-    //        TRACE ( "Using " << m_AudioSpec.format << "-bit " <<
-    m_AudioSpec.freq << "Hz Audio" );*/
     m_Initialized = true;
     m_MixBuffer   = new Uint8[m_AudioSpec.samples];
     memset(m_MixBuffer, 0, sizeof(Uint8) * m_AudioSpec.samples);
@@ -189,15 +181,6 @@ void cSdlTMS9919::AudioCallback(Uint8 *stream, int length)
             } while (left > 0);
         }
     }
-
-    //    if ( m_pSpeechSynthesizer != NULL ) {
-    //        mix |= m_pSpeechSynthesizer->AudioCallback ( m_MixBuffer, length
-    //        );
-    //    }
-
-    // if ( mix == true ) {
-    //  SDL_MixAudio ( stream, m_MixBuffer, length, volume );
-    //    }
 }
 
 int cSdlTMS9919::SetSpeechSynthesizer(cTMS5220 *speech)
