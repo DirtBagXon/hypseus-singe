@@ -44,13 +44,13 @@ enum {
 };
 
 static char g_abpath[RETRO_MAXPATH] = "\0";
-static unsigned char g_retropath = 0;
+static unsigned char g_espath = 0;
 static unsigned char g_zipath = 0;
 
-unsigned char get_retropath() { return g_retropath; }
+unsigned char get_espath() { return g_espath; }
 unsigned char get_zipath() { return g_zipath; }
 
-void lua_set_retropath(unsigned char value) { g_retropath = value; }
+void lua_set_espath(unsigned char value) { g_espath = value; }
 void lua_set_zipath(unsigned char value) { g_zipath = value; }
 
 void lua_set_abpath(const char *value)
@@ -78,7 +78,7 @@ int lua_mkdir(const char *path)
     return 0;
 }
 
-void lua_retropath(const char *src, char *dst, int len)
+void lua_espath(const char *src, char *dst, int len)
 {
     unsigned char bSet = 0, end = 0, folder = 0, path = PATH_DAPHNE;
 

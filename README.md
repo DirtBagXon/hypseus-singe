@@ -59,7 +59,7 @@ Example `.bat` files  are provided within the [Windows](win32/) zip file.
 
 **Retro gaming** systems will require adoption within the relevant emulation scripts.
 
-The singe `-retropath` argument can ease integration into EmulationStation style systems.  
+The singe `-espath` argument can ease integration into EmulationStation style systems.  
 Although this is now discouraged in favor of the _Zipped LUA_ (`zlua`) packages.
 
 `bash` scripts are provided for systems that support this shell.

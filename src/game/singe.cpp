@@ -445,8 +445,8 @@ bool singe::handle_cmdline_arg(const char *arg)
         video::set_singe_blend_sprite(true);
         bResult = true;
     }
-    else if (strcasecmp(arg, "-retropath") == 0) {
-        game::set_console_flag(true);
+    else if (strcasecmp(arg, "-espath") == 0 || strcasecmp(arg, "-retropath") == 0) {
+        game::set_es_flag(true);
         bResult = true;
     }
     else if (strcasecmp(arg, "-singedir") == 0) {
@@ -466,7 +466,7 @@ bool singe::handle_cmdline_arg(const char *arg)
             m_strDataPaths = s;
             if (m_strDataPaths.back() != '/')
                 m_strDataPaths += '/';
-            game::set_console_flag(true);
+            game::set_es_flag(true);
         }
     }
     else if (strcasecmp(arg, "-fullalpha") == 0) {

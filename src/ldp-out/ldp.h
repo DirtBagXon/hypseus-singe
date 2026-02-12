@@ -245,7 +245,7 @@ class ldp
     virtual bool handle_cmdline_arg(const char *arg);
 
     // pass a game flag via vldp to singe
-    virtual bool get_console_status();
+    virtual bool get_es_status();
 
     // Copies m_bug_log into 'log' and clears m_bug_log.
     // Used by releasetest.

@@ -168,8 +168,8 @@ static int io_open (lua_State *L) {
   if (*pf == NULL) {
     int len = strlen(filename) + RETRO_PAD;
     if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
-    if (get_retropath())
-      lua_retropath(filename, retroname, len);
+    if (get_espath())
+      lua_espath(filename, retroname, len);
     else {
       lua_rampath(filename, retroname, len);
       if (strncmp(mode, "w", 1) == 0)
@@ -235,11 +235,11 @@ static int g_iofile (lua_State *L, int f, const char *mode) {
 
         *pf = fopen(filename, mode);
         if (*pf == NULL) {
-          if (get_retropath()) {
+          if (get_espath()) {
               int len = strlen(filename) + RETRO_PAD;
               char retroname[RETRO_MAXPATH] = {0};
               if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
-              lua_retropath(filename, retroname, len);
+              lua_espath(filename, retroname, len);
               *pf = fopen(retroname, mode);
               if (*pf == NULL) fileerror(L, 1, retroname);
           }
@@ -300,8 +300,8 @@ static int io_lines (lua_State *L) {
     if (*pf == NULL) {
       int len = strlen(filename) + RETRO_PAD;
       if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
-      if (get_retropath())
-        lua_retropath(filename, retroname, len);
+      if (get_espath())
+        lua_espath(filename, retroname, len);
       else
         lua_rampath(filename, retroname, len);
       *pf = fopen(retroname, "r");

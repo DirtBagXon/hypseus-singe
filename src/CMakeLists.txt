@@ -11,7 +11,7 @@ option(CPU_DEBUG        "CPU Debug"             OFF)
 option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
 
-# Abstract out -retropath ES extension: Use .hypseus NOT .daphne
+# Abstract out -espath ES extension: Use .hypseus NOT .daphne
 option(ABSTRACT_SINGE   "Redefine Singe LUA Rewrites"     OFF)
 
 if (NOT CMAKE_BUILD_TYPE)

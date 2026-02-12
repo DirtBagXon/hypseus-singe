@@ -29,7 +29,7 @@
 #define RETRO_PAD  12
 #define RETRO_MAXPATH 128
 
-unsigned char get_retropath();
+unsigned char get_espath();
 unsigned char get_zipath();
 
 int lua_chkdir(const char *path);
@@ -37,11 +37,11 @@ int lua_chkdir(const char *path);
 const char* get_romdir_path();
 const char* get_ramdir_path();
 
-void lua_set_retropath(unsigned char value);
+void lua_set_espath(unsigned char value);
 void lua_set_zipath(unsigned char value);
 void lua_set_abpath(const char *value);
 
-void lua_retropath(const char *src, char *dst, int len);
+void lua_espath(const char *src, char *dst, int len);
 void lua_rampath(const char *src, char *dst, int len);
 
 #endif

@@ -4,13 +4,13 @@
 
 ## Installation
 
-* `hypseus` is now available in **RetroPie-Setup** (_exp_) packages.
+* `hypseus` is now available in **RetroPie-Setup** (_opt_) packages.
 
 ## Configuration
 
-Follow standard plugin documentation at: https://retropie.org.uk/docs/Daphne/
+Follow plugin documentation at: https://retropie.org.uk/docs/Daphne/
 
-* However, key and joystick control configuration should be within `hypinput.ini`
+* Joystick and GamePad configuration should be within `hypinput.ini` or `hypinput_gamepad.ini`
 
 ### Install Singe LUA games
 
@@ -44,17 +44,25 @@ See discussion here: [Discussions](https://github.com/DirtBagXon/hypseus-singe/d
 
 * For compilation the following packages are required:
 
-    sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libvorbis-dev libogg-dev zlib1g-dev cmake
+```
+sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev libvorbis-dev libogg-dev zlib1g-dev cmake
+```
 
   *  *  *  *  *
 
 ## Extended argument summary
 
-#### The '-retropath' singe argument explained:
+#### The legacy '-espath', or '-retropath', singe argument explained:
 
-    hypseus singe vldp -retropath -framefile ... -script ...
+  *  *  *  *  *
 
-The Singe specific ``-retropath`` argument, performs an *on-the-fly* rewrite of the data path passed by the game LUA:
+**Important Note:** This rewrite does **NOT** occur with _Zip ROM_ (`zlua`) games.
+
+  *  *  *  *  *
+
+    hypseus singe vldp -espath -framefile ... -script ...
+
+The Singe specific ``-espath`` argument, performs an *on-the-fly* rewrite of the data path passed by the game LUA:
 
     singe/timegal/
 
@@ -62,9 +70,9 @@ The Singe specific ``-retropath`` argument, performs an *on-the-fly* rewrite of 
 
     roms/../timegal.daphne/
 
-Following ``2.11.2``, if the ``ABSTRACT_SINGE`` option is enabled in ``CMakeLists.txt`` at _build_ time, the rewrite will be:
+Following ``2.11.5``, if the ``ABSTRACT_SINGE`` option is enabled in ``CMakeLists.txt`` at _build_ time, the rewrite will be:
 
-    roms/../timegal.singe/
+    roms/../timegal.hypseus/
 
 This allows _Frontend_ "game type" separation based on folder extensions.
 
@@ -86,11 +94,11 @@ The ``roms`` subdirectory is now purely traversed in the correct ROM location.
     lrwxrwxrwx 1 root root    4096 Apr 29 20:23 screenshots -> /opt/retropie/configs/daphne/screenshots
     drwxr-xr-x 2 root root    4096 Apr 29 20:00 sound
 
-This should allow easier integration within Retro gaming systems.
+This should allow easier integration within EmulationStation gaming systems.
 
   *  *  *  *  *
 
-## Legacy (manual) install instructions (_for reference_)
+## Legacy (manual) install instructions (_for reference only_)
 
 * Install the standard 'daphne' plugin via **RetroPie configuration script** and continue below.
 
