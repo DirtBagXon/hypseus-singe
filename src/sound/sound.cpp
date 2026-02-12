@@ -54,6 +54,7 @@
 namespace sound
 {
 
+SDL_AudioDeviceID audioDevice = 0;
 sample_s g_samples[MAX_NUM] = {{0}};
 sample_s g_sample_saveme; // the special saveme wav which is loaded
                           // independently of any game
@@ -170,66 +171,58 @@ bool init()
             specDesired.padding = 0;
             specDesired.size    = 0;
 
-            // if we can open the audio device
-            if (SDL_OpenAudio(&specDesired, &specObtained) >= 0) {
-                // make sure we got what we asked for
-                if ((specObtained.channels == audio_channels) &&
-                    (specObtained.format == audio_format) &&
-                    (specObtained.freq == audio_rate) &&
-                    (specObtained.callback == callback)) {
-                    // if we can load all our waves, we're set
-                    if (load_waves()) {
-                        // If we are supposed to start without playing any
-                        // sound, then set muted bool here.
-                        // It must come here because add_chip (which comes
-                        // right afterwards) will set the sound mixing callback.
-                        if (get_startsilent()) {
-                            g_bSoundMuted = true;
-                        }
+            // OpenAudioDevice won't allow deviation from specDesired here
+            audioDevice = SDL_OpenAudioDevice(nullptr, 0, &specDesired, &specObtained, 0);
 
-                        // right before initialization, add the samples 'sound
-                        // chip', which can (and should be)
-                        //  only added once, so we need not track its ID (we
-                        //  call its functions directly)
-                        struct chip soundchip;
-                        soundchip.type = CHIP_SAMPLES;
-                        add_chip(&soundchip);
-
-                        // initialize sound chips
-                        init_chip();
-
-                        if (specObtained.samples != g_u16SoundBufSamples) {
-                            string strWarning =
-                                "WARNING : requested " +
-                                numstr::ToStr(g_u16SoundBufSamples) +
-                                " samples for sound buffer, but got " +
-                                numstr::ToStr(specObtained.samples) +
-                                " samples";
-                            LOGW << strWarning;
-
-                            // reset memory allocations
-                            set_buf_size(specObtained.samples);
-                        }
-
-                        result              = true;
-                        g_sound_initialized = true;
-
-                        // enable the audio callback (this should come last to
-                        // be safe)
-                        SDL_PauseAudio(0); // start mixing! :)
+            // if we opened an audio device
+            if (audioDevice != 0) {
+                // if we can load all our waves, we're set
+                if (load_waves()) {
+                    // If we are supposed to start without playing any
+                    // sound, then set muted bool here.
+                    // It must come here because add_chip (which comes
+                    // right afterwards) will set the sound mixing callback.
+                    if (get_startsilent()) {
+                        g_bSoundMuted = true;
                     }
-                    // else if loading waves failed
-                    else {
-                        LOGW << "ERROR: one or more required sound sample "
-                                "files could not be loaded!";
+
+                    // right before initialization, add the samples 'sound
+                    // chip', which can (and should be)
+                    //  only added once, so we need not track its ID (we
+                    //  call its functions directly)
+                    struct chip soundchip;
+                    soundchip.type = CHIP_SAMPLES;
+                    add_chip(&soundchip);
+
+                    // initialize sound chips
+                    init_chip();
+
+                    if (specObtained.samples != g_u16SoundBufSamples) {
+                        string strWarning =
+                            "WARNING : requested " +
+                            numstr::ToStr(g_u16SoundBufSamples) +
+                            " samples for sound buffer, but got " +
+                            numstr::ToStr(specObtained.samples) +
+                            " samples";
+                        LOGW << strWarning;
+
+                        // reset memory allocations
+                        set_buf_size(specObtained.samples);
                     }
-                } // end if audio specs are correct
-                else {
-                    LOGW << "ERROR: unable to obtain desired audio "
-                            "configuration";
+
+                    result              = true;
+                    g_sound_initialized = true;
+
+                    // enable the audio callback (this should come last to
+                    // be safe)
+                    SDL_PauseAudioDevice(audioDevice, 0); // start mixing! :)
                 }
-            } // end if audio device could be opened ...
-
+                // else if loading waves failed
+                else {
+                    LOGW << "ERROR: one or more required sound sample "
+                            "files could not be loaded!";
+                }
+            }
             // if audio device could not be opened (ie no sound card)
             else {
                 LOGW << fmt("Audio device could not be opened: %s", SDL_GetError());
@@ -253,8 +246,8 @@ void shutdown()
     // shutdown sound only if we previously initialized it
     if (g_sound_initialized) {
         LOGD << "Shutting down sound system...";
-        SDL_PauseAudio(1);
-        SDL_CloseAudio();
+        SDL_PauseAudioDevice(audioDevice, 1);
+        SDL_CloseAudioDevice(audioDevice);
         free_waves();
         shutdown_chip();
         g_sound_initialized = 0;
