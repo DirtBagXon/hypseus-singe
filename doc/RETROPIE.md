@@ -4,7 +4,7 @@
 
 ## Installation
 
-* `hypseus` is now available in **RetroPie-Setup** (_exp_) packages.
+* `hypseus` is now available in **RetroPie-Setup** (_opt_) packages.
 
 ## Configuration
 
@@ -52,7 +52,7 @@ sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mi
 
 ## Extended argument summary
 
-#### The legacy '-retropath' singe argument explained:
+#### The legacy '-espath', or '-retropath', singe argument explained:
 
   *  *  *  *  *
 
@@ -60,9 +60,9 @@ sudo apt-get install libmpeg2-4-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mi
 
   *  *  *  *  *
 
-    hypseus singe vldp -retropath -framefile ... -script ...
+    hypseus singe vldp -espath -framefile ... -script ...
 
-The Singe specific ``-retropath`` argument, performs an *on-the-fly* rewrite of the data path passed by the game LUA:
+The Singe specific ``-espath`` argument, performs an *on-the-fly* rewrite of the data path passed by the game LUA:
 
     singe/timegal/
 

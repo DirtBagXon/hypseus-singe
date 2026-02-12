@@ -207,7 +207,7 @@ class game
     bool get_overlay_upgrade();
     bool get_dynamic_overlay();
 
-    bool get_console_flag();
+    bool get_es_flag();
 
     bool get_manymouse();
 
@@ -219,7 +219,7 @@ class game
     virtual void set_overlay_upgrade(bool);
     virtual void set_dynamic_overlay(bool);
 
-    virtual void set_console_flag(bool);
+    virtual void set_es_flag(bool);
 
     virtual void set_game_errors(short);
 
@@ -305,7 +305,7 @@ class game
 
     bool m_dynamic_overlay;
 
-    bool m_run_on_console;
+    bool m_run_on_es;
 
     short m_game_error;
 

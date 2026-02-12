@@ -150,7 +150,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 ## Singe EmulationStation helpers
 | Option                           | Description                                                                                 |
 |----------------------------------|---------------------------------------------------------------------------------------------|
-| -retropath                       | Singe LUA data path _relative_ rewrite in ES [.hypseus] extensions. Uses `roms` traversal.  |
+| -espath                          | Singe LUA data path _relative_ rewrite in ES [.hypseus] extensions. Uses `roms` traversal.  |
 | -singedir \<path>                | Singe LUA data path _absolute_ rewrite in ES [.hypseus] extensions. Uses absolute path.     |
 
 ## Special Arguments

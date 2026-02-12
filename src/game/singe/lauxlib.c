@@ -573,8 +573,8 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
     lua_pushfstring(L, "@%s", filename);
     lf.f = fopen(filename, "r");
     if (lf.f == NULL) {
-      if (get_retropath()) {
-        lua_retropath(filename, retroname, len);
+      if (get_espath()) {
+        lua_espath(filename, retroname, len);
         lf.f = fopen(retroname, "r");
         if (lf.f == NULL) return rerrfile(L, "open", retroname, fnameindex);
       }
@@ -590,7 +590,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
     lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
     if (lf.f == NULL) {
-      if (get_retropath()) {
+      if (get_espath()) {
         lf.f = fopen(retroname, "rb");
         if (lf.f == NULL) return rerrfile(L, "reopen", retroname, fnameindex);
       }

@@ -12,7 +12,7 @@ option(BUILD_SINGE      "Singe"                 ON)
 option(BUILDBOT         "Buildbot"              OFF)
 option(ASAN             "Address Sanitizer"     OFF)
 
-# Abstract out -retropath ES extension: Use .hypseus NOT .daphne
+# Abstract out -espath ES extension: Use .hypseus NOT .daphne
 option(ABSTRACT_SINGE   "Redefine Singe LUA Rewrites"     ON)
 
 if (NOT CMAKE_BUILD_TYPE)

@@ -82,7 +82,7 @@ void          sep_unload_fonts(void);
 void          sep_unload_sounds(void);
 void          sep_unload_mixers(void);
 void          sep_unload_sprites(void);
-void          sep_set_retropath(void);
+void          sep_set_espath(void);
 void          sep_rom_compressed(void);
 void          sep_no_crosshair(void);
 void          sep_enable_trace(void);

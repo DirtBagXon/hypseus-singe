@@ -1074,7 +1074,7 @@ unsigned int ldp::get_elapsed_ms_since_play() { return m_uElapsedMsSincePlay; }
 // is bad on a whole)
 bool ldp::handle_cmdline_arg(const char *arg) { return false; }
 
-bool ldp::get_console_status() { return g_game->get_console_flag(); }
+bool ldp::get_es_status() { return g_game->get_es_flag(); }
 
 void ldp::get_bug_log(list<string> &log)
 {

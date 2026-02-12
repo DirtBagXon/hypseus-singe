@@ -231,9 +231,9 @@ void sep_do_blank()
     }
 }
 
-void sep_set_retropath()
+void sep_set_espath()
 {
-    lua_set_retropath(true);
+    lua_set_espath(true);
 }
 
 void sep_datapaths(const char *data)
@@ -1501,7 +1501,7 @@ void sep_startup(const char *data)
 
     } else {
 
-        if (g_pSingeIn->get_retro_path()) sep_set_retropath();
+        if (g_pSingeIn->get_retro_path()) sep_set_espath();
 
         if (!g_altgame.empty()) {
             LOGI << sep_fmt("'%s': -usealt is only necessary with zip ROMs.",
@@ -1791,7 +1791,7 @@ static int sep_font_load(lua_State *L)
            if (g_pSingeIn->get_retro_path()) {
                char filepath[RETRO_MAXPATH] = {0};
                int len = std::min((int)fontpath.size() + RETRO_PAD, RETRO_MAXPATH);
-               lua_retropath(fontpath.c_str(), filepath, len);
+               lua_espath(fontpath.c_str(), filepath, len);
                fontpath = filepath;
            }
 
@@ -2603,7 +2603,7 @@ static int sep_sound_load(lua_State *L)
           {
               char tmpPath[RETRO_MAXPATH] = {0};
               int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
-              lua_retropath(filepath.c_str(), tmpPath, len);
+              lua_espath(filepath.c_str(), tmpPath, len);
               filepath = tmpPath;
           }
 
@@ -2697,7 +2697,7 @@ static int sep_music_load(lua_State *L)
           {
               char tmpPath[RETRO_MAXPATH] = {0};
               int len = std::min((int)mixpath.size() + RETRO_PAD, RETRO_MAXPATH);
-              lua_retropath(mixpath.c_str(), tmpPath, len);
+              lua_espath(mixpath.c_str(), tmpPath, len);
               mixpath = tmpPath;
           }
 
@@ -3157,7 +3157,7 @@ static int sep_sprite_load(lua_State *L)
            {
                char tmpPath[RETRO_MAXPATH] = {0};
                int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
-               lua_retropath(filepath.c_str(), tmpPath, len);
+               lua_espath(filepath.c_str(), tmpPath, len);
                filepath = tmpPath;
            }
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
@@ -3261,7 +3261,7 @@ static int sep_sprite_loadframes(lua_State *L)
                {
                    char tmpPath[RETRO_MAXPATH] = {0};
                    int len = std::min((int)filepath.size() + RETRO_PAD, RETRO_MAXPATH);
-                   lua_retropath(filepath.c_str(), tmpPath, len);
+                   lua_espath(filepath.c_str(), tmpPath, len);
                    filepath = tmpPath;
                }
 

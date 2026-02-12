@@ -8,7 +8,7 @@ setOverlayFullAlpha,    sep_set_overlayfullalpha   (void)
 getFValue,              sep_get_fvalue             (return double)
 takeScreenshot,         sep_screenshot
 
-rewriteStatus,          sep_lua_rewrite            (return bool) -- (-retropath enabled)
+rewriteStatus,          sep_lua_rewrite            (return bool) -- (-espath enabled)
 vldpFlash               sep_mpeg_set_flash         (void) -- produces white frame
 vldpGetRotate,          sep_mpeg_get_rotate        (return float) -- (-rotate value)
 vldpSetRotate,          sep_mpeg_set_rotate        (degree)

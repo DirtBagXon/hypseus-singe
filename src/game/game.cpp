@@ -143,8 +143,8 @@ game::game()
     m_overlay_upgrade = false;
     m_dynamic_overlay = false;
 
-    // running on retro console
-    m_run_on_console = false;
+    // running in EmulationStation
+    m_run_on_es = false;
 
     // Set a sinden border
     m_sinden_border = 0;
@@ -549,7 +549,7 @@ int game::get_stretch_value() { return m_stretch; }
 
 short game::get_game_errors() { return m_game_error; }
 
-bool game::get_console_flag() { return m_run_on_console; }
+bool game::get_es_flag() { return m_run_on_es; }
 
 bool game::use_old_overlay() { return m_old_overlay; }
 
@@ -565,7 +565,7 @@ void game::set_prefer_samples(bool value) { m_prefer_samples = value; }
 
 void game::set_fastboot(bool value) { m_fastboot = value; }
 
-void game::set_console_flag(bool value) { m_run_on_console = value; }
+void game::set_es_flag(bool value) { m_run_on_es = value; }
 
 void game::set_game_errors(short value) { m_game_error = value; }
 

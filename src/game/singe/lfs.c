@@ -120,8 +120,8 @@ static int lfs_change_dir (lua_State *L) {
 
 	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
-	if (get_retropath()) {
-	    lua_retropath(path, filepath, len);
+	if (get_espath()) {
+	    lua_espath(path, filepath, len);
 	} else strncpy(filepath, path, len);
 
 	if (chdir(filepath)) {
@@ -509,8 +509,8 @@ static int dir_iter_factory (lua_State *L) {
 
 	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
-	if (get_retropath()) {
-	    lua_retropath(path, dirpath, len);
+	if (get_espath()) {
+	    lua_espath(path, dirpath, len);
 	} else strncpy(dirpath, path, len);
 
 	dir_data *d;
@@ -754,8 +754,8 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
 
 	if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
 
-	if (get_retropath()) {
-	    lua_retropath(file, retrofile, len);
+	if (get_espath()) {
+	    lua_espath(file, retrofile, len);
 	} else strncpy(retrofile, file, len);
 
 	if (st(retrofile, &info)) {

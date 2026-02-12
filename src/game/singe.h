@@ -137,7 +137,7 @@ class singe : public game
 
     static bool get_retro_path()
     {
-        return g_ldp->get_console_status();
+        return g_ldp->get_es_status();
     }
 
     static void set_singe_errors(short value)
