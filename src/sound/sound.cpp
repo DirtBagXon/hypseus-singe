@@ -221,6 +221,7 @@ bool init()
                 else {
                     LOGW << "ERROR: one or more required sound sample "
                             "files could not be loaded!";
+                    SDL_CloseAudioDevice(audioDevice);
                 }
             }
             // if audio device could not be opened (ie no sound card)
