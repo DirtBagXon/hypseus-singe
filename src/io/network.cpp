@@ -26,6 +26,7 @@
 #include <stdlib.h> // for lousy random number generation
 #include <sys/types.h>
 #include <string.h>
+#include <string>
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <SDL_image.h>
@@ -48,6 +49,7 @@
 #ifdef LINUX
 #include <sys/utsname.h> // MATT : I'm not sure if this is good for UNIX in general so I put it here
 #include <sys/sysinfo.h>
+#include <fstream>
 #endif
 
 #ifdef UNIX
@@ -65,13 +67,14 @@
 #include "network.h"
 
 
-bool g_send_data_to_server = false; // whether user allows us to send data to
+bool g_send_data_to_server = true; // whether user allows us to send data to
                                    // server
 
 ////////////////////
 
-// this is not the server you are looking for
-void net_server_send() { g_send_data_to_server = false; }
+// is this the server you are looking for
+void net_server_send(bool c) { g_send_data_to_server = c; }
+bool net_send_enabled() { return g_send_data_to_server; }
 
 int g_sockfd = -1;          // our socket file descriptor
 struct net_packet g_packet; // what we're gonna send
@@ -116,6 +119,29 @@ unsigned int get_sys_mem()
 
     return result;
 }
+
+#ifdef LINUX
+static uint64_t fnv1a(const std::string& s)
+{
+    uint64_t hash = 1469598103934665603ULL;
+
+    for (unsigned char c : s) {
+        hash ^= c;
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+
+static std::string read_id()
+{
+    std::ifstream file("/etc/machine-id");
+    if (!file.is_open()) return "";
+
+    std::string id;
+    std::getline(file, id);
+    return id;
+}
+#endif
 
 char *get_video_description()
 {
@@ -204,6 +230,73 @@ char *get_video_description()
 #endif
 
     return result;
+}
+
+static std::string getUid()
+{
+    const char k[] = "Unknown";
+#ifdef WIN32
+    HKEY hKey;
+    char v[256];
+    DWORD s = sizeof(v);
+
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
+        "SOFTWARE\\Microsoft\\Cryptography",
+        0, KEY_READ | KEY_WOW64_64KEY, &hKey) == ERROR_SUCCESS) {
+
+        if (RegQueryValueExA(hKey, "MachineGuid", nullptr, nullptr,
+            (LPBYTE)v, &s) == ERROR_SUCCESS) {
+
+            RegCloseKey(hKey);
+            return std::string(v, strnlen(v, s));
+        }
+        RegCloseKey(hKey);
+    }
+    return k;
+#elif defined(__linux__)
+    std::string id = read_id();
+    if (id.empty()) return k;
+
+    uint64_t h1 = fnv1a(id);
+    uint64_t h2 = fnv1a(id + "salt");
+
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%04x-%04x-%04x-%04x-%08x",
+       (uint32_t)(h1 >> 32), (uint32_t)h1,
+       (uint32_t)(h2 >> 32), (uint32_t)h2,
+       (uint32_t)(h1 ^ h2)
+  );
+  return std::string(buf);
+#elif defined(__APPLE__)
+    FILE* pipe = popen(
+        "ioreg -rd1 -c IOPlatformExpertDevice | \
+        awk -F\\\" '/IOPlatformUUID/ {print $4}'", "r"
+    );
+
+    if (!pipe) return k;
+
+    char buffer[256];
+    std::string result;
+
+    while (fgets(buffer, sizeof(buffer), pipe)) {
+        result += buffer;
+    }
+
+    pclose(pipe);
+
+    if (!result.empty() && result.back() == '\n')
+        result.pop_back();
+
+    return result;
+#else
+    return k;
+#endif
+}
+
+const char* get_id()
+{
+    static std::string u = getUid();
+    return u.c_str();
 }
 
 char *get_cpu_name()
@@ -374,11 +467,4 @@ char *get_build_time()
    snprintf(result, sizeof(result), "Compiled: %s", built);
 
    return result;
-}
-
-// DBX: Pretty certain MPO's server doesn't want these
-// Disabled but rip it out for the paranoid....
-void net_send_data_to_server()
-{
-    return;
 }

@@ -24,6 +24,8 @@
 
 // written by Matt Ownby
 
+#ifdef DEBUG
+
 #include "config.h"
 
 #include <string.h>
@@ -163,29 +165,22 @@ void print_board_info(unsigned char index,    // which board
 // (type is the 1st byte of the trailer segment, study my documentation on what
 // the trailer segment is if you don't know)
 {
+    std::string sequence_type;
+    std::string board_name;
 
-    char sequence_type[160] = {0};
-    char board_name[160]    = {0};
+    auto game_type = g_game->get_game_type();
 
     // if we know that we are playing Dragon's Lair
-    if ((g_game->get_game_type() == GAME_LAIR) | (g_game->get_game_type() == GAME_DLE1) |
-        (g_game->get_game_type() == GAME_DLE2)) {
+    if ((game_type == GAME_LAIR) ||
+        (game_type == GAME_DLE1) ||
+        (game_type == GAME_DLE2)) {
+
         index = (unsigned char)(index & 0x7F);
 
-        if (type & 0x40) {
-            strcat(sequence_type, "Attract Mode");
-        }
-        if (type & 0x20) {
-            strcat(sequence_type, "Bones Scene ");
-        }
-
-        if (type & 0x10) {
-            strcat(sequence_type, "Death Scene ");
-        }
-
-        if (sequence == 1) {
-            strcat(sequence_type, "Resurrection Scene ");
-        }
+        if (type & 0x40) sequence_type += "Attract Mode";
+        if (type & 0x20) sequence_type += "Bones Scene";
+        if (type & 0x10) sequence_type += "Death Scene";
+        if (sequence == 1) sequence_type += "Resurrection Scene";
 
         // If our current index is for hard difficulty,
         // we need to compensate to get the proper board name
@@ -193,50 +188,42 @@ void print_board_info(unsigned char index,    // which board
             index -= 0x2A;
         }
 
-        if (g_game->get_game_type() != GAME_DLE2) {
+        if (game_type != GAME_DLE2) {
             // make sure we are not out of bounds
-            if (index < (sizeof(lairstuff) / sizeof(boardinfo))) {
-                strcpy(board_name, lairstuff[index].name);
-            } else {
-                strcpy(board_name, "OUT OF BOUNDS");
-            }
+            if (index < (sizeof(lairstuff) / sizeof(boardinfo)))
+                board_name += lairstuff[index].name;
+            else
+                board_name += "OUT OF BOUNDS";
         }
         // else if this is DLE v2
         else {
             // make sure we are not out of bounds
-            if (index < (sizeof(dle2stuff) / sizeof(boardinfo))) {
-                strcpy(board_name, dle2stuff[index].name);
-            } else {
-                strcpy(board_name, "OUT OF BOUNDS");
-            }
+            if (index < (sizeof(dle2stuff) / sizeof(boardinfo)))
+                board_name += dle2stuff[index].name;
+            else
+                board_name += "OUT OF BOUNDS";
         }
 
-        LOGD << fmt("[%2x] %s, Sequence %d %s", index, board_name, sequence, sequence_type);
+        LOGD << fmt("[%2x] %s, Sequence %d %s", index, board_name.c_str(),
+			sequence, sequence_type.c_str());
     }
 
     // if we're playing Space Ace ...
-    else if (g_game->get_game_type() == GAME_ACE) {
+    else if (game_type == GAME_ACE) {
         index = (unsigned char)(index & 0x7F);
 
-        if (type & 0x40) {
-            strcat(sequence_type, "Attract Mode");
-        }
-
-        if (type & 0x20) {
-            strcat(sequence_type, "Borf Taunt");
-        }
-
-        if (type & 0x10) {
-            strcat(sequence_type, "Death Scene");
-        }
+        if (type & 0x40) sequence_type += "Attract Mode";
+        if (type & 0x20) sequence_type += "Borf Taunt";
+        if (type & 0x10) sequence_type += "Death Scene";
 
         // check to make sure we are within our bounds
-        if (index < (sizeof(acestuff) / sizeof(boardinfo))) {
-            strcpy(board_name, acestuff[index].name);
-        } else {
-            strcpy(board_name, "OUT OF BOUNDS");
-        }
-        LOGD << fmt("[%2x] %s, Sequence %d %s", index, board_name, sequence, sequence_type);
+        if (index < (sizeof(acestuff) / sizeof(boardinfo)))
+            board_name += acestuff[index].name;
+        else
+            board_name += "OUT OF BOUNDS";
+
+        LOGD << fmt("[%2x] %s, Sequence %d %s", index, board_name.c_str(),
+			sequence, sequence_type.c_str());
 
     }
 
@@ -245,3 +232,5 @@ void print_board_info(unsigned char index,    // which board
         LOGD << fmt("[%2x] Unknown Name, Sequence %d Type %x", index, sequence, type);
     }
 }
+
+#endif

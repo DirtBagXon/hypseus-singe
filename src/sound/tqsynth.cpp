@@ -2463,6 +2463,9 @@ bool phones_to_wave(char *phonemes, int len, sound::sample_s *ptrSample)
         // else malloc failed ...
     }
 
+    if (elm.data)
+        free(elm.data);
+
     return bResult;
 }
 
@@ -3318,10 +3321,11 @@ unsigned holmes(unsigned nelm, unsigned char *elm, short *samp_base)
                     tstress    = 0;
                     ntstress   = dur;
 
-                    while (j <= nelm) {
-                        Elm_ptr e = (j < nelm) ? &Elements[elm[j++]] : &Elements[0];
-                        unsigned du = (j < nelm) ? elm[j++] : 0;
-                        unsigned s  = (j < nelm) ? elm[j++] : 3;
+                    while (j + 2 < nelm) {
+                        Elm_ptr e = &Elements[elm[j]];
+                        unsigned du = elm[j + 1];
+                        unsigned s  = elm[j + 2];
+                        j += 3;
 
                         if (s || e->feat & vwl) {
                             unsigned d = 0;
@@ -3331,12 +3335,17 @@ unsigned holmes(unsigned nelm, unsigned char *elm, short *samp_base)
                             else
                                 stress_e.v = (float)0.1;
 
-                            do {
+                            while ((e->feat & vwl) && (j + 2 < nelm)) {
                                 d += du;
-                                e = (j < nelm) ? &Elements[elm[j++]] : &Elements[0];
-                                du = elm[j++];
-                            } while ((e->feat & vwl) && elm[j++] == s);
 
+                                e  = &Elements[elm[j]];
+                                du = elm[j + 1];
+                                unsigned next_s = elm[j + 2];
+
+                                j += 3;
+
+                                if (next_s != s) break;
+                            }
                             ntstress += d / 2;
                             break;
                         }

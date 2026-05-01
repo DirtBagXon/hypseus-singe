@@ -51,6 +51,9 @@ LUALIB_API int (luaopen_cjson) (lua_State *L);
 #define LUA_LOADMD5NAME "md5"
 LUALIB_API int (luaopen_md5_core) (lua_State *L);
 
+#define LUA_LOADSOCKETNAME "socket"
+LUALIB_API int (luaopen_socket_core) (lua_State *L);
+
 #define LUA_LOAD232NAME	"rs232"
 LUALIB_API int (luaopen_luars232) (lua_State *L);
 

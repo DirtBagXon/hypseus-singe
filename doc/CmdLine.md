@@ -114,8 +114,8 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -spaceace91                      | Tells Hypseus that you are using a Space Ace '91 disc instead of a Space Ace '83 NTSC disc. *Only relevant when you are playing the USA version of Space Ace '83.* |
 | -sram_continuous_update          | Saves the static RAM after every search so that if Hypseus is terminated improperly, high scores are preserved. |
 | -startsilent                     | Tells Hypseus to start with no sound until input has been received. |
-| -texturestream                   | Enable SDL_TEXTUREACCESS_STREAMING           |
-| -texturetarget                   | Enable SDL_TEXTUREACCESS_TARGET (Default).   |
+| -texturestream                   | Enable SDL_TEXTUREACCESS_STREAMING (Default) |
+| -texturetarget                   | Enable SDL_TEXTUREACCESS_TARGET              |
 | -tiphat                          | Invert joystick SDL_HAT_UP and SDL_HAT_DOWN. |
 | -usbscoreboard \<args>           | Enable USB serial support for scoreboard. Arguments: *(i)mplementation, (p)ort, (b)aud* |
 | -usbserial_rts_on                | Enable RTS on USB serial port setup [Default: off] |

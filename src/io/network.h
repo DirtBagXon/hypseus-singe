@@ -46,7 +46,7 @@ struct net_packet {
     unsigned int crc32; // a checksum of the preceeding data
 };
 
-void net_server_send();
+void net_server_send(bool);
 void net_set_gamename(char *gamename);
 void net_set_ldpname(char *ldpname);
 unsigned int get_sys_mem();
@@ -56,4 +56,4 @@ char *get_os_description();
 char *get_sdl_compile();
 char *get_sdl_linked();
 char *get_build_time();
-void net_send_data_to_server();
+const char *get_id();

@@ -89,16 +89,21 @@ if [ -z $1 ] ; then
 	exit 1
 fi
 
-ROMSTART="-script"
-ROMFILE="$HYPSEUS_SHARE/singe/$1/$1.singe"
+ROMSTART="-zlua"
+ROMFILE="$HYPSEUS_SHARE/singe/$1/$1.zip"
 
 if [ ! -f $ROMFILE ]; then
         echo
-        echo "Missing: $HYPSEUS_SHARE/singe/$1/$1.singe" | STDERR
-        echo "Will attempt to load from Zip..."
+        echo "Missing: $ROMFILE" | STDERR
+        echo "Will attempt to load from 'roms' folder..."
         echo
-        ROMSTART="-zlua"
         ROMFILE="$HYPSEUS_SHARE/roms/$1.zip"
+        if [ ! -f $ROMFILE ]; then
+                echo "No Zip found will attempt to run from unpacked LUA" | STDERR
+                echo
+                ROMSTART="-script"
+                ROMFILE="$HYPSEUS_SHARE/singe/$1/$1.singe"
+        fi
 fi
 
 FRAMEFILE="$HYPSEUS_SHARE/singe/$1/$1.txt"

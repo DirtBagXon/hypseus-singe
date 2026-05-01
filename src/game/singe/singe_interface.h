@@ -102,7 +102,7 @@ struct singe_in_info
 	int  (*cfm_get_number_of_mice)(void *);
 	void (*cfm_joymouse_enable)(void *, bool);
 
-	bool (*get_retro_path)();
+	bool (*get_es_path)();
 	void (*set_singe_errors)(short);
 
 	// VARIABLES:

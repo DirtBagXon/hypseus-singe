@@ -46,9 +46,11 @@ struct yuv_buf {
 
 // safe strcpy that null-terminates the end of a string
 // Use this instead of strcpy always!
-#define SAFE_STRCPY(dst, src, size)                                            \
-    strncpy(dst, src, size);                                                   \
-    dst[size - 1] = 0;
+#define SAFE_STRCPY(dst, src, size)                      \
+    do {                                                 \
+        strncpy((dst), (src), (size) - 1);               \
+        (dst)[(size) - 1] = '\0';                        \
+    } while (0)
 
 // since this is C and not C++, we can't use booleans ...
 enum { VLDP_FALSE = 0, VLDP_TRUE = 1 } typedef VLDP_BOOL;
@@ -97,6 +99,7 @@ struct vldp_in_info {
     // (for instances when we know uMsTimer will not be updated, we will call
     // this function instead)
     unsigned int (*GetTicksFunc)();
+    const char *Uid;
 };
 
 // functions and state information provided to the parent thread from VLDP

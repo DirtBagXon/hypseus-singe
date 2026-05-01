@@ -168,8 +168,9 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if (IMG_Init(imgflags) != imgflags) {
+    if ((IMG_Init(imgflags) & imgflags) != imgflags) {
         printerror("Could not initialize SDL IMG!");
+        IMG_Quit();
         SDL_Quit();
         exit(1);
     }

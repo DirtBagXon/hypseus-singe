@@ -120,8 +120,6 @@ int GotText()
 // sends a byte to our virtual vp380
 void write(unsigned char value)
 {
-    //	char s[81] = { 0 };
-
     if (value == 0x0C) return; // what is this
 
     // Store off command char
@@ -183,18 +181,15 @@ void write(unsigned char value)
         }
         // Text String
         if (GotText()) {
-            char xc[4];
-            char yc[4];
-            int x;
-            int y;
+            char xc[3] = {};
+            char yc[3] = {};
 
             // get x,y
-            strncpy(xc, &CommandBuffer[5], 2);
-            xc[2] = 0;
-            strncpy(yc, &CommandBuffer[3], 2);
-            yc[2] = 0;
-            x     = atoi(xc);
-            y     = atoi(yc);
+            memcpy(xc, &CommandBuffer[5], 2);
+            memcpy(yc, &CommandBuffer[3], 2);
+
+            int x = atoi(xc);
+            int y = atoi(yc);
 
             // do we have this line already
             // vp380 expects a char style overwrite.. since we dont have that

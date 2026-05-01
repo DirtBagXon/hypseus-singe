@@ -55,14 +55,16 @@ struct singe_in_info g_SingeIn;
 ////////////////////////////////////////////////////////////////////////////////
 
 // by RDG2010
-const int singe::i_full_keybd_defs[] = {SDLK_BACKSPACE,    SDLK_TAB,
-                                        SDLK_RETURN,       SDLK_PAUSE,
-                                        SDLK_SPACE,        SDLK_QUOTE,
-                                        SDLK_COMMA,        SDLK_SEMICOLON,
-                                        SDLK_EQUALS,       SDLK_LEFTBRACKET,
-                                        SDLK_RIGHTBRACKET, SDLK_BACKSLASH,
-                                        SDLK_SLASH,        SDLK_DELETE,
-                                        SDLK_PERIOD};
+const int singe::i_full_keybd_defs[] = {
+    SDLK_BACKSPACE,    SDLK_TAB,
+    SDLK_RETURN,       SDLK_PAUSE,
+    SDLK_SPACE,        SDLK_QUOTE,
+    SDLK_COMMA,        SDLK_SEMICOLON,
+    SDLK_EQUALS,       SDLK_LEFTBRACKET,
+    SDLK_RIGHTBRACKET, SDLK_BACKSLASH,
+    SDLK_SLASH,        SDLK_DELETE,
+    SDLK_PERIOD
+};
 
 #define KEYBD_ARRAY_SIZE 15
 
@@ -141,7 +143,7 @@ bool singe::init()
         g_SingeIn.draw_string         = video::draw_string;
         g_SingeIn.samples_play_sample = samples::play;
         g_SingeIn.set_last_error      = set_last_error;
-        g_SingeIn.get_retro_path      = get_retro_path;
+        g_SingeIn.get_es_path         = get_es_path;
         g_SingeIn.request_screenshot  = request_screenshot;
 
         // by RDG2010
@@ -434,7 +436,7 @@ bool singe::handle_cmdline_arg(const char *arg)
 
         for (int i = 0; i < len && s[i] != '\0'; ++i) {
             if (!isalnum(s[i]) && s[i] != int('_')
-                    && s[i] != int('-')) {
+                    && s[i] != int('-') && s[i] != int('.')) {
                 bResult = false;
             }
         }

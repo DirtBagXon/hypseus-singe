@@ -27,6 +27,7 @@ static const luaL_Reg lualibs[] = {
   {LUA_LOADBITNAME, luaopen_bit},
   {LUA_LOADCJSONNAME, luaopen_cjson},
   {LUA_LOADMD5NAME, luaopen_md5_core},
+  {LUA_LOADSOCKETNAME, luaopen_socket_core},
   {LUA_LOAD232NAME, luaopen_luars232},
   {LUA_RNDLIBNAME, luaopen_random},  // by RDG2010
   {NULL, NULL}

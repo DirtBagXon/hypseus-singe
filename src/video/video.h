@@ -1,16 +1,16 @@
 /*
- * ____ DAPHNE COPYRIGHT NOTICE ____
+ * ____ HYPSEUS COPYRIGHT NOTICE ____
  *
  * Copyright (C) 2001 Matt Ownby, 2024 DirtBagXon
  *
- * This file is part of DAPHNE, a laserdisc arcade game emulator
+ * This file is part of HYPSEUS, a laserdisc arcade game emulator
  *
- * DAPHNE is free software; you can redistribute it and/or modify
+ * HYPSEUS is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * DAPHNE is distributed in the hope that it will be useful,
+ * HYPSEUS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-// by Matt Ownby
-// Part of the DAPHNE emulator
+// by Matt Ownby, DirtBagXon
+// Part of the HYPSEUS emulator
 
 #ifndef BITMAP_H
 #define BITMAP_H
@@ -40,8 +40,9 @@
 
 #define YUV_H 0x00
 #define YUV_V 0x01
-#define YUV_FLAG_BLEND  0x01
+#define YUV_FLAG_BLEND     0x01
 #define YUV_FLAG_GRAYSCALE 0x02
+#define YUV_FLAG_LUMA      0x04
 
 #include "SDL_FontCache.h"
 #include <SDL.h>
@@ -105,7 +106,6 @@ bool init_display();
 bool init_display();
 bool deinit_display();
 
-SDL_Texture *vid_create_yuv_texture (int width, int height);
 void vid_setup_yuv_overlay (int width, int height);
 // MAC : REMEMBER, vid_update_yuv_overlay() ONLY updates the YUV surface. The YUV texture is updated on vid_blit()
 int vid_update_yuv_overlay (uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane, int Ypitch, int Upitch, int Vpitch);
@@ -117,7 +117,6 @@ void vid_blit();
 // MAC: sdl_video_run thread block ends here
 
 void shutdown_display();
-void resize_cleanup();
 
 // flips the video buffers (if in double buffering mode)
 void vid_flip();
@@ -131,9 +130,6 @@ void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
 void free_bmps();
-SDL_Surface *load_one_bmp(const char *, bool);
-SDL_Surface *load_one_png(const char *);
-void free_one_bmp(SDL_Surface *);
 SDL_Window *get_window();
 SDL_Renderer *get_renderer();
 SDL_Texture *get_screen();
@@ -154,6 +150,7 @@ bool get_singe_blend_sprite();
 bool get_video_resized();
 void set_opengl(bool value);
 void set_vulkan(bool value);
+void set_luma(bool, uint8_t);
 void set_grayscale(bool value);
 void set_blendfilter(bool value);
 void set_forcetop(bool value);
@@ -163,6 +160,7 @@ void set_grabmouse(bool value);
 void toggle_grabmouse();
 void set_vsync(bool value);
 void set_intro(bool value);
+void set_logo(bool value);
 void set_yuv_blue(bool value);
 void set_fullscreen(bool value);
 void set_fakefullscreen(bool value);
@@ -189,8 +187,6 @@ Uint16 get_viewport_height();
 Uint16 get_video_height();
 void set_video_width(Uint16);
 void set_video_height(Uint16);
-void draw_scanlines(int);
-void draw_border(int, int);
 void draw_string(const char *, int, int, SDL_Surface *);
 void draw_subtitle(char *, bool, bool);
 void vid_toggle_fullscreen();
@@ -200,7 +196,6 @@ void vid_scoreboard_switch();
 void set_aspect_ratio(int fRatio);
 void set_detected_height(int pHeight);
 void set_detected_width(int pWidth);
-void set_subtitle_display(char *);
 void set_LDP1450_enabled(bool bEnabled);
 void set_singe_blend_sprite(bool bEnabled);
 void set_bezel_file(const char *);
@@ -228,16 +223,11 @@ void set_yuv_rect(int, int, int, int);
 void reset_yuv_rect();
 
 void set_vertical_orientation(bool);
-void format_fullscreen_render();
-void format_window_render();
 
-bool draw_ranks();
 bool draw_annunciator(int which);
-bool draw_annunciator1(int which);
-bool draw_annunciator2(int which);
-void calc_annun_rect();
 
-void take_screenshot();
+bool get_bezelstatus();
+
 void set_queue_screenshot(bool bEnabled);
 
 unsigned int get_logical_width();

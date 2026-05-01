@@ -23,11 +23,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdint.h>
+
 #ifndef luretro_h
 #define luretro_h
 
-#define RETRO_PAD  12
-#define RETRO_MAXPATH 128
+#define REWRITE_MAXPATH 128
 
 unsigned char get_espath();
 unsigned char get_zipath();
@@ -41,7 +42,9 @@ void lua_set_espath(unsigned char value);
 void lua_set_zipath(unsigned char value);
 void lua_set_abpath(const char *value);
 
-void lua_espath(const char *src, char *dst, int len);
-void lua_rampath(const char *src, char *dst, int len);
+void lua_espath(const char *src, char *dst, int);
+void lua_rampath(const char *src, char *dst, int);
+void lua_settab(uint64_t, uint8_t *k, uint8_t *n);
+void lua_push(void*, size_t, const uint8_t *k, const uint8_t *n, uint32_t);
 
 #endif

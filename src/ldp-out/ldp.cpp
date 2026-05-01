@@ -199,22 +199,22 @@ bool ldp::pre_search(const char *pszFrame, bool block_until_search_finishes)
 
     if (m_bVerbose) { LOGD << s1; }
 
+#ifdef DEBUG
+    auto game_type = g_game->get_game_type();
+
     // if it's Dragon's Lair/Space Ace, print the board we are on
-    if ((g_game->get_game_type() == GAME_LAIR) || (g_game->get_game_type() == GAME_DLE1) ||
-        (g_game->get_game_type() == GAME_DLE2) || (g_game->get_game_type() == GAME_ACE)) {
+    if ((game_type == GAME_LAIR) || (game_type == GAME_DLE1) ||
+        (game_type == GAME_DLE2) || (game_type == GAME_ACE)) {
         Uint8 *cpumem = cpu::get_mem(0); // get the memory for the first (and
                                         // only)
         print_board_info(cpumem[0xA00E], cpumem[0xA00F], cpumem[Z80_GET_IY]);
     }
+#endif
 
     // If the user requested a delay before seeking, make it now
     if (search_latency > 0) {
-#ifdef DEBUG
         // search latency needs to be reworked so that think() is getting called
-        // ...
-        assert(false);
-#endif
-        //		make_delay(get_search_latency());
+        // make_delay(get_search_latency());
         if (m_bVerbose) {
             LOGW << "search latency needs to be redesigned, it is "
                     "currently disabled";

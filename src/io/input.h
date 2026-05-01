@@ -76,28 +76,15 @@ typedef struct
     int y;
     int relx;
     int rely;
-    SDL_Color color;
     char name[64];
     Uint32 buttons;
-    Uint32 scrolluptick;
-    Uint32 scrolldowntick;
-    Uint32 scrolllefttick;
-    Uint32 scrollrighttick;
 } Mouse;
 
 
 int SDL_input_init();
 void SDL_input_shutdown();
 
-// Filters out mouse events if 'bFilteredOut' is true.
-// The purpose is so that games that don't use the mouse don't get a bunch of
-// extra mouse
-//  events which can hurt performance.
-void FilterMouseEvents(bool bFilteredOut);
-
 void SDL_check_input();
-
-void SDL_gamepad_init();
 
 void process_event(SDL_Event *event);
 void process_keydown(SDL_Keycode key);
@@ -113,8 +100,9 @@ void set_use_joystick(bool val);
 void set_invert_hat(bool val);
 void set_open_hat(bool val);
 void set_inputini_file(const char *inputFile);
-bool set_mouse_mode(int);
+void set_mouse_raw(bool);
 void set_use_gamepad(bool);
+void set_trigger_threshold(double);
 void set_gamepad_order(int *c, int);
 void do_gamepad_rumble(Uint8, Uint8, Uint8);
 void disable_haptics();

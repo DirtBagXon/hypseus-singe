@@ -23,8 +23,12 @@
 // contains information about each board that we have just for debugging
 // convenience
 
+#ifdef DEBUG
+
 struct boardinfo {
     const char *name;
 };
 
 void print_board_info(unsigned char index, unsigned char sequence, unsigned char type);
+
+#endif

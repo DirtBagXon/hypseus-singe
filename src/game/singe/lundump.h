@@ -20,7 +20,7 @@
 LUAI_FUNC Proto* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char* name);
 
 /* make header; from lundump.c */
-LUAI_FUNC void luaU_header (char* h);
+LUAI_FUNC void luaU_header (char* h, int format);
 
 /* dump one chunk; from ldump.c */
 LUAI_FUNC int luaU_dump (lua_State* L, const Proto* f, lua_Writer w, void* data, int strip);
@@ -34,7 +34,8 @@ LUAI_FUNC void luaU_print (const Proto* f, int full);
 #define LUAC_VERSION		0x51
 
 /* for header of binary files -- this is the official format */
-#define LUAC_FORMAT		0
+#define LUAC_FORMAT		0x00
+#define LUAC_TYPE		0x0F
 
 /* size of header of binary files */
 #define LUAC_HEADERSIZE		12
