@@ -104,7 +104,7 @@ jobs:
         echo "KEY_TILT = SDLK_t 0 0" >> hypseus-singe/hypinput.ini
         echo "END" >> hypseus-singe/hypinput.ini
         tar -zcvf ../hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz hypseus-singe
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       with:
         name: hypseus-singe-AppImage-${{ env.COMMIT_SHORT_SHA }}
         path: hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz

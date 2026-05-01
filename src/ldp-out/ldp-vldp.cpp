@@ -159,6 +159,7 @@ bool ldp_vldp::init_player()
                 g_local_info.blank_during_searches = m_blank_on_searches;
                 g_local_info.blank_during_skips    = m_blank_on_skips;
                 g_local_info.GetTicksFunc          = GetTicksFunc;
+                g_local_info.Uid                   = get_id();
 
                 g_vldp_info = vldp_init(&g_local_info);
 
@@ -168,6 +169,7 @@ bool ldp_vldp::init_player()
                     // it once
                     g_vertical_offset = g_game->get_video_row_offset();
 
+                    /*
                     // if testing has been requested then run them ...
                     if (m_testing) {
                         list<string> lstrPassed, lstrFailed;
@@ -176,6 +178,7 @@ bool ldp_vldp::init_player()
                         LOGI << "Run releasetest to see printed results!";
                         set_quitflag();
                     }
+                    */
 
                     // bPreCacheOK will be true if precaching succeeds
                     // or is never attempted
@@ -267,6 +270,10 @@ bool ldp_vldp::init_player()
     // if init didn't completely finish, then we need to shutdown everything
     if (!result) {
         shutdown_player();
+    }
+
+    if (m_testing) {
+        LOGW << fmt("%s", g_local_info.Uid);
     }
 
     return result;
@@ -1442,10 +1449,8 @@ bool ldp_vldp::parse_framefile(const char *pszInBuf,
 int prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                            int Ypitch, int Upitch, int Vpitch)
 {
-    // MAC: We only update the YUV surface we have invented (because YUV surfaces
-    // don't exist in SDL2).
-    // The corresponding YUV texture is updated by the main thread "hypseus" in vid_blit().
-    int result = (video::vid_update_yuv_overlay (Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
+    // The corresponding YUV texture is updated by the main thread "hypseus" in vid_blit()
+    int result = (video::vid_update_yuv_overlay(Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                  ? VLDP_TRUE
                  : VLDP_FALSE;
 

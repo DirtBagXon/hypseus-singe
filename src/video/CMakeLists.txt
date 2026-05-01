@@ -17,6 +17,7 @@ set( LIB_HEADERS
     tms9128nl.h
     video.h
     splash.h
+    icon.h
     yuv2rgb_lookup.h
 )
 

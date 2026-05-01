@@ -34,6 +34,10 @@ while [[ $# -gt 0 ]]; do
         LINEAR="-linear_scale"
         shift
         ;;
+      -nobezel)
+        NO_BEZEL=1
+        shift
+        ;;
       -nolog)
         LOG="-nolog"
         shift
@@ -211,6 +215,10 @@ if [ ! -f $HYPSEUS_SHARE/vldp/$1/$1.txt ]; then
         exit 1
 fi
 
+if [[ -z ${NO_BEZEL+x} && -f "$HYPSEUS_SHARE/bezels/$1.png" ]]; then
+	BEZEL="-bezel $1.png"
+fi
+
 $HYPSEUS_BIN $1 vldp \
 $FASTBOOT \
 $FULLSCREEN \
@@ -226,6 +234,7 @@ $SCALE \
 $SCOREBOARD \
 $KEYINPUT \
 $BANKS \
+$BEZEL \
 -framefile $HYPSEUS_SHARE/vldp/$1/$1.txt \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \

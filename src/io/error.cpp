@@ -90,29 +90,27 @@ void printusage()
 
       - <game> consists of a supported Daphne ROM or 'singe'
 
-      - Singe requires the '-script <game.singe>' argument
-        <game.singe> defines the startup Singe LUA file.
+      - Singe requires an argument defining the LUA location.
 
-        Zipped LUA ROM files are supported in Singe via:
+        Zipped LUA ROM files are recommended via:
 
         -zlua <game.zip>
 
-      - Other common arguments are:
+        -script <game.singe> defines legacy unpacked LUA.
+        <game.singe> should identify the startup LUA file.
+
+      - Other common arguments:
 
         -bezel <game.png>
-        -fastboot
         -fullscreen
         -gamepad
         -linear_scale
 
       - Common Singe arguments:
 
-        -script <game.singe>  : (One argument is required)
-        -zlua <game.zip>
-
-        -usealt <game>
         -blend_sprites
         -manymouse
+        -usealt <game>
 
   See documentation for a full list of available arguments:
 

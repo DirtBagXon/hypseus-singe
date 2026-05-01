@@ -5,10 +5,10 @@ Refer also to **CmdLine arguments** [here](CmdLine.md)
 ## Video Positional Arguments
 | Option    | Description                   |
 |--------------|-------------------------------|
-| -scalefactor _\<25-100\>_   | Scale video image _[25-100]_%                           |
-| -shiftx _\<-100 to 100\>_   | Position video window - horizontally                    |
-| -shifty _\<-100 to 100\>_   | Position video window - vertically                      |
-| -vertical_screen            | Reorient calculations above within a portrait screen    |
+| -scalefactor _\<25-100\>_   | Scale video image _[25-100]_%                            |
+| -shiftx _\<-100 to 100\>_   | Position video window - horizontally                     |
+| -shifty _\<-100 to 100\>_   | Position video window - vertically                       |
+| -vertical_screen            | Reorient calculations above within a portrait display    |
 
 
 ## Bezel Arguments

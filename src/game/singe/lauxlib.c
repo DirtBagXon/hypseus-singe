@@ -560,42 +560,40 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   LoadF lf;
   int status, readstatus;
   int c;
-  int len = strlen(filename) + RETRO_PAD;
   int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
-  char retroname[RETRO_MAXPATH] = {0};
+  char altname[REWRITE_MAXPATH] = {0};
   lf.extraline = 0;
-  if (len > RETRO_MAXPATH) len = RETRO_MAXPATH;
+  FILE* f = NULL;
   if (filename == NULL) {
     lua_pushliteral(L, "=stdin");
     lf.f = stdin;
   }
   else {
     lua_pushfstring(L, "@%s", filename);
-    lf.f = fopen(filename, "r");
-    if (lf.f == NULL) {
-      if (get_espath()) {
-        lua_espath(filename, retroname, len);
-        lf.f = fopen(retroname, "r");
-        if (lf.f == NULL) return rerrfile(L, "open", retroname, fnameindex);
-      }
-      else return errfile(L, "open", fnameindex);
+    f = fopen(filename, "r");
+    if (!f && get_espath()) {
+      lua_espath(filename, altname, REWRITE_MAXPATH);
+      f = fopen(altname, "r");
+      if (!f) return rerrfile(L, "open", altname, fnameindex);
     }
+    if (!f) return errfile(L, "open", fnameindex);
+    lf.f = f;
   }
   c = getc(lf.f);
   if (c == '#') {  /* Unix exec. file? */
     lf.extraline = 1;
-    while ((c = getc(lf.f)) != EOF && c != '\n') ;  /* skip first line */
+    while ((c = getc(lf.f)) != EOF && c != '\n');  /* skip first line */
     if (c == '\n') c = getc(lf.f);
   }
   if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
-    lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
-    if (lf.f == NULL) {
-      if (get_espath()) {
-        lf.f = fopen(retroname, "rb");
-        if (lf.f == NULL) return rerrfile(L, "reopen", retroname, fnameindex);
-      }
-      else return errfile(L, "reopen", fnameindex);
+    FILE* fbin = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
+    if (!fbin && get_espath()) {
+      fbin = fopen(altname, "rb");
+      if (!fbin) return rerrfile(L, "reopen", altname, fnameindex);
     }
+    if (!fbin) return errfile(L, "reopen", fnameindex);
+    lf.f = fbin;
+    f = fbin;
     /* skip eventual `#!...' */
     while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]);
     lf.extraline = 0;
@@ -603,7 +601,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   ungetc(c, lf.f);
   status = lua_load(L, getF, &lf, lua_tostring(L, -1));
   readstatus = ferror(lf.f);
-  if (filename) fclose(lf.f);  /* close file (even in case of errors) */
+  if (f) fclose(f);  /* close file (even in case of errors) */
   if (readstatus) {
     lua_settop(L, fnameindex);  /* ignore results from `lua_load' */
     return errfile(L, "read", fnameindex);

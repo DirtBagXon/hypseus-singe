@@ -39,7 +39,7 @@
 using namespace std;
 
 // by rdg2010
-#define SINGE_VERSION 1.9005 // Update this number whenever you issue a major change
+#define SINGE_VERSION 1.9006 // Update this number whenever you issue a major change
 
 #define SDL_MOUSE 100
 #define MANY_MOUSE 200
@@ -135,7 +135,7 @@ class singe : public game
     static void pre_step_forward() { g_ldp->pre_step_forward(); }
     static void pre_step_backward() { g_ldp->pre_step_backward(); }
 
-    static bool get_retro_path()
+    static bool get_es_path()
     {
         return g_ldp->get_es_status();
     }

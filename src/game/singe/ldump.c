@@ -143,7 +143,7 @@ static void DumpFunction(const Proto* f, const TString* p, DumpState* D)
 static void DumpHeader(DumpState* D)
 {
  char h[LUAC_HEADERSIZE];
- luaU_header(h);
+ luaU_header(h, LUAC_FORMAT);
  DumpBlock(h,LUAC_HEADERSIZE,D);
 }
 

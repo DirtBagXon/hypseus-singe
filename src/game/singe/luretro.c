@@ -4,7 +4,7 @@
  *
  * ____ HYPSEUS COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2025 DirtBagXon
+ * Copyright (C) 2026 DirtBagXon
  *
  * This file is part of HYPSEUS SINGE, a laserdisc arcade game emulator
  *
@@ -43,7 +43,7 @@ enum {
     PATH_END
 };
 
-static char g_abpath[RETRO_MAXPATH] = "\0";
+static char g_abpath[REWRITE_MAXPATH] = "\0";
 static unsigned char g_espath = 0;
 static unsigned char g_zipath = 0;
 
@@ -78,105 +78,148 @@ int lua_mkdir(const char *path)
     return 0;
 }
 
-void lua_espath(const char *src, char *dst, int len)
+void lua_espath(const char *src, char *dst, int dstsize)
 {
+    char *out = dst;
+    int rem = dstsize - 1;
+
     unsigned char bSet = 0, end = 0, folder = 0, path = PATH_DAPHNE;
 
-    if (bPath(src, "singe/Framework")) {
+    if (bPath(src, "singe/Framework"))
         path = PATH_FRAMEWORK;
-    }
 
     if (bPath(src, "singe/")) {
         folder = PATH_SINGE;
         src += 6;
     }
 
-    for (int i = 0; i < (len - 2); src++, i++) {
+    #define SAFE_APPEND_STR(str)                                   \
+        do {                                                       \
+            size_t slen = strlen(str);                             \
+            if ((int)slen > rem) slen = rem;                       \
+            memcpy(out, str, slen);                                \
+            out += slen;                                           \
+            rem -= slen;                                           \
+        } while (0)
+
+    #define SAFE_APPEND_CH(ch)         \
+        do {                           \
+            if (rem > 0) {             \
+                *out++ = (ch);         \
+                rem--;                 \
+            }                          \
+        } while (0)
+
+    for (int i = 0; rem > 0; src++, i++) {
         if (end != PATH_END) {
             if (*src == '\0') {
                 end = PATH_END;
             }
+
             if (i == 0 && folder == PATH_SINGE) {
                 if (g_abpath[0] != 0) {
-                    memcpy(dst, g_abpath, strlen(g_abpath));
-                    dst += strlen(g_abpath);
+                    SAFE_APPEND_STR(g_abpath);
                 } else {
                     const char* traverse = "/../";
                     const char* romdir = get_romdir_path();
 
-                    memcpy(dst, romdir, strlen(romdir));
-                    dst += strlen(romdir);
-
-                    memcpy(dst, traverse, strlen(traverse));
-                    dst += strlen(traverse);
+                    SAFE_APPEND_STR(romdir);
+                    SAFE_APPEND_STR(traverse);
                 }
             }
+
             if (*src == '/') {
                 if (bSet < 0xf) {
                     bSet++;
                     continue;
                 }
             }
+
             if (bSet == 1) {
                 switch(path) {
-                case (PATH_FRAMEWORK):
-                    *dst++ = '/';
+                case PATH_FRAMEWORK:
+                    SAFE_APPEND_CH('/');
                     break;
                 default:
 #ifdef ABSTRACT_SINGE
-                    memcpy(dst, ".hypseus/", 9);
-                    dst += 9;
+                    SAFE_APPEND_STR(".hypseus/");
 #else
-                    memcpy(dst, ".daphne/", 8);
-                    dst += 8;
+                    SAFE_APPEND_STR(".daphne/");
 #endif
                     break;
                 }
                 bSet = 0xf; //bool
             }
-            *dst = *src;
-            dst++;
+
+            if (*src != '\0') {
+	        char ch = *src;
+#ifdef _WIN32
+                if (ch == '\\') ch = '/';
+#endif
+                SAFE_APPEND_CH(ch);
+            }
+            else
+                break;
         }
     }
-    *dst = '\0';
+
+    *out = '\0';
+
+    #undef SAFE_APPEND_STR
+    #undef SAFE_APPEND_CH
 }
 
-void lua_rampath(const char *src, char *dst, int len)
+void lua_setmeta(void* d, size_t n, long long s)
+{
+    uint8_t k[32] = {0};
+    uint8_t p[12] = {0};
+
+    lua_settab((uint64_t)s, k, p);
+    lua_push(d, n, k, p, 0);
+}
+
+void lua_rampath(const char *src, char *dst, int dstsize)
 {
     const char *ramdir = get_ramdir_path();
     size_t ramdir_len = strlen(ramdir);
-    unsigned char end = 0;
+
+    if (ramdir_len >= (size_t)dstsize) {
+        dst[0] = '\0';
+        return;
+    }
 
     memcpy(dst, ramdir, ramdir_len);
-    dst += ramdir_len;
 
-    while (*src && len-- > 0) {
-        if (end != PATH_END) {
-            if (*src == '\0') {
-                end = PATH_END;
-            }
-            *dst++ = *src++;
-        }
+    char *out = dst + ramdir_len;
+    int rem = dstsize - ramdir_len - 1;
+
+    while (*src && rem > 0) {
+        char ch = *src++;
+#ifdef _WIN32
+        if (ch == '\\') ch = '/';
+#endif
+        *out++ = ch;
+        rem--;
     }
-    *dst = '\0';
+
+    *out = '\0';
 }
 
 int lua_chkdir(const char *path)
 {
-    char tmp[RETRO_MAXPATH];
-    char *p = NULL;
-    int len;
+    char tmp[REWRITE_MAXPATH];
 
-    snprintf(tmp, sizeof(tmp), "%s", path);
-    len = strlen(tmp);
+    int out = snprintf(tmp, sizeof(tmp), "%s", path);
+    if (out < 0 || out >= (int)sizeof(tmp))
+        return -1;
 
-    for (p = tmp + 1; p < tmp + len; p++) {
+    for (char *p = tmp + 1; *p; p++) {
         if (*p == '/') {
             *p = '\0';
 
-            if (lua_mkdir(tmp) != 0) {
+            if (lua_mkdir(tmp) != 0)
                 return -1;
-            }
+
             *p = '/';
         }
     }

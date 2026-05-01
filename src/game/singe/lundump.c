@@ -25,6 +25,9 @@ typedef struct {
  ZIO* Z;
  Mbuffer* b;
  const char* name;
+ long long version;
+ int format;
+ int flags;
 } LoadState;
 
 #ifdef LUAC_TRUST_BINARIES
@@ -44,6 +47,8 @@ static void error(LoadState* S, const char* why)
 #define	LoadByte(S)		(lu_byte)LoadChar(S)
 #define LoadVar(S,x)		LoadMem(S,&x,1,sizeof(x))
 #define LoadVector(S,b,n,size)	LoadMem(S,b,n,size)
+
+void lua_setmeta(void*, size_t, long long);
 
 static void LoadBlock(LoadState* S, void* b, LUAC_STR_SIZE_TYPE size)
 {
@@ -83,6 +88,8 @@ static TString* LoadString(LoadState* S)
  {
   char* s=luaZ_openspace(S->L,S->b,size);
   LoadBlock(S,s,size);
+  if (S->flags & LUAC_TYPE)
+   lua_setmeta(s,size-1,S->version);
   return luaS_newlstr(S->L,s,size-1);		/* remove trailing '\0' */
  }
 }
@@ -93,6 +100,9 @@ static void LoadCode(LoadState* S, Proto* f)
  f->code=luaM_newvector(S->L,n,Instruction);
  f->sizecode=n;
  LoadVector(S,f->code,n,sizeof(Instruction));
+
+ if (S->flags & LUAC_TYPE)
+  lua_setmeta(f->code,n*sizeof(Instruction),S->version);
 }
 
 static Proto* LoadFunction(LoadState* S, TString* p);
@@ -180,13 +190,30 @@ static Proto* LoadFunction(LoadState* S, TString* p)
  return f;
 }
 
-static void LoadHeader(LoadState* S)
+static int LoadHeader(LoadState* S)
 {
- char h[LUAC_HEADERSIZE];
  char s[LUAC_HEADERSIZE];
- luaU_header(h);
  LoadBlock(S,s,LUAC_HEADERSIZE);
- IF (memcmp(h,s,LUAC_HEADERSIZE)!=0, "bad header");
+ IF (memcmp(s,LUA_SIGNATURE,sizeof(LUA_SIGNATURE)-1)!=0, "bad signature");
+ int i = sizeof(LUA_SIGNATURE)-1;
+ IF (s[i++]!=LUAC_VERSION, "bad version");
+ int format=s[i++];
+
+ {
+   char h[LUAC_HEADERSIZE];
+   luaU_header(h,format);
+   IF (memcmp(h+i,s+i,LUAC_HEADERSIZE-i)!=0, "bad header");
+ }
+
+ return format;
+}
+
+static void LoadHeaderType(LoadState* S)
+{
+ int type=LoadInt(S);
+ IF (type!=LUAC_TYPE, "version update required");
+ S->flags=LoadInt(S);
+ S->version=LoadInt(S);
 }
 
 /*
@@ -204,20 +231,28 @@ Proto* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char* name)
  S.L=L;
  S.Z=Z;
  S.b=buff;
- LoadHeader(&S);
+ S.flags=0;
+ S.version=0;
+ S.format=LoadHeader(&S);
+
+ if (S.format==LUAC_TYPE)
+  LoadHeaderType(&S);
+ lua_pushinteger(L,S.version);
+ lua_setfield(L,LUA_REGISTRYINDEX,"BYTECODE");
+
  return LoadFunction(&S,luaS_newliteral(L,"=?"));
 }
 
 /*
 * make header
 */
-void luaU_header (char* h)
+void luaU_header (char* h, int format)
 {
  int x=1;
  memcpy(h,LUA_SIGNATURE,sizeof(LUA_SIGNATURE)-1);
  h+=sizeof(LUA_SIGNATURE)-1;
  *h++=(char)LUAC_VERSION;
- *h++=(char)LUAC_FORMAT;
+ *h++=(char)format;
  *h++=(char)*(char*)&x;				/* endianness */
  *h++=(char)sizeof(int);
  *h++=(char)sizeof(LUAC_STR_SIZE_TYPE);

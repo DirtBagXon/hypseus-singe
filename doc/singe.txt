@@ -2,44 +2,22 @@ Hypseus API functions
 ---------------------
 ratioGetX,              sep_get_xratio             (return float)
 ratioGetY,              sep_get_yratio             (return float)
-setOverlaySize,         sep_set_overlaysize        (int)
-setOverlayResolution,   sep_set_custom_overlay     (int, int)
-setOverlayFullAlpha,    sep_set_overlayfullalpha   (void)
 getFValue,              sep_get_fvalue             (return double)
 takeScreenshot,         sep_screenshot
 
+controllerIsValid,      sep_controller_valid       (ctrl) -- Controller [id] (return bool)
+controllerDoRumble,     sep_controller_rumble      (ctrl, strength, duration) -- Values:[1-4]
+controllerGetButton     sep_controller_button      (ctrl, button, bool[framework adjust])
+controllerGetPadding,   sep_controller_getwad      (return padding int)
+controllerHowMany,      sep_controller_attached    (return number of attached)
+controllerSetPadding,   sep_controller_setwad      (bool) -- Controller mouse index padding (+100)
+
+joyMouseEnable,         sep_joymouse_enable        (bool) -- Enable/Disable JoyMouse input
+keyboardCatchQuit,      sep_keyboard_block_quit    (bool) -- KEY_QUIT/SWITCH_QUIT
+getUserString,          sep_get_idstring           (return user string)
 rewriteStatus,          sep_lua_rewrite            (return bool) -- (-espath enabled)
-vldpFlash               sep_mpeg_set_flash         (void) -- produces white frame
-vldpGetRotate,          sep_mpeg_get_rotate        (return float) -- (-rotate value)
-vldpSetRotate,          sep_mpeg_set_rotate        (degree)
-vldpGetScale,           sep_mpeg_get_scale         (return int) -- (-scalefactor value)
-vldpSetScale,           sep_mpeg_set_scale         (scale) - return bool on update
-vldpFocusArea,          sep_mpeg_focus_area        (x, y, w, h) -- Rect
-vldpGetYUVPixel,        sep_mpeg_get_rawpixel      (return Y, U, V)
-vldpResetFocus,         sep_mpeg_reset_focus       (void)
-vldpSetMonochrome,      sep_mpeg_set_grayscale     (bool)
-discAudioSuffix,        sep_audio_suffix           (string) -- (return bool on load success)
 
-overlaySetMonochrome,   sep_overlay_set_grayscale  (bool)
-
-scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
-scoreBezelClear,        sep_bezel_clear            (void)
-scoreBezelCredits,      sep_bezel_credits          (credits)
-scoreBezelTwinScoreOn,  sep_bezel_second_score     (bool)
-scoreBezelScore,        sep_bezel_player_score     (player, score)
-scoreBezelLives,        sep_bezel_player_lives     (player, lives)
-scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
-
-drawTransparent,        sep_draw_transparent       (bool) -- Transparent Keying
-spriteDrawFrame,        sep_sprite_animate         (x, y, [scale], [scaley], frame, spr)
-spriteDrawRotatedFrame, sep_sprite_animate_rotated (x, y, [scale], [scaley], spr)
-spriteFrameHeight,      sep_sprite_height          (spr)
-spriteFrameWidth,       sep_frame_width            (spr)
-spriteGetFrames,        sep_sprite_frames          (spr) -- (0 = no animation)
-spriteLoadFrames,       sep_sprite_loadframes      (no of frames, png)
-spriteLoadData,         sep_sprite_loadata         (spr data)
-spriteResetColorKey,    sep_sprite_color_rekey     (bool, spr) -- Following GFX operations
-spriteRotateFrame,      sep_sprite_rotateframe     (rotation, frame, spr)
+mouseHowManyReal,       sep_get_number_of_realmice (return number of real mice, excluding GC)
 
 musicLoad,              sep_music_load             (MP3 or MIDI music file)
 musicPlay,              sep_music_play             (music, [loops]) -1 = infinite
@@ -50,28 +28,57 @@ musicStop,              sep_music_stop             (void)
 musicSetVolume,         sep_music_volume           (0 - 128)
 musicUnload,            sep_music_unload           (music)
 
-keyboardCatchQuit,      sep_keyboard_block_quit    (bool) -- KEY_QUIT/SWITCH_QUIT
+mainBezelLoaded,        sep_bezel_loaded           (return bool)
+scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
+scoreBezelClear,        sep_bezel_clear            (void)
+scoreBezelCredits,      sep_bezel_credits          (credits)
+scoreBezelTwinScoreOn,  sep_bezel_second_score     (bool)
+scoreBezelScore,        sep_bezel_player_score     (player, score)
+scoreBezelLives,        sep_bezel_player_lives     (player, lives)
+scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
+
+setOverlayFullAlpha,    sep_set_overlayfullalpha   (void)
+setOverlaySize,         sep_set_overlaysize        (int)
+setOverlayResolution,   sep_set_custom_overlay     (int, int)
+overlaySetMonochrome,   sep_overlay_set_grayscale  (bool)
 
 soundLoadData,          sep_sound_loadata          (wav data)
+
+spriteDrawFrame,        sep_sprite_animate         (x, y, [scale], [scaley], frame, spr)
+spriteDrawRotatedFrame, sep_sprite_animate_rotated (x, y, [scale], [scaley], spr)
+spriteDrawGrid,         sep_sprite_grid            (x, y, spr, sx, sy, sw, sh) - Rect
+spriteFrameHeight,      sep_sprite_height          (spr)
+spriteFrameWidth,       sep_frame_width            (spr)
+spriteGetFrames,        sep_sprite_frames          (spr) -- (0 = no animation)
+spriteLoadFrames,       sep_sprite_loadframes      (no of frames, png) -- Sprite Sheets
+spriteLoadData,         sep_sprite_loadata         (spr data)
+spriteResetColorKey,    sep_sprite_color_rekey     (bool, spr) -- Following GFX operations
+spriteRotateFrame,      sep_sprite_rotateframe     (rotation, frame, spr)
+drawTransparent,        sep_draw_transparent       (bool) -- Transparent Keying
 
 spriteAnimGetFrame,     sep_sprite_get_frame       (spr)
 spriteAnimIsPlaying,    sep_sprite_playing         (return bool)
 spriteAnimLoop,         sep_sprite_loop            (bool, spr)
 spriteAnimPause,        sep_sprite_pause           (spr)
-spriteAnimPlay,         sep_sprite_play            (spr)
-spriteSetAnimFrame,     sep_sprite_set_frame       (frame, spr)
+spriteAnimPlay,         sep_sprite_play            (spr) -- GIF Data Stream or APNG
+spriteAnimSetFrame,     sep_sprite_set_frame       (frame, spr) -- loaded via spriteLoad()
 
 spriteRotate,           sep_sprite_rotate          (rotation, spr)
 spriteRotateAndScale,   sep_sprite_rotatescale     (rotation, scale, [scaley], spr)
 spriteQuality,          sep_sprite_quality         (bool, spr)
 spriteScale,            sep_sprite_scale           (scale, [scaley], spr)
 
-JoyMouseEnable,         sep_joymouse_enable        (bool) -- Enable/Disable JoyMouse input
-controllerIsValid,      sep_controller_valid       (ctrl) -- Controller [id] (return bool)
-controllerDoRumble,     sep_controller_rumble      (ctrl, strength, duration) -- Values:[1-4]
-controllerGetButton     sep_controller_button      (ctrl, button, bool[framework adjust])
-controllerSetPadding,   sep_controller_setwad      (bool) -- Controller mouse index padding (+100)
-controllerGetPadding,   sep_controller_getwad      (return padding int)
+vldpFlash               sep_mpeg_set_flash         (void) -- produces white frame
+vldpGetRotate,          sep_mpeg_get_rotate        (return float) -- (-rotate value)
+vldpSetRotate,          sep_mpeg_set_rotate        (degree)
+vldpGetScale,           sep_mpeg_get_scale         (return int) -- (-scalefactor value)
+vldpSetScale,           sep_mpeg_set_scale         (scale) - return bool on update
+vldpFocusArea,          sep_mpeg_focus_area        (x, y, w, h) -- Rect
+vldpGetYUVPixel,        sep_mpeg_get_rawpixel      (return Y, U, V)
+vldpResetFocus,         sep_mpeg_reset_focus       (void)
+vldpSetLuma,            sep_mpeg_set_luma          (bool, filter level) -- 0 - [4] - 8
+vldpSetMonochrome,      sep_mpeg_set_grayscale     (bool)
+discAudioSuffix,        sep_audio_suffix           (string) -- (return bool on load success)
 
 
 Singe 1 API functions

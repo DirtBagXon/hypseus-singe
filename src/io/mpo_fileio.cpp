@@ -342,17 +342,18 @@ bool mpo_mkdir(const char *dirname)
 bool safe_dir(const char *s, int len)
 {
     for (int i = 0; i < len && s[i] != '\0'; ++i) {
-        if (!isalnum(s[i])
-            && s[i] != int('/')
-            && s[i] != int('.')
-            && s[i] != int('-')
-            && s[i] != int('_')
-#ifdef WIN32
-            && s[i] != int(' ')
-            && s[i] != int(':')
-            && s[i] != int('\\')
+        unsigned char c = (unsigned char)s[i];
+        if (!isalnum(c)
+            && c != '/'
+            && c != '.'
+            && c != '-'
+            && c != '_'
+#ifdef _WIN32
+            && c != ' '
+            && c != ':'
+            && c != '\\'
 #endif
-            ) return false;
+        ) return false;
     }
     return true;
 }

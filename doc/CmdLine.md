@@ -68,7 +68,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -fullscreen_window               | Runs Hypseus in a fullscreen window.                    |
 | -gamepad                         | Enable SDL_GameController configuration. Use -haptic [0-4] to configure rumble. |
 | -gamepad_reorder 3 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput_gamepad.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3]_|
-| -grabmouse                       | Capture mouse in SDL window.                           |
+| -grabmouse                       | Force the capture of mouse in SDL window.              |
 | -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.         |
 | -horizontal_stretch \<value>     | Horizontally stretches the video screen outward from the center. |
 | -idleexit \<seconds>             | Tells Hypseus to exit after a certain number of seconds if no input has been received. |
@@ -76,6 +76,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -keymapfile \<config>            | Specify an alternate hypinput.ini file. `-config` is an alias.                |
 | -latency \<ms>                   | Adds a delay before all searches occur which causes scenes to last a little longer. Useful for Dragon's Lair F2 ROMs that cut some scenes off prematurely. |
 | -linear_scale                    | Enable [bi]linear filtering when scaling.                  |
+| -luma <0-8>                      | Enable luminance filtering on MPEG video. [Default: 4]     |
 | -manymouse                       | Use the alternate ManyMouse input system. Provides *Absolute* coordinates on supported devices. |
 | -min_seek_delay \<ms>            | The minimum amount of milliseconds to force a seek to take (artificial delay). 0 = disabled. |
 | -monochrome                      | Display VLDP video as grayscale monochrome [Just a gimmick] |
@@ -85,7 +86,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -nojoystick                      | Disables any joysticks that may be plugged in. Joysticks will normally be used if available. |
 | -nolog                           | Disables writing to the log file (hypseus.log).    |
 | -nomanymouse                     | Disables the ability to enable ManyMouse input system.        |
-| -noserversend                    | A legacy argument. No usage statistics are collected or sent. |
+| -noserversend                    | Request the game does not allow network connections,          |
 | -nosound                         | Disables all sound.                                   |
 | -nospeech                        | Disables speech for Thayer's Quest.                   |
 | -novsync                         | Disable VSYNC presentation on Renderer.               |
@@ -98,6 +99,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
+| -rawmouse                        | Restore raw MouseMotion values from SDL mouse.   |
 | -ramdir \<path>                  | Sets an alternate `ram` directory path.          |
 | -romdir \<path>                  | Sets an alternate `roms` directory path.         |
 | -rotate \<degrees>               | Rotates the screen a certain number of degrees clockwise. Valid values are from 0-359.   |
@@ -115,13 +117,14 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -spaceace91                      | Tells Hypseus that you are using a Space Ace '91 disc instead of a Space Ace '83 NTSC disc. *Only relevant when you are playing the USA version of Space Ace '83.* |
 | -sram_continuous_update          | Saves the static RAM after every search so that if Hypseus is terminated improperly, high scores are preserved. |
 | -startsilent                     | Tells Hypseus to start with no sound until input has been received. |
-| -texturestream                   | Enable SDL_TEXTUREACCESS_STREAMING           |
-| -texturetarget                   | Enable SDL_TEXTUREACCESS_TARGET (Default).   |
+| -texturestream                   | Enable SDL_TEXTUREACCESS_STREAMING (Default) |
+| -texturetarget                   | Enable SDL_TEXTUREACCESS_TARGET              |
 | -tiphat                          | Invert joystick SDL_HAT_UP and SDL_HAT_DOWN. |
+| -trigger-threshold <90 to 99.9>  | Alter the threshold value for Game Controller trigger buttons. [Default: 99.5]% |
 | -usbscoreboard \<args>           | Enable USB serial support for scoreboard. Arguments: *(i)mplementation, (p)ort, (b)aud* |
 | -usbserial_rts_on                | Enable RTS on USB serial port setup [Default: off] |
 | -use_annunciator                 | Use this when using a real Space Ace scoreboard with the annunciator board attached. *Space Ace only.* |
-| -useoverlaysb \<overlay number>  | Enables a graphical scoreboard for Dragon's Lair, Space Ace, or Thayer's Quest. The 'overlay number' is the style of scoreboard. Currently the two choices for the 'overlay number' are 0 and 1. |
+| -useoverlaysb \<overlay number>  | Enables a graphical scoreboard for Dragon's Lair, Space Ace, or Thayer's Quest. The 'overlay number' is the style of scoreboard. Currently the two choices for the 'overlay number' are 1 and 2. |
 | -vertical_screen                 | Reorient calculations in the logical fullscreen when using portrait displays. |
 | -vertical_stretch \<value>       | Vertically stretches the screen outward from the center. The purpose of this is to remove the black bars on the top and bottom of Cliff Hanger and Goal to Go. To get rid of the black bars completely, use a value of 24. |
 | -volume_nonvldp \<volume>        | Sets the volume of all audio besides the laserdisc audio when using VLDP (max value is 64, 0 means muted). |
@@ -138,7 +141,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -blend_sprites                   | Restore the legacy BLENDMODE outline on sprites.                                                                            |
 | -fullalpha                       | Observe the complete RGBA alpha channel value in overlay display.                                                           |
 | -js_range \<1-20>                | Adjust joystick-mouse sensitivity: *[default:5]*                                                                            |
-| -nocrosshair                     | Request game does not display crosshairs.                                                                                   |
+| -nocrosshair                     | Request the game does not display crosshairs.                                                                               |
 | -nojoymouse                      | Disable the joysticks ability to control mouse input.                                                                       |
 | -script                          | Defines the location of the Singe LUA script. **Required** for LUA games.                                                   |
 | -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |

@@ -14,7 +14,7 @@ env:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@master
@@ -28,8 +28,11 @@ jobs:
           brew install sdl2_ttf
           brew install sdl2_image
           brew install sdl2_mixer
-          brew install automake
           brew install libvorbis
+          brew install automake
+          brew install autoconf
+          brew install libtool
+          brew install libzip
         if: success()
       - name: Build
         run: |
@@ -48,7 +51,7 @@ jobs:
         run: |
           ShortSHA=$(git rev-parse --short ${{ github.sha }})
           echo "COMMIT_SHORT_SHA=$ShortSHA" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: hypseus-singe-MacOS-${{ env.COMMIT_SHORT_SHA }}
           path: hypseus-singe.zip

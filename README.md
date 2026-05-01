@@ -6,18 +6,18 @@ Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
 A program to play laserdisc arcade games on a PC, Mac or Raspberry Pi.
 
-This version includes **Singe** support for Fan Made and [American Laser Games][ALG].
+This version includes _Singe LUA_ support for Fan Made [American Laser Games][ALG] and many others.
 
 Features:
 
-* SDL2 Version
+* SDL2 upgrade
 * VLDP 32bit upgrade
 * Updated MPEG2 decoder
-* Integrated _(active)_ [bezel](screenshots/bezel.png?raw=true) support
+* Integrated _(active)_ [bezel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/bezel.png) support
 * Singe full 32bit overlay support (details below)
 * Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
-* 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](screenshots/scoreboard.png?raw=true) original scoreboards.
+* 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/scoreboard.png) original scoreboards.
 * 64bit Windows and MacOS X Ports
 
 ## Windows
@@ -48,14 +48,6 @@ Use homebrew to install the following packages:
     brew install libogg
     brew install libzip
 
-Sonoma and later versions of macOS may need to use the _brew_ `libmpeg2` package:
-
-    brew install libmpeg2
-
-Then clone the `libmpeg2` branch:
-
-    git clone --single-branch --branch libmpeg2 https://github.com/DirtBagXon/hypseus-singe.git
-
 ### Raspberry Pi
 
 For **Raspberry Pi** clone the ``RetroPie`` branch via:
@@ -77,7 +69,7 @@ Build:
 
 Ensure you have data in the following `hypseus` HOME folders:
 
-    pics, fonts, ram, roms, midi, sound, singe, vldp
+    pics, fonts, ram, roms, midi, sound, vldp & optionally singe
 
 Run `hypseus` with [arguments](doc/CmdLine.md) on the command line:
 
@@ -154,7 +146,7 @@ Full details of the USB scoreboard [here](https://github.com/DirtBagXon/hypseus_
 
 ## Software Scoreboard
 
-Enable the software external [scoreboard panel](screenshots/scoreboard.png?raw=true) in lair/ace: `-scorepanel`.  
+Enable the software external [scoreboard panel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/scoreboard.png) in lair/ace: `-scorepanel`.  
 Use `KEY_TILT` to switch displays when using multiple screens.
 
 A *bezel* based alternate is also available via: `-scorebezel`
@@ -177,7 +169,7 @@ For current details see: [Hypseus Singe Data](https://github.com/DirtBagXon/hyps
 
 ## Lightguns
 
-Singe supports Sinden and DolphinBar based lightguns with the `-manymouse` argument.
+Singe supports Sinden and many other lightguns with the `-manymouse` argument.
 
 This argument enables *absolute* (``EV_ABS``) mouse input event codes.
 
@@ -208,6 +200,8 @@ This repository builds upon the Hypseus project initiated by [Jeffrey Clark][JAC
 It marked the beginning of the transition to _SDL2_ for Daphne, but excluded Singe.
 
 The name of this application, refers to a _[sibling of Daphne][peneus]_ in Greek mythology.
+
+Modern English pronunciation: **“Hip-SEE-us”** _/ˈhɪp.si.əs/_
 
 Thanks go out to [Matt Ownby][CUS], [Scott Duensing][SD], [Jeffrey Clark][JAC],
 [Manuel Alfayate][MAC], [David Griffith][DG] and the many other developers
@@ -271,6 +265,7 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [lua_md5]: https://github.com/lunarmodules/md5
 [lua_sha2]: https://code.google.com/archive/p/sha2/
 [luars232]: https://github.com/ynezz/librs232
+[luasocket]: https://github.com/lunarmodules/luasocket
 [lua_bitop]: https://bitop.luajit.org/index.html
 [luafilesystem]: https://lunarmodules.github.io/luafilesystem/
 [autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
