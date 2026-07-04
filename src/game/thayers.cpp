@@ -72,7 +72,7 @@ thayers::thayers() : m_pScoreboard(NULL)
     cpu::add(&cpu);
 
     m_irq_status = 0x3f;
-    video::set_score_bezel_alpha(1);
+    video::set_scoreboard_bezel_alpha(1);
     ldv1000::enable_instant_seeking();
     m_use_speech = true; // Even though not truly emulated, speech synthesis is
                          // the default.
@@ -192,7 +192,7 @@ bool thayers::init()
     }
     // else sound initialization failed
 
-    if (m_show_startup) video::draw_subtitle(startup, true, true);
+    if (m_show_startup) video::draw_subtitle(startup, 1, true);
 
     return result;
 }
@@ -460,7 +460,7 @@ void thayers::show_speech_subtitle()
         // out when phoneme rules are applied, so strip them out before display.
         speech_buffer_cleanup((char *)&m_cpumem[0xa500], text, len);
 
-        video::draw_subtitle(text, true, false);
+        video::draw_subtitle(text, 1, false);
 #ifdef SSI_DEBUG
         LOGI << fmt(text);
 #endif
@@ -896,7 +896,7 @@ void thayers::OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 
 #ifdef DEBUG
     char s[24] = {};
     snprintf(s, sizeof(s), "#%d : %d", m_axis_x, m_axis_y);
-    video::draw_subtitle(s, true, false);
+    video::draw_subtitle(s, 1, false);
 #endif
 }
 
@@ -904,7 +904,7 @@ void thayers::set_preset(int preset)
 {
     if (preset == 1) {
         m_show_timerboard = false; // Display full scoreboard
-        video::set_score_bezel_alpha(0);
+        video::set_scoreboard_bezel_alpha(0);
     }
     if (preset == 2) m_show_startup = false; // Don't display the COIN UP
 }

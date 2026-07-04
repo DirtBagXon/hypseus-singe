@@ -417,24 +417,24 @@ const char *i86_info(void *context, int regnum)
 	switch (regnum)
 	{
 		// MPO, changed lengths of some of these text strings to make them match up with our debugger
-	case CPU_INFO_REG + I86_IP: 		snprintf(buffer[which], sizeof(buffer[which]), "IP:%04X", r->pc - r->base[CS]); break;
-	case CPU_INFO_REG + I86_SP: 		snprintf(buffer[which], sizeof(buffer[which]), "SP:%04X", r->regs.w[SP]);  break;
-	case CPU_INFO_REG + I86_FLAGS:		snprintf(buffer[which], sizeof(buffer[which]), "F :%04X", r->flags);         break;
-	case CPU_INFO_REG + I86_AX: 		snprintf(buffer[which], sizeof(buffer[which]), "AX:%04X", r->regs.w[AX]);   break;
-	case CPU_INFO_REG + I86_CX: 		snprintf(buffer[which], sizeof(buffer[which]), "CX:%04X", r->regs.w[CX]);   break;
-	case CPU_INFO_REG + I86_DX: 		snprintf(buffer[which], sizeof(buffer[which]), "DX:%04X", r->regs.w[DX]);   break;
-	case CPU_INFO_REG + I86_BX: 		snprintf(buffer[which], sizeof(buffer[which]), "BX:%04X", r->regs.w[BX]);   break;
-	case CPU_INFO_REG + I86_BP: 		snprintf(buffer[which], sizeof(buffer[which]), "BP:%04X", r->regs.w[BP]);   break;
-	case CPU_INFO_REG + I86_SI: 		snprintf(buffer[which], sizeof(buffer[which]), "SI:%04X", r->regs.w[SI]);  break;
-	case CPU_INFO_REG + I86_DI: 		snprintf(buffer[which], sizeof(buffer[which]), "DI:%04X", r->regs.w[DI]);  break;
-	case CPU_INFO_REG + I86_ES: 		snprintf(buffer[which], sizeof(buffer[which]), "ES:%04X", r->sregs[ES]);    break;
-	case CPU_INFO_REG + I86_CS: 		snprintf(buffer[which], sizeof(buffer[which]), "CS:%04X", r->sregs[CS]);    break;
-	case CPU_INFO_REG + I86_SS: 		snprintf(buffer[which], sizeof(buffer[which]), "SS:%04X", r->sregs[SS]);    break;
-	case CPU_INFO_REG + I86_DS: 		snprintf(buffer[which], sizeof(buffer[which]), "DS:%04X", r->sregs[DS]);    break;
-	case CPU_INFO_REG + I86_VECTOR: 	snprintf(buffer[which], sizeof(buffer[which]), "V :  %02X", r->int_vector);    break;
-	case CPU_INFO_REG + I86_PENDING:	snprintf(buffer[which], sizeof(buffer[which]), "P :%4X", r->irq_state);       break;
-	case CPU_INFO_REG + I86_NMI_STATE:	snprintf(buffer[which], sizeof(buffer[which]), "NMI:%3X", r->nmi_state);     break;
-	case CPU_INFO_REG + I86_IRQ_STATE:	snprintf(buffer[which], sizeof(buffer[which]), "IRQ:%3X", r->irq_state);     break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_IP): 	snprintf(buffer[which], sizeof(buffer[which]), "IP:%04X", r->pc - r->base[CS]); break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_SP): 	snprintf(buffer[which], sizeof(buffer[which]), "SP:%04X", r->regs.w[SP]);  break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_FLAGS):	snprintf(buffer[which], sizeof(buffer[which]), "F :%04X", r->flags);         break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_AX): 	snprintf(buffer[which], sizeof(buffer[which]), "AX:%04X", r->regs.w[AX]);   break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_CX): 	snprintf(buffer[which], sizeof(buffer[which]), "CX:%04X", r->regs.w[CX]);   break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_DX): 	snprintf(buffer[which], sizeof(buffer[which]), "DX:%04X", r->regs.w[DX]);   break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_BX): 	snprintf(buffer[which], sizeof(buffer[which]), "BX:%04X", r->regs.w[BX]);   break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_BP): 	snprintf(buffer[which], sizeof(buffer[which]), "BP:%04X", r->regs.w[BP]);   break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_SI): 	snprintf(buffer[which], sizeof(buffer[which]), "SI:%04X", r->regs.w[SI]);  break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_DI): 	snprintf(buffer[which], sizeof(buffer[which]), "DI:%04X", r->regs.w[DI]);  break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_ES): 	snprintf(buffer[which], sizeof(buffer[which]), "ES:%04X", r->sregs[ES]);    break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_CS): 	snprintf(buffer[which], sizeof(buffer[which]), "CS:%04X", r->sregs[CS]);    break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_SS): 	snprintf(buffer[which], sizeof(buffer[which]), "SS:%04X", r->sregs[SS]);    break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_DS): 	snprintf(buffer[which], sizeof(buffer[which]), "DS:%04X", r->sregs[DS]);    break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_VECTOR): 	snprintf(buffer[which], sizeof(buffer[which]), "V :  %02X", r->int_vector);    break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_PENDING):	snprintf(buffer[which], sizeof(buffer[which]), "P :%4X", r->irq_state);       break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_NMI_STATE):	snprintf(buffer[which], sizeof(buffer[which]), "NMI:%3X", r->nmi_state);     break;
+	case static_cast<int>(CPU_INFO_REG) + static_cast<int>(I86_IRQ_STATE):	snprintf(buffer[which], sizeof(buffer[which]), "IRQ:%3X", r->irq_state);     break;
 	case CPU_INFO_FLAGS:
 		r->flags = CompressFlags();
 		snprintf(buffer[which], sizeof(buffer[which]), "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c",

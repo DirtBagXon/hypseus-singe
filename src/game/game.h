@@ -43,9 +43,13 @@
 // Moved from tms9128nl.h
 #define TMS_VERTICAL_OFFSET 24
 
-// Default game overlay depth
-#define GAME_OVERLAY_DEPTH 8
+// Game overlay color depths
+#define GAME_OVERLAY_STD 8
 #define GAME_OVERLAY_FULL 32
+
+#define GAME_OVERLAY_DEFAULT 0
+#define GAME_OVERLAY_UPGRADE 1
+#define GAME_OVERLAY_ALPHA 2
 
 // Default for SDL mouse index
 #define NOMOUSE -1
@@ -200,11 +204,7 @@ class game
 
     int get_stretch_value();
 
-    short get_game_errors();
-
-    bool use_old_overlay();
-
-    bool get_overlay_upgrade();
+    bool has_overlay_upgrade(Uint8);
     bool get_dynamic_overlay();
 
     bool get_es_flag();
@@ -215,13 +215,11 @@ class game
 
     virtual void set_manymouse(bool);
 
-    virtual void set_32bit_overlay(bool);
-    virtual void set_overlay_upgrade(bool);
+    virtual Uint8 get_overlay_depth();
+    virtual void set_overlay_upgrade(Uint8, bool);
     virtual void set_dynamic_overlay(bool);
 
     virtual void set_es_flag(bool);
-
-    virtual void set_game_errors(short);
 
     virtual void set_sinden_border(int);
     virtual void set_sinden_border_color(int);
@@ -297,17 +295,13 @@ class game
 
     bool m_software_scoreboard;
 
-    bool m_old_overlay;
-
     Uint8 m_overlay_depth;
 
-    bool m_overlay_upgrade;
+    Uint8 m_overlay_upgrade;
 
     bool m_dynamic_overlay;
 
     bool m_run_on_es;
-
-    short m_game_error;
 
     int m_sinden_border;
     int m_sinden_border_color;

@@ -24,7 +24,12 @@ bool OverlayScoreboard::RepaintIfNeeded()
 	bool bRepainted = false;
 	if (m_bNeedsRepaint)
 	{
+		SDL_Color rgb = {0xF0, 0xF0, 0xF0, 0xFF};
 		SDL_Surface *pSurface = video::get_screen_leds();
+		bool legacy = video::use_legacy_font();
+
+		void (*decor)(const char*, int, int, SDL_Surface*, SDL_Color, bool);
+		decor = video::draw_string;
 
 		// if the overlay is visible
 		if (m_bVisible)
@@ -33,19 +38,19 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			if (!m_bThayers)
 			{
 				// Draw all DL/SA scoreboard labels.
-                                if (video::use_old_font()) {
-                                   video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3), 0, pSurface);
-                                   video::draw_string("Player 1: ", 1, 0, pSurface);
-                                   video::draw_string("Player 2: ", (pSurface->w / 6 - 19), 0, pSurface);
-                                   video::draw_string("Lives: ", 1, 14, pSurface);
-                                   video::draw_string("Lives: ", (pSurface->w / 6 - 10) + 1, 14, pSurface);
+                                if (legacy) {
+                                   decor("Credits", 140, 0, pSurface, rgb, false);
+                                   decor("Player 1: ", 6, 0, pSurface, rgb, false);
+                                   decor("Player 2: ", 209, 0, pSurface, rgb, false);
+                                   decor("Lives: ", 6, 14, pSurface, rgb, false);
+                                   decor("Lives: ", 268, 14, pSurface, rgb, false);
                                 }
                                 else {
-                                   video::draw_string("Credits", pSurface->w / 12 - (pSurface->w == 360 ? 4 : 3) + 5, 1, pSurface);
-                                   video::draw_string("Player 1: ", 2, 1, pSurface);
-                                   video::draw_string("Player 2: ", (pSurface->w / 6 - 19) + 7, 1, pSurface);
-                                   video::draw_string("Lives: ", 2, 15, pSurface);
-                                   video::draw_string("Lives: ", (pSurface->w / 6 - 10) + 10, 15, pSurface);
+                                   decor("Credits", 142, 4, pSurface, rgb, true);
+                                   decor("Player 1 ", 63, 4, pSurface, rgb, true);
+                                   decor("Player 2 ", 210, 4, pSurface, rgb, true);
+                                   decor("Lives ", 24, 18, pSurface, rgb, true);
+                                   decor("Lives ", 270, 18, pSurface, rgb, true);
                                 }
 
 				// Update Player Scores
@@ -60,10 +65,10 @@ bool OverlayScoreboard::RepaintIfNeeded()
 			else
 			{
 				// Thayer's Quest only uses "Credits" portion of the DL/SA // scoreboard.
-                                if (video::use_old_font())
-                                   video::draw_string("Time", (pSurface->w / 12) - 2, 0, pSurface);
+                                if (legacy)
+                                   decor("Time", 150, 0, pSurface, rgb, false);
                                 else
-                                   video::draw_string("Time", (pSurface->w / 12) + 4, 1, pSurface);
+                                   decor("Time", 146, 4, pSurface, rgb, true);
 			}
 
 			// Update Credits
@@ -72,7 +77,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
 		// else the overlay is invisible, so erase the surface
 		else
 		{
-			SDL_FillRect(pSurface, NULL, 0);
+			SDL_FillRect(pSurface, NULL, 0x00000000);
 		}
 
 		bRepainted = true;
@@ -85,9 +90,12 @@ void OverlayScoreboard::update_player_score (SDL_Surface *pSurface, int player, 
 {
 	int x = start_digit * OVERLAY_LED_WIDTH;
 
-	// Player1 position is static, but Player2 will be affected
-	// by different MPEG widths (640x480, 720x480 known so far).
-	x += (player == 0 ? 65 : pSurface->w - 7 * OVERLAY_LED_WIDTH);
+	// Player1 position is static, and Player2 is NOT affected
+	// by different MPEG widths (640x480, 720x480) anymore.
+	if (video::use_legacy_font())
+	    x += (player == 0 ? 65 : 269);
+	else
+	    x += (player == 0 ? 8 : 266);
 
 	video::draw_overlay_leds(values, num_digits, x, 0);
 }
@@ -95,28 +103,32 @@ void OverlayScoreboard::update_player_score (SDL_Surface *pSurface, int player, 
 void OverlayScoreboard::update_player_lives (SDL_Surface *pSurface, int player, unsigned int lives)
 {
 	// Value of lives was validated in caller, so charge right ahead.
-	video::draw_overlay_leds(&lives, 1,
-		player == 0 ? 48 : pSurface->w - 2 * OVERLAY_LED_WIDTH,
+	if (video::use_legacy_font())
+	    video::draw_overlay_leds(&lives, 1,
+		player == 0 ? 48 : 309,
+		OVERLAY_LED_HEIGHT);
+	else
+	    video::draw_overlay_leds(&lives, 1,
+		player == 0 ? 8 : 306,
 		OVERLAY_LED_HEIGHT);
 }
 
 void OverlayScoreboard::update_credits(SDL_Surface *pSurface)
 {
-	int fudge;
+	int x;
 
 	// need to shift a bit to look exactly centered
 	if (m_bThayers)
 	{
-		fudge = (video::use_old_font() ? 3 : -1);
+		x = (video::use_legacy_font() ? 154 : 149);
 	}
 	else
 	{
-		fudge = (video::use_old_font() ? 1 : -1);
+		x = 153;
 	}
 
-	video::draw_overlay_leds(m_DigitValues + this->CREDITS1_0, 2,
-		pSurface->w / 2 - (OVERLAY_LED_WIDTH + fudge),
-		OVERLAY_LED_HEIGHT);
+	video::draw_overlay_leds(m_DigitValues + this->CREDITS1_0,
+		2, x, OVERLAY_LED_HEIGHT);
 }
 
 bool OverlayScoreboard::ChangeVisibility(bool bVisible)

@@ -44,33 +44,35 @@
 #include "../game/game.h"
 #include "../game/superd.h"
 #include "../game/thayers.h"
-#include "../game/speedtest.h"
-#include "../game/seektest.h"
-#include "../game/releasetest.h"
-#include "../game/cputest.h"
-#include "../game/multicputest.h"
-#include "../game/firefox.h"
-#include "../game/ffr.h"
 #include "../game/astron.h"
 #include "../game/esh.h"
 #include "../game/laireuro.h"
 #include "../game/badlands.h"
-#include "../game/starrider.h"
 #include "../game/bega.h"
 #include "../game/cobraconv.h"
 #include "../game/gpworld.h"
 #include "../game/interstellar.h"
-#include "../game/benchmark.h"
 #include "../game/lair2.h"
 #include "../game/mach3.h"
+#ifdef DEFUNC
+#include "../game/benchmark.h"
+#include "../game/cputest.h"
+#include "../game/speedtest.h"
+#include "../game/seektest.h"
+#include "../game/releasetest.h"
+#include "../game/multicputest.h"
+#include "../game/test_sb.h"
+#include "../game/firefox.h"
+#include "../game/ffr.h"
+#include "../game/starrider.h"
 #include "../game/lgp.h"
 #include "../game/timetrav.h"
+#endif // DEFUNC
 #ifdef BUILD_SINGE
 #include "../game/singe.h"
 #else
 #include "error.h"
 #endif // BUILD_SINGE
-#include "../game/test_sb.h"
 #include "../ldp-out/ldp.h"
 #include "../ldp-out/ldp-vldp.h"
 #include "../ldp-out/framemod.h"
@@ -268,8 +270,6 @@ bool parse_game_type()
     // first thing we need to get from the command line is the game type
     get_next_word(s, sizeof(s));
 
-    net_set_gamename(s); // report to server the game we are running
-
     if (strcasecmp(s, "ace") == 0) {
         g_game = new ace();
     } else if (strcasecmp(s, "ace_a2") == 0) {
@@ -298,8 +298,6 @@ bool parse_game_type()
     } else if (strcasecmp(s, "begar1") == 0) {
         g_game = new bega();
         g_game->set_version(2);
-    } else if (strcasecmp(s, "benchmark") == 0) {
-        g_game = new benchmark();
     } else if (strcasecmp(s, "blazer") == 0) {
         g_game = new blazer();
     } else if (strcasecmp(s, "cliff") == 0) {
@@ -320,8 +318,6 @@ bool parse_game_type()
         g_game = new cobraconv();
     } else if (strcasecmp(s, "cobram3") == 0) {
         g_game = new cobram3();
-    } else if (strcasecmp(s, "cputest") == 0) {
-        g_game = new cputest();
     } else if (strcasecmp(s, "dle11") == 0) {
         g_game = new dle11();
     } else if (strcasecmp(s, "dle2") == 0) {
@@ -345,12 +341,6 @@ bool parse_game_type()
     } else if (strcasecmp(s, "eshalt2") == 0) {
         g_game = new esh();
         g_game->set_version(3);
-    } else if (strcasecmp(s, "firefox") == 0) {
-        g_game = new firefox();
-    } else if (strcasecmp(s, "firefoxa") == 0) {
-        g_game = new firefoxa();
-    } else if (strcasecmp(s, "ffr") == 0) {
-        g_game = new ffr();
     } else if (strcasecmp(s, "galaxy") == 0) {
         g_game = new galaxy();
     } else if (strcasecmp(s, "galaxyp") == 0) {
@@ -424,46 +414,59 @@ bool parse_game_type()
     } else if (strcasecmp(s, "lair2_211") == 0) {
         g_game = new lair2();
         g_game->set_version(1);
-    } else if (strcasecmp(s, "lgp") == 0) {
-        g_game = new lgp();
     } else if (strcasecmp(s, "mach3") == 0) {
         g_game = new mach3();
+    } else if (strcasecmp(s, "roadblaster") == 0) {
+        g_game = new roadblaster();
+    } else if (strcasecmp(s, "sae") == 0) {
+        g_game = new sae();
+    }
+#ifdef DEFUNC
+    } else if (strcasecmp(s, "benchmark") == 0) {
+        g_game = new benchmark();
+    } else if (strcasecmp(s, "cputest") == 0) {
+        g_game = new cputest();
+    } else if (strcasecmp(s, "firefox") == 0) {
+        g_game = new firefox();
+    } else if (strcasecmp(s, "firefoxa") == 0) {
+        g_game = new firefoxa();
+    } else if (strcasecmp(s, "ffr") == 0) {
+        g_game = new ffr();
+    } else if (strcasecmp(s, "lgp") == 0) {
+        g_game = new lgp();
     } else if (strcasecmp(s, "mcputest") == 0) {
         g_game = new mcputest();
     } else if (strcasecmp(s, "releasetest") == 0) {
         bSGNMatches = false;
         g_game = new releasetest();
-    } else if (strcasecmp(s, "roadblaster") == 0) {
-        g_game = new roadblaster();
-    } else if (strcasecmp(s, "sae") == 0) {
-        g_game = new sae();
     } else if (strcasecmp(s, "seektest") == 0) {
         g_game = new seektest();
+    } else if (strcasecmp(s, "speedtest") == 0) {
+        g_game = new speedtest();
+    } else if (strcasecmp(s, "starrider") == 0) {
+        g_game = new starrider();
+    } else if (strcasecmp(s, "timetrav") == 0) {
+        g_game = new timetrav();
+    } else if (strcasecmp(s, "test_sb") == 0) {
+        g_game = new test_sb();
     }
+#endif // DEFUNC
 // singe has a bunch of extra deps so we make it optional to build
 #ifdef BUILD_SINGE
     else if (strcasecmp(s, "singe") == 0) {
         g_game = new singe();
     }
 #endif // BUILD_SINGE
-    else if (strcasecmp(s, "speedtest") == 0) {
-        g_game = new speedtest();
-    } else if (strcasecmp(s, "sdq") == 0) {
+    else if (strcasecmp(s, "sdq") == 0) {
         g_game = new superd();
     } else if (strcasecmp(s, "sdqshort") == 0) {
         g_game = new sdqshort();
     } else if (strcasecmp(s, "sdqshortalt") == 0) {
         g_game = new sdqshortalt();
-    } else if (strcasecmp(s, "starrider") == 0) {
-        g_game = new starrider();
     } else if (strcasecmp(s, "superdon") == 0) // left in for old times' sake
     {
         bSGNMatches = false;
         g_game = new superd();
-    } else if (strcasecmp(s, "timetrav") == 0) {
-        g_game = new timetrav();
-    } else if (strcasecmp(s, "test_sb") == 0) {
-        g_game = new test_sb();
     } else if (strcasecmp(s, "tq") == 0) {
         g_game = new thayers();
     } else if (strcasecmp(s, "tq_alt") == 0) {
@@ -539,8 +542,6 @@ bool parse_ldp_type()
     char s[81]  = {0};
 
     get_next_word(s, sizeof(s));
-
-    net_set_ldpname(s); // report to server which ldp we are using
 
     if (strcasecmp(s, "fast_noldp") == 0) {
         g_ldp = new fast_noldp(); // 'no seek-delay' version of noldp
@@ -655,7 +656,7 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             // Ignore some deprecated arguments (Rather than error)
-            else if ( strcasecmp(s, "-nolinear_scale") == 0 ||
+            else if (strcasecmp(s, "-nolinear_scale") == 0 ||
                          strcasecmp(s, "-fullscale") == 0) {
 
                  char e[460];
@@ -866,8 +867,6 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 Uint16 sbsize = (Uint16)atoi(s);
                 sound::set_buf_size(sbsize);
-                snprintf(s, sizeof(s), "Setting sound buffer size to %d", sbsize);
-                printline(s);
             } else if (strcasecmp(s, "-volume_vldp") == 0) {
                 get_next_word(s, sizeof(s));
                 unsigned int uVolume = atoi(s);
@@ -940,7 +939,7 @@ bool parse_cmd_line(int argc, char **argv)
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
                 if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
-                    video::set_score_bezel(true);
+                    video::set_scoreboard_bezel(true);
                     g_game->m_software_scoreboard = true;
                     printline("Enabling Scoreboard bezel...");
                 } else {
@@ -959,7 +958,7 @@ bool parse_cmd_line(int argc, char **argv)
                     if (aux)
                         video::set_aux_bezel_scale(i);
                     else
-                        video::set_score_bezel_scale(i);
+                        video::set_scoreboard_bezel_scale(i);
                 } else {
                     printerror("Scale values: 1-25");
                     result = false;
@@ -977,7 +976,7 @@ bool parse_cmd_line(int argc, char **argv)
                     if (aux)
                         video::set_aux_bezel_alpha((int8_t)i);
                     else
-                        video::set_score_bezel_alpha((int8_t)i);
+                        video::set_scoreboard_bezel_alpha((int8_t)i);
                 } else {
                     printerror("Bezel alpha values: 1-2");
                     result = false;
@@ -988,7 +987,7 @@ bool parse_cmd_line(int argc, char **argv)
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
 
                 if ((game_lair_or_sa || game_thayers) && !get_scoreboard()) {
-                    video::set_score_bezel(false);
+                    video::set_scoreboard_bezel(false);
                     g_game->m_software_scoreboard = true;
                     printline("Enabling Software scoreboard...");
                 } else {
@@ -1028,7 +1027,7 @@ bool parse_cmd_line(int argc, char **argv)
                         video::set_aux_bezel_position((xn ? -xVal+1 : xVal-1),
                                                       (yn ? -yVal+1 : yVal-1));
                     else
-                        video::set_sb_window_position((xn ? -xVal+1 : xVal-1),
+                        video::set_scoreboard_window_position((xn ? -xVal+1 : xVal-1),
                                                       (yn ? -yVal+1 : yVal-1));
                 } else {
                     printerror("Positions require x and y values");
@@ -1043,7 +1042,7 @@ bool parse_cmd_line(int argc, char **argv)
                 i = atoi(s);
 
                 if (i >= 2 && i <= 255)
-                    video::set_score_screen(i);
+                    video::set_scoreboard_screen(i);
             }
             else if (strcasecmp(s, "-tq_keyboard") == 0 ||
                          strcasecmp(s, "-tqkeys") == 0) {
@@ -1466,8 +1465,15 @@ bool parse_cmd_line(int argc, char **argv)
             }
             // Use old style overlays (lair, ace, tq)
             else if (strcasecmp(s, "-original_overlay") == 0) {
-                g_game->m_old_overlay = true;
-                video::set_sboverlay_white(true);
+                lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
+                thayers *game_thayers = dynamic_cast<thayers *>(g_game);
+
+                if (NULL == game_lair_or_sa && NULL == game_thayers) {
+                    result = invalid_arg(s);
+                } else {
+                    video::set_legacy_overlay(true);
+                    video::set_sboverlay_white(true);
+                }
             }
             // this switch only supported by the ldp-vldp player class.
             else if (strcasecmp(s, "-useoverlaysb") == 0) {
@@ -1499,7 +1505,14 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             else if (strcasecmp(s, "-sboverlaymono") == 0) {
-                video::set_sboverlay_white(true);
+                lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
+                thayers *game_thayers = dynamic_cast<thayers *>(g_game);
+
+                if (NULL == game_lair_or_sa && NULL == game_thayers) {
+                    result = invalid_arg(s);
+                } else {
+                    video::set_sboverlay_white(true);
+                }
             }
             // Playing Thayer's Quest, and don't want speech synthesis?
             else if (strcasecmp(s, "-nospeech") == 0) {

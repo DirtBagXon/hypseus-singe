@@ -238,7 +238,6 @@ $BEZEL \
 -framefile $HYPSEUS_SHARE/vldp/$1/$1.txt \
 -homedir $HYPSEUS_SHARE \
 -datadir $HYPSEUS_SHARE \
--sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20
 

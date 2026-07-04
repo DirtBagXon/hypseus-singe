@@ -90,7 +90,7 @@
 firefox::firefox()
 {
     struct cpu::def cpu;
-    game::set_overlay_upgrade(true);
+    game::set_overlay_upgrade(GAME_OVERLAY_UPGRADE, false);
 
     m_shortgamename = "firefox";
     memset(&cpu, 0, sizeof(struct cpu::def));

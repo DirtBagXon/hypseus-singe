@@ -1,7 +1,6 @@
 set( LIB_SOURCES
     cpu.cpp
     mamewrap.cpp
-    cpu-debug.cpp
     m80.cpp
     mc6809.cpp
     6809infc.cpp
@@ -14,7 +13,6 @@ set( LIB_SOURCES
 set( LIB_HEADERS
     6809infc.h
     cpu.h
-    cpu-debug.h
     cop.h
     copintf.h
     generic_z80.h
@@ -30,6 +28,15 @@ set( LIB_HEADERS
     x86/i86intf.h
     types.h
 )
+
+if( DEFUNC )
+  list( APPEND LIB_SOURCES
+    cpu-debug.cpp
+)
+  list( APPEND LIB_HEADERS
+    cpu-debug.h
+)
+endif( DEFUNC )
 
 add_subdirectory( x86 )
 

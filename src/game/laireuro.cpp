@@ -45,7 +45,7 @@ laireuro::laireuro()
 {
     struct cpu::def cpu;
     struct sound::chip sound;
-    game::set_overlay_upgrade(true);
+    game::set_overlay_upgrade(GAME_OVERLAY_UPGRADE, false);
 
     memset(&g_ctc, 0, sizeof(ctc_chip));
 

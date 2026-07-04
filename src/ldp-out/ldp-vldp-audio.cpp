@@ -310,19 +310,22 @@ void ldp_vldp::set_audiocopy_callback()
 // Allow ogg file switching via LUA API based on suffix (ala -altaudio)
 bool ldp_vldp::switch_altaudio(const char* suffix)
 {
-    string oggfile = m_oggpath;
-    oggfile.replace(oggfile.length() - 4, 4, suffix);
-    oggfile += ".ogg";
+    if (sound::is_enabled()) {
 
-    m_altaudio_suffix = suffix;
-    audio_pause();
+        string oggfile = m_oggpath;
+        oggfile.replace(oggfile.length() - 4, 4, suffix);
+        oggfile += ".ogg";
 
-    if (open_audio_stream(oggfile.c_str())) {
-        if (get_status() == LDP_PLAYING) {
-            audio_play(0);
-            pre_change_speed(1, 1);
+        m_altaudio_suffix = suffix;
+        audio_pause();
+
+        if (open_audio_stream(oggfile.c_str())) {
+            if (get_status() == LDP_PLAYING) {
+                audio_play(0);
+                pre_change_speed(1, 1);
+            }
+            return true;
         }
-        return true;
     }
 
     return false;
@@ -487,18 +490,21 @@ bool ldp_vldp::seek_audio(Uint64 u64Samples)
 {
     bool result = false;
 
-    OGG_LOCK; // can't have audio callback running during this
+    if (sound::is_enabled()) {
 
-    if (ov_seekable(&s_ogg)) {
-        ov_pcm_seek(&s_ogg, u64Samples);
-        g_audio_playing = false; // audio should not be playing immediately
+        OGG_LOCK; // can't have audio callback running during this
+
+        if (ov_seekable(&s_ogg)) {
+            ov_pcm_seek(&s_ogg, u64Samples);
+            g_audio_playing = false; // audio should not be playing immediately
                                  // after a seek
-        result = true;
-    } else {
-        LOGE << "DOH! OGG stream is not seekable!";
-    }
+            result = true;
+        } else {
+            LOGE << "DOH! OGG stream is not seekable!";
+        }
 
-    OGG_UNLOCK;
+        OGG_UNLOCK;
+    }
 
     return result;
 }

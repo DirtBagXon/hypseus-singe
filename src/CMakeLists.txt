@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(PKG_VERSION "v2.12.0")
+set(PKG_VERSION "v2.12.1")
 
 project(hypseus)
 
@@ -21,8 +21,11 @@ endif()
 
 if (UNIX)
   if (CMAKE_SIZEOF_VOID_P EQUAL 4)
-      message(STATUS "Detected 32bit: Compiling with -D_FILE_OFFSET_BITS=64")
-      add_definitions(-D_FILE_OFFSET_BITS=64)
+      message(STATUS "Compiling with 64-bit file/time support")
+      add_compile_definitions(
+          _FILE_OFFSET_BITS=64
+          _TIME_BITS=64
+      )
   endif()
 endif()
 
@@ -48,7 +51,6 @@ string(CONCAT TARGET_SYSTEM TARGET_ ${TARGET_SYSTEM})
 string(TOUPPER ${CMAKE_TARGET_ARCHITECTURES} TARGET_ARCH)
 string(CONCAT TARGET_ARCH TARGET_ ${TARGET_ARCH})
 
-include(BuildSupport)
 include(GNUInstallDirs)
 include(GetGitRevisionDescription)
 include(InstallRequiredSystemLibraries)
@@ -56,7 +58,7 @@ include(FindPkgConfig)
 include(ExternalProject)
 include(BuildLibMPEG2)
 
-use_cxx11( )
+set (CMAKE_CXX_STANDARD 11)
 
 PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
 PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)

@@ -643,10 +643,11 @@ bool ldp_vldp::change_speed(unsigned int uNumerator, unsigned int uDenominator)
         Uint64 u64AudioTargetPos = get_audio_sample_position(target_mpegframe);
 
         // try to get the audio playing again
-        if (seek_audio(u64AudioTargetPos)) {
-            audio_play(m_uElapsedMsSincePlay);
-        } else {
-            LOGW << "trying to seek audio after playing at 1X failed";
+        if (sound::is_enabled()) {
+            if (seek_audio(u64AudioTargetPos))
+                audio_play(m_uElapsedMsSincePlay);
+            else
+                LOGW << "trying to seek audio after playing at 1X failed";
         }
     }
 
@@ -1506,9 +1507,6 @@ void update_parse_meter(const string &strFilename)
         // as long as percent_complete is always 100 or lower, total_s will
         // always be >= elapsed_s, so no checking necessary here
         remaining_s = total_s - elapsed_s;
-
-        // erase previous stuff on the screen blitter
-        SDL_FillRect(video::get_screen_blitter(), NULL, 0x00000000);
 
         // if we have some progress to report ...
         if (remaining_s > 0) {

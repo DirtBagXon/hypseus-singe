@@ -147,7 +147,6 @@ $SPRITEBLEND \
 $ALPHA \
 $EIGHTBIT \
 $BEZEL \
--sound_buffer 2048 \
 -volume_nonvldp 5 \
 -volume_vldp 20
 

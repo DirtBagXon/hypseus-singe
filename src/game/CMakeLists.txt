@@ -2,30 +2,18 @@ set( LIB_SOURCES
     astron.cpp
     badlands.cpp
     bega.cpp
-    benchmark.cpp
     boardinfo.cpp
     cliff.cpp
     cobraconv.cpp
-    cputest.cpp
     esh.cpp
-    ffr.cpp
-    firefox.cpp
     game.cpp
     gpworld.cpp
     interstellar.cpp
     lair.cpp
     lair2.cpp
     laireuro.cpp
-    lgp.cpp
     mach3.cpp
-    multicputest.cpp
-    releasetest.cpp
-    seektest.cpp
-    speedtest.cpp
-    starrider.cpp
     superd.cpp
-    test_sb.cpp
-    timetrav.cpp
     thayers.cpp
 )
 
@@ -33,14 +21,10 @@ set( LIB_HEADERS
     astron.h
     badlands.h
     bega.h
-    benchmark.h
     boardinfo.h
     cliff.h
     cobraconv.h
-    cputest.h
     esh.h
-    ffr.h
-    firefox.h
     game.h
     gpworld.h
     interstellar.h
@@ -48,18 +32,41 @@ set( LIB_HEADERS
     laireuro.h
     lair.h
     lair_util.h
-    lgp.h
     mach3.h
+    superd.h
+    thayers.h
+)
+
+if( DEFUNC )
+  list( APPEND LIB_SOURCES
+    benchmark.cpp
+    cputest.cpp
+    ffr.cpp
+    firefox.cpp
+    lgp.cpp
+    multicputest.cpp
+    releasetest.cpp
+    seektest.cpp
+    speedtest.cpp
+    starrider.cpp
+    test_sb.cpp
+    timetrav.cpp
+)
+  list( APPEND LIB_HEADERS
+    benchmark.h
+    cputest.h
+    ffr.h
+    firefox.h
+    lgp.h
     multicputest.h
     releasetest.h
     seektest.h
     speedtest.h
     starrider.h
-    superd.h
     test_sb.h
-    thayers.h
     timetrav.h
 )
+endif( DEFUNC )
 
 if( BUILD_SINGE )
     add_subdirectory( singe )

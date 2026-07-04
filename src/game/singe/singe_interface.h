@@ -41,7 +41,7 @@ struct singe_in_info
 	// From video/video.h
 	Uint16 (*get_video_width)();
 	Uint16 (*get_video_height)();
-	void (*draw_string)(const char*, int, int, SDL_Surface*);
+	void (*draw_string)(const char*, int, int, SDL_Surface*, SDL_Color, bool);
 	
 	// From sound/samples.h
 	int (*samples_play_sample)(Uint8 *pu8Buf, unsigned int uLength, unsigned int uChannels, int iSlot, void (*finishedCallback)(Uint8 *pu8Buf, unsigned int uSlot));
@@ -76,6 +76,7 @@ struct singe_in_info
 	double (*cfm_get_fvalue)(void *);
 
 	uint8_t (*cfm_get_overlaysize)(void *);
+	bool (*cfm_overlay_unmask)(void *);
 	void (*cfm_set_overlaysize)(void *, uint8_t);
 	void (*cfm_set_custom_overlay)(void *, uint16_t, uint16_t);
 	void (*cfm_set_gamepad_rumble)(void *, uint8_t, uint8_t, uint8_t);
@@ -103,7 +104,6 @@ struct singe_in_info
 	void (*cfm_joymouse_enable)(void *, bool);
 
 	bool (*get_es_path)();
-	void (*set_singe_errors)(short);
 
 	// VARIABLES:
 	

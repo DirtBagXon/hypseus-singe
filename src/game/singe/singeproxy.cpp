@@ -44,25 +44,31 @@ using namespace libzippp;
 ////////////////////////////////////////////////////////////////////////////////
 
 // Structures used by Singe to track various internal data
-typedef struct g_soundType {
+typedef struct m_soundType {
 	SDL_AudioSpec  audioSpec;
 	Uint32         length;
-	Uint8          *buffer;
+	Uint8          *buffer = NULL;
 	bool           load;
-} g_soundT;
+} m_soundT;
 
-typedef struct g_mixerType {
-	Mix_Music *data;
-	bool      load = false;
-} g_mixerT;
+typedef struct m_mixerType {
+	Mix_Music *data = NULL;
+	bool      load  = false;
+} m_mixerT;
 
 typedef struct {
 	unsigned int count;
 	unsigned int duration;
 	bool trip;
-} g_blankT;
+} m_blankT;
 
-typedef struct g_spriteType {
+typedef struct {
+	int bpp;
+	int width;
+	int height;
+} m_textureT;
+
+typedef struct m_spriteType {
 	double  angle  = 0.0f;
 	double  scaleX = 0.0f;
 	double  scaleY = 0.0f;
@@ -83,7 +89,7 @@ typedef struct g_spriteType {
 	int     last = 0;
 	int     ticks = 0;
 #endif
-} g_spriteT;
+} m_spriteT;
 
 typedef struct g_positionType {
 	int     mouseX[MAX_MICE] = {0};
@@ -95,73 +101,84 @@ typedef struct g_positionType {
                 for (int j = 0; j < AXIS_COUNT; ++j)
                     axisvalue[i][j] = 0;
         }
-} g_positionT;
+} m_positionT;
+
+typedef struct m_srtType {
+        int startFrame;
+        int endFrame;
+        std::string text;
+} m_srtT;
 
 // These are pointers and values needed by the script engine to interact with Hypseus
 static lua_State    *g_se_lua_context;
-static SDL_Surface  *g_se_surface        = NULL;
-static int           g_se_vldp_width     = 0;
-static int           g_se_vldp_height    = 0;
-static int           g_se_overlay_width  = 0;
-static int           g_se_overlay_height = 0;
+static SDL_Surface  *g_se_surface                  = NULL;
+static SDL_Texture  *g_se_texture                  = NULL;
+static int           g_se_vldp_width               = 0;
+static int           g_se_vldp_height              = 0;
+static int           g_se_overlay_width            = 0;
+static int           g_se_overlay_height           = 0;
 static double       *g_se_disc_fps;
 static unsigned int *g_se_uDiscFPKS;
 
 // used to know whether try to shutdown lua would crash
-static bool g_bLuaInitialized = false;
-
-static bool g_se_grunt = true;
+static bool g_bLuaInitialized                      = false;
+static bool m_se_grunt                             = true;
 
 // Communications from the DLL to and from Hypseus
 struct       singe_out_info  g_SingeOut;
-const struct singe_in_info  *g_pSingeIn = NULL;
+const struct singe_in_info  *g_pSingeIn            = NULL;
 
 // Internal data to keep track of things
-static SDL_Color             g_colorForeground     = {255, 255, 255, 0};
-static SDL_Color             g_colorBackground     = {0, 0, 0, 0};
-static vector<TTF_Font *>    g_fontList;
-static vector<g_mixerT>      g_mixerList;
-static vector<g_soundT>      g_soundList;
-static vector<g_spriteT>     g_sprites;
-static yuv_buffer            g_se_yuv_buf;
-static int                   g_fontCurrent         = -1;
-static int                   g_fontQuality         =  1;
-static double                g_se_overlay_scale_x  =  1;
-static double                g_se_overlay_scale_y  =  1;
-static double                g_se_yuv_scale_x      =  1;
-static double                g_se_yuv_scale_y      =  1;
-static bool                  g_pause_state         = false; // by RDG2010
-static bool                  g_show_crosshair      = true;
-static bool                  g_blend_sprite        = false;
-static bool                  g_trace               = false;
-static bool                  g_rom_zip             = false;
-static bool                  g_firstload           = true;
-static bool                  g_firstfont           = true;
-static bool                  g_firstmix            = true;
-static bool                  g_firstsnd            = true;
-static bool                  g_pixelready          = false;
-static bool                  g_colorkey            = true;
-static bool                  g_zlua_arg            = false;
-static uint8_t               g_upgrade_overlay     = 0;
+static SDL_Color             m_colorForeground     = {255, 255, 255, 0};
+static SDL_Color             m_colorBackground     = {0, 0, 0, 0};
+static vector<TTF_Font *>    m_fontList;
+static vector<m_mixerT>      m_mixerList;
+static vector<m_soundT>      m_soundList;
+static vector<m_spriteT>     m_sprites;
+static yuv_buffer            m_se_yuv_buf;
+static int                   m_fontCurrent         = -1;
+static int                   m_fontQuality         =  1;
+static double                m_se_overlay_scale_x  =  1;
+static double                m_se_overlay_scale_y  =  1;
+static double                m_se_yuv_scale_x      =  1;
+static double                m_se_yuv_scale_y      =  1;
+static bool                  m_show_crosshair      = true;
+static bool                  m_blend_sprite        = false;
+static bool                  m_trace               = false;
+static bool                  m_rom_zip             = false;
+static bool                  m_firstload           = true;
+static bool                  m_firstfont           = true;
+static bool                  m_firstmix            = true;
+static bool                  m_firstsnd            = true;
+static bool                  m_pixelready          = false;
+static bool                  m_colorkey            = true;
+static bool                  m_zlua_arg            = false;
+static uint8_t               m_upgrade_overlay     = 0;
 
 static bool                  g_keyboard_state[SDL_NUM_SCANCODES] = {false};
 static int                   g_keyboard_down       = SDL_SCANCODE_UNKNOWN;
 static int                   g_keyboard_up         = SDL_SCANCODE_UNKNOWN;
-
-static g_positionT           g_tract;
-static std::string           g_scriptpath;
-static std::string           g_altgame;
-static g_blankT              l_blank               = {0, 0, false};
-static const std::string     m_ramfiles[]          = {".cfg", ".ram"};
+static bool                  g_pause_state         = false; // by RDG2010
 const char*                  g_zipFile             = NULL;
-static SDL_AudioSpec*        g_sound_load          = NULL;
+
+static m_positionT           m_tract;
+static std::string           m_scriptpath;
+static std::string           m_altgame;
+static m_textureT            m_tx                  = {0};
+static m_blankT              m_blank               = {0, 0, false};
+static const std::string     m_ramfiles[]          = {".cfg", ".ram"};
+static SDL_AudioSpec*        m_sound_load          = NULL;
 
 ZipArchive*                  g_zf                  = nullptr;
 bool*                        g_zlfs                = nullptr;
-static vector<ZipEntry>      g_zipList;
+static vector<ZipEntry>      m_zipList;
 static vector<ZipEntry>::iterator m_iter;
 
-static const SDL_Color g_colorTransparent = {0, 0, 0, 0};
+static vector<m_srtT>       m_srt;
+static bool                 m_srt_display          = false;
+static int                  m_srt_height           = 0x50;
+
+static const SDL_Color m_colorTransparent = {0, 0, 0, 0};
 static const vector<Mix_MusicType> m_supportedMusic = { MUS_MP3, MUS_MID };
 static const vector<std::pair<int, std::string>> m_mixerFlags = {
     { MIX_INIT_MP3,  "MP3" },
@@ -211,6 +228,68 @@ SINGE_EXPORT const struct singe_out_info *singeproxy_init(const struct singe_in_
 
 ////////////////////////////////////////////////////////////////////////////////
 
+static bool sep_parseTS(const std::string& ts, int& h, int& m, int& s, int& ms)
+{
+    return sscanf(ts.c_str(), "%d:%d:%d,%d", &h, &m, &s, &ms) == 4;
+}
+
+static void UpdateSRT(const std::vector<m_srtT>& subtitles, int currentFrame)
+{
+    if (subtitles.empty())
+        return;
+
+    static size_t cachedIndex = 0;
+
+    if (cachedIndex < subtitles.size())
+    {
+        const m_srtT& sub = subtitles[cachedIndex];
+
+        if (currentFrame >= sub.startFrame &&
+            currentFrame <= sub.endFrame)
+        {
+            video::draw_srt(sub.text.c_str(), 1, m_srt_height);
+            return;
+        }
+
+        if (currentFrame > sub.endFrame &&
+            cachedIndex + 1 < subtitles.size())
+        {
+            const m_srtT& next = subtitles[cachedIndex + 1];
+
+            if (currentFrame >= next.startFrame &&
+                currentFrame <= next.endFrame)
+            {
+                ++cachedIndex;
+                video::draw_srt(next.text.c_str(), 1, m_srt_height);
+                return;
+            }
+        }
+    }
+
+    auto it = std::upper_bound(
+        subtitles.begin(),
+        subtitles.end(),
+        currentFrame,
+        [](int frame, const m_srtT& sub)
+        {
+            return frame < sub.startFrame;
+        });
+
+    if (it != subtitles.begin())
+        --it;
+
+    size_t newIndex = std::distance(subtitles.begin(), it);
+    cachedIndex = newIndex;
+
+    const m_srtT& sub = subtitles[newIndex];
+
+    if (currentFrame >= sub.startFrame &&
+        currentFrame <= sub.endFrame)
+    {
+        video::draw_srt(sub.text.c_str(), 1, m_srt_height);
+    }
+}
+
 bool net_send_enabled();
 
 static unsigned char sep_byte_clip(int value)
@@ -226,12 +305,12 @@ static unsigned char sep_byte_clip(int value)
 
 static void sep_do_blank()
 {
-    palette::set_yuv_transparency(l_blank.count == 0);
+    palette::set_yuv_transparency(m_blank.count == 0);
 
-    if (l_blank.count > 0) l_blank.count--;
+    if (m_blank.count > 0) m_blank.count--;
     else {
-        l_blank.count = l_blank.duration;
-        l_blank.trip = false;
+        m_blank.count = m_blank.duration;
+        m_blank.trip = false;
     }
 }
 
@@ -273,10 +352,10 @@ static std::string sep_fmt(const std::string fmt_str, ...)
     return formatted;
 }
 
-static bool audio_format()
+static bool audio_format(SDL_AudioSpec *sound)
 {
-    if ((SDL_BYTEORDER == SDL_LIL_ENDIAN && g_sound_load->format == AUDIO_S16SYS)
-    || (SDL_BYTEORDER == SDL_BIG_ENDIAN && g_sound_load->format == AUDIO_S16LSB))
+    if ((SDL_BYTEORDER == SDL_LIL_ENDIAN && sound->format == AUDIO_S16SYS)
+    || (SDL_BYTEORDER == SDL_BIG_ENDIAN && sound->format == AUDIO_S16LSB))
         return true;
 
     LOGE << sep_fmt("soundLoad: Invalid audio format detected");
@@ -285,8 +364,8 @@ static bool audio_format()
 
 static void sep_trace(lua_State *L)
 {
-    if (g_trace) {
-        if (g_rom_zip) {
+    if (m_trace) {
+        if (m_rom_zip) {
             static bool notice = false;
             if (!notice) {
                 LOGW << sep_fmt("Uncompress the ROM to enable trace debugging.");
@@ -312,8 +391,8 @@ static void sep_set_rampath()
     char rampath[REWRITE_MAXPATH] = {0};
 
     if (g_zf->isOpen()) {
-        g_zipList = g_zf->getEntries();
-        for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
+        m_zipList = g_zf->getEntries();
+        for (m_iter = m_zipList.begin(); m_iter != m_zipList.end(); ++m_iter) {
              ZipEntry entry = *m_iter;
              std::string name = entry.getName();
 
@@ -356,7 +435,7 @@ static void sep_set_rampath()
                  }
              }
         }
-        g_zipList.clear();
+        m_zipList.clear();
     }
 }
 
@@ -375,7 +454,7 @@ void sep_keyboard_set_state(int keycode, bool state)
 
 void sep_controller_set_axis(Uint8 axis, Sint16 value, Uint8 id)
 {
-    g_tract.axisvalue[id][axis] = value;
+    m_tract.axisvalue[id][axis] = value;
 }
 
 static void sep_die(const char *fmt, ...)
@@ -392,11 +471,10 @@ static void sep_die(const char *fmt, ...)
 
     strcat(message, temp);
 
-    if (g_se_grunt) {
+    if (m_se_grunt) {
         sound::play_saveme();
         SDL_Delay(1000);
-        g_se_grunt = false;
-        g_pSingeIn->set_singe_errors(SINGE_ERROR_RUNTIME);
+        m_se_grunt = false;
     }
 
     // tell hypseus what our last error was ...
@@ -516,7 +594,7 @@ static bool sep_init_mixer()
     SDL_setenv("SDL_SOUNDFONTS", "midi/soundfont.sf2", 1);
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        sep_die("SDL Mixer failed to open audio devices.");
+        sep_die("SDL Mixer failed to open audio devices: %s", Mix_GetError());
         return false;
     }
 
@@ -538,7 +616,8 @@ static bool sep_init_mixer()
         return false;
     }
 
-    Mix_VolumeMusic(10);
+    Mix_VolumeMusic(sound::is_enabled() ? 16 : 0);
+
     return true;
 }
 
@@ -552,20 +631,20 @@ void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouse
     int mID = (int) mouseID;
     int8_t rID = mID;
 	
-    // Not sure what's wrong here.  I think things are getting started before Singe is ready.
+    x1 *= m_se_overlay_scale_x;
+    y1 *= m_se_overlay_scale_y;
+    xr *= m_se_overlay_scale_x;
+    yr *= m_se_overlay_scale_y;
+
+    if (mID < 0) rID += 1; // SDL_MOUSE
+    m_tract.mouseX[rID] = x1;
+    m_tract.mouseY[rID] = y1;
+
+    // Not sure what's wrong here. I think things are getting started before Singe is ready.
     if (!debounced) {
         debounced = true;
         return;
     }
-	
-    x1 *= g_se_overlay_scale_x;
-    y1 *= g_se_overlay_scale_y;
-    xr *= g_se_overlay_scale_x;
-    yr *= g_se_overlay_scale_y;
-
-    if (mID < 0) rID += 1; // SDL_MOUSE
-    g_tract.mouseX[rID] = x1;
-    g_tract.mouseY[rID] = y1;
 	
     sep_call_lua("onMouseMoved", "iiiii", x1, y1, xr, yr, mID);
 }
@@ -605,17 +684,17 @@ int sep_lua_error(lua_State *L)
 int sep_prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                            int Ypitch, int Upitch, int Vpitch)
 {
-    if (l_blank.trip) sep_do_blank();
+    if (m_blank.trip) sep_do_blank();
 
     int result = (video::vid_update_yuv_overlay(Yplane, Uplane, Vplane, Ypitch, Upitch, Vpitch) == 0)
                ? VLDP_TRUE
                : VLDP_FALSE;
 
-    if (g_pixelready)
+    if (m_pixelready)
     {
-        memcpy(g_se_yuv_buf.Y.get(), Yplane, g_se_vldp_width * g_se_vldp_height);
-        memcpy(g_se_yuv_buf.U.get(), Uplane, g_se_yuv_buf.UVw * g_se_yuv_buf.UVh);
-        memcpy(g_se_yuv_buf.V.get(), Vplane, g_se_yuv_buf.UVw * g_se_yuv_buf.UVh);
+        memcpy(m_se_yuv_buf.Y.get(), Yplane, g_se_vldp_width * g_se_vldp_height);
+        memcpy(m_se_yuv_buf.U.get(), Uplane, m_se_yuv_buf.UVw * m_se_yuv_buf.UVh);
+        memcpy(m_se_yuv_buf.V.get(), Vplane, m_se_yuv_buf.UVw * m_se_yuv_buf.UVh);
     }
 
     return result;
@@ -675,18 +754,31 @@ void sep_set_surface(int width, int height)
 
     if (createSurface)
     {
-        g_se_surface = SDL_CreateRGBSurface(0, g_se_overlay_width,
-                           g_se_overlay_height, 32, 0xFF, 0xFF00,
-			       0xFF0000, 0xFF000000);
+        g_se_surface = SDL_CreateRGBSurfaceWithFormat(0, g_se_overlay_width,
+			g_se_overlay_height, 32, SDL_PIXELFORMAT_RGBA8888);
 
         if (!g_se_surface)
             sep_die("sep_set_surface creation failed: %s\n", SDL_GetError());
 
-        g_se_overlay_scale_x = (double)g_se_overlay_width  / (double)g_pSingeIn->get_video_width();
-        g_se_overlay_scale_y = (double)g_se_overlay_height / (double)g_pSingeIn->get_video_height();
+        m_se_overlay_scale_x = (double)g_se_overlay_width  / (double)g_pSingeIn->get_video_width();
+        m_se_overlay_scale_y = (double)g_se_overlay_height / (double)g_pSingeIn->get_video_height();
+
+        g_se_texture = video::get_overlay_texture();
+
+        if (g_se_texture)
+        {
+            Uint32 format;
+            SDL_QueryTexture(g_se_texture, &format, NULL, &m_tx.width, &m_tx.height);
+
+            SDL_PixelFormat *bpp = SDL_AllocFormat(format);
+            m_tx.bpp = bpp->BitsPerPixel;
+            SDL_FreeFormat(bpp);
+        }
+        else
+            m_tx = {0};
     }
 
-    if (g_se_yuv_buf.width != g_se_vldp_width || g_se_yuv_buf.height != g_se_vldp_height)
+    if (m_se_yuv_buf.width != g_se_vldp_width || m_se_yuv_buf.height != g_se_vldp_height)
     {
         size_t Ys  = static_cast<size_t>(g_se_vldp_width) *
                      static_cast<size_t>(g_se_vldp_height);
@@ -704,9 +796,9 @@ void sep_set_surface(int width, int height)
             memset(newU.get(), 0x80, UVs);
             memset(newV.get(), 0x80, UVs);
 
-            g_se_yuv_buf.Y = std::move(newY);
-            g_se_yuv_buf.U = std::move(newU);
-            g_se_yuv_buf.V = std::move(newV);
+            m_se_yuv_buf.Y = std::move(newY);
+            m_se_yuv_buf.U = std::move(newU);
+            m_se_yuv_buf.V = std::move(newV);
         }
         catch (const std::bad_alloc&)
         {
@@ -714,19 +806,19 @@ void sep_set_surface(int width, int height)
             sep_die("YUV Buffer could not Initialize");
         }
 
-        g_se_yuv_buf.width  = g_se_vldp_width;
-        g_se_yuv_buf.height = g_se_vldp_height;
+        m_se_yuv_buf.width  = g_se_vldp_width;
+        m_se_yuv_buf.height = g_se_vldp_height;
 
-        g_se_yuv_buf.Ypitch = g_se_vldp_width;
-        g_se_yuv_buf.Upitch = static_cast<int>(UVw);
-        g_se_yuv_buf.Vpitch = static_cast<int>(UVw);
+        m_se_yuv_buf.Ypitch = g_se_vldp_width;
+        m_se_yuv_buf.Upitch = static_cast<int>(UVw);
+        m_se_yuv_buf.Vpitch = static_cast<int>(UVw);
 
-        g_se_yuv_buf.UVw = static_cast<int>(UVw);
-        g_se_yuv_buf.UVh = static_cast<int>(UVh);
+        m_se_yuv_buf.UVw = static_cast<int>(UVw);
+        m_se_yuv_buf.UVh = static_cast<int>(UVh);
     }
 
-    g_se_yuv_scale_x = (double)g_se_vldp_width  / (double)g_se_overlay_width;
-    g_se_yuv_scale_y = (double)g_se_vldp_height / (double)g_se_overlay_height;
+    m_se_yuv_scale_x = (double)g_se_vldp_width  / (double)g_se_overlay_width;
+    m_se_yuv_scale_y = (double)g_se_vldp_height / (double)g_se_overlay_height;
 }
 
 SDL_Surface *sep_copy_surface(SDL_Surface *src, SDL_Rect *rect)
@@ -736,14 +828,11 @@ SDL_Surface *sep_copy_surface(SDL_Surface *src, SDL_Rect *rect)
     int w = rect ? rect->w : src->w;
     int h = rect ? rect->h : src->h;
 
-    dst = SDL_CreateRGBSurface(
+    dst = SDL_CreateRGBSurfaceWithFormat(
         src->flags,
         w, h,
         src->format->BitsPerPixel,
-        src->format->Rmask,
-        src->format->Gmask,
-        src->format->Bmask,
-        src->format->Amask
+        src->format->format
     );
 
     if (dst != NULL)
@@ -756,12 +845,12 @@ SDL_Surface *sep_copy_surface(SDL_Surface *src, SDL_Rect *rect)
 
 static void sep_unload_fonts(void)
 {
-  if (g_fontList.size() > 0) {
+  if (m_fontList.size() > 0) {
 
-      for (int x = 0; x < (int)g_fontList.size(); x++)
-           TTF_CloseFont(g_fontList[x]);
+      for (int x = 0; x < (int)m_fontList.size(); x++)
+           TTF_CloseFont(m_fontList[x]);
 
-      g_fontList.clear();
+      m_fontList.clear();
   }
 }
 
@@ -769,48 +858,48 @@ static void sep_unload_sounds(void)
 {
   g_pSingeIn->samples_flush_queue();
 
-  if (g_soundList.size() > 0) {
+  if (m_soundList.size() > 0) {
 
-      for (int x = 0; x < (int)g_soundList.size(); x++)
-          if (g_soundList[x].load)
-              SDL_FreeWAV(g_soundList[x].buffer);
+      for (int x = 0; x < (int)m_soundList.size(); x++)
+          if (m_soundList[x].load)
+              SDL_FreeWAV(m_soundList[x].buffer);
 
-      g_soundList.clear();
+      m_soundList.clear();
   }
 }
 
 static void sep_unload_mixers(void)
 {
-  if (g_mixerList.size() > 0) {
+  if (m_mixerList.size() > 0) {
 
-      for (int x = 0; x < (int)g_mixerList.size(); x++)
-          if (g_mixerList[x].load)
-              Mix_FreeMusic(g_mixerList[x].data);
+      for (int x = 0; x < (int)m_mixerList.size(); x++)
+          if (m_mixerList[x].load)
+              Mix_FreeMusic(m_mixerList[x].data);
 
-      g_mixerList.clear();
+      m_mixerList.clear();
   }
 }
 
 static void sep_unload_sprites(void)
 {
-  if (g_sprites.size() > 0) {
+  if (m_sprites.size() > 0) {
 
-      for (int x = 0; x < (int)g_sprites.size(); x++)
+      for (int x = 0; x < (int)m_sprites.size(); x++)
       {
-          SDL_FreeSurface(g_sprites[x].present);
-          SDL_FreeSurface(g_sprites[x].store);
-          SDL_FreeSurface(g_sprites[x].frame);
-          g_sprites[x].present = NULL;
-          g_sprites[x].store = NULL;
-          g_sprites[x].frame = NULL;
+          SDL_FreeSurface(m_sprites[x].present);
+          SDL_FreeSurface(m_sprites[x].store);
+          SDL_FreeSurface(m_sprites[x].frame);
+          m_sprites[x].present = NULL;
+          m_sprites[x].store = NULL;
+          m_sprites[x].frame = NULL;
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
-          if (g_sprites[x].animation)
-              IMG_FreeAnimation(g_sprites[x].animation);
-          g_sprites[x].animation = NULL;
+          if (m_sprites[x].animation)
+              IMG_FreeAnimation(m_sprites[x].animation);
+          m_sprites[x].animation = NULL;
 #endif
       }
 
-      g_sprites.clear();
+      m_sprites.clear();
    }
 }
 
@@ -848,26 +937,26 @@ void sep_shutdown(void)
 
 static void sep_sprite_reset()
 {
-    g_sprites.clear();
-    g_firstload = false;
+    m_sprites.clear();
+    m_firstload = false;
 }
 
 static void sep_font_reset()
 {
-    g_fontList.clear();
-    g_firstfont = false;
+    m_fontList.clear();
+    m_firstfont = false;
 }
 
 static void sep_sound_reset()
 {
-    g_soundList.clear();
-    g_firstsnd = false;
+    m_soundList.clear();
+    m_firstsnd = false;
 }
 
 static void sep_mixer_reset()
 {
-    g_mixerList.clear();
-    g_firstmix = false;
+    m_mixerList.clear();
+    m_firstmix = false;
 }
 
 template <typename T>
@@ -879,11 +968,11 @@ inline bool sep_vector_range(const std::vector<T>& vec, int index)
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 inline bool sep_animation_valid(lua_State *L, int sprite, IMG_Animation *animation, const char* func)
 {
-    if (!sep_vector_range(g_sprites, sprite) || animation == NULL) {
+    if (!sep_vector_range(m_sprites, sprite) || animation == NULL) {
 
         static bool die = false;
         if (!die) {
-            g_trace = true; sep_trace(L);
+            m_trace = true; sep_trace(L);
             sep_die("Call on invalid Animation: %s()", func);
             die = true;
         }
@@ -895,11 +984,11 @@ inline bool sep_animation_valid(lua_State *L, int sprite, IMG_Animation *animati
 
 static inline bool sep_sprite_valid(lua_State *L, int sprite, SDL_Surface *surface, const char* func)
 {
-    if (!sep_vector_range(g_sprites, sprite) || surface == NULL) {
+    if (!sep_vector_range(m_sprites, sprite) || surface == NULL) {
 
         static bool die = false;
         if (!die) {
-            g_trace = true; sep_trace(L);
+            m_trace = true; sep_trace(L);
             sep_die("Call on invalid Sprite: %s()", func);
             die = true;
         }
@@ -910,8 +999,8 @@ static inline bool sep_sprite_valid(lua_State *L, int sprite, SDL_Surface *surfa
 
 static inline bool sep_sound_valid(int sound, const char* func)
 {
-    if (!sep_vector_range(g_soundList, sound) ||
-        !g_soundList[sound].load) {
+    if (!sep_vector_range(m_soundList, sound) ||
+        !m_soundList[sound].load) {
 
         sep_print("Called an invalid Sound: %s()", func);
         return false;
@@ -921,8 +1010,8 @@ static inline bool sep_sound_valid(int sound, const char* func)
 
 static inline bool sep_mixer_valid(int mixer, const char* func)
 {
-    if (!sep_vector_range(g_mixerList, mixer) ||
-        !g_mixerList[mixer].load) {
+    if (!sep_vector_range(m_mixerList, mixer) ||
+        !m_mixerList[mixer].load) {
 
         sep_print("Called an invalid MIDI: %s()", func);
         return false;
@@ -936,7 +1025,7 @@ static inline bool sep_font_valid(lua_State *L, TTF_Font *font, const char* func
 
         static bool die = false;
         if (!die) {
-            g_trace = true; sep_trace(L);
+            m_trace = true; sep_trace(L);
             sep_die("Call on invalid Font: %s()", func);
             die = true;
         }
@@ -954,34 +1043,14 @@ static void sep_draw_pixel(int x, int y, SDL_Color *c) {
 
     if ((x < 0) || (x >= g_se_surface->w) || (y < 0) || (y >= g_se_surface->h)) return;
 
-    SDL_Color f = g_colorkey ? SDL_Color{c->r, c->g, c->b, 0xff} : g_colorTransparent;
+    SDL_Color f = m_colorkey ? SDL_Color{c->r, c->g, c->b, 0xff} : m_colorTransparent;
 
-    int bpp      = g_se_surface->format->BytesPerPixel;
-    Uint8 *p     = (Uint8 *)g_se_surface->pixels + y * g_se_surface->pitch + x * bpp;
-    Uint32 pixel = SDL_MapRGBA(g_se_surface->format, f.r, f.g, f.b, f.a);
+    Uint8 *p = (Uint8 *)g_se_surface->pixels + y * g_se_surface->pitch + x * 4;
 
-    switch (bpp) {
-       case 1:
-               *p = (Uint8)pixel;
-               break;
-       case 2:
-               *(Uint16 *)p = (Uint16)pixel;
-               break;
-       case 3:
-               if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-                   p[0] = (pixel >> 16) & 0xff;
-                   p[1] = (pixel >>  8) & 0xff;
-                   p[2] = pixel & 0xff;
-               } else {
-                   p[0] = pixel & 0xff;
-                   p[1] = (pixel >>  8) & 0xff;
-                   p[2] = (pixel >> 16) & 0xff;
-               }
-               break;
-       case 4:
-               *(Uint32 *)p = pixel;
-               break;
-    }
+    Uint32 pixel = ((Uint32)f.r << 24) | ((Uint32)f.g << 16) |
+                   ((Uint32)f.b << 8)  | ((Uint32)f.a);
+
+    *(Uint32 *)p = pixel;
 }
 
 static void sep_draw_line(int x1, int y1, int x2, int y2, SDL_Color *c) {
@@ -1124,46 +1193,40 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
     return bResult;
 }
 
-static bool sep_fullalpha_srf32(SDL_Surface *src, SDL_Surface *dst)
+static bool sep_fullalpha_srf32(SDL_Surface *src, SDL_Texture *dst)
 {
     bool bResult = false;
-
     if (
-        ((dst->w == src->w) && (dst->h == src->h)) &&
-        (dst->format->BitsPerPixel == 32) &&
-        (src->format->BitsPerPixel == 32)
+        ((m_tx.width == src->w) && (m_tx.height == src->h)) &&
+        (m_tx.bpp == 32) && (src->format->BitsPerPixel == 32)
     )
     {
-        SDL_FillRect(dst, NULL, SDL_MapRGBA(dst->format, 0, 0, 0, 0));
-        SDL_BlitSurface(src, NULL, dst, NULL);
+        SDL_UpdateTexture(dst, NULL, (void *)src->pixels, src->pitch);
         bResult = true;
     }
     return bResult;
 }
 
-static bool sep_format_srf32(SDL_Surface *src, SDL_Surface *dst)
+static bool sep_format_srf32(SDL_Surface *src, SDL_Texture *dst)
 {
     bool bResult = false;
 
     // cleanup 32-bit surface
 
     if (
-        ((dst->w == src->w) && (dst->h == src->h)) &&
-        (dst->format->BitsPerPixel == 32) &&
-        (src->format->BitsPerPixel == 32)
+        ((m_tx.width == src->w) && (m_tx.height == src->h)) &&
+        (m_tx.bpp == 32) && (src->format->BitsPerPixel == 32)
     )
     {
-        SDL_LockSurface(dst);
         SDL_LockSurface(src);
 
         void *pSrcLine = src->pixels;
-        void *pDstLine = dst->pixels;
-        for (unsigned int uRowIdx = 0; uRowIdx < (unsigned int) src->h; ++uRowIdx)
-        {
-            Uint32 *p32SrcPix = (Uint32 *) pSrcLine;
-            Uint32 *p32DstPix = (Uint32 *) pDstLine;
 
-            for (unsigned int uColIdx = 0; uColIdx < (unsigned int) src->w; ++uColIdx)
+        for (unsigned int uRowIdx = 0; uRowIdx < (unsigned int)src->h; ++uRowIdx)
+        {
+            Uint32 *p32SrcPix = (Uint32 *)pSrcLine;
+
+            for (unsigned int uColIdx = 0; uColIdx < (unsigned int)src->w; ++uColIdx)
             {
                 Uint32 u32SrcPix = *p32SrcPix;
 
@@ -1183,70 +1246,81 @@ static bool sep_format_srf32(SDL_Surface *src, SDL_Surface *dst)
                 {
                     u32Idx = 0;
                 }
-                *p32DstPix = u32Idx;
-                ++p32DstPix;
+
+                *p32SrcPix = u32Idx;
                 ++p32SrcPix;
             }
-            pSrcLine = ((Uint8 *) pSrcLine) + src->pitch;
-            pDstLine = ((Uint8 *) pDstLine) + dst->pitch;
+
+            pSrcLine = ((Uint8 *)pSrcLine) + src->pitch;
         }
         SDL_UnlockSurface(src);
-        SDL_UnlockSurface(dst);
+
+        SDL_UpdateTexture(dst, NULL, src->pixels, src->pitch);
 
         bResult = true;
     }
     return bResult;
 }
 
-static bool sep_format_monochrome(SDL_Surface *src, SDL_Surface *dst)
+static bool sep_format_monochrome(SDL_Surface *src, SDL_Texture *dst)
 {
     bool bResult = false;
 
     // convert to monochrome grayscale surface
 
     if (
-        ((dst->w == src->w) && (dst->h == src->h)) &&
-        (dst->format->BitsPerPixel == 32) &&
-        (src->format->BitsPerPixel == 32)
+        ((m_tx.width == src->w) && (m_tx.height == src->h)) &&
+        (m_tx.bpp == 32) && (src->format->BitsPerPixel == 32)
     )
     {
-        SDL_LockSurface(dst);
         SDL_LockSurface(src);
 
-        Uint32 *p32Src = (Uint32 *)src->pixels;
-        Uint32 *p32Dst = (Uint32 *)dst->pixels;
-        int totalPixels = (src->pitch / 4) * src->h;
+        Uint8 gray;
+        Uint8 r, g, b, a;
+        Uint32 pixel, u32Idx;
 
         Uint32 Rmask = src->format->Rmask;
         Uint32 Gmask = src->format->Gmask;
         Uint32 Bmask = src->format->Bmask;
         Uint32 Amask = src->format->Amask;
+
         int Rshift = src->format->Rshift;
         int Gshift = src->format->Gshift;
         int Bshift = src->format->Bshift;
         int Ashift = src->format->Ashift;
 
-        Uint32 *srcEnd = p32Src + totalPixels;
+        Uint32 *p32Src = (Uint32 *)src->pixels;
+        Uint32 *srcEnd = p32Src + (src->w * src->h);
 
         while (p32Src < srcEnd)
         {
-            Uint32 pixel = *p32Src++;
+            pixel = *p32Src;
 
-            Uint8 A = (pixel & Amask) >> Ashift;
+            r = (pixel & Rmask) >> Rshift;
+            g = (pixel & Gmask) >> Gshift;
+            b = (pixel & Bmask) >> Bshift;
+            a = (pixel & Amask) >> Ashift;
 
-            Uint8 gray = (((((pixel & Rmask) >> Rshift) * 77) +
-                           (((pixel & Gmask) >> Gshift) * 151) +
-                           (((pixel & Bmask) >> Bshift) * 28)) >> 8);
+            gray = (Uint8)((77 * r + 151 * g + 28 * b) >> 8);
 
-            Uint32 outPix = (A << Ashift) | (gray << Rshift) |
-              (gray << Gshift) | (gray << Bshift);
+            if (a > 0x7F)
+            {
+                u32Idx = ((Uint32)a    << 24) |
+                         ((Uint32)gray << 16) |
+                         ((Uint32)gray <<  8) |
+                         ((Uint32)gray);
 
-            outPix |= -((A >= 0x7F) & (outPix == 0)) & 1;
-            *p32Dst++ = (A < 0x7F) ? 0 : outPix;
+                if (u32Idx == 0) u32Idx = 1;
+            }
+            else
+                u32Idx = 0;
+
+            *p32Src++ = u32Idx;
         }
 
         SDL_UnlockSurface(src);
-        SDL_UnlockSurface(dst);
+
+        SDL_UpdateTexture(dst, NULL, src->pixels, src->pitch);
 
         bResult = true;
     }
@@ -1255,15 +1329,18 @@ static bool sep_format_monochrome(SDL_Surface *src, SDL_Surface *dst)
 
 void sep_do_blit(SDL_Surface *srfDest)
 {
-    switch (g_upgrade_overlay) {
-        case 4:
-            sep_fullalpha_srf32(g_se_surface, srfDest);
+    if (m_srt_display)
+        UpdateSRT(m_srt, g_pSingeIn->get_current_frame());
+
+    switch (m_upgrade_overlay) {
+        case SEP_OVERLAY_ALPHA:
+            sep_fullalpha_srf32(g_se_surface, g_se_texture);
             break;
-        case 3:
-            sep_format_monochrome(g_se_surface, srfDest);
+        case SEP_OVERLAY_MONO:
+            sep_format_monochrome(g_se_surface, g_se_texture);
             break;
-        case 1:
-            sep_format_srf32(g_se_surface, srfDest);
+        case SEP_OVERLAY_FULL:
+            sep_format_srf32(g_se_surface, g_se_texture);
             break;
         default:
             sep_srf32_to_srf8(g_se_surface, srfDest);
@@ -1279,18 +1356,18 @@ static SDL_RWops* sep_unzip(std::string s)
     if (!g_zf->isOpen()) g_zf->open(ZipArchive::ReadOnly);
 
     if (g_zf->isOpen()) {
-        g_zipList = g_zf->getEntries();
-        for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
-             ZipEntry g_zipList = *m_iter;
-             std::string name = g_zipList.getName();
+        m_zipList = g_zf->getEntries();
+        for (m_iter = m_zipList.begin(); m_iter != m_zipList.end(); ++m_iter) {
+             ZipEntry m_zipList = *m_iter;
+             std::string name = m_zipList.getName();
 
              if (name.find(s) != std::string::npos) {
-                 found = g_zipList.readAsBinary();
-                 size = g_zipList.getSize();
+                 found = m_zipList.readAsBinary();
+                 size = m_zipList.getSize();
                  break;
              }
         }
-        g_zipList.clear();
+        m_zipList.clear();
         if (!*g_zlfs) g_zf->close();
     }
 
@@ -1307,11 +1384,11 @@ static SDL_RWops* sep_unzip(std::string s)
     return rw;
 }
 
-static g_soundT sep_sound_zip(std::string s)
+static m_soundT sep_sound_zip(std::string s)
 {
-    g_soundT sound;
+    m_soundT sound;
 
-    g_sound_load = SDL_LoadWAV_RW(sep_unzip(s), 1,
+    m_sound_load = SDL_LoadWAV_RW(sep_unzip(s), 1,
                       &sound.audioSpec, &sound.buffer, &sound.length);
 
     return sound;
@@ -1331,6 +1408,32 @@ static Mix_Music* sep_mixer_zip(std::string s)
     return mix;
 }
 
+static std::string sep_srt_zip(const std::string& s)
+{
+    SDL_RWops *rw = sep_unzip(s);
+    if (!rw) return {};
+
+    Sint64 size = SDL_RWsize(rw);
+    if (size <= 0)
+    {
+        SDL_RWclose(rw);
+        return {};
+    }
+
+    std::string buffer(static_cast<size_t>(size), '\0');
+    size_t read = SDL_RWread(rw, &buffer[0], 1, size);
+
+    if (read != static_cast<size_t>(size))
+    {
+        SDL_RWclose(rw);
+        return {};
+    }
+
+    SDL_RWclose(rw);
+
+    return buffer;
+}
+
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 static IMG_Animation* sep_animation_zip(std::string s)
 {
@@ -1347,6 +1450,113 @@ static SDL_Surface* sep_surface_zip(std::string s)
     return surface;
 }
 
+static int sep_TStoFrame(int hours, int minutes, int seconds, int milliseconds, double fps)
+{
+    if (fps == 0 && m_se_grunt)
+        sep_die("Attemping to load SRT functions before assigning FPS: quitting...");
+
+    double totalSeconds = hours * 3600.0 + minutes * 60.0 +
+                          seconds + milliseconds / 1000.0;
+
+    return static_cast<int>(totalSeconds * fps + 0.5);
+}
+
+static std::vector<m_srtT> LoadSRT(const std::string& filename, double fps)
+{
+    std::vector<m_srtT> subtitles;
+    std::string content;
+
+    if (m_rom_zip)
+        content = sep_srt_zip(filename);
+    else
+    {
+        std::ifstream file(filename, std::ios::binary);
+
+        if (file)
+            content.assign(std::istreambuf_iterator<char>(file),
+                           std::istreambuf_iterator<char>());
+    }
+
+    if (content.empty())
+        return subtitles;
+
+    std::istringstream stream(content);
+    std::string line;
+
+    auto cleanWindows = [](std::string& s)
+    {
+        while (!s.empty() && (s.back() == '\r' || s.back() == ' ' || s.back() == '\t'))
+            s.pop_back();
+
+        size_t start = s.find_first_not_of(" \t");
+        if (start != std::string::npos && start > 0)
+            s = s.substr(start);
+    };
+
+    while (std::getline(stream, line))
+    {
+        cleanWindows(line);
+
+        if (line.empty())
+            continue;
+
+        std::string timeLine;
+        if (!std::getline(stream, timeLine))
+            break;
+
+        cleanWindows(timeLine);
+
+        size_t arrowPos = timeLine.find("-->");
+        if (arrowPos == std::string::npos)
+            continue;
+
+        std::string startStr = timeLine.substr(0, arrowPos);
+        std::string endStr   = timeLine.substr(arrowPos + 3);
+
+        cleanWindows(startStr);
+        cleanWindows(endStr);
+
+        int sh, sm, ss, sms;
+        int eh, em, es, ems;
+
+        if (!sep_parseTS(startStr, sh, sm, ss, sms))
+            continue;
+
+        if (!sep_parseTS(endStr, eh, em, es, ems))
+            continue;
+
+        m_srtT entry;
+        entry.startFrame = sep_TStoFrame(sh, sm, ss, sms, fps);
+        entry.endFrame = sep_TStoFrame(eh, em, es, ems, fps);
+
+        std::stringstream text;
+
+        while (std::getline(stream, line))
+        {
+            cleanWindows(line);
+
+            if (line.empty())
+                break;
+
+            if (text.tellp() > 0)
+                text << '\n';
+
+            text << line;
+        }
+
+        entry.text = text.str();
+
+        if (!entry.text.empty())
+            subtitles.push_back(std::move(entry));
+    }
+
+    if (m_se_grunt) {
+        LOGI << sep_fmt("Loaded %d subtitle entries.", subtitles.size());
+    }
+
+    return subtitles;
+}
+
 static void sep_lua_failure(lua_State* L, const char* s)
 {
     sep_error("error compiling script: %s : %s", s, lua_tostring(L, -1));
@@ -1356,19 +1566,19 @@ static void sep_lua_failure(lua_State* L, const char* s)
 
 void sep_altgame(const char *data)
 {
-    g_altgame = data;
+    m_altgame = data;
 }
 
 void sep_minseek(unsigned int delay)
 {
-    l_blank.duration = l_blank.count = std::min((int)delay, 32);
+    m_blank.duration = m_blank.count = std::min((int)delay, 32);
 }
 
 void sep_startup(const char *data)
 {
-    g_mixerT mixer;
-    g_soundT sound;
-    g_spriteT sprite;
+    m_mixerT mixer;
+    m_soundT sound;
+    m_spriteT sprite;
     mixer.load = false;
     sound.load = false;
     sprite.store = nullptr;
@@ -1377,10 +1587,10 @@ void sep_startup(const char *data)
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
     sprite.animation = nullptr;
 #endif
-    g_sprites.push_back(sprite);
-    g_mixerList.push_back(mixer);
-    g_soundList.push_back(sound);
-    g_fontList.push_back(nullptr);
+    m_sprites.push_back(sprite);
+    m_mixerList.push_back(mixer);
+    m_soundList.push_back(sound);
+    m_fontList.push_back(nullptr);
 
     g_zlfs = new bool(false);
 
@@ -1423,6 +1633,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "overlayGetHeight",       sep_get_overlay_height);
     lua_register(g_se_lua_context, "overlayGetWidth",        sep_get_overlay_width);
     lua_register(g_se_lua_context, "overlaySetMonochrome",   sep_overlay_set_grayscale);
+    lua_register(g_se_lua_context, "overlayBanner",          sep_banner);
     lua_register(g_se_lua_context, "overlayPrint",           sep_say);
 
     lua_register(g_se_lua_context, "soundLoad",              sep_sound_load);
@@ -1437,6 +1648,11 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "spriteGetHeight",        sep_sprite_height);
     lua_register(g_se_lua_context, "spriteGetWidth",         sep_sprite_width);
     lua_register(g_se_lua_context, "spriteLoad",             sep_sprite_load);
+
+    lua_register(g_se_lua_context, "srtLoad",                sep_subtitle_load);
+    lua_register(g_se_lua_context, "srtClear",               sep_subtitle_clear);
+    lua_register(g_se_lua_context, "srtEnable",              sep_subtitle_enable);
+    lua_register(g_se_lua_context, "srtPosition",            sep_subtitle_position);
 
     lua_register(g_se_lua_context, "vldpGetHeight",          sep_mpeg_get_height);
     lua_register(g_se_lua_context, "vldpGetPixel",           sep_mpeg_get_pixel);
@@ -1485,6 +1701,8 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "getFValue",              sep_get_fvalue);
     lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
     lua_register(g_se_lua_context, "setOverlayFullAlpha",    sep_set_overlayfullalpha);
+    lua_register(g_se_lua_context, "setOverlayOpacity",      sep_set_overlayopacity);
+    lua_register(g_se_lua_context, "setOverlaySpriteBlend",  sep_set_overlayblend);
     lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "spriteLoadFrames",       sep_sprite_loadframes);
@@ -1573,15 +1791,15 @@ void sep_startup(const char *data)
     sep_capture_vldp();
     g_bLuaInitialized = true;
 
-    g_blend_sprite = video::get_singe_blend_sprite();
+    m_blend_sprite = video::get_singe_blend_sprite();
 
-    g_scriptpath = data;
+    m_scriptpath = data;
 
-    size_t pos = g_scriptpath.find_last_of(".");
-    std::string ext = g_scriptpath.substr(++pos);
+    size_t pos = m_scriptpath.find_last_of(".");
+    std::string ext = m_scriptpath.substr(++pos);
     int zip = ext.compare("zip");
 
-    if (g_zlua_arg || zip == 0) { // We have a zip
+    if (m_zlua_arg || zip == 0) { // We have a zip
 
          g_zf = new ZipArchive(data);
          g_zf->open(ZipArchive::ReadOnly);
@@ -1590,24 +1808,24 @@ void sep_startup(const char *data)
 
              const char *init = NULL;
              int size = 0;
-             g_rom_zip = true;
-             g_zipList = g_zf->getEntries();
+             m_rom_zip = true;
+             m_zipList = g_zf->getEntries();
              g_zipFile = data;
              std::string startup;
 
              sep_print("Loading ZIP based ROM");
 
-             for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
+             for (m_iter = m_zipList.begin(); m_iter != m_zipList.end(); ++m_iter) {
                  ZipEntry entry = *m_iter;
                  std::string name = entry.getName();
-                 pos = g_scriptpath.find_last_of("/");
+                 pos = m_scriptpath.find_last_of("/");
 #ifdef WIN32
                  if (pos == (size_t)-1)
-                     pos = g_scriptpath.find_last_of("\\");
+                     pos = m_scriptpath.find_last_of("\\");
 #endif
-                 std::string s = g_scriptpath.substr(++pos);
+                 std::string s = m_scriptpath.substr(++pos);
 
-                 if (!g_altgame.empty()) s = g_altgame + ".singe";
+                 if (!m_altgame.empty()) s = m_altgame + ".singe";
                  else {
                      size_t period = s.find_last_of('.');
                      if (period != std::string::npos) {
@@ -1623,7 +1841,7 @@ void sep_startup(const char *data)
                      break;
                  }
              }
-             g_zipList.clear();
+             m_zipList.clear();
              sep_set_rampath();
              g_zf->close();
 
@@ -1648,9 +1866,9 @@ void sep_startup(const char *data)
 
         if (g_pSingeIn->get_es_path()) sep_set_espath();
 
-        if (!g_altgame.empty()) {
+        if (!m_altgame.empty()) {
             LOGI << sep_fmt("'%s': -usealt is only necessary with zip ROMs.",
-                                g_altgame.c_str());
+                                m_altgame.c_str());
         }
 
         if (luaL_dofile(g_se_lua_context, data) != 0)
@@ -1660,27 +1878,30 @@ void sep_startup(const char *data)
 
 void sep_rom_compressed(void)
 {
-   g_zlua_arg = true;
+   m_zlua_arg = true;
 }
 
 void sep_no_crosshair(void)
 {
-   g_show_crosshair = false;
+   m_show_crosshair = false;
 }
 
 void sep_upgrade_overlay(void)
 {
-   g_upgrade_overlay |= (1 << 0);
+   m_upgrade_overlay |= (1 << 0);
 }
 
 void sep_fullalpha_overlay(void)
 {
-   g_upgrade_overlay = (1 << 2);
+   if (g_pSingeIn->cfm_overlay_unmask(g_pSingeIn->pSingeInstance)) {
+       m_upgrade_overlay = (1 << 2);
+       m_blend_sprite = true;
+   }
 }
 
 void sep_enable_trace(void)
 {
-   g_trace = true;
+   m_trace = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1784,13 +2005,13 @@ static int sep_color_set_backcolor(lua_State *L)
           if (lua_isnumber(L, 2))
               if (lua_isnumber(L, 3))
               {
-                  g_colorBackground.r = (uint8_t)lua_tonumber(L, 1);
-                  g_colorBackground.g = (uint8_t)lua_tonumber(L, 2);
-                  g_colorBackground.b = (uint8_t)lua_tonumber(L, 3);
+                  m_colorBackground.r = (uint8_t)lua_tonumber(L, 1);
+                  m_colorBackground.g = (uint8_t)lua_tonumber(L, 2);
+                  m_colorBackground.b = (uint8_t)lua_tonumber(L, 3);
                   if (n == 4 && lua_isnumber(L, 4) ) {
-                      g_colorBackground.a = (uint8_t)lua_tonumber(L, 4);
+                      m_colorBackground.a = (uint8_t)lua_tonumber(L, 4);
                   } else {
-                      g_colorBackground.a = (uint8_t)0;
+                      m_colorBackground.a = (uint8_t)0;
                   }
               }
   return 0;
@@ -1805,13 +2026,13 @@ static int sep_color_set_forecolor(lua_State *L)
           if (lua_isnumber(L, 2))
               if (lua_isnumber(L, 3))
               {
-                  g_colorForeground.r = (uint8_t)lua_tonumber(L, 1);
-                  g_colorForeground.g = (uint8_t)lua_tonumber(L, 2);
-                  g_colorForeground.b = (uint8_t)lua_tonumber(L, 3);
+                  m_colorForeground.r = (uint8_t)lua_tonumber(L, 1);
+                  m_colorForeground.g = (uint8_t)lua_tonumber(L, 2);
+                  m_colorForeground.b = (uint8_t)lua_tonumber(L, 3);
                   if (n == 4 && lua_isnumber(L, 4) ) {
-                      g_colorForeground.a = (uint8_t)lua_tonumber(L, 4);
+                      m_colorForeground.a = (uint8_t)lua_tonumber(L, 4);
                   } else {
-                      g_colorForeground.a = (uint8_t)0;
+                      m_colorForeground.a = (uint8_t)0;
                   }
               }
   return 0;
@@ -1847,9 +2068,9 @@ static int sep_font_unload(lua_State *L)
     if (n == 1) {
         if (lua_isnumber(L, 1)) {
             int id  = lua_tonumber(L, 1);
-            if (g_fontList.size() > 0) {
-                TTF_CloseFont(g_fontList[id]);
-                g_fontList[id] = NULL;
+            if (m_fontList.size() > 0) {
+                TTF_CloseFont(m_fontList[id]);
+                m_fontList[id] = NULL;
             }
         }
     }
@@ -1867,7 +2088,7 @@ static int sep_font_load(lua_State *L)
         int points = lua_tonumber(L, 2);
         TTF_Font *temp;
 
-        if (g_rom_zip) {
+        if (m_rom_zip) {
 
             temp = sep_font_zip(fontpath, points);
 
@@ -1884,10 +2105,10 @@ static int sep_font_load(lua_State *L)
 
         if (temp) {
             // Make it the current font and mark it as loaded.
-            if (g_firstfont) sep_font_reset();
-            g_fontList.push_back(temp);
-            g_fontCurrent = g_fontList.size() - 1;
-            result        = g_fontCurrent;
+            if (m_firstfont) sep_font_reset();
+            m_fontList.push_back(temp);
+            m_fontCurrent = m_fontList.size() - 1;
+            result        = m_fontCurrent;
         } else {
             sep_trace(L);
             sep_die("Unable to load font: %s", fontpath.c_str());
@@ -1905,7 +2126,7 @@ static int sep_font_quality(lua_State *L)
 
   if (n == 1)
     if (lua_isnumber(L, 1))
-      g_fontQuality = lua_tonumber(L, 1);
+      m_fontQuality = lua_tonumber(L, 1);
 
   return 0;
 }
@@ -1919,8 +2140,8 @@ static int sep_font_select(lua_State *L)
     if (lua_isnumber(L, 1))
     {
       fontIndex = lua_tonumber(L, 1);
-      if (fontIndex < (int)g_fontList.size())
-        g_fontCurrent = fontIndex;
+      if (fontIndex < (int)m_fontList.size())
+        m_fontCurrent = fontIndex;
     }
 
   return 0;
@@ -1933,22 +2154,22 @@ static int sep_font_sprite(lua_State *L)
 
   if (n == 1)
       if (lua_isstring(L, 1))
-          if (g_fontCurrent >= 0) {
+          if (m_fontCurrent >= 0) {
 
-              TTF_Font *font = g_fontList[g_fontCurrent];
+              TTF_Font *font = m_fontList[m_fontCurrent];
               if (!sep_font_valid(L, font, __func__)) return 0;
               SDL_Surface *textsurface = NULL;
               const char *message = lua_tostring(L, 1);
 
-              switch (g_fontQuality) {
+              switch (m_fontQuality) {
                   case 2:
-                      textsurface = TTF_RenderText_Shaded(font, message, g_colorForeground, g_colorBackground);
+                      textsurface = TTF_RenderText_Shaded(font, message, m_colorForeground, m_colorBackground);
                       break;
                   case 3:
-                      textsurface = TTF_RenderText_Blended(font, message, g_colorForeground);
+                      textsurface = TTF_RenderText_Blended(font, message, m_colorForeground);
                       break;
                   default:
-                      textsurface = TTF_RenderText_Solid(font, message, g_colorForeground);
+                      textsurface = TTF_RenderText_Solid(font, message, m_colorForeground);
                       break;
               }
 
@@ -1958,12 +2179,12 @@ static int sep_font_sprite(lua_State *L)
                   return 0;
               } else {
 
-                  if (g_firstload) sep_sprite_reset();
+                  if (m_firstload) sep_sprite_reset();
 
                   SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
-                  if (g_colorkey) SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
+                  if (m_colorkey) SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
 
-                  g_spriteT sprite;
+                  m_spriteT sprite;
                   sprite.scaleX = 1.0;
                   sprite.scaleY = 1.0;
                   sprite.frame = NULL;
@@ -1972,8 +2193,8 @@ static int sep_font_sprite(lua_State *L)
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
                   sprite.animation = NULL;
 #endif
-                  g_sprites.push_back(sprite);
-                  result = g_sprites.size() - 1;
+                  m_sprites.push_back(sprite);
+                  result = m_sprites.size() - 1;
                   }
           }
     lua_pushnumber(L, result);
@@ -2106,8 +2327,8 @@ static int sep_overlay_set_grayscale(lua_State *L)
     int n = lua_gettop(L);
 
     if (n == 1)
-      if (lua_isboolean(L, 1) && (g_upgrade_overlay & (1 << 0)))
-        g_upgrade_overlay = (g_upgrade_overlay & ~(1 << 1)) | (lua_toboolean(L, 1) << 1);
+      if (lua_isboolean(L, 1) && (m_upgrade_overlay & (1 << 0)))
+        m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 1)) | (lua_toboolean(L, 1) << 1);
 
     return 0;
 }
@@ -2161,24 +2382,24 @@ static bool yuv_from_buf(lua_State* L, uint8_t& Y, uint8_t& U, uint8_t& V)
         if (lua_isnumber(L, 1)) {
             if (lua_isnumber(L, 2)) {
 
-                int xpos = (int)(lua_tointeger(L, 1) * g_se_yuv_scale_x);
-                int ypos = (int)(lua_tointeger(L, 2) * g_se_yuv_scale_y);
+                int xpos = (int)(lua_tointeger(L, 1) * m_se_yuv_scale_x);
+                int ypos = (int)(lua_tointeger(L, 2) * m_se_yuv_scale_y);
 
-                xpos = std::min(std::max(xpos, 0), g_se_yuv_buf.width - 1);
-                ypos = std::min(std::max(ypos, 0), g_se_yuv_buf.height - 1);
+                xpos = std::min(std::max(xpos, 0), m_se_yuv_buf.width - 1);
+                ypos = std::min(std::max(ypos, 0), m_se_yuv_buf.height - 1);
 
-                int UVx = std::min(xpos >> 1, g_se_yuv_buf.UVw - 1);
-                int UVy = std::min(ypos >> 1, g_se_yuv_buf.UVh - 1);
+                int UVx = std::min(xpos >> 1, m_se_yuv_buf.UVw - 1);
+                int UVy = std::min(ypos >> 1, m_se_yuv_buf.UVh - 1);
 
-                int Y_index  = ypos * g_se_yuv_buf.Ypitch + xpos;
-                int UV_index = UVy * g_se_yuv_buf.Upitch + UVx;
+                int Y_index  = ypos * m_se_yuv_buf.Ypitch + xpos;
+                int UV_index = UVy * m_se_yuv_buf.Upitch + UVx;
 
-                Y = g_se_yuv_buf.Y[Y_index];
-                U = g_se_yuv_buf.U[UV_index];
-                V = g_se_yuv_buf.V[UV_index];
+                Y = m_se_yuv_buf.Y[Y_index];
+                U = m_se_yuv_buf.U[UV_index];
+                V = m_se_yuv_buf.V[UV_index];
 
-                if (!g_pixelready)
-                    g_pixelready = true;
+                if (!m_pixelready)
+                    m_pixelready = true;
 
                 return true;
             }
@@ -2264,13 +2485,8 @@ static int sep_set_custom_overlay(lua_State *L)
     if (n == 2) {
         if (lua_isnumber(L, 1)) {
             if (lua_isnumber(L, 2)) {
-
-                double f = 0;
-                f = lua_tonumber(L, 1);
-                int w = (int)f;
-                f = lua_tonumber(L, 2);
-                int h = (int)f;
-
+                int w = (int)lua_tonumber(L, 1);
+                int h = (int)lua_tonumber(L, 2);
                 struct LuaTempState {
                     lua_State* L;
                     LuaTempState() { L = luaL_newstate(); }
@@ -2306,11 +2522,8 @@ static int sep_set_overlaysize(lua_State *L)
                if (n == 3) {
                    if (lua_isnumber(L, 2)) {
                        if (lua_isnumber(L, 3)) {
-                           double f = 0;
-                           f = lua_tonumber(L, 2);
-                           int w = (int)f;
-                           f = lua_tonumber(L, 3);
-                           int h = (int)f;
+                           int w = (int)lua_tonumber(L, 2);
+                           int h = (int)lua_tonumber(L, 3);
                            if (w && h) {
                                g_pSingeIn->cfm_set_custom_overlay(g_pSingeIn->pSingeInstance, w, h);
                            } else size = SINGE_OVERLAY_EMPTY;
@@ -2326,6 +2539,28 @@ static int sep_set_overlaysize(lua_State *L)
        }
    }
    return 0;
+}
+
+static int sep_set_overlayblend(lua_State *L)
+{
+   int n = lua_gettop(L);
+
+   if (n == 1)
+       if (lua_isboolean(L, 1))
+           m_blend_sprite = lua_toboolean(L, 1);
+
+   return 0;
+}
+
+static int sep_set_overlayopacity(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+      if (lua_isnumber(L, 1))
+          video::set_overlay_alpha((uint8_t)sep_byte_clip(lua_tonumber(L, 1)));
+
+    return 0;
 }
 
 static int sep_set_overlayfullalpha(lua_State *L)
@@ -2354,7 +2589,7 @@ static int sep_get_fvalue(lua_State *L)
 
 static int sep_singe_wants_crosshair(lua_State *L)
 {
-   lua_pushboolean(L, g_show_crosshair);
+   lua_pushboolean(L, m_show_crosshair);
    return 1;
 }
 
@@ -2364,7 +2599,10 @@ static int sep_draw_transparent(lua_State *L)
 
     if (n == 1)
         if (lua_isboolean(L, 1)) {
-            g_colorkey = !lua_toboolean(L, 1);
+            m_colorkey = !lua_toboolean(L, 1);
+
+            if (m_upgrade_overlay == SEP_OVERLAY_ALPHA)
+                m_blend_sprite = m_colorkey;
         }
 
     return 0;
@@ -2379,14 +2617,14 @@ static int sep_mpeg_get_width(lua_State *L)
 static int sep_overlay_clear(lua_State *L)
 {
     SDL_FillRect(g_se_surface, NULL, SDL_MapRGBA(g_se_surface->format,
-        g_colorBackground.r, g_colorBackground.g, g_colorBackground.b, g_colorBackground.a));
+        m_colorBackground.r, m_colorBackground.g, m_colorBackground.b, m_colorBackground.a));
 
     return 0;
 }
 
 static int sep_lua_rewrite(lua_State *L)
 {
-    lua_pushboolean(L, !g_rom_zip && g_pSingeIn->get_es_path());
+    lua_pushboolean(L, !m_rom_zip && g_pSingeIn->get_es_path());
 
     return 1;
 }
@@ -2407,16 +2645,61 @@ static int sep_play(lua_State *L)
    return 0;
 }
 
+static int sep_banner(lua_State *L)
+{
+    const char *txt;
+    int height = 0x2f;
+
+    int n = lua_gettop(L);
+
+    if (n == 1 || n == 2)
+        if (lua_isstring(L, 1))
+        {
+            txt = lua_tostring(L, 1);
+            if (strlen(txt) > 60)
+                return 0;
+
+            if (lua_isnumber(L, 2)) {
+                int h = (int)lua_tonumber(L, 2);
+                if (h > 0 && h <= 95)
+                    height = h;
+
+            }
+            video::draw_srt(txt, 1, height);
+         }
+
+    return 0;
+}
+
 static int sep_say(lua_State *L)
 {
+    bool outline = true;
+    SDL_Color rgb = {255, 255, 255, 255};
+
     int n = lua_gettop(L);
-	  
-    if (n == 3)
+
+    if (n == 3 || n == 4)
         if (lua_isnumber(L, 1))
           if (lua_isnumber(L, 2))
-            if (lua_isstring(L, 3))
-                g_pSingeIn->draw_string((char *)lua_tostring(L, 3), lua_tonumber(L, 1), lua_tonumber(L, 2), g_se_surface);
+            if (lua_isstring(L, 3)) {
+                if (n == 4 && lua_istable(L, 4)) {
+                    lua_getfield(L, 4, "color");
+                    if (lua_istable(L, -1))
+                    {
+                        lua_rawgeti(L, -1, 1); rgb.r = (uint8_t)lua_tointeger(L,-1); lua_pop(L,1);
+                        lua_rawgeti(L, -1, 2); rgb.g = (uint8_t)lua_tointeger(L,-1); lua_pop(L,1);
+                        lua_rawgeti(L, -1, 3); rgb.b = (uint8_t)lua_tointeger(L,-1); lua_pop(L,1);
+                    }
+                    lua_pop(L, 1);
 
+                    lua_getfield(L, 4, "outline");
+                    if (lua_isboolean(L, -1))
+                        outline = lua_toboolean(L, -1);
+
+                    lua_pop(L, 1);
+                }
+                g_pSingeIn->draw_string((char *)lua_tostring(L, 3), lua_tonumber(L, 1), lua_tonumber(L, 2), g_se_surface, rgb, outline);
+	    }
     return 0;
 }
 
@@ -2428,22 +2711,22 @@ static int sep_say_font(lua_State *L)
     if (lua_isnumber(L, 1))
       if (lua_isnumber(L, 2))
         if (lua_isstring(L, 3))
-          if (g_fontCurrent >= 0) {
+          if (m_fontCurrent >= 0) {
 
-                TTF_Font *font = g_fontList[g_fontCurrent];
+                TTF_Font *font = m_fontList[m_fontCurrent];
                 if (!sep_font_valid(L, font, __func__)) return 0;
                 SDL_Surface *textsurface = NULL;
                 const char *message = lua_tostring(L, 3);
 
-                switch (g_fontQuality) {
+                switch (m_fontQuality) {
                 case 2:
-                    textsurface = TTF_RenderText_Shaded(font, message, g_colorForeground, g_colorBackground);
+                    textsurface = TTF_RenderText_Shaded(font, message, m_colorForeground, m_colorBackground);
                     break;
                 case 3:
-                    textsurface = TTF_RenderText_Blended(font, message, g_colorForeground);
+                    textsurface = TTF_RenderText_Blended(font, message, m_colorForeground);
                     break;
                 default:
-                    textsurface = TTF_RenderText_Solid(font, message, g_colorForeground);
+                    textsurface = TTF_RenderText_Solid(font, message, m_colorForeground);
                     break;
                 }
 
@@ -2454,14 +2737,13 @@ static int sep_say_font(lua_State *L)
                     SDL_Rect dest;
                     dest.w = textsurface->w;
                     dest.h = textsurface->h;
-                    dest.x = lua_tonumber(L, 1) + g_se_overlay_scale_x;
-                    dest.y = lua_tonumber(L, 2) + g_se_overlay_scale_y;
+                    dest.x = lua_tonumber(L, 1) + m_se_overlay_scale_x;
+                    dest.y = lua_tonumber(L, 2) + m_se_overlay_scale_y;
 
-                    SDL_SetSurfaceRLE(textsurface, SDL_TRUE);
-                    if (g_colorkey) SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
+                    if (m_colorkey) SDL_SetColorKey(textsurface, SDL_TRUE, 0x0);
 
-                    if (!g_blend_sprite)
-                        SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
+                    SDL_SetSurfaceBlendMode(textsurface, m_blend_sprite ?
+                                            SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
                     SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
                     SDL_FreeSurface(textsurface);
@@ -2500,6 +2782,63 @@ static int sep_screenshot(lua_State *L)
     return 0;
 }
 
+static int sep_subtitle_load(lua_State *L)
+{
+    bool result = false;
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isstring(L, 1)) {
+            m_srt.clear();
+            m_srt = LoadSRT(lua_tostring(L, 1), *g_se_disc_fps);
+
+	    if (m_srt.empty())
+                m_srt_display = false;
+            else
+                result = true;
+        }
+
+    lua_pushboolean(L, result);
+    return 1;
+}
+
+static int sep_subtitle_position(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isnumber(L, 1)) {
+            int height = (int)lua_tonumber(L, 1);
+            if (height > 0 && height <= 95)
+                m_srt_height = height;
+        }
+
+    return 0;
+}
+
+static int sep_subtitle_enable(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isboolean(L, 1)) {
+            m_srt_display = lua_toboolean(L, 1);
+
+            if (!m_srt_display)
+                video::draw_srt("-", 2, -1);
+        }
+
+    return 0;
+}
+
+static int sep_subtitle_clear(lua_State *L)
+{
+    // immediate clear of timer
+    video::draw_srt("-", 2, -1);
+
+    return 0;
+}
+
 static int sep_search(lua_State *L)
 {
   char s[7] = { 0 };
@@ -2512,7 +2851,7 @@ static int sep_search(lua_State *L)
       g_pSingeIn->pre_search(s, true);
 
       if (g_pSingeIn->g_local_info->blank_during_searches)
-          l_blank.trip = true;
+          m_blank.trip = true;
     }
 
   return 0;
@@ -2558,7 +2897,7 @@ static int sep_skip_backward(lua_State *L)
           g_pSingeIn->pre_skip_backward(lua_tonumber(L, 1));
 
           if (g_pSingeIn->g_local_info->blank_during_skips)
-              l_blank.trip = true;
+              m_blank.trip = true;
 	}
       
   return 0;
@@ -2587,7 +2926,7 @@ static int sep_skip_forward(lua_State *L)
           g_pSingeIn->pre_skip_forward(lua_tonumber(L, 1));
 
           if (g_pSingeIn->g_local_info->blank_during_skips)
-              l_blank.trip = true;
+              m_blank.trip = true;
 	}
       
   return 0;
@@ -2604,7 +2943,7 @@ static int sep_skip_to_frame(lua_State *L)
           char s[7] = { 0 };
 
           if (g_pSingeIn->g_local_info->blank_during_skips)
-              l_blank.trip = true;
+              m_blank.trip = true;
 
           g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
           g_pSingeIn->pre_search(s, true);
@@ -2623,8 +2962,8 @@ static int sep_sound_unload(lua_State *L)
       if (lua_isnumber(L, 1)) {
           int id = lua_tonumber(L, 1);
           if (!sep_sound_valid(id, __func__)) return 0;
-          SDL_FreeWAV(g_soundList[id].buffer);
-          g_soundList[id].load = false;
+          SDL_FreeWAV(m_soundList[id].buffer);
+          m_soundList[id].load = false;
       }
   }
   return 0;
@@ -2643,19 +2982,19 @@ static int sep_sound_loadata(lua_State *L)
 
       if (ops != NULL)
       {
-          g_soundT temp;
-          g_sound_load = SDL_LoadWAV_RW(ops, 1, &temp.audioSpec,
+          m_soundT temp;
+          m_sound_load = SDL_LoadWAV_RW(ops, 1, &temp.audioSpec,
                                &temp.buffer, &temp.length);
 
-          if (g_sound_load && audio_format()) {
-              if (g_firstsnd) sep_sound_reset();
-              g_soundList.push_back(temp);
-              result = g_soundList.size() - 1;
-              g_soundList[result].load = true;
+          if (m_sound_load && audio_format(&temp.audioSpec)) {
+              if (m_firstsnd) sep_sound_reset();
+              m_soundList.push_back(temp);
+              result = m_soundList.size() - 1;
+              m_soundList[result].load = true;
 
           } else {
 
-              if (g_sound_load) SDL_FreeWAV(temp.buffer);
+              if (temp.buffer) SDL_FreeWAV(temp.buffer);
               sep_die("Unable to load data as sound");
               return result;
           }
@@ -2674,9 +3013,9 @@ static int sep_sound_load(lua_State *L)
   if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
   {
       std::string filepath = lua_tostring(L, 1);
-      g_soundT temp;
+      m_soundT temp;
 
-      if (g_rom_zip) {
+      if (m_rom_zip) {
 
           temp = sep_sound_zip(filepath);
 
@@ -2689,18 +3028,19 @@ static int sep_sound_load(lua_State *L)
               filepath = tmpPath;
           }
 
-          g_sound_load = SDL_LoadWAV(filepath.c_str(), &temp.audioSpec,
+          m_sound_load = SDL_LoadWAV(filepath.c_str(), &temp.audioSpec,
                                &temp.buffer, &temp.length);
 
       }
 
-      if (g_sound_load) { // check audio_format() ?
-          if (g_firstsnd) sep_sound_reset();
-          g_soundList.push_back(temp);
-          result = g_soundList.size() - 1;
-          g_soundList[result].load = true;
+      if (m_sound_load) { // check audio_format() ?
+          if (m_firstsnd) sep_sound_reset();
+          m_soundList.push_back(temp);
+          result = m_soundList.size() - 1;
+          m_soundList[result].load = true;
       } else {
           sep_trace(L);
+          if (temp.buffer) SDL_FreeWAV(temp.buffer);
           sep_die("Could not open %s: %s", filepath.c_str(), SDL_GetError());
           return result;
       }
@@ -2720,7 +3060,7 @@ static int sep_sound_play(lua_State *L)
       {
           int sound = lua_tonumber(L, 1);
           if (!sep_sound_valid(sound, __func__)) return 0;
-          result = g_pSingeIn->samples_play_sample(g_soundList[sound].buffer, g_soundList[sound].length, g_soundList[sound].audioSpec.channels, -1, sep_sound_ended);
+          result = g_pSingeIn->samples_play_sample(m_soundList[sound].buffer, m_soundList[sound].length, m_soundList[sound].audioSpec.channels, -1, sep_sound_ended);
       }
 
   lua_pushnumber(L, result);
@@ -2735,8 +3075,9 @@ static int sep_music_unload(lua_State *L)
       if (lua_isnumber(L, 1)) {
           int id = lua_tonumber(L, 1);
           if (!sep_mixer_valid(id, __func__)) return 0;
-          Mix_FreeMusic(g_mixerList[id].data);
-          g_mixerList[id].load = false;
+          Mix_FreeMusic(m_mixerList[id].data);
+          m_mixerList[id].data = NULL;
+          m_mixerList[id].load = false;
       }
   }
   return 0;
@@ -2748,9 +3089,12 @@ static int sep_music_volume(lua_State *L)
 
   if (n == 1) {
       if (lua_isnumber(L, 1)) {
-          int vol = lua_tonumber(L, 1);
+          int vol = (int)lua_tonumber(L, 1);
 
-          vol = (vol > MIX_MAX_VOLUME) ? MIX_MAX_VOLUME : (vol < 0) ? 0 : vol;
+          vol = std::min(std::max(vol, 0), MIX_MAX_VOLUME);
+
+          if (!sound::is_enabled()) vol = 0;
+
           Mix_VolumeMusic(vol);
       }
   }
@@ -2764,7 +3108,7 @@ static int sep_music_load(lua_State *L)
 
   if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
   {
-      if (g_firstmix) {
+      if (m_firstmix) {
           if (!sep_init_mixer())
               return result;
       }
@@ -2772,7 +3116,7 @@ static int sep_music_load(lua_State *L)
       std::string mixpath = lua_tostring(L, 1);
       Mix_Music *temp;
 
-      if (g_rom_zip) {
+      if (m_rom_zip) {
           temp = sep_mixer_zip(mixpath);
       } else {
           if (g_pSingeIn->get_es_path())
@@ -2787,13 +3131,13 @@ static int sep_music_load(lua_State *L)
 
       if (temp && sep_valid_music(Mix_GetMusicType(temp)))
       {
-          g_mixerT mixer;
-          if (g_firstmix) sep_mixer_reset();
+          m_mixerT mixer;
+          if (m_firstmix) sep_mixer_reset();
           mixer.data = temp;
           mixer.load = true;
 
-          g_mixerList.push_back(mixer);
-          result = g_mixerList.size() - 1;
+          m_mixerList.push_back(mixer);
+          result = m_mixerList.size() - 1;
 
       } else {
 
@@ -2831,7 +3175,7 @@ static int sep_music_play(lua_State *L)
           loop = (loop > lm) ? lm : (loop < -1) ? -1 : loop;
 
           if (!sep_mixer_valid(num, __func__)) return 0;
-          result = Mix_PlayMusic(g_mixerList[num].data, loop);
+          result = Mix_PlayMusic(m_mixerList[num].data, loop);
       }
 
   lua_pushnumber(L, result);
@@ -2852,9 +3196,9 @@ static int sep_sprite_color_rekey(lua_State *L)
           }
       }
 
-      if (!sep_sprite_valid(L, id, g_sprites[id].present, __func__)) return 0;
+      if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
 
-      if (!g_sprites[id].nokey) g_sprites[id].rekey = r;
+      if (!m_sprites[id].nokey) m_sprites[id].rekey = r;
   }
 
   if (id < 0) {
@@ -2881,8 +3225,8 @@ static int sep_sprite_animate(lua_State *L)
           if (lua_isnumber(L, 2)) {
               if (lua_isnumber(L, 3)) {
                   if (lua_isnumber(L, 4)) {
-                      dest.x = lua_tonumber(L, 1) + g_se_overlay_scale_x;
-                      dest.y = lua_tonumber(L, 2) + g_se_overlay_scale_y;
+                      dest.x = lua_tonumber(L, 1) + m_se_overlay_scale_x;
+                      dest.y = lua_tonumber(L, 2) + m_se_overlay_scale_y;
                       if (n > 4) {
                           if (lua_isnumber(L, 5)) {
                               scalex = lua_tonumber(L, 3);
@@ -2902,26 +3246,26 @@ static int sep_sprite_animate(lua_State *L)
               }
           }
 
-          if (!sep_sprite_valid(L, id, g_sprites[id].present, __func__)) return 0;
+          if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
 
-          if (!g_blend_sprite)
-              SDL_SetSurfaceBlendMode(g_sprites[id].present, SDL_BLENDMODE_NONE);
+          SDL_SetSurfaceBlendMode(m_sprites[id].present, m_blend_sprite ?
+                                  SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
-          frame = (frame < 1 || frame > g_sprites[id].frames) ? 1 : frame;
+          frame = (frame < 1 || frame > m_sprites[id].frames) ? 1 : frame;
 
-          src.w = g_sprites[id].fwidth;
-          src.h = g_sprites[id].present->h;
-          src.x = g_sprites[id].fwidth * --frame;
+          src.w = m_sprites[id].fwidth;
+          src.h = m_sprites[id].present->h;
+          src.x = m_sprites[id].fwidth * --frame;
           src.y = 0;
 
-          dest.w = (n == 4) ? g_sprites[id].present->w : (g_sprites[id].fwidth * scalex);
-          dest.h = (n == 4) ? g_sprites[id].present->h : (g_sprites[id].present->h * ((n == 6) ? scaley : scalex));
+          dest.w = (n == 4) ? m_sprites[id].present->w : (m_sprites[id].fwidth * scalex);
+          dest.h = (n == 4) ? m_sprites[id].present->h : (m_sprites[id].present->h * ((n == 6) ? scaley : scalex));
 
           if (n == 4) {
-              SDL_BlitSurface(g_sprites[id].present, &src, g_se_surface, &dest);
+              SDL_BlitSurface(m_sprites[id].present, &src, g_se_surface, &dest);
 
           } else {
-              SDL_BlitScaled(g_sprites[id].present, &src, g_se_surface, &dest);
+              SDL_BlitScaled(m_sprites[id].present, &src, g_se_surface, &dest);
           }
       }
   }
@@ -2948,8 +3292,8 @@ static int sep_sprite_animate_rotated(lua_State *L)
       if (lua_isnumber(L, 1)) {
           if (lua_isnumber(L, 2)) {
               if (lua_isnumber(L, 3)) {
-                  dest.x = lua_tonumber(L, 1) + g_se_overlay_scale_x;
-                  dest.y = lua_tonumber(L, 2) + g_se_overlay_scale_y;
+                  dest.x = lua_tonumber(L, 1) + m_se_overlay_scale_x;
+                  dest.y = lua_tonumber(L, 2) + m_se_overlay_scale_y;
                   if (n > 3) {
                       if (lua_isnumber(L, 4)) {
                           scalex = lua_tonumber(L, 3);
@@ -2965,21 +3309,21 @@ static int sep_sprite_animate_rotated(lua_State *L)
               }
           }
 
-          if (!sep_sprite_valid(L, id, g_sprites[id].frame, __func__)) return 0;
+          if (!sep_sprite_valid(L, id, m_sprites[id].frame, __func__)) return 0;
 
-          if (!g_blend_sprite)
-              SDL_SetSurfaceBlendMode(g_sprites[id].frame, SDL_BLENDMODE_NONE);
+          SDL_SetSurfaceBlendMode(m_sprites[id].frame, m_blend_sprite ?
+                                  SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
-          dest.w = g_sprites[id].fwidth * ((n == 3) ? 1 : scalex);
-          dest.h = g_sprites[id].present->h * ((n == 3) ? 1 : (n == 5 ? scaley : scalex));
+          dest.w = m_sprites[id].fwidth * ((n == 3) ? 1 : scalex);
+          dest.h = m_sprites[id].present->h * ((n == 3) ? 1 : (n == 5 ? scaley : scalex));
           dest.x -= dest.w * 0.5;
           dest.y -= dest.h * 0.5;
 
           if (n == 3) {
-              SDL_BlitSurface(g_sprites[id].frame, NULL, g_se_surface, &dest);
+              SDL_BlitSurface(m_sprites[id].frame, NULL, g_se_surface, &dest);
 
           } else {
-              SDL_BlitScaled(g_sprites[id].frame, NULL, g_se_surface, &dest);
+              SDL_BlitScaled(m_sprites[id].frame, NULL, g_se_surface, &dest);
           }
       }
   }
@@ -3009,8 +3353,8 @@ static int sep_sprite_draw(lua_State *L)
   if ((n >= 3) && (n <= 6)) {
       if (lua_isnumber(L, 1)) {
           if (lua_isnumber(L, 2)) {
-              dest.x = lua_tonumber(L, 1) + g_se_overlay_scale_x;
-              dest.y = lua_tonumber(L, 2) + g_se_overlay_scale_y;
+              dest.x = lua_tonumber(L, 1) + m_se_overlay_scale_x;
+              dest.y = lua_tonumber(L, 2) + m_se_overlay_scale_y;
               if ((n == 3) || (n == 4)) {
                   if (n == 4) {
                       if (lua_isboolean(L, 3) && lua_isnumber(L, 4)) {
@@ -3040,23 +3384,23 @@ static int sep_sprite_draw(lua_State *L)
                   }
               }
 
-              if (!sep_sprite_valid(L, id, g_sprites[id].present, __func__)) return 0;
+              if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
 
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
-              if (g_sprites[id].animation != NULL && g_sprites[id].animating) {
-                  g_sprites[id].ticks += SDL_GetTicks() - g_sprites[id].last;
-                  g_sprites[id].last = SDL_GetTicks();
-                  while (g_sprites[id].animating) {
-                      if (g_sprites[id].animation->delays[g_sprites[id].flow] < g_sprites[id].ticks) {
-                          g_sprites[id].ticks -= g_sprites[id].animation->delays[g_sprites[id].flow];
-                          g_sprites[id].flow++;
+              if (m_sprites[id].animation != NULL && m_sprites[id].animating) {
+                  m_sprites[id].ticks += SDL_GetTicks() - m_sprites[id].last;
+                  m_sprites[id].last = SDL_GetTicks();
+                  while (m_sprites[id].animating) {
+                      if (m_sprites[id].animation->delays[m_sprites[id].flow] < m_sprites[id].ticks) {
+                          m_sprites[id].ticks -= m_sprites[id].animation->delays[m_sprites[id].flow];
+                          m_sprites[id].flow++;
                           change = true;
-                          if (g_sprites[id].flow >= g_sprites[id].animation->count) {
-                              if (g_sprites[id].loop) {
-                                  g_sprites[id].flow = 0;
+                          if (m_sprites[id].flow >= m_sprites[id].animation->count) {
+                              if (m_sprites[id].loop) {
+                                  m_sprites[id].flow = 0;
                               } else {
-                                  g_sprites[id].flow = g_sprites[id].animation->count - 1;
-                                  g_sprites[id].animating = false;
+                                  m_sprites[id].flow = m_sprites[id].animation->count - 1;
+                                  m_sprites[id].animating = false;
                               }
                           }
                       } else {
@@ -3064,29 +3408,29 @@ static int sep_sprite_draw(lua_State *L)
                       }
                   }
                   if (change) {
-                      SDL_FreeSurface(g_sprites[id].frame);
-                      g_sprites[id].frame = sep_copy_surface(g_sprites[id].animation->frames[g_sprites[id].flow], NULL);
-                      SDL_FreeSurface(g_sprites[id].present);
-                      g_sprites[id].present = rotozoomSurfaceXY(g_sprites[id].frame, 360 - g_sprites[id].angle, g_sprites[id].scaleX, g_sprites[id].scaleY, g_sprites[id].smooth);
-                      if (g_sprites[id].rekey) SDL_SetColorKey(g_sprites[id].present, SDL_TRUE, 0x0);
+                      SDL_FreeSurface(m_sprites[id].frame);
+                      m_sprites[id].frame = sep_copy_surface(m_sprites[id].animation->frames[m_sprites[id].flow], NULL);
+                      SDL_FreeSurface(m_sprites[id].present);
+                      m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].frame, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
+                      if (m_sprites[id].rekey) SDL_SetColorKey(m_sprites[id].present, SDL_TRUE, 0x0);
                   }
               }
 #endif
-              if (!g_blend_sprite)
-                  SDL_SetSurfaceBlendMode(g_sprites[id].present, SDL_BLENDMODE_NONE);
+              SDL_SetSurfaceBlendMode(m_sprites[id].present, m_blend_sprite ?
+                                      SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
               if ((n == 3) || (n == 4)) {
-                  dest.w = g_sprites[id].present->w;
-                  dest.h = g_sprites[id].present->h;
+                  dest.w = m_sprites[id].present->w;
+                  dest.h = m_sprites[id].present->h;
               }
               if (center) {
                   dest.x -= dest.w * 0.5;
                   dest.y -= dest.h * 0.5;
               }
               if ((n == 3) || (n == 4)) {
-                  SDL_BlitSurface(g_sprites[id].present, NULL, g_se_surface, &dest);
+                  SDL_BlitSurface(m_sprites[id].present, NULL, g_se_surface, &dest);
               } else {
-                  SDL_BlitScaled(g_sprites[id].present, NULL, g_se_surface, &dest);
+                  SDL_BlitScaled(m_sprites[id].present, NULL, g_se_surface, &dest);
               }
           }
       }
@@ -3123,25 +3467,25 @@ static int sep_sprite_grid(lua_State *L)
   src.h = (int)lua_tonumber(L, 7);
 
   SDL_Rect dest;
-  dest.x = x + g_se_overlay_scale_x;
-  dest.y = y + g_se_overlay_scale_y;
+  dest.x = x + m_se_overlay_scale_x;
+  dest.y = y + m_se_overlay_scale_y;
   dest.w = src.w;
   dest.h = src.h;
 
-  if (!sep_sprite_valid(L, id, g_sprites[id].present, __func__))
+  if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__))
       return 0;
 
-  if (src.x + src.w > g_sprites[id].present->w || src.y + src.h > g_sprites[id].present->h)
+  if (src.x + src.w > m_sprites[id].present->w || src.y + src.h > m_sprites[id].present->h)
   {
       sep_trace(L);
       sep_die("Out of bound sprite dimensions given in spriteDrawGrid");
       return 0;
   }
 
-  if (!g_blend_sprite)
-      SDL_SetSurfaceBlendMode(g_sprites[id].present, SDL_BLENDMODE_NONE);
+  SDL_SetSurfaceBlendMode(m_sprites[id].present, m_blend_sprite ?
+                          SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
-  SDL_BlitSurface(g_sprites[id].present, &src, g_se_surface, &dest);
+  SDL_BlitSurface(m_sprites[id].present, &src, g_se_surface, &dest);
 
   return 0;
 }
@@ -3155,9 +3499,9 @@ static int sep_sprite_frames(lua_State *L)
       if (lua_isnumber(L, 1))
       {
           int sprite = lua_tonumber(L, 1);
-          if (sep_sprite_valid(L, sprite, g_sprites[sprite].store, __func__))
+          if (sep_sprite_valid(L, sprite, m_sprites[sprite].store, __func__))
           {
-              result = g_sprites[sprite].frames;
+              result = m_sprites[sprite].frames;
           }
       }
 
@@ -3174,9 +3518,9 @@ static int sep_sprite_height(lua_State *L)
     if (lua_isnumber(L, 1))
     {
         int sprite = lua_tonumber(L, 1);
-        if (sep_sprite_valid(L, sprite, g_sprites[sprite].present, __func__))
+        if (sep_sprite_valid(L, sprite, m_sprites[sprite].present, __func__))
         {
-            result = g_sprites[sprite].present->h;
+            result = m_sprites[sprite].present->h;
         }
     }
 
@@ -3191,17 +3535,17 @@ static int sep_sprite_unload(lua_State *L)
     if (n == 1) {
         if (lua_isnumber(L, 1)) {
             int id = lua_tonumber(L, 1);
-            if (!sep_sprite_valid(L, id, g_sprites[id].store, __func__)) return 0;
-            SDL_FreeSurface(g_sprites[id].present);
-            SDL_FreeSurface(g_sprites[id].frame);
-            SDL_FreeSurface(g_sprites[id].store);
-            g_sprites[id].present = NULL;
-            g_sprites[id].store = NULL;
-            g_sprites[id].frame = NULL;
+            if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__)) return 0;
+            SDL_FreeSurface(m_sprites[id].present);
+            SDL_FreeSurface(m_sprites[id].frame);
+            SDL_FreeSurface(m_sprites[id].store);
+            m_sprites[id].present = NULL;
+            m_sprites[id].store = NULL;
+            m_sprites[id].frame = NULL;
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
-            if (g_sprites[id].animation)
-                IMG_FreeAnimation(g_sprites[id].animation);
-            g_sprites[id].animation = NULL;
+            if (m_sprites[id].animation)
+                IMG_FreeAnimation(m_sprites[id].animation);
+            m_sprites[id].animation = NULL;
 #endif
         }
     }
@@ -3226,11 +3570,11 @@ static int sep_sprite_loadata(lua_State *L)
 
             if (temp) {
 
-                g_spriteT sprite;
-                if (g_firstload) sep_sprite_reset();
+                m_spriteT sprite;
+                if (m_firstload) sep_sprite_reset();
 
                 SDL_SetSurfaceRLE(temp, SDL_TRUE);
-                if (g_colorkey) SDL_SetColorKey(temp, SDL_TRUE, 0x0);
+                if (m_colorkey) SDL_SetColorKey(temp, SDL_TRUE, 0x0);
                 sprite.store = sep_copy_surface(temp, NULL);
                 sprite.present = temp;
                 sprite.scaleX = 1.0;
@@ -3240,10 +3584,10 @@ static int sep_sprite_loadata(lua_State *L)
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
                 sprite.animation = NULL;
 #endif
-                if (!g_colorkey) sprite.nokey = true;
+                if (!m_colorkey) sprite.nokey = true;
 
-                g_sprites.push_back(sprite);
-                result = g_sprites.size() - 1;
+                m_sprites.push_back(sprite);
+                result = m_sprites.size() - 1;
 
             } else {
                 sep_trace(L);
@@ -3271,7 +3615,7 @@ static int sep_sprite_load(lua_State *L)
     {
         std::string filepath = lua_tostring(L, 1);
 
-        if (g_rom_zip) {
+        if (m_rom_zip) {
 
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
             temp = sep_animation_zip(filepath);
@@ -3296,8 +3640,8 @@ static int sep_sprite_load(lua_State *L)
 
        if (temp) {
 
-           g_spriteT sprite;
-           if (g_firstload) sep_sprite_reset();
+           m_spriteT sprite;
+           if (m_firstload) sep_sprite_reset();
 
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 
@@ -3307,7 +3651,7 @@ static int sep_sprite_load(lua_State *L)
                temp = NULL;
 
                SDL_Surface *image = NULL;
-               if (g_rom_zip) image = sep_surface_zip(filepath);
+               if (m_rom_zip) image = sep_surface_zip(filepath);
                else image = IMG_Load(filepath.c_str());
 
                if (!image) {
@@ -3332,14 +3676,14 @@ static int sep_sprite_load(lua_State *L)
                image = convert;
 
                SDL_SetSurfaceRLE(image, SDL_TRUE);
-               if (g_colorkey) SDL_SetColorKey(image, SDL_TRUE, 0x0);
+               if (m_colorkey) SDL_SetColorKey(image, SDL_TRUE, 0x0);
                sprite.store = sep_copy_surface(image, NULL);
                sprite.present = image;
                sprite.animation = NULL;
 
             } else {
 
-               if (g_colorkey) {
+               if (m_colorkey) {
                    for (int x = 0; x < temp->count; x++) {
                        SDL_SetColorKey(temp->frames[x], SDL_TRUE, 0x0);
                    }
@@ -3366,7 +3710,7 @@ static int sep_sprite_load(lua_State *L)
            temp = convert;
 
            SDL_SetSurfaceRLE(temp, SDL_TRUE);
-           if (g_colorkey) SDL_SetColorKey(temp, SDL_TRUE, 0x0);
+           if (m_colorkey) SDL_SetColorKey(temp, SDL_TRUE, 0x0);
            sprite.store = sep_copy_surface(temp, NULL);
            sprite.present = temp;
 #endif
@@ -3375,10 +3719,10 @@ static int sep_sprite_load(lua_State *L)
            sprite.gfx = true;
            sprite.frame = NULL;
 
-           if (!g_colorkey) sprite.nokey = true;
+           if (!m_colorkey) sprite.nokey = true;
 
-           g_sprites.push_back(sprite);
-           result = g_sprites.size() - 1;
+           m_sprites.push_back(sprite);
+           result = m_sprites.size() - 1;
 
        } else {
            sep_trace(L);
@@ -3413,7 +3757,7 @@ static int sep_sprite_loadframes(lua_State *L)
                return result;
             }
 
-            if (g_rom_zip) {
+            if (m_rom_zip) {
 
                temp = sep_surface_zip(filepath);
 
@@ -3431,7 +3775,7 @@ static int sep_sprite_loadframes(lua_State *L)
 
             if (temp) {
 
-                if (g_firstload) sep_sprite_reset();
+                if (m_firstload) sep_sprite_reset();
 
                 SDL_Surface* convert = NULL;
 
@@ -3449,9 +3793,9 @@ static int sep_sprite_loadframes(lua_State *L)
                 temp = convert;
 
                 SDL_SetSurfaceRLE(temp, SDL_TRUE);
-                if (g_colorkey) SDL_SetColorKey(temp, SDL_TRUE, 0x0);
+                if (m_colorkey) SDL_SetColorKey(temp, SDL_TRUE, 0x0);
 
-                g_spriteT sprite;
+                m_spriteT sprite;
                 sprite.scaleX = 1.0;
                 sprite.scaleY = 1.0;
                 sprite.frames = frames;
@@ -3462,10 +3806,10 @@ static int sep_sprite_loadframes(lua_State *L)
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
                 sprite.animation = NULL;
 #endif
-                if (!g_colorkey) sprite.nokey = true;
+                if (!m_colorkey) sprite.nokey = true;
 
-                g_sprites.push_back(sprite);
-                result = g_sprites.size() - 1;
+                m_sprites.push_back(sprite);
+                result = m_sprites.size() - 1;
 
             } else {
                  sep_die("Unable to load animation strip %s!", filepath.c_str());
@@ -3491,9 +3835,9 @@ static int sep_sprite_width(lua_State *L)
     if (lua_isnumber(L, 1))
     {
         int sprite = lua_tonumber(L, 1);
-        if (sep_sprite_valid(L, sprite, g_sprites[sprite].present, __func__))
+        if (sep_sprite_valid(L, sprite, m_sprites[sprite].present, __func__))
         {
-            result = g_sprites[sprite].present->w;
+            result = m_sprites[sprite].present->w;
         }
     }
 
@@ -3510,9 +3854,9 @@ static int sep_frame_width(lua_State *L)
     if (lua_isnumber(L, 1))
     {
         int sprite = lua_tonumber(L, 1);
-        if (sep_sprite_valid(L, sprite, g_sprites[sprite].present, __func__))
+        if (sep_sprite_valid(L, sprite, m_sprites[sprite].present, __func__))
         {
-            result = g_sprites[sprite].fwidth;
+            result = m_sprites[sprite].fwidth;
         }
     }
 
@@ -3535,26 +3879,26 @@ static int sep_sprite_rotateframe(lua_State *L)
                   frame = lua_tonumber(L, 2);
                   id = lua_tonumber(L, 3);
 
-                  if (g_sprites[id].frames == 0) {
+                  if (m_sprites[id].frames == 0) {
                       sep_die("spriteRotateFrame: sprite has no frames!");
                       return 0;
                   }
 
-                  if (!sep_sprite_valid(L, id, g_sprites[id].store, __func__)) return 0;
-                  frame = (frame < 1 || frame > g_sprites[id].frames) ? 1 : frame;
+                  if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__)) return 0;
+                  frame = (frame < 1 || frame > m_sprites[id].frames) ? 1 : frame;
 
                   SDL_Rect src;
-                  src.w = g_sprites[id].fwidth;
-                  src.h = g_sprites[id].present->h;
-                  src.x = g_sprites[id].fwidth * --frame;
+                  src.w = m_sprites[id].fwidth;
+                  src.h = m_sprites[id].present->h;
+                  src.x = m_sprites[id].fwidth * --frame;
                   src.y = 0;
 
-                  g_sprites[id].angle = a;
-                  SDL_Surface *temp = sep_copy_surface(g_sprites[id].store, &src);
+                  m_sprites[id].angle = a;
+                  SDL_Surface *temp = sep_copy_surface(m_sprites[id].store, &src);
 
-                  SDL_FreeSurface(g_sprites[id].frame);
-                  g_sprites[id].frame = rotozoomSurfaceXY(temp, 360 - g_sprites[id].angle, g_sprites[id].scaleX, g_sprites[id].scaleY, g_sprites[id].smooth);
-                  if (g_sprites[id].rekey) SDL_SetColorKey(g_sprites[id].frame, SDL_TRUE, 0x0);
+                  SDL_FreeSurface(m_sprites[id].frame);
+                  m_sprites[id].frame = rotozoomSurfaceXY(temp, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
+                  if (m_sprites[id].rekey) SDL_SetColorKey(m_sprites[id].frame, SDL_TRUE, 0x0);
                   SDL_FreeSurface(temp);
               }
           }
@@ -3578,11 +3922,11 @@ static int sep_sprite_rotate(lua_State *L)
           if (lua_isnumber(L, 2)) {
               d = lua_tonumber(L, 1);  a = fmod(d, 360.0);
               id = lua_tonumber(L, 2);
-              if (!sep_sprite_valid(L, id, g_sprites[id].store, __func__) || !g_sprites[id].gfx) return 0;
-              g_sprites[id].angle = a;
-              SDL_FreeSurface(g_sprites[id].present);
-              g_sprites[id].present = rotozoomSurfaceXY(g_sprites[id].store, 360 - g_sprites[id].angle, g_sprites[id].scaleX, g_sprites[id].scaleY, g_sprites[id].smooth);
-              if (g_sprites[id].rekey) SDL_SetColorKey(g_sprites[id].present, SDL_TRUE, 0x0);
+              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !m_sprites[id].gfx) return 0;
+              m_sprites[id].angle = a;
+              SDL_FreeSurface(m_sprites[id].present);
+              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
+              if (m_sprites[id].rekey) SDL_SetColorKey(m_sprites[id].present, SDL_TRUE, 0x0);
           }
       }
   }
@@ -3613,12 +3957,12 @@ static int sep_sprite_scale(lua_State *L)
                       id = lua_tonumber(L, 3);
                   }
               }
-              if (!sep_sprite_valid(L, id, g_sprites[id].store, __func__) || !g_sprites[id].gfx) return 0;
-              g_sprites[id].scaleX = x;
-              g_sprites[id].scaleY = y;
-              SDL_FreeSurface(g_sprites[id].present);
-              g_sprites[id].present = rotozoomSurfaceXY(g_sprites[id].store, 360 - g_sprites[id].angle, g_sprites[id].scaleX, g_sprites[id].scaleY, g_sprites[id].smooth);
-              if (g_sprites[id].rekey) SDL_SetColorKey(g_sprites[id].present, SDL_TRUE, 0x0);
+              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !m_sprites[id].gfx) return 0;
+              m_sprites[id].scaleX = x;
+              m_sprites[id].scaleY = y;
+              SDL_FreeSurface(m_sprites[id].present);
+              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
+              if (m_sprites[id].rekey) SDL_SetColorKey(m_sprites[id].present, SDL_TRUE, 0x0);
           }
       }
   }
@@ -3651,13 +3995,13 @@ static int sep_sprite_rotatescale(lua_State *L)
                           id = lua_tonumber(L, 4);
                       }
                   }
-                  if (!sep_sprite_valid(L, id, g_sprites[id].store, __func__) || !g_sprites[id].gfx) return 0;
-                  g_sprites[id].angle = a;
-                  g_sprites[id].scaleX = x;
-                  g_sprites[id].scaleY = y;
-                  SDL_FreeSurface(g_sprites[id].present);
-                  g_sprites[id].present = rotozoomSurfaceXY(g_sprites[id].store, 360 - g_sprites[id].angle, g_sprites[id].scaleX, g_sprites[id].scaleY, g_sprites[id].smooth);
-                  if (g_sprites[id].rekey) SDL_SetColorKey(g_sprites[id].present, SDL_TRUE, 0x0);
+                  if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !m_sprites[id].gfx) return 0;
+                  m_sprites[id].angle = a;
+                  m_sprites[id].scaleX = x;
+                  m_sprites[id].scaleY = y;
+                  SDL_FreeSurface(m_sprites[id].present);
+                  m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
+                  if (m_sprites[id].rekey) SDL_SetColorKey(m_sprites[id].present, SDL_TRUE, 0x0);
               }
           }
       }
@@ -3680,11 +4024,11 @@ static int sep_sprite_quality(lua_State *L)
           if (lua_isnumber(L, 2)) {
               int b = lua_tonumber(L, 1);  bool s = (b != 0);
               id = lua_tonumber(L, 2);
-              if (!sep_sprite_valid(L, id, g_sprites[id].store, __func__)) return 0;
-              g_sprites[id].smooth = s;
-              SDL_FreeSurface(g_sprites[id].present);
-              g_sprites[id].present = rotozoomSurfaceXY(g_sprites[id].store, 360 - g_sprites[id].angle, g_sprites[id].scaleX, g_sprites[id].scaleY, g_sprites[id].smooth);
-              if (g_sprites[id].rekey) SDL_SetColorKey(g_sprites[id].present, SDL_TRUE, 0x0);
+              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__)) return 0;
+              m_sprites[id].smooth = s;
+              SDL_FreeSurface(m_sprites[id].present);
+              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
+              if (m_sprites[id].rekey) SDL_SetColorKey(m_sprites[id].present, SDL_TRUE, 0x0);
           }
       }
   }
@@ -3737,10 +4081,10 @@ static int sep_overlay_ellipse(lua_State *L)
                       b1 = 8 * b * b;
 
                       do {
-                          sep_draw_pixel(x1, y0, &g_colorForeground);
-                          sep_draw_pixel(x0, y0, &g_colorForeground);
-                          sep_draw_pixel(x0, y1, &g_colorForeground);
-                          sep_draw_pixel(x1, y1, &g_colorForeground);
+                          sep_draw_pixel(x1, y0, &m_colorForeground);
+                          sep_draw_pixel(x0, y0, &m_colorForeground);
+                          sep_draw_pixel(x0, y1, &m_colorForeground);
+                          sep_draw_pixel(x1, y1, &m_colorForeground);
                           e2 = 2 * err;
                           if (e2 <= dy) {
                               y0++;
@@ -3755,10 +4099,10 @@ static int sep_overlay_ellipse(lua_State *L)
                       } while (x0 <= x1);
 
                       while (y0 - y1 < b) {
-                          sep_draw_pixel(x0 - 1, y0,   &g_colorForeground);
-                          sep_draw_pixel(x1 + 1, y0++, &g_colorForeground);
-                          sep_draw_pixel(x0 - 1, y1,   &g_colorForeground);
-                          sep_draw_pixel(x1 + 1, y1--, &g_colorForeground);
+                          sep_draw_pixel(x0 - 1, y0,   &m_colorForeground);
+                          sep_draw_pixel(x1 + 1, y0++, &m_colorForeground);
+                          sep_draw_pixel(x0 - 1, y1,   &m_colorForeground);
+                          sep_draw_pixel(x1 + 1, y1--, &m_colorForeground);
                       }
 
                       SDL_UnlockSurface(g_se_surface);
@@ -3799,14 +4143,14 @@ static int sep_overlay_circle(lua_State *L)
                   SDL_LockSurface(g_se_surface);
 
                   while (x >= y) {
-                      sep_draw_pixel(xo + x, yo + y, &g_colorForeground);
-                      sep_draw_pixel(xo + y, yo + x, &g_colorForeground);
-                      sep_draw_pixel(xo - y, yo + x, &g_colorForeground);
-                      sep_draw_pixel(xo - x, yo + y, &g_colorForeground);
-                      sep_draw_pixel(xo - x, yo - y, &g_colorForeground);
-                      sep_draw_pixel(xo - y, yo - x, &g_colorForeground);
-                      sep_draw_pixel(xo + y, yo - x, &g_colorForeground);
-                      sep_draw_pixel(xo + x, yo - y, &g_colorForeground);
+                      sep_draw_pixel(xo + x, yo + y, &m_colorForeground);
+                      sep_draw_pixel(xo + y, yo + x, &m_colorForeground);
+                      sep_draw_pixel(xo - y, yo + x, &m_colorForeground);
+                      sep_draw_pixel(xo - x, yo + y, &m_colorForeground);
+                      sep_draw_pixel(xo - x, yo - y, &m_colorForeground);
+                      sep_draw_pixel(xo - y, yo - x, &m_colorForeground);
+                      sep_draw_pixel(xo + y, yo - x, &m_colorForeground);
+                      sep_draw_pixel(xo + x, yo - y, &m_colorForeground);
 
                       if (err <= 0) {
                           y++;
@@ -3854,7 +4198,7 @@ static int sep_overlay_line(lua_State *L)
                       y2 = lua_tonumber(L, 4);
 
                       SDL_LockSurface(g_se_surface);
-                      sep_draw_line(x1, y1, x2, y2, &g_colorForeground);
+                      sep_draw_line(x1, y1, x2, y2, &m_colorForeground);
                       SDL_UnlockSurface(g_se_surface);
                       result = true;
                   }
@@ -3884,7 +4228,7 @@ static int sep_overlay_plot(lua_State *L)
               y1 = lua_tonumber(L, 2);
 
               SDL_LockSurface(g_se_surface);
-              sep_draw_pixel(x1, y1, &g_colorForeground);
+              sep_draw_pixel(x1, y1, &m_colorForeground);
               SDL_UnlockSurface(g_se_surface);
               result = true;
          }
@@ -3919,10 +4263,10 @@ static int sep_overlay_box(lua_State *L)
                       y2 = lua_tonumber(L, 4);
 
                       SDL_LockSurface(g_se_surface);
-                      sep_draw_line(x1, y1, x2, y1, &g_colorForeground);
-                      sep_draw_line(x2, y1, x2, y2, &g_colorForeground);
-                      sep_draw_line(x2, y2, x1, y2, &g_colorForeground);
-                      sep_draw_line(x1, y2, x1, y1, &g_colorForeground);
+                      sep_draw_line(x1, y1, x2, y1, &m_colorForeground);
+                      sep_draw_line(x2, y1, x2, y2, &m_colorForeground);
+                      sep_draw_line(x2, y2, x1, y2, &m_colorForeground);
+                      sep_draw_line(x1, y2, x1, y1, &m_colorForeground);
                       SDL_UnlockSurface(g_se_surface);
                       result = true;
                   }
@@ -3996,8 +4340,8 @@ static int sep_get_mouse_position(lua_State *L)
                 sep_die("Invalid mouse specified");
                 return 0;
             }
-            x = g_tract.mouseX[m];
-            y = g_tract.mouseY[m];
+            x = m_tract.mouseX[m];
+            y = m_tract.mouseY[m];
             result = true;
         }
     }
@@ -4031,7 +4375,7 @@ static int sep_controller_axis(lua_State *L)
                 sep_die("Invalid controller axis specified");
                 return 0;
             }
-            v = g_tract.axisvalue[(uint8_t)c][a];
+            v = m_tract.axisvalue[(uint8_t)c][a];
             result = true;
         }
     }
@@ -4148,7 +4492,7 @@ static int sep_controller_button(lua_State *L)
             }
             else b = lua_tonumber(L, 1);
 
-            if (g_trace) {
+            if (m_trace) {
                 if (framework) {
                     LOGW << sep_fmt("Framework adjustment will be made to (%d)", b);
                 }
@@ -4179,7 +4523,7 @@ static int sep_controller_button(lua_State *L)
 
 static int sep_get_scriptpath(lua_State *L)
 {
-    lua_pushstring(L, g_scriptpath.c_str());
+    lua_pushstring(L, m_scriptpath.c_str());
     return 1;
 }
 
@@ -4311,7 +4655,7 @@ static int sep_singe_quit(lua_State *L)
 	* 
 	*/
 
-	g_se_grunt = false;
+	m_se_grunt = false;
 	sep_die("User requested a quit.");
 	return 0;
 }
@@ -4536,7 +4880,7 @@ static int sep_doluafile(lua_State *L)
         {
             const char *fname = luaL_optstring(L, 1, NULL);
 
-            if (!g_rom_zip) {
+            if (!m_rom_zip) {
 
                 if (luaL_dofile(L, fname) != 0)
                     sep_die("error compiling script: %s", lua_tostring(L, -1));
@@ -4555,9 +4899,9 @@ static int sep_doluafile(lua_State *L)
             int size = 0;
             char* entry = nullptr;
 
-            g_zipList = g_zf->getEntries();
+            m_zipList = g_zf->getEntries();
 
-            for (m_iter = g_zipList.begin(); m_iter != g_zipList.end(); ++m_iter) {
+            for (m_iter = m_zipList.begin(); m_iter != m_zipList.end(); ++m_iter) {
 
                 ZipEntry zipEntry = *m_iter;
                 std::string name = zipEntry.getName();
@@ -4570,7 +4914,7 @@ static int sep_doluafile(lua_State *L)
                 }
             }
 
-            g_zipList.clear();
+            m_zipList.clear();
             if (!*g_zlfs) g_zf->close();
 
             if (!entry || size <= 0) {
@@ -4706,8 +5050,8 @@ static int sep_sprite_get_frame(lua_State *L)
     if (n == 1) {
        if (lua_isstring(L, 1)) {
            id = lua_tonumber(L, 1);
-           if (!sep_animation_valid(L, id, g_sprites[id].animation, __func__)) return 0;
-           result = g_sprites[id].flow;
+           if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
+           result = m_sprites[id].flow;
        }
     }
 
@@ -4728,8 +5072,8 @@ static int sep_sprite_playing(lua_State *L)
     if (n == 1) {
         if (lua_isstring(L, 1)) {
             id = lua_tonumber(L, 1);
-            if (!sep_animation_valid(L, id, g_sprites[id].animation, __func__)) return 0;
-            result = g_sprites[id].animating;
+            if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
+            result = m_sprites[id].animating;
         }
      }
 
@@ -4752,8 +5096,8 @@ static int sep_sprite_loop(lua_State *L)
             if (lua_isnumber(L, 2)) {
                 loop = lua_toboolean(L, 1);
                 id = lua_tonumber(L, 2);
-                if (!sep_animation_valid(L, id, g_sprites[id].animation, __func__)) return 0;
-                g_sprites[id].loop = loop;
+                if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
+                m_sprites[id].loop = loop;
             }
         }
     }
@@ -4772,8 +5116,8 @@ static int sep_sprite_pause(lua_State *L)
     if (n == 1) {
         if (lua_isnumber(L, 1)) {
             id = lua_tonumber(L, 1);
-            if (!sep_animation_valid(L, id, g_sprites[id].animation, __func__)) return 0;
-            g_sprites[id].animating = false;
+            if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
+            m_sprites[id].animating = false;
        }
     }
 
@@ -4791,11 +5135,11 @@ static int sep_sprite_play(lua_State *L)
     if (n == 1) {
         if (lua_isnumber(L, 1)) {
             id = lua_tonumber(L, 1);
-            if (!sep_animation_valid(L, id, g_sprites[id].animation, __func__)) return 0;
-            if (g_sprites[id].animating == false) {
-                g_sprites[id].last = SDL_GetTicks();
+            if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
+            if (m_sprites[id].animating == false) {
+                m_sprites[id].last = SDL_GetTicks();
             }
-            g_sprites[id].animating = true;
+            m_sprites[id].animating = true;
        }
     }
 
@@ -4816,10 +5160,10 @@ static int sep_sprite_set_frame(lua_State *L)
             if (lua_isnumber(L, 2)) {
                 f = lua_tonumber(L, 1);
                 id = lua_tonumber(L, 2);
-                if (!sep_animation_valid(L, id, g_sprites[id].animation, __func__)) return 0;
-                if ((f >= 0) && (f < g_sprites[id].animation->count)) {
-                    g_sprites[id].flow = f;
-                    g_sprites[id].ticks = 0;
+                if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
+                if ((f >= 0) && (f < m_sprites[id].animation->count)) {
+                    m_sprites[id].flow = f;
+                    m_sprites[id].ticks = 0;
                 }
             }
         }

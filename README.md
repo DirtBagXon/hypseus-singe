@@ -267,6 +267,7 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [luars232]: https://github.com/ynezz/librs232
 [luasocket]: https://github.com/lunarmodules/luasocket
 [lua_bitop]: https://bitop.luajit.org/index.html
+[lua_lpeg]: https://www.inf.puc-rio.br/~roberto/lpeg/
 [luafilesystem]: https://lunarmodules.github.io/luafilesystem/
 [autotools]: https://en.wikipedia.org/wiki/GNU_Build_System
 [libtool]: https://www.gnu.org/software/libtool/manual/libtool.html

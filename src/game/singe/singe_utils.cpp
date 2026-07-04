@@ -28,6 +28,8 @@
 #include "../singe.h"
 #include "../../io/homedir.h"
 
+bool net_send_enabled();
+
 extern "C" {
 
 const char* get_romdir_path()
@@ -47,6 +49,11 @@ const char* get_ramdir_path()
     }();
 
     return dir.c_str();
+}
+
+unsigned char socket_disabled()
+{
+    return net_send_enabled() ? 0 : 1;
 }
 
 }

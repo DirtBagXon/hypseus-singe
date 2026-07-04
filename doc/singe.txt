@@ -37,9 +37,13 @@ scoreBezelScore,        sep_bezel_player_score     (player, score)
 scoreBezelLives,        sep_bezel_player_lives     (player, lives)
 scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
 
+setOverlaySpriteBlend,  sep_set_overlayblend       (bool)
 setOverlayFullAlpha,    sep_set_overlayfullalpha   (void)
+setOverlayOpacity,      sep_set_overlayopacity     (0 - 255)
 setOverlaySize,         sep_set_overlaysize        (int)
 setOverlayResolution,   sep_set_custom_overlay     (int, int)
+overlayBanner,          sep_banner                 (txt, [1 - 95])
+overlayPrint,           sep_say                    (x, y, txt, [{color = {r, g, b}, outline = bool}]
 overlaySetMonochrome,   sep_overlay_set_grayscale  (bool)
 
 soundLoadData,          sep_sound_loadata          (wav data)
@@ -67,6 +71,11 @@ spriteRotate,           sep_sprite_rotate          (rotation, spr)
 spriteRotateAndScale,   sep_sprite_rotatescale     (rotation, scale, [scaley], spr)
 spriteQuality,          sep_sprite_quality         (bool, spr)
 spriteScale,            sep_sprite_scale           (scale, [scaley], spr)
+
+srtLoad,                sep_subtitle_load           (srt) - Return bool on load
+srtClear,               sep_subtitle_clear          (void)
+srtEnable,              sep_subtitle_enable         (bool)
+srtPosition,            sep_subtitle_position       (1 - 95)
 
 vldpFlash               sep_mpeg_set_flash         (void) -- produces white frame
 vldpGetRotate,          sep_mpeg_get_rotate        (return float) -- (-rotate value)
@@ -114,7 +123,6 @@ keyboardSetMode,      sep_keyboard_set_mode
 overlayClear,         sep_overlay_clear
 overlayGetHeight,     sep_get_overlay_height
 overlayGetWidth,      sep_get_overlay_width
-overlayPrint,         sep_say
 singeGetPauseFlag,    sep_get_pause_flag
 singeSetPauseFlag,    sep_set_pause_flag
 singeQuit,            sep_singe_quit

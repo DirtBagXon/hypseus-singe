@@ -64,42 +64,42 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -fastboot                        | Makes games start faster. Only available on a few games like Dragon's Lair, Space Ace, Cliff Hanger, and Goal to Go. |
 | -framefile \<location>           | Points to the framefile used by VLDP. This is **required** with the VLDP.  |
 | -force_aspect_ratio              | Tells Hypseus to force the 4:3 aspect ratio regardless of the video size. |
-| -fullscreen                      | Runs Hypseus in fullscreen mode (instead of windowed mode). |
-| -fullscreen_window               | Runs Hypseus in a fullscreen window.                    |
+| -fullscreen                      | Runs Hypseus in fullscreen mode (instead of windowed mode).   |
+| -fullscreen_window               | Runs Hypseus in a fullscreen window.                          |
 | -gamepad                         | Enable SDL_GameController configuration. Use -haptic [0-4] to configure rumble. |
 | -gamepad_reorder 3 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput_gamepad.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3]_|
-| -grabmouse                       | Force the capture of mouse in SDL window.              |
-| -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.         |
+| -grabmouse                       | Force the capture of mouse in SDL window.                     |
+| -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.                |
 | -horizontal_stretch \<value>     | Horizontally stretches the video screen outward from the center. |
 | -idleexit \<seconds>             | Tells Hypseus to exit after a certain number of seconds if no input has been received. |
 | -ignore_aspect_ratio             | Tells Hypseus to ignore the aspect ratio defined in the MPEG header. |
 | -keymapfile \<config>            | Specify an alternate hypinput.ini file. `-config` is an alias.                |
 | -latency \<ms>                   | Adds a delay before all searches occur which causes scenes to last a little longer. Useful for Dragon's Lair F2 ROMs that cut some scenes off prematurely. |
-| -linear_scale                    | Enable [bi]linear filtering when scaling.                  |
-| -luma <0-8>                      | Enable luminance filtering on MPEG video. [Default: 4]     |
+| -linear_scale                    | Enable [bi]linear filtering when scaling.                     |
+| -luma <0-8>                      | Enable luminance filtering on MPEG video. [Default: 4]        |
 | -manymouse                       | Use the alternate ManyMouse input system. Provides *Absolute* coordinates on supported devices. |
 | -min_seek_delay \<ms>            | The minimum amount of milliseconds to force a seek to take (artificial delay). 0 = disabled. |
-| -monochrome                      | Display VLDP video as grayscale monochrome [Just a gimmick] |
-| -nocrc                           | Disables CRC32 checking (not recommended).            |
+| -monochrome                      | Display VLDP video as grayscale monochrome [Just a gimmick]   |
+| -nocrc                           | Disables CRC32 checking (not recommended).                    |
 | -nohwaccel                       | Disables hardware acceleration for SDL2. Only use this if hardware acceleration doesn't work. |
-| -noissues                        | Don't display warnings about game driver problems.    |
+| -noissues                        | Don't display warnings about game driver problems.            |
 | -nojoystick                      | Disables any joysticks that may be plugged in. Joysticks will normally be used if available. |
-| -nolog                           | Disables writing to the log file (hypseus.log).    |
+| -nolog                           | Disables writing to the log file (hypseus.log).               |
 | -nomanymouse                     | Disables the ability to enable ManyMouse input system.        |
-| -noserversend                    | Request the game does not allow network connections,          |
-| -nosound                         | Disables all sound.                                   |
-| -nospeech                        | Disables speech for Thayer's Quest.                   |
-| -novsync                         | Disable VSYNC presentation on Renderer.               |
-| -opengl                          | Enforces SDL_WINDOW_OPENGL                            |
-| -openhat                         | Allow HAT input from any Joystick                     |
-| -original_overlay                | Enable daphne style overlays (lair, ace, tq)          |
+| -noserversend                    | Request the game does not allow network connections.          |
+| -nosound                         | Disables all sound.                                           |
+| -nospeech                        | Disables speech for Thayer's Quest.                           |
+| -novsync                         | Disable VSYNC presentation on Renderer.                       |
+| -opengl                          | Enforces SDL_WINDOW_OPENGL                                    |
+| -openhat                         | Allow HAT input from any Joystick                             |
+| -original_overlay                | Enable daphne style overlays (lair, ace, tq)                  |
 | -pal_dl                          | Tells Hypseus that you are using a PAL Philips Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_dl_sc                       | Tells Hypseus that you are using a PAL Software Corner Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_sa                          | Tells Hypseus that you are using a PAL Philips Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
-| -rawmouse                        | Restore raw MouseMotion values from SDL mouse.   |
+| -rawmouse                        | Restore raw MouseMotion values for SDL mouse.    |
 | -ramdir \<path>                  | Sets an alternate `ram` directory path.          |
 | -romdir \<path>                  | Sets an alternate `roms` directory path.         |
 | -rotate \<degrees>               | Rotates the screen a certain number of degrees clockwise. Valid values are from 0-359.   |
@@ -110,7 +110,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -scoreboard                      | Enables external Scoreboard.                           |
 | -scoreport \<port>               | Sets which parallel port to use with the scoreboard. 0 correspond to LPT1. *As of v1.0.12, any value over 1 will indicate the address of the parallel port in hexadecimal. So instead of passing in 0, I could pass in 378 which would achieve the same result.* |
 | -screen \<1-254>                 | Defines the screen _hypseus_ should use for display. |
-| -script                          | Defines the location of the primary Singe LUA game script. This or `-zlua` are required for Singe games. |
+| -script                          | Defines the location of the primary Singe LUA game script. This, or `-zlua`, is required for Singe games. |
 | -shiftx \<-100 to 100>           | Shift x-axis on video window [%]                                        |
 | -shifty \<-100 to 100>           | Shift y-axis on video window [%]                                        |
 | -sound_buffer \<number of samples> | Sets the number of samples in the sound buffer. Hypseus runs at 44,100 kHz which means 44,100 samples per second. The sound buffer size is typically 2048 samples. Lower values make the sound more responsive but choppier, while higher values make the sound smoother but more sluggish. |
@@ -132,14 +132,14 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -vulkan                          | Enable a Vulkan SDL Window instance                    |
 | -x \<horizontal resolution>      | Specifies the width of the game window (in pixels).    |
 | -y \<vertical resolution>        | Specifies the height of the game window (in pixels).   |
-| -zlua                            | Defines the location of the primary Singe ZLUA game zip. This or `-script` are required for Singe games. |
+| -zlua                            | Defines the location of the primary Singe ZLUA game zip. This, or `-script`, is required for Singe games. |
 
 ## Singe Game Options
 | Option                           | Description                                                                                                                 |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | -8bit_overlay                    | Restore original 8bit overlays.                                                                                             |
-| -blend_sprites                   | Restore the legacy BLENDMODE outline on sprites.                                                                            |
-| -fullalpha                       | Observe the complete RGBA alpha channel value in overlay display.                                                           |
+| -blend_sprites                   | Blend sprites in overlay (without full alpha).                                                                              |
+| -fullalpha                       | Observe the full RGBA alpha channel value in overlay sprite bltting.                                                        |
 | -js_range \<1-20>                | Adjust joystick-mouse sensitivity: *[default:5]*                                                                            |
 | -nocrosshair                     | Request the game does not display crosshairs.                                                                               |
 | -nojoymouse                      | Disable the joysticks ability to control mouse input.                                                                       |

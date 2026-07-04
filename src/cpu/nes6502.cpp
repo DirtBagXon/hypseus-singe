@@ -585,7 +585,7 @@
    ADD_CYCLES(2); \
 }
 
-#define _COMPARE(reg, value) \
+#define _COMPARED(reg, value) \
 { \
    temp = (reg) - (value); \
    /* C is clear when data > A */ \
@@ -596,21 +596,21 @@
 #define CMP(cycles, read_func) \
 { \
    read_func(data); \
-   _COMPARE(A, data); \
+   _COMPARED(A, data); \
    ADD_CYCLES(cycles); \
 }
 
 #define CPX(cycles, read_func) \
 { \
    read_func(data); \
-   _COMPARE(X, data); \
+   _COMPARED(X, data); \
    ADD_CYCLES(cycles); \
 }
 
 #define CPY(cycles, read_func) \
 { \
    read_func(data); \
-   _COMPARE(Y, data); \
+   _COMPARED(Y, data); \
    ADD_CYCLES(cycles); \
 }
 

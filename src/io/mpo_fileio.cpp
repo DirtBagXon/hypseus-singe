@@ -40,20 +40,6 @@
 #include <stdlib.h> // for malloc
 #endif
 
-// if this doesn't crash, you're good to go!
-// if anyone knows how to do this check at compile time, let me know!!!
-void mpo_test()
-{
-    if (sizeof(uint64_t) != 8) // make sure this is really 64-bit
-    {
-        int i = 0;
-        int b;
-
-        b = 5 / i; // force crash
-        fprintf(stderr, "%d", b);
-    }
-}
-
 bool mpo_file_exists(const char *filename)
 {
     bool result = false;
@@ -304,6 +290,23 @@ bool mpo_seek(int64_t offset, seek_type type, mpo_io *io)
     int pre_result = MPO_FSEEK(io->handle, offset, type);
     if (pre_result == 0) result = true;
 #endif
+
+    return result;
+}
+
+bool mpo_rewind(mpo_io *io)
+{
+    if (io == NULL)
+        return false;
+
+#ifndef WIN32
+    clearerr(io->handle);
+#endif
+
+    bool result = mpo_seek(0, MPO_SEEK_SET, io);
+
+    if (result)
+        io->eof = false;
 
     return result;
 }
