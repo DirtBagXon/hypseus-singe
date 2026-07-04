@@ -23,7 +23,7 @@
 #ifndef THAYERS_H
 #define THAYERS_H
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "game.h"
 #include "../scoreboard/scoreboard_collection.h"
 

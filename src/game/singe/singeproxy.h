@@ -1,7 +1,7 @@
 /*
  * singeproxy.h
  *
- * Copyright (C) 2006 Scott C. Duensing, 2024 DirtbagXon
+ * Copyright (C) 2006 Scott C. Duensing, 2026 DirtbagXon
  *
  * This file is part of HYPSEUS, a laserdisc arcade game emulator
  *
@@ -27,22 +27,9 @@
 
 #include "../../vldp/vldp.h"  // to get the vldp structs
 
-// by RDG2010
-// Ubuntu Linux complains if SDL includes are used with quotes.
-#ifdef WIN32
-#include "SDL_image.h"
-#include "SDL_mixer.h"
-#include "SDL_ttf.h"
-#else
-#include <SDL_image.h>
-#include <SDL_mixer.h>
-#include <SDL_ttf.h>
-#endif
-
-#define SDL_IMAGE_VERSION_AT_LEAST(x, y, z) \
-    ((SDL_IMAGE_MAJOR_VERSION > (x)) || \
-     (SDL_IMAGE_MAJOR_VERSION == (x) && SDL_IMAGE_MINOR_VERSION > (y)) || \
-     (SDL_IMAGE_MAJOR_VERSION == (x) && SDL_IMAGE_MINOR_VERSION == (y) && SDL_IMAGE_PATCHLEVEL >= (z)))
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #define SEP_OVERLAY_ALPHA  4
 #define SEP_OVERLAY_MONO   3
@@ -88,7 +75,7 @@ void          sep_fullalpha_overlay(void);
 void          sep_keyboard_set_state(int key, bool state);
 void          sep_controller_set_axis(uint8_t axis, int16_t value, uint8_t id);
 
-SDL_GameController* get_gamepad_id(int i);
+SDL_Gamepad*        get_gamepad_id(int i);
 void                set_gamepad_wad(bool);
 int                 get_gamepad_wad();
 int                 get_gamepad_attached();
@@ -259,12 +246,9 @@ static int sep_subtitle_load(lua_State *L);
 static int sep_subtitle_clear(lua_State *L);
 static int sep_subtitle_enable(lua_State *L);
 static int sep_subtitle_position(lua_State *L);
-#if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 static int sep_sprite_get_frame(lua_State *L);
 static int sep_sprite_playing(lua_State *L);
 static int sep_sprite_loop(lua_State *L);
 static int sep_sprite_pause(lua_State *L);
 static int sep_sprite_play(lua_State *L);
 static int sep_sprite_set_frame(lua_State *L);
-#endif
-

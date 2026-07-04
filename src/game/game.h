@@ -84,7 +84,7 @@ enum {
 
 //////////////////////////////////
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "../sound/sound.h"
 #include "../cpu/cpu.h"  // for cpu::MEM_SIZE
 #include "../io/input.h" // for SWITCH definitions, most/all games need them
@@ -199,8 +199,8 @@ class game
     // returns m_video_overlay_height
     unsigned int get_video_overlay_height();
 
-    unsigned int get_sinden_border();
-    unsigned int get_sinden_border_color();
+    unsigned int get_outline_border();
+    unsigned int get_outline_border_color();
 
     int get_stretch_value();
 
@@ -221,8 +221,8 @@ class game
 
     virtual void set_es_flag(bool);
 
-    virtual void set_sinden_border(int);
-    virtual void set_sinden_border_color(int);
+    virtual void set_outline_border(int);
+    virtual void set_outline_border_color(int);
 
     virtual void switch_scoreboard_display();
 
@@ -290,9 +290,6 @@ class game
     
     void setGameNeedsOverlayUpdate(bool);
 
-    // some platforms have problems with SDL acceleration.
-    bool m_sdl_software_rendering;
-
     bool m_software_scoreboard;
 
     Uint8 m_overlay_depth;
@@ -303,8 +300,8 @@ class game
 
     bool m_run_on_es;
 
-    int m_sinden_border;
-    int m_sinden_border_color;
+    int m_outline_border;
+    int m_outline_border_color;
 
     bool m_manymouse;
     void set_mice_detected(int);

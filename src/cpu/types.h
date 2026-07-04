@@ -26,7 +26,7 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-#include <SDL.h>	// for endian detection
+#include <SDL3/SDL.h>	// for endian detection
 
 // MPO : added this SDL endian stuff so no source code changes are necessary
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN

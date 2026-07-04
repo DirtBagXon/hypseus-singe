@@ -33,7 +33,7 @@ enum {
     SEARCH_BUSY     // search is still taking place, no change yet, my frenid
 };
 
-#include <SDL.h> // needed for datatypes
+#include <SDL3/SDL.h> // needed for datatypes
 
 // for bug logging
 #include <list>

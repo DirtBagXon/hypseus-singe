@@ -369,7 +369,7 @@ bool init(bool init_speech)
     if (m_thayers) {
         if (init_speech) {
             // Request voice to have an F0 base frequency of 110Hz.
-            tqsynth::init(sound::FREQ, sound::FORMAT, sound::CHANNELS, 1100);
+            tqsynth::init(sound::FREQ, (Uint16)sound::FORMAT, sound::CHANNELS, 1100);
             m_speech_enabled = true;
         }
 

@@ -22,7 +22,7 @@
 
 // PR-8210.h
 
-#include <SDL.h> // for Uint16
+#include <SDL3/SDL.h> // for Uint16
 
 namespace pr8210
 {

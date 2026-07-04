@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#include <SDL.h>		// need SDL to get data types (Uint8, etc)
+#include <SDL3/SDL.h>		// need SDL to get data types (Uint8, etc)
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define LSB_FIRST	/* little endian */

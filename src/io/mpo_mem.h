@@ -1,7 +1,7 @@
 #ifndef MPO_MEM_H
 #define MPO_MEM_H
 
-#include <SDL.h> // for endian def
+#include <SDL3/SDL.h> // for endian def
 
 // mpo_mem.h
 // by Matt Ownby

@@ -26,8 +26,8 @@
 #ifndef VLDP_COMMON_H
 #define VLDP_COMMON_H
 
-#include <SDL.h>
-#include <SDL_thread.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_thread.h>
 
 #define VLDP_REQ_NONE 0x0
 #define VLDP_REQ_OPEN 0x10

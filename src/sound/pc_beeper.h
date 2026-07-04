@@ -23,7 +23,7 @@
 #ifndef PC_BEEPER_H
 #define PC_BEEPER_H
 
-#include <SDL.h> // for data-type defs
+#include <SDL3/SDL.h> // for data-type defs
 
 namespace beeper
 {

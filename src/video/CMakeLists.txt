@@ -1,7 +1,6 @@
 set( LIB_SOURCES
     video.cpp
     tms9128nl.cpp
-    SDL_FontCache.c
     led.cpp
     palette.cpp
     splash.cpp
@@ -13,7 +12,6 @@ set( LIB_HEADERS
     led.h
     palette.h
     rgb2yuv.h
-    SDL_FontCache.h
     tms9128nl.h
     video.h
     splash.h
@@ -22,4 +20,4 @@ set( LIB_HEADERS
 )
 
 add_library( video ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( video plog )
+target_link_libraries( video PRIVATE plog sdl3_deps )

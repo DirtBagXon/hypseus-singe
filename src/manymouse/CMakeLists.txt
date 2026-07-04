@@ -9,5 +9,5 @@ set( LIB_HEADERS
 )
 
 add_library( manymouse ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( manymouse ${CMAKE_DL_LIBS} )
+target_link_libraries( manymouse PRIVATE ${CMAKE_DL_LIBS} )
 

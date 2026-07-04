@@ -1,9 +1,9 @@
 /*
  * ____ DAPHNE COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2001 Matt Ownby
+ * Copyright (C) 2001 Matt Ownby, 2026 DirtBagXon
  *
- * This file is part of DAPHNE, a laserdisc arcade game emulator
+ * This file is part of HYPSEUS, a laserdisc arcade game emulator
  *
  * DAPHNE is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -657,8 +657,8 @@ bool parse_cmd_line(int argc, char **argv)
             }
             // Ignore some deprecated arguments (Rather than error)
             else if (strcasecmp(s, "-nolinear_scale") == 0 ||
-                         strcasecmp(s, "-fullscale") == 0) {
-
+                         strcasecmp(s, "-fullscale") == 0 ||
+                             strcasecmp(s, "-fullscreen_window") == 0 ) {
                  char e[460];
                  snprintf(e, sizeof(e), "NOTE : Ignoring deprecated argument: %s", s);
                  printline(e);
@@ -964,24 +964,6 @@ bool parse_cmd_line(int argc, char **argv)
                     result = false;
                 }
             }
-            else if (strcasecmp(s, "-scorebezel_alpha") == 0 ||
-                         strcasecmp(s, "-auxbezel_alpha") == 0) {
-
-                bool aux = (strcasecmp(s, "-auxbezel_alpha") == 0);
-
-                get_next_word(s, sizeof(s));
-                i = atoi(s);
-
-                if (i >= 1 && i <= 2) {
-                    if (aux)
-                        video::set_aux_bezel_alpha((int8_t)i);
-                    else
-                        video::set_scoreboard_bezel_alpha((int8_t)i);
-                } else {
-                    printerror("Bezel alpha values: 1-2");
-                    result = false;
-                }
-            }
             else if (strcasecmp(s, "-scorepanel") == 0) {
                 lair *game_lair_or_sa = dynamic_cast<lair *>(g_game);
                 thayers *game_thayers = dynamic_cast<thayers *>(g_game);
@@ -1041,7 +1023,7 @@ bool parse_cmd_line(int argc, char **argv)
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
 
-                if (i >= 2 && i <= 255)
+                if (i >= 0 && i <= 255)
                     video::set_scoreboard_screen(i);
             }
             else if (strcasecmp(s, "-tq_keyboard") == 0 ||
@@ -1227,12 +1209,6 @@ bool parse_cmd_line(int argc, char **argv)
             // run hypseus in fullscreen mode
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
-                video::set_fakefullscreen(false);
-            }
-            // run hypseus in borderless fullscreen window mode
-            else if (strcasecmp(s, "-fullscreen_window") == 0) {
-                video::set_fakefullscreen(true);
-                video::set_fullscreen(false);
             }
             // If SDL mouse - send raw coordinates
             else if (strcasecmp(s, "-rawmouse") == 0) {
@@ -1536,9 +1512,9 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-noissues") == 0) {
                 g_game->set_issues(NULL);
             }
-            // check if we need to use the SDL software renderer
+            // Force the SDL3 software renderer
             else if (strcasecmp(s, "-nohwaccel") == 0) {
-                g_game->m_sdl_software_rendering = true;
+                video::set_software_render(true);
             }
             // check for any game-specific arguments ...
             else if (g_game->handle_cmdline_arg(s)) {

@@ -6,13 +6,13 @@
 
 **Download latest version:** [here](https://github.com/DirtBagXon/hypseus-singe/releases)
 
-Latest build is: (_32bit_ and _64bit_ versions are available.)
+Latest SDL3 build is:
 
     hypseus.exe -version
-    [version] Hypseus Singe: v2.12.1
-    [console] Windows 10
-    [console] SDL(CC): 2.28.5
-    [console] SDL(LD): 2.28.5
+    [version] Hypseus Singe: v3.0.0
+    [console] Windows 11
+    [console] SDL(CC): 3.4.10
+    [console] SDL(LD): 3.4.10
 
 Windows executables linked with `-subsystem,windows` are also available to suppress *Command Prompt* popups.
 

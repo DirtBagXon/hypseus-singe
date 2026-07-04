@@ -28,4 +28,4 @@ if( APPLE )
 endif( APPLE )
 
 add_library( scoreboard ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( scoreboard io )
+target_link_libraries( scoreboard PRIVATE io plog sdl3_deps )

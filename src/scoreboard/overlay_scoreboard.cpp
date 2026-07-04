@@ -77,7 +77,7 @@ bool OverlayScoreboard::RepaintIfNeeded()
 		// else the overlay is invisible, so erase the surface
 		else
 		{
-			SDL_FillRect(pSurface, NULL, 0x00000000);
+			SDL_FillSurfaceRect(pSurface, NULL, 0x00000000);
 		}
 
 		bRepainted = true;

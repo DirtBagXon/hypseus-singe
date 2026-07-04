@@ -29,7 +29,7 @@
 #include <windows.h>
 #endif
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <plog/Log.h>
 #include <string>
 

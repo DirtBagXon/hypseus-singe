@@ -129,9 +129,6 @@ game::game()
 
     m_stretch        = TMS_VERTICAL_OFFSET;
 
-    // switch to SDL software rendering if hardware acceleration is troublesome
-    m_sdl_software_rendering = false;
-
     // Software scoreboard for lair/ace
     m_software_scoreboard = false;
 
@@ -143,9 +140,9 @@ game::game()
     // running in EmulationStation
     m_run_on_es = false;
 
-    // Set a sinden border
-    m_sinden_border = 0;
-    m_sinden_border_color = 0;
+    // Set an outline border
+    m_outline_border = 0;
+    m_outline_border_color = 0;
 }
 
 game::~game()
@@ -339,7 +336,7 @@ bool game::init_video()
     int index = 0;
     bool result = false;
 
-    Uint32 format = (m_overlay_depth == GAME_OVERLAY_STD) ?
+    SDL_PixelFormat format = (m_overlay_depth == GAME_OVERLAY_STD) ?
                      SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA8888;
 
     video::reset_yuv_overlay();
@@ -354,19 +351,28 @@ bool game::init_video()
         // to be ...
         if ((m_video_overlay_width != 0) && (m_video_overlay_height != 0) &&
             (m_palette_color_count != 0)) {
-            result = true; // it's easier to assume true here and find out
-                           // false, than the reverse
+            result = true; // assume true here and find out false
 
             // create each buffer
             for (index = 0; index < m_video_overlay_count; index++) {
-                m_video_overlay[index] = SDL_CreateRGBSurfaceWithFormat(0,
-                    m_video_overlay_width, m_video_overlay_height, m_overlay_depth,
-                        format);
+                m_video_overlay[index] = SDL_CreateSurface(m_video_overlay_width,
+				m_video_overlay_height, format);
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {
                     LOGE << "SDL_CreateRGBSurfaceWithFormat failed in init_video!";
                     result = false;
+                }
+                else
+                {
+                    if (m_overlay_depth == GAME_OVERLAY_STD) {
+                        std::vector<SDL_Color> colors(m_palette_color_count,
+                                                          SDL_Color{0, 0, 0, 255});
+                        SDL_Palette *palette = SDL_CreatePalette(m_palette_color_count);
+                        SDL_SetPaletteColors(palette, colors.data(), 0, m_palette_color_count);
+                        SDL_SetSurfacePalette(m_video_overlay[index], palette);
+                        SDL_DestroyPalette(palette);
+                    }
                 }
             }
 
@@ -380,7 +386,7 @@ bool game::init_video()
                 }
             }
 
-            video::set_overlay_offset(m_video_row_offset);
+            video::set_overlay_offset(m_video_col_offset, m_video_row_offset);
 
         } // end if video overlay is used
 
@@ -416,7 +422,7 @@ void game::shutdown_video()
         // only free surface if it has been allocated (if we get an error in
         // init_video, some surfaces may not be allocated)
         if (m_video_overlay[index] != NULL) {
-            SDL_FreeSurface(m_video_overlay[index]);
+            SDL_DestroySurface(m_video_overlay[index]);
             m_video_overlay[index] = NULL;
         }
     }
@@ -541,8 +547,8 @@ unsigned int game::get_video_overlay_height() { return m_video_overlay_height; }
 
 unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
 
-unsigned int game::get_sinden_border() { return m_sinden_border; }
-unsigned int game::get_sinden_border_color() { return m_sinden_border_color; }
+unsigned int game::get_outline_border() { return m_outline_border; }
+unsigned int game::get_outline_border_color() { return m_outline_border_color; }
 
 int game::get_stretch_value() { return m_stretch; }
 
@@ -560,8 +566,8 @@ void game::set_fastboot(bool value) { m_fastboot = value; }
 
 void game::set_es_flag(bool value) { m_run_on_es = value; }
 
-void game::set_sinden_border(int value) { m_sinden_border = value; }
-void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
+void game::set_outline_border(int value) { m_outline_border = value; }
+void game::set_outline_border_color(int value) { m_outline_border_color = value; }
 
 void game::set_manymouse(bool value) { m_manymouse = value; }
 

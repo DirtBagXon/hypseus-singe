@@ -19,12 +19,12 @@ rewriteStatus,          sep_lua_rewrite            (return bool) -- (-espath ena
 
 mouseHowManyReal,       sep_get_number_of_realmice (return number of real mice, excluding GC)
 
-musicLoad,              sep_music_load             (MP3 or MIDI music file)
+musicLoad,              sep_music_load             (SDL_MIX supported music file)
 musicPlay,              sep_music_play             (music, [loops]) -1 = infinite
 musicPause,             sep_music_pause            (void)
 musicIsPlaying,         sep_music_playing          (return bool)
 musicResume,            sep_music_resume           (void)
-musicStop,              sep_music_stop             (void)
+musicStop,              sep_music_stop             (void || [frames to fade-out])
 musicSetVolume,         sep_music_volume           (0 - 128)
 musicUnload,            sep_music_unload           (music)
 

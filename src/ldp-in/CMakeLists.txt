@@ -21,4 +21,4 @@ set( LIB_HEADERS
 )
 
 add_library( ldp-in ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( ldp-in plog )
+target_link_libraries( ldp-in PRIVATE plog sdl3_deps )

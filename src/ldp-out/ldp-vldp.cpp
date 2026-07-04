@@ -1509,24 +1509,47 @@ void update_parse_meter(const string &strFilename)
         remaining_s = total_s - elapsed_s;
 
         // if we have some progress to report ...
+	//
         if (remaining_s > 0) {
             SDL_Renderer *renderer = video::get_renderer();
-            FC_Font *g_font = video::get_font();
+            TTF_TextEngine *engine = video::get_font_engine();
+            TTF_Font *font = video::get_font();
             int h = video::get_logical_height();
             int w = video::get_logical_width();
-            int len;
+
             char s[160];
             char f[160];
-            const char * c = strFilename.c_str();
+            const char *c = strFilename.c_str();
 
-            snprintf(f, sizeof(f), "Parsing file: %s\n", c);
-            snprintf(s, sizeof(s), "Video parsing is %02.f percent complete, %02.f seconds "
-                       "remaining.\n", percent_complete, remaining_s);
+            snprintf(f, sizeof(f), "Parsing file: %s", c);
+            snprintf(s, sizeof(s),
+                     "Video parsing is %02.f percent complete, %02.f seconds remaining.",
+                     percent_complete, remaining_s);
 
-            len = FC_GetWidth(g_font, f);
-            FC_Draw(g_font, renderer, (w - len) >> 1, (h * 50) / 100, f);
-            len = FC_GetWidth(g_font, s);
-            FC_Draw(g_font, renderer, (w - len) >> 1, (h * 55) / 100, s);
+            auto draw_centered_text = [&](const char *text, int y)
+            {
+                SDL_Color color = {255, 255, 255, 255};
+
+                TTF_Text *tt = TTF_CreateText(engine, font, text, strlen(text));
+                if (!tt) return;
+
+                TTF_SetTextColor(tt, color.r, color.g, color.b, color.a);
+
+                int text_w = 0, text_h = 0;
+                TTF_GetTextSize(tt, &text_w, &text_h);
+
+                SDL_FRect dst;
+                dst.x = (w - text_w) * 0.5f;
+                dst.y = (float)y;
+
+                TTF_DrawRendererText(tt, dst.x, dst.y);
+
+                TTF_DestroyText(tt);
+            };
+
+            draw_centered_text(f, (h * 50) / 100);
+            draw_centered_text(s, (h * 55) / 100);
+
             SDL_RenderPresent(renderer);
         }
     }

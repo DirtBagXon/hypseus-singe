@@ -24,10 +24,10 @@ jobs:
         if: success()
       - name: Install Dependencies
         run: |
-          brew install sdl2
-          brew install sdl2_ttf
-          brew install sdl2_image
-          brew install sdl2_mixer
+          brew install sdl3
+          brew install sdl3_ttf
+          brew install sdl3_image
+          brew install sdl3_mixer
           brew install libvorbis
           brew install automake
           brew install autoconf

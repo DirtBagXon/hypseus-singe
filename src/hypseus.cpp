@@ -49,9 +49,9 @@ using namespace std;
 #include "config.h"
 #endif
 
-#include <SDL_main.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #ifdef WIN32
 // win32 doesn't have regular chdir apparently
@@ -156,28 +156,24 @@ void set_cur_dir(const char *exe_loc)
 int main(int argc, char **argv)
 {
     int result_code = 1; // assume an error unless we find otherwise
-    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
 
     set_cur_dir(argv[0]); // set active directory
 
     // initialize SDL with audio and video subsystems
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
 
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO |
+                  SDL_INIT_AUDIO |
+               SDL_INIT_JOYSTICK |
+                SDL_INIT_GAMEPAD |
+                SDL_INIT_HAPTIC ))
+    {
         printerror(SDL_GetError());
         exit(result_code);
     }
 
-    if ((IMG_Init(imgflags) & imgflags) != imgflags) {
-        printerror(IMG_GetError());
-        IMG_Quit();
-        SDL_Quit();
-        exit(result_code);
-    }
-
-    if (TTF_Init() != 0) {
-        printerror(TTF_GetError());
-        IMG_Quit();
+    if (!TTF_Init()) {
+        printerror(SDL_GetError());
         SDL_Quit();
         exit(result_code);
     }
@@ -300,11 +296,9 @@ int main(int argc, char **argv)
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)
 
-    Mix_CloseAudio();
-    Mix_Quit();
-
+    MIX_Quit();
     TTF_Quit();
-    IMG_Quit();
+
     SDL_Quit();
     exit(result_code);
 }

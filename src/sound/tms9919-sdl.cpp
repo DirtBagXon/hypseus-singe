@@ -30,7 +30,7 @@
 
 #include <memory.h>
 //#include "common.hpp"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "sound.h" // to get max volume
 #include "tms9919-sdl.hpp"
 #include "tms9919.hpp"
@@ -51,9 +51,10 @@
 
 cSdlTMS9919::cSdlTMS9919()
     :
-
       m_Initialized(false),
-      m_MasterVolume(0), m_ShiftRegister(NOISE_RESET), m_NoiseGenerator(0),
+      m_MasterVolume(0),
+      m_ShiftRegister(NOISE_RESET),
+      m_NoiseGenerator(0),
       m_MixBuffer(NULL)
 {
     //    FUNCTION_ENTRY ( this, "cSdlTMS9919 ctor", true );
@@ -67,7 +68,7 @@ cSdlTMS9919::cSdlTMS9919()
     float volume = 128.0 / 4.0;
     for (unsigned int i = 0; i < 16 - 1; i++) {
         m_VolumeTable[i] = (int)volume;
-        volume = (float)(volume / 1.258925412); // Reduce volume by 2dB
+        volume = (float)(volume / 1.258925412);
     }
     m_VolumeTable[15] = 0;
 
@@ -76,19 +77,12 @@ cSdlTMS9919::cSdlTMS9919()
 
     // Set the audio format
     wanted.freq     = 44100;
-    wanted.format   = AUDIO_S16;
+    wanted.format   = SDL_AUDIO_S16;
     wanted.channels = 1;
-    wanted.samples  = DEFAULT_SAMPLES;
-    wanted.callback = _AudioCallback;
-    wanted.userdata = this;
 
     memcpy(&m_AudioSpec, &wanted, sizeof(SDL_AudioSpec));
 
     m_Initialized = true;
-    m_MixBuffer   = new Uint8[m_AudioSpec.samples];
-    memset(m_MixBuffer, 0, sizeof(Uint8) * m_AudioSpec.samples);
-    //        SDL_PauseAudio ( false );
-    // }
 
     //    Mix_HookMusic(_AudioCallback, this);
     NOISE_COLOR_E color = m_NoiseColor;
@@ -119,12 +113,7 @@ void cSdlTMS9919::_AudioCallback(void *data, Uint8 *stream, int length)
 
 void cSdlTMS9919::AudioCallback(Uint8 *stream, int length)
 {
-    //    FUNCTION_ENTRY ( this, "cSdlTMS9919::AudioCallback", false );
-
-    //	int volume = ( m_MasterVolume * AUDIO_MAX_VOLUME ) / 100;
-
-    // bool mix = false;
-    memset(stream, m_AudioSpec.silence, length);
+    memset(stream, SDL_GetSilenceValueForFormat(sound::FORMAT), length);
 
     for (int i = 0; i < 4; i++) {
         // set info to this voice's information

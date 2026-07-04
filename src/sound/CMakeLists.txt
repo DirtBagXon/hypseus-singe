@@ -28,4 +28,4 @@ set( LIB_HEADERS
 )
 
 add_library( sound ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( sound plog )
+target_link_libraries( sound PRIVATE plog sdl3_deps )

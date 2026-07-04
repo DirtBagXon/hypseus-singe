@@ -27,7 +27,7 @@
 // m80_internal.h
 // NOTE : This should not be #included by any other file than m80.cpp
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 // SDL.h is used to determine endianness and define some variable types
 // No actual SDL functions are used, so you can redefine your own variables
 // if you choose.

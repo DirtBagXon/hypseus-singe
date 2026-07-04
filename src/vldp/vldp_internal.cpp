@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 //#include <unistd.h>
 //#include "inttypesreplace.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "vldp_internal.h"
 #include "vldp_common.h"

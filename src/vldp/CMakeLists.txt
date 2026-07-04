@@ -18,4 +18,4 @@ endif( VLDP_DEBUG )
 include_directories( ${MPEG2_INCLUDE_DIRS} )
 
 add_library( vldp ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( vldp plog ${MPEG2_LIBRARIES} )
+target_link_libraries( vldp PRIVATE plog ${MPEG2_LIBRARIES} sdl3_deps )

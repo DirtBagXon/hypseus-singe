@@ -19,7 +19,6 @@ Refer also to **CmdLine arguments** [here](CmdLine.md)
 | -bezelflip                         | Reverse the priority bezels are rendered to screen    |
 |                                    |                                                       |
 | -scorebezel                        | Built-in bezel: ace/lair/tq scoreboard                |
-| -scorebezel_alpha _\<1-2\>_        | Built-in bezel: alpha transparency levels             |
 | -scorebezel_position _\<x\> \<y\>_ | Adjust position of software Scorepanel                |
 | -scorebezel_scale _\<1-25\>_       | Software Scorepanel scale option                      |
 |                                    |                                                       |
@@ -28,7 +27,6 @@ Refer also to **CmdLine arguments** [here](CmdLine.md)
 | -dedannunbezel                     | Built-in bezel: ace annunciator _[Dedicated]_         |
 | -tqkeys                            | Built-in bezel: Interactive tq keyboard displayed     |
 |                                    |                                                       |
-| -auxbezel_alpha _\<1-2\>_          | Built-in bezel: alpha transparency levels             |
 | -auxbezel_position _\<x\> \<y\>_   | Built-in bezel: position options                      |
 | -auxbezel_scale _\<1-25\>_         | Built-in bezel: scale option                          |
 

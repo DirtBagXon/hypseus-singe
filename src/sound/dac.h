@@ -23,7 +23,7 @@
 #ifndef DAC_H
 #define DAC_H
 
-#include <SDL.h> // for data-type defs
+#include <SDL3/SDL.h> // for data-type defs
 
 namespace dac
 {

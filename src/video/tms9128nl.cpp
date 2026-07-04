@@ -28,11 +28,11 @@
 #include "../game/game.h"
 #include "../io/conout.h"
 #include "../ldp-out/ldp.h" // to check to see if blitting is allowed
-#include "SDL_FontCache.h"
 #include "palette.h"
 #include "tms9128nl.h"
 #include "video.h"
-#include <SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3/SDL.h>
 #include <plog/Log.h>
 #include <stdio.h>
 #include <string.h>
@@ -809,9 +809,13 @@ void tms9128nl_outcommand(char *s, int col, int row)
 
     // VLDP freaks out if it's not the only thing drawing to the screen
     if (!g_ldp->is_vldp()) {
-        // vid_blank();
-        FC_Draw(video::get_font(), video::get_renderer(), dest.x, dest.y, s);
-        // TODO : get this working again under the new video scheme
+
+        float x = dest.x;
+        float y = dest.y;
+
+        TTF_Text *text = TTF_CreateText(video::get_font_engine(), video::get_font(), s, strlen(s));
+        TTF_DrawRendererText(text, x, y);
+        TTF_DestroyText(text);
     }
 }
 

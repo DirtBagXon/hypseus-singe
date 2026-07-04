@@ -4,7 +4,7 @@
 #define _6809INFC_H
 
 #include "mc6809.h"
-#include <SDL.h>	// for the Uint definitions
+#include <SDL3/SDL.h>	// for the Uint definitions
 
 void m6809_set_memory(Uint8 *);
 void initialize_m6809(void);

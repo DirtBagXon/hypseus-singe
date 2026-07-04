@@ -27,10 +27,10 @@
 #include <sys/types.h>
 #include <string.h>
 #include <string>
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #ifdef MAC_OSX
 #include <mach/host_info.h>
@@ -392,58 +392,54 @@ char *get_os_description()
 
 char *get_sdl_compile()
 {
-    static char result[NET_LONGSTRSIZE] = {0};
-
-    SDL_version compiled;
-    SDL_version imgCompiled;
-    SDL_version ttfCompiled;
-    SDL_version mixCompiled;
-
-    SDL_VERSION(&compiled);
-    SDL_IMAGE_VERSION(&imgCompiled);
-    SDL_TTF_VERSION(&ttfCompiled);
-    SDL_MIXER_VERSION(&mixCompiled);
+    static char result[256] = {0};
 
     snprintf(result, sizeof(result),
-         "(CC) SDL: %d.%d.%d, "
-         "IMG: %d.%d.%d, "
-         "TTF: %d.%d.%d, "
-         "MIX: %d.%d.%d",
-         compiled.major, compiled.minor, compiled.patch,
-         imgCompiled.major, imgCompiled.minor, imgCompiled.patch,
-         ttfCompiled.major, ttfCompiled.minor, ttfCompiled.patch,
-         mixCompiled.major, mixCompiled.minor, mixCompiled.patch);
+         "(CC) SDL: %d.%d.%d, IMG: %d.%d.%d, TTF: %d.%d.%d, MIX: %d.%d.%d",
+         SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_MICRO_VERSION,
+         SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_MICRO_VERSION,
+         SDL_TTF_MAJOR_VERSION, SDL_TTF_MINOR_VERSION, SDL_TTF_MICRO_VERSION,
+         SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_MICRO_VERSION);
 
     return result;
 }
 
 char *get_sdl_linked()
 {
-    static char result[NET_LONGSTRSIZE] = {0};
+    static char result[256] = {0};
 
-    SDL_version linked;
-
-    SDL_GetVersion(&linked);
-    const SDL_version* imgLinked = IMG_Linked_Version();
-    const SDL_version* ttfLinked = TTF_Linked_Version();
-    const SDL_version* mixLinked = Mix_Linked_Version();
+    int sdl = SDL_GetVersion(); // packed int in SDL3
+    int img = IMG_Version();
+    int ttf = TTF_Version();
+    int mix = MIX_Version();
 
     snprintf(result, sizeof(result),
          "(LD) SDL: %d.%d.%d, "
          "IMG: %d.%d.%d, "
          "TTF: %d.%d.%d, "
          "MIX: %d.%d.%d",
-         linked.major, linked.minor, linked.patch,
-         imgLinked->major, imgLinked->minor, imgLinked->patch,
-         ttfLinked->major, ttfLinked->minor, ttfLinked->patch,
-         mixLinked->major, mixLinked->minor, mixLinked->patch);
+         SDL_VERSIONNUM_MAJOR(sdl),
+         SDL_VERSIONNUM_MINOR(sdl),
+         SDL_VERSIONNUM_MICRO(sdl),
+
+         SDL_VERSIONNUM_MAJOR(img),
+         SDL_VERSIONNUM_MINOR(img),
+         SDL_VERSIONNUM_MICRO(img),
+
+         SDL_VERSIONNUM_MAJOR(ttf),
+         SDL_VERSIONNUM_MINOR(ttf),
+         SDL_VERSIONNUM_MICRO(ttf),
+
+         SDL_VERSIONNUM_MAJOR(mix),
+         SDL_VERSIONNUM_MINOR(mix),
+         SDL_VERSIONNUM_MICRO(mix));
 
     return result;
 }
 
 char *get_build_time()
 {
-   static char result[NET_LONGSTRSIZE] = {0};
+   static char result[256] = {0};
    static const char *built = __DATE__ " " __TIME__;
 
    snprintf(result, sizeof(result), "Compiled: %s", built);

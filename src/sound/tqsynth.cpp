@@ -2361,7 +2361,7 @@ struct this_type_doesnt_matter {
     //    SDL_AudioCVT cvt;
     int channel;
     bool bConverting;
-} au_spec = {{0}};
+} au_spec = {};
 
 // Initialize startup parameters for synthesizer and audio.
 void init(int freq, Uint16 format, int channels, long base_F0)
@@ -2381,7 +2381,7 @@ void init(int freq, Uint16 format, int channels, long base_F0)
 
     au_spec.channel       = -1;
     au_spec.real.freq     = freq;
-    au_spec.real.format   = format;
+    au_spec.real.format   = (SDL_AudioFormat)format;
     au_spec.real.channels = (Uint8)channels;
     au_spec.bConverting   = false;
 
@@ -2404,27 +2404,24 @@ bool audio_get_chunk(int num_samples, short *samples, sound::sample_s *ptrSample
 
     // if we need to do an audio conversion ...
     if (au_spec.bConverting) {
-        SDL_AudioCVT cvt;
 
-        // Need to do the wave conversion thing. The flite wave format
-        // is always (as I understand it) 16-bit signed mono.
-        if (1 == SDL_BuildAudioCVT(&cvt, AUDIO_S16, 1, klatt_global.samrate,
-                                   au_spec.real.format, au_spec.real.channels,
-                                   au_spec.real.freq)) {
-            cvt.buf = (Uint8 *)MPO_MALLOC(num_bytes * cvt.len_mult);
-            cvt.len = num_bytes;
-            memcpy(cvt.buf, (Uint8 *)samples, num_bytes);
+        const SDL_AudioSpec src_spec = {SDL_AUDIO_S16, 1,
+                                       static_cast<int>(klatt_global.samrate)};
+        const SDL_AudioSpec dst_spec = {au_spec.real.format, au_spec.real.channels,
+                                        au_spec.real.freq};
 
-            // if conversion succeeds
-            if (0 == SDL_ConvertAudio(&cvt)) {
-                ptrSample->pu8Buf  = cvt.buf;
-                ptrSample->uLength = cvt.len_cvt;
-                bResult            = true;
-            } else {
-                LOGE << "SDL_ConvertAudio failed";
-                MPO_FREE(cvt.buf);
-            }
+        Uint8 *dst_data = nullptr;
+        int dst_len = 0;
+
+        if (SDL_ConvertAudioSamples(&src_spec, reinterpret_cast<const Uint8 *>(samples),
+                                    num_bytes, &dst_spec, &dst_data, &dst_len))
+        {
+            ptrSample->pu8Buf  = dst_data;
+            ptrSample->uLength = dst_len;
+            bResult = true;
         }
+        else LOGE << "SDL_ConvertAudioSamples failed: " << SDL_GetError();
+
     } else {
         ptrSample->pu8Buf = (Uint8 *)MPO_MALLOC(num_bytes);
 

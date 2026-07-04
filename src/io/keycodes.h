@@ -25,8 +25,8 @@
 
 #define AXIS_TRIGGER 0x2710
 
-int sdl2_keycode(const char *str);
-int sdl2_controller_button(const char *str);
-int sdl2_controller_axis(const char *str);
+int sdl3_keycode(const char *str);
+int sdl3_controller_button(const char *str);
+int sdl3_controller_axis(const char *str);
 
 #endif

@@ -22,4 +22,4 @@ find_package(Ogg REQUIRED)
 include_directories( ${Vorbis_File_INCLUDE_DIR} ${OGG_INCLUDE_DIRS})
 
 add_library( ldp-out ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( ldp-out vldp game ${VORBISFILE_LIBRARIES} ${SDL2_LIBRARY} )
+target_link_libraries( ldp-out PRIVATE vldp game plog ${VORBISFILE_LIBRARIES} sdl3_deps )

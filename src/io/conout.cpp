@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <plog/Log.h>
 #include "conout.h"
 #include "../hypseus.h"

@@ -65,7 +65,7 @@ astron::astron()
     m_disc_fps       = 29.97;
     m_game_type      = GAME_ASTRON;
 
-    m_video_row_offset = -16; // shift video up by 32 pixels (16 rows)
+    m_video_row_offset = 16; // shift video up by 32 pixels (16 rows)
 
     m_video_overlay_width  = ASTRON_OVERLAY_W;
     m_video_overlay_height = ASTRON_OVERLAY_H;
@@ -313,7 +313,7 @@ cobraab::cobraab()
     m_shortgamename = "cobraab";
     //banks[3]        = 0xfb;
 
-    m_video_row_offset = -8; // shift video up by 16 pixels (8 rows)
+    m_video_row_offset = 8; // shift video up by 16 pixels (8 rows)
 
     const static struct rom_def cobraab_roms[] = {
 
@@ -750,7 +750,7 @@ void cobraab::repaint()
 // updates astron's video
 void astron::repaint()
 {
-    SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
 
     // The sprites are bottom priority so we draw them first
     // START modified Mame code

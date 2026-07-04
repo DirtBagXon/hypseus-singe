@@ -152,7 +152,7 @@ interstellar::interstellar()
     m_video_overlay_width  = INTERSTELLAR_OVERLAY_W;
     m_video_overlay_height = INTERSTELLAR_OVERLAY_H;
     m_palette_color_count  = INTERSTELLAR_COLOR_COUNT;
-    m_video_row_offset     = -16; // 32 pixels, 16 rows
+    m_video_row_offset     = 16; // 32 pixels, 16 rows
 
     // 0 is the transparent value by default, so we need set up nothing
 
@@ -592,7 +592,7 @@ void interstellar::palette_calculate()
 void interstellar::repaint()
 {
     // clear the video before drawing
-    SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, 0);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0);
 
     // draw the sprites
     for (int sprite = 0x200 - 4; sprite >= 0x000; sprite -= 4) {

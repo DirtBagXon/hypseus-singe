@@ -13,3 +13,4 @@ set( LIB_HEADERS
 )
 
 add_library( cpu_x86 ${LIB_SOURCES} ${LIB_HEADERS} )
+target_link_libraries( cpu_x86 PRIVATE sdl3_deps )

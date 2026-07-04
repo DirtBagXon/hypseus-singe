@@ -29,7 +29,7 @@
 #include "config.h"
 
 //#include <stdlib.h>
-#include "SDL.h"
+#include <SDL3/SDL.h>
 //#include "common.hpp"
 #include "tms9919.hpp"
 

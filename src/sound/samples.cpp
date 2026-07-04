@@ -178,8 +178,6 @@ int play(Uint8 *pu8Buf, unsigned int uLength,
 
     // range check
     if ((uChannels == 1) || (uChannels == 2)) {
-        // about to access shared variables
-        SDL_LockAudio();
 
         // if we should automatically find a free slot
         if (iSlot < 0) {
@@ -235,8 +233,6 @@ int play(Uint8 *pu8Buf, unsigned int uLength,
         }
         // else there's an error so do nothing ...
 
-        SDL_UnlockAudio();
-
     } // end if channels are ok
     // else channels are out of range
 
@@ -247,10 +243,7 @@ bool is_playing(unsigned int uSlot)
 {
     bool bResult = false;
     if (uSlot < MAX_DYNAMIC_SAMPLES) {
-        // about to access shared variables
-        SDL_LockAudio();
         bResult = g_SampleStates[uSlot].bActive;
-        SDL_UnlockAudio();
     } else {
         LOGE << "was called with an out-of-range parameter";
     }
@@ -261,10 +254,7 @@ bool set_state(unsigned int uSlot, bool thisState)
 {
     bool bResult = false;
     if (uSlot < MAX_DYNAMIC_SAMPLES) {
-        // about to access shared variables
-        SDL_LockAudio();
         g_SampleStates[uSlot].bActive = thisState;
-        SDL_UnlockAudio();
         bResult = true;
     } else {
         LOGE << "was called with an out-of-range parameter";
@@ -276,10 +266,7 @@ bool end_early(unsigned int uSlot)
 {
     bool bResult = false;
     if (uSlot < MAX_DYNAMIC_SAMPLES) {
-        // about to access shared variables
-        SDL_LockAudio();
         g_SampleStates[uSlot].bEndEarly = true;
-        SDL_UnlockAudio();
         bResult = true;
     } else {
         LOGE << "was called with an out-of-range parameter";
@@ -293,18 +280,13 @@ void flush_queue()
     {
          data_s *data = &g_SampleStates[uSlot];
          if (data->bActive) {
-             SDL_LockAudio();
              g_SampleStates[uSlot].bEndEarly = true;
-             SDL_UnlockAudio();
          }
     }
 }
 
 void do_queued_callbacks()
 {
-    // about to access shared variables
-    SDL_LockAudio();
-
     // do all the callbacks that are queued up
     while (!g_qCallbacks.empty()) {
         callback_s cb = g_qCallbacks.front();
@@ -315,7 +297,5 @@ void do_queued_callbacks()
         // remove this item from the queue
         g_qCallbacks.pop();
     }
-
-    SDL_UnlockAudio();
 }
 }

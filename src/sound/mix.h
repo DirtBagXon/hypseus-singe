@@ -29,7 +29,7 @@
 #include "config.h"
 #endif
 
-#include <SDL.h> // for datatype defs
+#include <SDL3/SDL.h> // for datatype defs
 
 // IMPORTANT: the MMX code depends on this structure beginning as it is
 // displayed here!

@@ -59,7 +59,7 @@ struct singe_in_info g_SingeIn;
 const int singe::i_full_keybd_defs[] = {
     SDLK_BACKSPACE,    SDLK_TAB,
     SDLK_RETURN,       SDLK_PAUSE,
-    SDLK_SPACE,        SDLK_QUOTE,
+    SDLK_SPACE,        SDLK_APOSTROPHE,
     SDLK_COMMA,        SDLK_SEMICOLON,
     SDLK_EQUALS,       SDLK_LEFTBRACKET,
     SDLK_RIGHTBRACKET, SDLK_BACKSLASH,
@@ -491,12 +491,12 @@ bool singe::handle_cmdline_arg(const char *arg)
         m_crosshair = false;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-sinden") == 0) {
+    else if (strcasecmp(arg, "-outline") == 0) {
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
         if ((i > 0) && (i < 11)) {
-           g_game->set_sinden_border(i<<2);
+           g_game->set_outline_border(i<<2);
            g_game->set_manymouse(true);
            bResult = true;
         } else {
@@ -510,7 +510,7 @@ bool singe::handle_cmdline_arg(const char *arg)
            printerror("SINGE: invalid border color: w, r, g, b or x");
            bResult = false;
         } else {
-           g_game->set_sinden_border_color(j);
+           g_game->set_outline_border_color(j);
         }
     }
     else if (strcasecmp(arg, "-xratio") == 0) {
@@ -850,14 +850,14 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
     if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
     { // traverse the keydef array for mapped keys.
         for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-            if ((key == keydefs[move][0]) || (key == keydefs[move][1])) {
+            if (((int)key == keydefs[move][0]) || ((int)key == keydefs[move][1])) {
                 if (move != SWITCH_PAUSE) input_enable(move, NOMOUSE);
             }
         }
 
     } else { // Using full keyboard access....
 
-        if (key >= SDLK_a && key <= SDLK_z) input_enable(key, NOMOUSE);
+        if (key >= SDLK_A && key <= SDLK_Z) input_enable(key, NOMOUSE);
         // check to see if key is a number on the top row of the keyboard (not
         // keypad)
         else if (key >= SDLK_MINUS && key <= SDLK_9)
@@ -884,7 +884,7 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
             */
 
             for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
-                if (key == i_full_keybd_defs[k]) {
+                if ((int)key == i_full_keybd_defs[k]) {
                     input_enable(key, NOMOUSE);
                     break;
                 } // end if
@@ -923,16 +923,16 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     { // traverse the keydef array for mapped keys.
 
         // Handle pause and quit keypresses first.
-        if (key == keydefs[SWITCH_PAUSE][0] || key == keydefs[SWITCH_PAUSE][1]) {
+        if ((int)key == keydefs[SWITCH_PAUSE][0] || (int)key == keydefs[SWITCH_PAUSE][1]) {
             toggle_game_pause();
             input_disable(SWITCH_PAUSE, NOMOUSE);
 
-        } else if (key == keydefs[i_keyboard_quit][0] ||
-                       key == keydefs[i_keyboard_quit][1]) {
+        } else if ((int)key == keydefs[i_keyboard_quit][0] ||
+                       (int)key == keydefs[i_keyboard_quit][1]) {
 
             if (m_running) set_quitflag();
 
-        } else if (key == keydefs[SWITCH_SCREENSHOT][0]) {
+        } else if ((int)key == keydefs[SWITCH_SCREENSHOT][0]) {
 
             printline("Screenshot requested!");
             video::set_queue_screenshot(true);
@@ -940,7 +940,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
         } else {
 
             for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-                if ((key == keydefs[move][0]) || (key == keydefs[move][1])) {
+                if (((int)key == keydefs[move][0]) || ((int)key == keydefs[move][1])) {
                     if (move != SWITCH_PAUSE) input_disable(move, NOMOUSE);
                 }
 
@@ -951,11 +951,11 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     } else { // Using full keyboard access....
 
         // Hardwire ESCAPE (or END) key to quit
-        if (key == i_keyboard_escape) {
+        if ((int)key == i_keyboard_escape) {
             if (m_running) set_quitflag();
         }
         // letter keys
-        else if (key >= SDLK_a && key <= SDLK_z)
+        else if (key >= SDLK_A && key <= SDLK_Z)
             input_disable(key, NOMOUSE);
         // check to see if key is a number on the top row of the keyboard
         // (not keypad)
@@ -982,7 +982,7 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
             */
 
             for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
-                if (key == i_full_keybd_defs[k]) {
+                if ((int)key == i_full_keybd_defs[k]) {
                     input_disable(key, NOMOUSE);
                     break;
                 } // end if

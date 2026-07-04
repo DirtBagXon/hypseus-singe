@@ -23,7 +23,7 @@
 #ifndef GISOUND_H
 #define GISOUND_H
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace gisound
 {

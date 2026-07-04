@@ -23,7 +23,7 @@
 #ifndef TMS9128NL_H
 #define TMS9128NL_H
 
-#include <SDL.h> // to declare SDL_Color
+#include <SDL3/SDL.h> // to declare SDL_Color
 
 #define TMS9128NL_OVERLAY_W 320 /* width of overlay */
 #define TMS9128NL_OVERLAY_H 240 /* height of the overlay */

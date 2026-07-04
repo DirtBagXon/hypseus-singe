@@ -25,7 +25,7 @@
 
 // header file for timestuff.c
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #define GET_TICKS SDL_GetTicks
 #define MAKE_DELAY SDL_Delay

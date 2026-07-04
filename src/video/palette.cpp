@@ -152,8 +152,8 @@ void finalize()
 
             // if we have a video overlay to set the colors no ...
             if (video_overlay) {
-                SDL_SetPaletteColors(video_overlay->format->palette,
-                                     g_rgb, 0, g_size);
+                SDL_Palette *palette = SDL_GetSurfacePalette(video_overlay);
+                SDL_SetPaletteColors(palette, g_rgb, 0, g_size);
             } else {
                 break;
             }

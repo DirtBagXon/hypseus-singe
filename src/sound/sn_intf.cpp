@@ -28,7 +28,7 @@
 #include <assert.h>
 #endif
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "../io/conout.h"
 #include "sound.h"
 #include "tms9919-sdl.hpp"

@@ -10,7 +10,7 @@ This version includes _Singe LUA_ support for Fan Made [American Laser Games][AL
 
 Features:
 
-* SDL2 upgrade
+* SDL3 upgrade
 * VLDP 32bit upgrade
 * Updated MPEG2 decoder
 * Integrated _(active)_ [bezel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/bezel.png) support
@@ -28,7 +28,7 @@ Features:
 
 ## Compile
 
-Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL2],
+Minimum software requirements: [gcc], [cmake], [autotools], [zlib], [SDL3],
 [libtool], [libzip], [vorbis] and [ogg].
 
 ### MacOS X
@@ -39,22 +39,14 @@ Use homebrew to install the following packages:
     brew install autoconf
     brew install automake
     brew install pkg-config
-    brew install sdl2
-    brew install sdl2_ttf
-    brew install sdl2_image
-    brew install sdl2_mixer
+    brew install sdl3
+    brew install sdl3_ttf
+    brew install sdl3_image
+    brew install sdl3_mixer
     brew install libtool
     brew install libvorbis
     brew install libogg
     brew install libzip
-
-### Raspberry Pi
-
-For **Raspberry Pi** clone the ``RetroPie`` branch via:
-
-    git clone --single-branch --branch RetroPie https://github.com/DirtBagXon/hypseus-singe.git
-
-For **RetroPie** and other `arm` based distributions, further information can be found [here](doc/RETROPIE.md)
 
 ### Compilation with CMake
 
@@ -102,11 +94,9 @@ Although this is now discouraged in favor of the _Zipped LUA_ (`zlua`) packages.
 
 Configuration of button keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
 
-By default SDL2 Keycodes and the Joystick API configuration options will be used.
+By SDL3 Keycodes and Joystick API configuration used.
 
 Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
-
-Refer to [keylist.txt](doc/keylist.txt) for **SDL2** keycode values.
 
 SDL GameController API configuration can now be enabled for supported controllers.
 
@@ -173,7 +163,7 @@ Singe supports Sinden and many other lightguns with the `-manymouse` argument.
 
 This argument enables *absolute* (``EV_ABS``) mouse input event codes.
 
-**Note:** `-sinden` automatically enables `-manymouse`
+**Note:** `-outline` automatically enables `-manymouse`
 
 ## Singe joystick [mouse] support
 
@@ -248,11 +238,11 @@ Laserdisc Emulator.  __Any direct or indirect commercial use of the mark
 [libzip]: https://libzip.org/
 [libzippp]: https://github.com/ctabin/libzippp
 [libmpeg2]: http://libmpeg2.sourceforge.net/
-[SDL2]: https://www.libsdl.org/download-2.0.php
-[SDL2_image]: https://www.libsdl.org/projects/SDL_image/
-[SDL2_mixer]: https://www.libsdl.org/projects/SDL_mixer/
-[SDL2_ttf]: https://www.libsdl.org/projects/SDL_ttf/
-[SDL2_gfx]: https://sourceforge.net/projects/sdl2gfx/
+[SDL3]: https://github.com/libsdl-org/SDL/releases
+[SDL3_image]: https://github.com/libsdl-org/SDL_image/releases
+[SDL3_mixer]: https://github.com/libsdl-org/SDL_mixer/releases
+[SDL3_ttf]: https://github.com/libsdl-org/SDL_ttf/releases
+[SDL3_gfx]: https://github.com/sabdul-khabir/SDL3_gfx
 [ManyMouse]: https://github.com/icculus/manymouse
 [serialib]: https://github.com/imabot2/serialib
 [plog]: https://github.com/SergiusTheBest/plog

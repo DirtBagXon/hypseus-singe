@@ -44,8 +44,9 @@
 #define YUV_FLAG_GRAYSCALE 0x02
 #define YUV_FLAG_LUMA      0x04
 
-#include "SDL_FontCache.h"
-#include <SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -121,19 +122,20 @@ void draw_string(const char *, int, int, SDL_Surface *, SDL_Color, bool);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
 void free_bmps();
+SDL_Window *get_window();
 SDL_Renderer *get_renderer();
 SDL_Texture *get_overlay_texture();
 SDL_Surface *get_screen_leds();
 SDL_Rect get_aux_rect();
 SDL_Rect get_scoreboard_rect();
-FC_Font *get_font();
+TTF_Font *get_font();
+TTF_TextEngine *get_font_engine();
 bool use_legacy_font();
 bool get_opengl();
 bool get_vulkan();
 bool get_fullscreen();
 void set_teardown();
 bool get_aux_bezel();
-bool get_fullwindow();
 bool get_singe_blend_sprite();
 bool get_video_resized();
 void set_opengl(bool value);
@@ -142,8 +144,9 @@ void set_luma(bool, uint8_t);
 void set_grayscale(bool value);
 void set_blendfilter(bool value);
 void set_forcetop(bool value);
-int get_textureaccess();
-void set_textureaccess(int value);
+void set_software_render(bool value);
+SDL_TextureAccess get_textureaccess();
+void set_textureaccess(SDL_TextureAccess value);
 void set_grabmouse(bool value);
 void toggle_grabmouse();
 void set_vsync(bool value);
@@ -151,7 +154,6 @@ void set_intro(bool value);
 void set_logo(bool value);
 void set_yuv_blue(bool value);
 void set_fullscreen(bool value);
-void set_fakefullscreen(bool value);
 void set_scale_linear(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_ignore_aspect_ratio(bool bEnabled);
@@ -194,21 +196,19 @@ void set_aspect_change(int aspectWidth, int aspectHeight);
 void set_scoreboard_window_position(int, int);
 void set_aux_bezel_position(int, int);
 void set_scoreboard_bezel(bool bEnabled);
-void set_scoreboard_bezel_alpha(int8_t value);
 void set_scoreboard_bezel_scale(int value);
 void set_aux_bezel_scale(int value);
 void set_tq_keyboard(bool bEnabled);
 void set_annun_lamponly(bool bEnabled);
 void set_aux_bezel(bool bEnabled);
 void set_ded_annun_bezel(bool bEnabled);
-void set_aux_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
 void set_display_screen(int value);
 void set_scoreboard_screen(int value);
 void set_fRotateDegrees(float fDegrees, bool);
 void set_yuv_scale(int value, uint8_t axis);
-void set_yuv_rect(int, int, int, int);
+void set_yuv_rect(float, float, float, float);
 void reset_yuv_rect();
 
 void set_legacy_overlay(bool);
@@ -225,14 +225,17 @@ unsigned int get_logical_width();
 unsigned int get_logical_height();
 float get_fRotateDegrees();
 
+std::vector<SDL_Rect> get_displays();
+
 void reset_shiftvalue(int, bool, uint8_t);
 int get_scale_h_shift();
 int get_scale_v_shift();
+int get_display_no();
 
 int get_scoreboard_bezel_scale();
 int get_aux_bezel_scale();
 
-void set_overlay_offset(int offset);
+void set_overlay_offset(int, int);
 int get_yuv_overlay_width();
 int get_yuv_overlay_height();
 void reset_yuv_overlay();

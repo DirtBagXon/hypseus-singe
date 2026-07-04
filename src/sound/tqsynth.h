@@ -31,7 +31,7 @@
  */
 
 #include "sound.h" // for sample_s definition
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace tqsynth
 {

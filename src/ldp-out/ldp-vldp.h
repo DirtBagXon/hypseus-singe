@@ -24,7 +24,7 @@
 #define LDP_VLDP_H
 
 #include "../vldp/vldp.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <list>
 #include <map>
 #include <string>

@@ -41,4 +41,4 @@ endif( DEFUNC )
 add_subdirectory( x86 )
 
 add_library( cpu ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( cpu cpu_x86 ldp-in game )
+target_link_libraries( cpu PRIVATE cpu_x86 ldp-in game sdl3_deps )

@@ -25,6 +25,8 @@
 #ifndef INPUT_H
 #define INPUT_H
 
+#include <SDL3/SDL.h>
+
 enum {
     SWITCH_UP,
     SWITCH_LEFT,
@@ -55,9 +57,12 @@ enum {
 }; // hypseus inputs for arcade and additional controls, leave SWITCH_COUNT at
    // the end of key_defs
 
-///////////////////////
+typedef enum {
+    GAMEPAD = 0,
+    JOYSTICK = 1
+}input_device_t;
 
-#include <SDL.h>
+///////////////////////
 
 // to be passed into the coin queue
 struct coin_input {

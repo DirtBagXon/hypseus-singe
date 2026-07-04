@@ -21,18 +21,20 @@
  */
 
 #include <algorithm>
+#include <vector>
 #include "splash.h"
 #include "video.h"
 #include "../hypseus.h"
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 
 void splash(bool eon) {
 
     Uint8 alpha = 0;
     SDL_Event event{};
-    SDL_Rect logical{};
+    SDL_Rect workspace;
+    SDL_FRect logical{};
     bool running = true;
     float move_t = 0.0f;
     Uint8 last_alpha = 0xFF;
@@ -40,73 +42,91 @@ void splash(bool eon) {
     Uint32 current_frame = 0;
     Uint32 start_time = SDL_GetTicks();
     Uint32 frame_switch = start_time;
+    TTF_Font *font = TTF_OpenFont("fonts/default.ttf", 16);
+
+    if (!font) return;
 
     int frames_indices[FRAMES]{};
-    SDL_RWops* ops = SDL_RWFromConstMem(ghc, sizeof(ghc));
-    SDL_Surface *splash_surface = IMG_Load_RW(ops, 1);
+    SDL_IOStream* ops = SDL_IOFromConstMem(ghc, sizeof(ghc));
+    SDL_Surface *splash_surface = IMG_Load_IO(ops, 1);
 
-    if (!splash_surface) return;
-
-    ops = SDL_RWFromConstMem(eon ? ghlq : ghlo, eon ? sizeof(ghlq) : sizeof(ghlo));
-    SDL_Surface *logo_surface = IMG_Load_RW(ops, 1);
-
-    if (!logo_surface){
-        SDL_FreeSurface(splash_surface);
-        splash_surface = NULL;
+    if (!splash_surface) {
+        TTF_CloseFont(font);
+        font = nullptr;
         return;
     }
 
-    Uint32 key = SDL_MapRGB(splash_surface->format, 0x0, 0x0, 0x0);
-    SDL_SetColorKey(splash_surface, SDL_TRUE, key);
+    ops = SDL_IOFromConstMem(eon ? ghlq : ghlo, eon ? sizeof(ghlq) : sizeof(ghlo));
+    SDL_Surface *logo_surface = IMG_Load_IO(ops, 1);
 
-    FC_Font* font = FC_CreateFont();
-    FC_Scale scale = FC_MakeScale(1.0f, 1.0f);
-    SDL_Color color = {0xE0, 0xE0, 0xE0, 0x64};
+    if (!logo_surface){
+        SDL_DestroySurface(splash_surface);
+        TTF_CloseFont(font);
+        splash_surface = NULL;
+        font = nullptr;
+        return;
+    }
+
+    const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(splash_surface->format);
+    Uint32 key = SDL_MapRGB(fmt, nullptr, 0x0, 0x0, 0x0);
+    SDL_SetSurfaceColorKey(splash_surface, true, key);
+
+    SDL_Window *window = video::get_window();
     SDL_Renderer *renderer = video::get_renderer();
-    FC_LoadFont(font, renderer, "fonts/default.ttf", 0x12, color, TTF_STYLE_NORMAL);
+    SDL_DisplayID winId = SDL_GetDisplayForWindow(video::get_window());
 
-    const bool fs = video::get_fullscreen() || video::get_fullwindow();
+    SDL_GetDisplayBounds(winId, &workspace);
+    int which = video::get_display_no();
 
-    logical.w = (fs) ? (int)video::get_logical_width() :
-                       (int)video::get_viewport_width();
-    logical.h = (fs) ? (int)video::get_logical_height() :
-                       (int)video::get_viewport_height();
+    SDL_RectToFRect(&workspace, &logical);
 
-    const int logo_w = (eon) ? 0x184 : 0x140;
-    const int logo_h = (eon) ? 0x017 : 0x016;
+    if (!video::get_fullscreen())
+        logical = SDL_FRect{ 0x0, 0x0, 640, 480 };
 
-    const int start_x = (logical.w - DSC) >> 1;
-    const int start_y = (logical.h - DSC) >> 1;
+    if (which != 0) {
+        std::vector<SDL_Rect> dimensions = video::get_displays();
+        SDL_SetWindowPosition(window, dimensions[which].x +
+                             ((dimensions[which].w - (int)logical.w) >> 1),
+                                dimensions[which].y + ((dimensions[which].h
+                                    - (int)logical.h) >> 1));
+        if (video::get_fullscreen()) SDL_RectToFRect(&dimensions[which], &logical);
+    }
+
+    const float logo_w = (eon) ? 0x184 : 0x140;
+    const float logo_h = (eon) ? 0x017 : 0x016;
+
+    const int start_x = (logical.w - DSC) / 2;
+    const int start_y = (logical.h - DSC) / 2;
     const char* v = get_hypseus_version();
 
-    SDL_Rect dscrect = {
-        (int)(((logical.w - DSC) >> 1) + (EMBW >> 1) - 0x10),
-        (int)((logical.h - EMBH) >> 1),
+    SDL_FRect dscrect = {
+        (float)(((logical.w - DSC) / 2) + (EMBW / 2) - 0x10),
+        (float)((logical.h - EMBH) / 2),
         DSC,
         DSC
     };
 
-    SDL_Rect animRect = dscrect;
+    SDL_FRect animRect = dscrect;
 
-    SDL_Rect embrect = {
-        (int)(((logical.w - EMBW) >> 1) - 0x14),
-        (int)((logical.h - EMBH) >> 1),
+    SDL_FRect embrect = {
+        (float)(((logical.w - EMBW) / 2) - 0x14),
+        (float)((logical.h - EMBH) / 2),
         EMBW,
         EMBH
     };
 
-    SDL_Rect frames[] = {
-        SDL_Rect{ 0x011, 0x00, EMBW, 0x54 },
-        SDL_Rect{ 0x154, 0x05, 0x4A, 0x50 },
-        SDL_Rect{ 0x19F, 0x05, 0x4A, 0x50 },
-        SDL_Rect{ 0x1EA, 0x05, 0x4A, 0x50 },
-        SDL_Rect{ 0x235, 0x05, 0x4A, 0x50 },
-        SDL_Rect{ 0x280, 0x05, 0x4A, 0x50 },
-        SDL_Rect{ 0x2CB, 0x05, 0x4A, 0x50 }
+    SDL_FRect frames[] = {
+        SDL_FRect{ 0x011, 0x00, EMBW, 0x54 },
+        SDL_FRect{ 0x154, 0x05, 0x4A, 0x50 },
+        SDL_FRect{ 0x19F, 0x05, 0x4A, 0x50 },
+        SDL_FRect{ 0x1EA, 0x05, 0x4A, 0x50 },
+        SDL_FRect{ 0x235, 0x05, 0x4A, 0x50 },
+        SDL_FRect{ 0x280, 0x05, 0x4A, 0x50 },
+        SDL_FRect{ 0x2CB, 0x05, 0x4A, 0x50 }
     };
 
-    SDL_Rect ld_rect = {
-        ((logical.w - logo_w) >> 1),
+    SDL_FRect ld_rect = {
+        ((logical.w - logo_w) / 2),
         (logical.h * 94) / 100,
         logo_w, logo_h
     };
@@ -114,38 +134,41 @@ void splash(bool eon) {
     for (int i = 0; i < FRAMES; i++) frames_indices[i] = (i % 6) + 1;
 
     SDL_Texture *splash_frames = SDL_CreateTextureFromSurface(renderer, splash_surface);
-    SDL_FreeSurface(splash_surface);
+    SDL_DestroySurface(splash_surface);
     splash_surface = NULL;
 
     if (!splash_frames) {
-        FC_FreeFont(font);
+        TTF_CloseFont(font);
+        font = nullptr;
         return;
     }
 
     SDL_Texture* logo_frame = SDL_CreateTextureFromSurface(renderer, logo_surface);
-    SDL_FreeSurface(logo_surface);
+    SDL_DestroySurface(logo_surface);
     logo_surface = NULL;
 
     if (!logo_frame) {
         SDL_DestroyTexture(splash_frames);
+        TTF_CloseFont(font);
         splash_frames = NULL;
-        FC_FreeFont(font);
+        font = nullptr;
         return;
     }
 
     for (SDL_Texture* tex : { splash_frames, logo_frame })
     {
         SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
-        SDL_SetTextureScaleMode(tex, SDL_ScaleModeLinear);
+        SDL_SetTextureScaleMode(tex, SDL_SCALEMODE_LINEAR);
     }
 
-    FC_SetFilterMode(font, FC_FILTER_LINEAR);
-    FC_Effect effect = FC_MakeEffect(FC_ALIGN_CENTER, scale, color);
+    int cw, ch;
+    TTF_GetStringSize(font, v, 0, &cw, &ch);
 
-    int cw = FC_GetWidth(font, "%c", 0x76);
-    int ch = FC_GetHeight(font, "%c", 0x76);
-    const int verposx = (logical.w >> 1) - cw;
-    const int verposy = (logical.h >> 1) + (ch * 1.75);
+    TTF_Text *vers = TTF_CreateText(video::get_font_engine(), font, v, strlen(v));
+    TTF_SetTextColor(vers, 0xE0, 0xE0, 0xE0, 0x64);
+
+    const int verposx = (logical.w / 2) - (cw / 2);
+    const int verposy = (logical.h / 2) + (ch * 1.75);
 
     while (running) {
 
@@ -157,8 +180,8 @@ void splash(bool eon) {
             break;
 
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN &&
-                event.key.keysym.sym == SDLK_ESCAPE) {
+            if (event.type == SDL_EVENT_KEY_DOWN &&
+                event.key.key == SDLK_ESCAPE) {
                 set_quitflag();
                 running = false;
             }
@@ -176,13 +199,13 @@ void splash(bool eon) {
         if (move_t < 1.0f)
             move_t = std::min((float)move_elapsed / (float)MDUR, 1.0f);
 
-        int target_x = start_x + (int)((dscrect.x - start_x) * move_t);
-        int target_y = start_y + (int)((dscrect.y - start_y) * move_t);
+        int target_x = start_x + (float)((dscrect.x - start_x) * move_t);
+        int target_y = start_y + (float)((dscrect.y - start_y) * move_t);
 
         float scale_t = 2.0f - move_t;
 
-        int scaled_w = (int)(DSC * scale_t);
-        int scaled_h = (int)(DSC * scale_t);
+        int scaled_w = (float)(DSC * scale_t);
+        int scaled_h = (float)(DSC * scale_t);
 
         animRect.w = scaled_w;
         animRect.h = scaled_h;
@@ -207,7 +230,7 @@ void splash(bool eon) {
             if (last_alpha != 0xFF)
                 SDL_SetTextureAlphaMod(splash_frames, 0xFF);
 
-            SDL_RenderCopy(renderer, splash_frames,
+            SDL_RenderTexture(renderer, splash_frames,
                       &frames[frames_indices[current_frame]], &animRect);
 
             if (alpha < 0xFF)
@@ -215,21 +238,21 @@ void splash(bool eon) {
 
             last_alpha = alpha;
 
-            SDL_RenderCopy(renderer, splash_frames, &frames[0], &embrect);
+            SDL_RenderTexture(renderer, splash_frames, &frames[0], &embrect);
         }
         else
         {
             if (last_alpha != alpha)
                 SDL_SetTextureAlphaMod(splash_frames, alpha);
 
-            SDL_RenderCopy(renderer, splash_frames, &frames[0], &embrect);
+            SDL_RenderTexture(renderer, splash_frames, &frames[0], &embrect);
 
             if (alpha < 0xFF)
                 SDL_SetTextureAlphaMod(splash_frames, 0xFF);
 
             last_alpha = 0xFF;
 
-            SDL_RenderCopy(renderer, splash_frames,
+            SDL_RenderTexture(renderer, splash_frames,
                        &frames[frames_indices[current_frame]], &animRect);
         }
 
@@ -238,18 +261,19 @@ void splash(bool eon) {
             if (alpha < 0xFF)
                 SDL_SetTextureAlphaMod(logo_frame, alpha);
 
-            SDL_RenderCopy(renderer, logo_frame, NULL, &ld_rect);
+            SDL_RenderTexture(renderer, logo_frame, NULL, &ld_rect);
         }
 
         if (elspd > 0xBB8)
-            FC_DrawEffect(font, renderer, verposx, verposy, effect, v);
+            TTF_DrawRendererText(vers, verposx, verposy);
 
         SDL_RenderPresent(renderer);
     }
 
-    FC_FreeFont(font);
     SDL_DestroyTexture(logo_frame);
     SDL_DestroyTexture(splash_frames);
+    TTF_CloseFont(font);
     splash_frames = NULL;
     logo_frame = NULL;
+    font = nullptr;
 }

@@ -62,7 +62,7 @@ bega::bega()
     m_game_type = GAME_BEGA;
     m_disc_fps  = 29.97;
 
-    m_video_row_offset     = -8; // move overlay up by 16 pixels (8 rows)
+    m_video_row_offset     = 8; // move overlay up by 16 pixels (8 rows)
     m_video_overlay_width  = BEGA_OVERLAY_W;
     m_video_overlay_height = BEGA_OVERLAY_H;
     m_palette_color_count  = BEGA_COLOR_COUNT;
@@ -589,7 +589,7 @@ void roadblaster::repaint()
 void bega::repaint()
 {
     // This is much faster!
-    SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL,
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL,
                  BEGA_TRANSPARENT_COLOR); // note:  using transparent color
 
     // now the sprites

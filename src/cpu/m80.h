@@ -24,7 +24,7 @@
 #define M80_H
 
 // for Uint32, Uint8, etc definitions
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 void m80_set_opcode_base(Uint8 *address);
 void m80_reset();

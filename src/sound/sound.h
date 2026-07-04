@@ -23,7 +23,7 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 // header file for sound.c
 
@@ -48,7 +48,7 @@ static const uint16_t MAX_VOLUME = 64;
 static const uint16_t MAX_VOL_POWER = 6;
 // SDL audio format (16-bit signed, little endian)
 // This is true even for big-endian platforms
-static const uint16_t FORMAT = AUDIO_S16LSB;
+static const SDL_AudioFormat FORMAT = SDL_AUDIO_S16;
 
 // how many audio bytes needed to fill 1 millisecond of space
 static const unsigned int G_1MS_BUF_SIZE = (FREQ * BYTES_PER_SAMPLE) / 1000;
@@ -184,7 +184,7 @@ void mixWithMaxVolume(Uint8 *stream, int length);
 // (this is the slowest callback, only use it if you must)
 void mixWithMults(Uint8 *stream, int length);
 
-void callback(void *, Uint8 *, int); // audio callback for SDLMixer
+void SDLCALL StreamAudio(void *, SDL_AudioStream *, int, int);
 void writedata(Uint8, Uint8);
 
 // for game driver to send commands to sound chip
@@ -232,6 +232,7 @@ int get_initialized();
 void set_mute(bool bMuted); // added by JFA for -startsilent
 void set_enabled_status(bool value);
 bool is_enabled();
+SDL_AudioSpec *getSpecDesired();
 
 // (re)calculates the right-shift value to be used to mix sounds (for fast
 // division)

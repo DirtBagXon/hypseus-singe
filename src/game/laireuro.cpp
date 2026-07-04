@@ -71,8 +71,6 @@ laireuro::laireuro()
     sound.type     = sound::CHIP_TONEGEN;
     g_soundchip_id = sound::add_chip(&sound);
 
-    m_video_row_offset = -28;
-
     m_video_overlay_width       = LAIREURO_OVERLAY_W;
     m_video_overlay_height      = LAIREURO_OVERLAY_H;
     m_uVideoOverlayVisibleLines = LAIREURO_OVERLAY_H; // since it's PAL, this

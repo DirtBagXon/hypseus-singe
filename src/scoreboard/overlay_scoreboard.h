@@ -2,7 +2,7 @@
 #define OVERLAY_SCOREBOARD_H
 
 #include "scoreboard_interface.h"
-#include <SDL.h>	// for SDL_Surface
+#include <SDL3/SDL.h>	// for SDL_Surface
 
 class OverlayScoreboard : public IScoreboard
 {

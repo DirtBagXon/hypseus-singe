@@ -23,7 +23,7 @@
 #ifndef CPU_H
 #define CPU_H
 
-#include <SDL.h>	// for Uint definitions
+#include <SDL3/SDL.h>	// for Uint definitions
 
 namespace cpu
 {

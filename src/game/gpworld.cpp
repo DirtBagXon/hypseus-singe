@@ -560,7 +560,7 @@ void gpworld::draw_shift(const char* w)
 void gpworld::repaint()
 {
     // This should be much faster
-    SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, m_transparent_color);
 
     // The sprites are bottom priority so we draw them first
     // START modified Mame code

@@ -59,8 +59,8 @@
 // Macros to lock and unlock the mutex for the audio to make sure we aren't
 // playing audio while
 // we are loading or seeking
-#define OGG_LOCK SDL_mutexP(g_ogg_mutex)
-#define OGG_UNLOCK SDL_mutexV(g_ogg_mutex)
+#define OGG_LOCK SDL_LockMutex(g_ogg_mutex)
+#define OGG_UNLOCK SDL_UnlockMutex(g_ogg_mutex)
 
 /////////////////////////////////////////
 
@@ -68,7 +68,7 @@ typedef void *(*audiocopyproc)(void *dest, const void *src, size_t bytes_to_copy
 audiocopyproc paudiocopy = memcpy; // pointer to the audio copy procedure
                                    // (defaults to memcpy)
 
-SDL_mutex *g_ogg_mutex   = NULL;
+SDL_Mutex *g_ogg_mutex   = NULL;
 mpo_io *g_pIOAudioHandle = NULL;
 OggVorbis_File s_ogg;
 

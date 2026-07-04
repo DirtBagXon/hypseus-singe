@@ -72,7 +72,6 @@ thayers::thayers() : m_pScoreboard(NULL)
     cpu::add(&cpu);
 
     m_irq_status = 0x3f;
-    video::set_scoreboard_bezel_alpha(1);
     ldv1000::enable_instant_seeking();
     m_use_speech = true; // Even though not truly emulated, speech synthesis is
                          // the default.
@@ -230,7 +229,7 @@ void thayers::no_speech()
 
 void thayers::shutdown()
 {
-    if (g_cursor) SDL_FreeCursor(g_cursor);
+    if (g_cursor) SDL_DestroyCursor(g_cursor);
 
     if (m_pScoreboard) {
         m_pScoreboard->PreDeleteInstance();
@@ -569,7 +568,7 @@ void thayers::process_keydown(SDL_Keycode key)
     // (there are no SDLK_A or SDLK_Z keys.  the keys are returned raw without
     // checking to see
     // if shift or caps lock is enabled)
-    if (key >= SDLK_a && key <= SDLK_z) {
+    if (key >= SDLK_A && key <= SDLK_Z) {
         cop_write_latch =
             static_cast<Uint8>(key - 0x20); // convert lowercase keys to
                                                   // uppercase
@@ -733,9 +732,9 @@ void thayers::input_enable(Uint8 input, Sint8 mouseID)
             return;
         }
 
-        g_cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+        g_cursor = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_POINTER);
         if (g_cursor) SDL_SetCursor(g_cursor);
-        SDL_ShowCursor(SDL_ENABLE);
+        SDL_ShowCursor();
 
         m_keyrect = video::get_aux_rect();
         setup = true;
@@ -904,7 +903,6 @@ void thayers::set_preset(int preset)
 {
     if (preset == 1) {
         m_show_timerboard = false; // Display full scoreboard
-        video::set_scoreboard_bezel_alpha(0);
     }
     if (preset == 2) m_show_startup = false; // Don't display the COIN UP
 }

@@ -59,7 +59,7 @@ cobraconv::cobraconv()
     m_video_overlay_width  = COBRACONV_OVERLAY_W;
     m_video_overlay_height = COBRACONV_OVERLAY_H;
     m_palette_color_count  = COBRACONV_COLOR_COUNT;
-    m_video_row_offset     = -8; // 16 pixels, 8 rows
+    m_video_row_offset     = 8; // 16 pixels, 8 rows
 
     memset(&cpu, 0, sizeof(struct cpu::def));
     cpu.type              = cpu::type::M6502;
@@ -403,7 +403,7 @@ void cobraconv::repaint()
     game::resize();
 
     // fast screen clear
-    SDL_FillRect(m_video_overlay[m_active_video_overlay], NULL, 0);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0);
 
     // draw sprites first(?)
     draw_sprites(0x2800, character2);

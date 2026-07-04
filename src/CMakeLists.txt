@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(PKG_VERSION "v2.12.1")
+set(PKG_VERSION "v3.0.0")
 
 project(hypseus)
 
@@ -35,6 +35,7 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
 endif()
 
 add_compile_options(-Wall)
+add_compile_definitions(SDL_DISABLE_OLD_NAMES)
 
 if (ASAN)
     add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
@@ -60,9 +61,6 @@ include(BuildLibMPEG2)
 
 set (CMAKE_CXX_STANDARD 11)
 
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
-PKG_SEARCH_MODULE(SDL2_TTF REQUIRED SDL2_ttf)
-PKG_SEARCH_MODULE(SDL2_MIXER REQUIRED SDL2_mixer)
 build_libmpeg2( )
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
@@ -90,7 +88,6 @@ message(STATUS "Version: ${VER_TAG}")
 
 include_directories(
     ${PROJECT_BINARY_DIR} # config.h
-    ${SDL2_INCLUDE_DIRS}
 )
 
 if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
@@ -101,6 +98,32 @@ endif()
 configure_file(
     "${PROJECT_SOURCE_DIR}/config.h.in"
     "${PROJECT_BINARY_DIR}/config.h"
+)
+
+find_package(SDL3 CONFIG REQUIRED)
+
+if( TARGET SDL3::SDL3-shared AND NOT TARGET SDL3::SDL3 )
+    add_library( SDL3::SDL3 ALIAS SDL3::SDL3-shared )
+endif()
+
+find_package(SDL3_ttf CONFIG REQUIRED)
+find_package(SDL3_image CONFIG REQUIRED)
+find_package(SDL3_mixer CONFIG REQUIRED)
+find_package(Vorbis REQUIRED)
+
+message(STATUS "SDL3 version: ${SDL3_VERSION}")
+message(STATUS "SDL3_ttf version: ${SDL3_ttf_VERSION}")
+message(STATUS "SDL3_image version: ${SDL3_image_VERSION}")
+message(STATUS "SDL3_mixer version: ${SDL3_mixer_VERSION}")
+message(STATUS "Vorbis version: ${Vorbis_VERSION}")
+
+add_library(sdl3_deps INTERFACE)
+target_link_libraries(sdl3_deps INTERFACE
+    SDL3::SDL3
+    SDL3::Headers
+    SDL3_ttf::SDL3_ttf
+    SDL3_image::SDL3_image
+    SDL3_mixer::SDL3_mixer
 )
 
 add_subdirectory(3rdparty)
@@ -122,18 +145,8 @@ add_dependencies( ldp-out vldp )
 add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_TTF REQUIRED)
-find_package(SDL2_IMAGE REQUIRED)
-find_package(SDL2_MIXER REQUIRED)
-find_package(Vorbis REQUIRED)
-
-if(APPLE)
-    set( SDL2_LIBRARIES ${SDL2_LIBRARY} )
-endif(APPLE)
-
 add_executable( hypseus hypseus.cpp globals.h )
-target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2_IMAGE_LIBRARY} ${LIBZIP_LIBRARY} )
+target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} SDL3::SDL3 SDL3::Headers SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer ${LIBZIP_LIBRARY} )
 
 if(ASAN)
     target_link_options(hypseus PRIVATE -fsanitize=address -fno-omit-frame-pointer -g)
@@ -142,7 +155,7 @@ endif()
 #[[
 set_source_files_properties( testvldp.cpp PROPERTIES COMPILE_FLAGS -DSHOW_FRAMES)
 add_executable( testvldp testvldp.cpp )
-target_link_libraries( testvldp video vldp ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY} ${SDL2_MIXER_LIBRARY} ${SDL2IMAGE_LIBRARY})
+target_link_libraries( testvldp PRIVATE video vldp sdl3_deps )
 ]]
 
 if(BUILDBOT)

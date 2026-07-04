@@ -1,7 +1,11 @@
 MIDI soundfonts for Hypseus
 ===========================
 
-The Hypseus distribution contains the GPL'd 'TimGM6mb.sf2' soundfont by default.
+The Hypseus distribution contained the GPL'd 'TimGM6mb.sf2' soundfont by default for SDL2.
+
+SDL3 does not recognize these legacy environment-variable conventions, the libraries were modernized.
+
+These files remain here for possible legacy SoundFont playback systems, such as direct FluidSynth.
 
 See COPYING.txt - This is a small but complete GM soundfont.
 
