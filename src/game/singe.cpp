@@ -25,6 +25,7 @@
 */
 
 #include <time.h>
+#include <cmath>
 #include "config.h"
 
 #include "singe.h"
@@ -84,8 +85,8 @@ singe::singe() : m_pScoreboard(NULL)
     m_dll_instance            = NULL;
     m_bezel_scoreboard        = false;
 
+    m_upgrade_overlay         = GAME_OVERLAY_DEFAULT;
     m_overlay_size            = 0;
-    m_upgrade_overlay         = 0;
     m_crosshair               = true;
     m_running                 = false;
     m_zlua                    = false;
@@ -117,7 +118,6 @@ bool singe::init()
         g_SingeIn.uVersion            = SINGE_INTERFACE_API_VERSION;
         g_SingeIn.printline           = printline;
         g_SingeIn.set_quitflag        = set_quitflag;
-        g_SingeIn.set_singe_errors    = set_singe_errors;
         g_SingeIn.disable_audio1      = disable_audio1;
         g_SingeIn.disable_audio2      = disable_audio2;
         g_SingeIn.enable_audio1       = enable_audio1;
@@ -188,6 +188,7 @@ bool singe::init()
         g_SingeIn.cfm_get_overlaysize    = gfm_get_overlaysize;
         g_SingeIn.cfm_set_overlaysize    = gfm_set_overlaysize;
         g_SingeIn.cfm_set_custom_overlay = gfm_set_custom_overlay;
+        g_SingeIn.cfm_overlay_unmask     = gfm_overlay_unmask;
         g_SingeIn.cfm_set_gamepad_rumble = gfm_set_gamepad_rumble;
         g_SingeIn.cfm_block_quit         = gfm_block_quit;
 
@@ -397,8 +398,8 @@ bool singe::handle_cmdline_arg(const char *arg)
     int i;
 
     if (!bInit) {
-        game::set_32bit_overlay(true);
-        game::set_dynamic_overlay(true);
+        g_game->set_overlay_upgrade(GAME_OVERLAY_UPGRADE, true);
+        g_game->set_dynamic_overlay(true);
         m_upgrade_overlay |= (1 << 0);
         bInit = true;
     }
@@ -448,7 +449,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         bResult = true;
     }
     else if (strcasecmp(arg, "-espath") == 0 || strcasecmp(arg, "-retropath") == 0) {
-        game::set_es_flag(true);
+        g_game->set_es_flag(true);
         bResult = true;
     }
     else if (strcasecmp(arg, "-singedir") == 0) {
@@ -468,7 +469,7 @@ bool singe::handle_cmdline_arg(const char *arg)
             m_strDataPaths = s;
             if (m_strDataPaths.back() != '/')
                 m_strDataPaths += '/';
-            game::set_es_flag(true);
+            g_game->set_es_flag(true);
         }
     }
     else if (strcasecmp(arg, "-fullalpha") == 0) {
@@ -476,11 +477,13 @@ bool singe::handle_cmdline_arg(const char *arg)
         if (m_upgrade_overlay & (1 << 0)) {
             printline("Enabling Singe full alpha-range overlay...");
             m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 0)) | (1 << 1);
+            g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
+            video::set_singe_blend_sprite(true);
             bResult = true;
         }
     }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
-        game::set_32bit_overlay(false);
+        g_game->set_overlay_upgrade(GAME_OVERLAY_DEFAULT, false);
         m_upgrade_overlay = 0;
         bResult = true;
     }
@@ -493,8 +496,8 @@ bool singe::handle_cmdline_arg(const char *arg)
         i = atoi(s);
 
         if ((i > 0) && (i < 11)) {
-           game::set_sinden_border(i<<2);
-           game::set_manymouse(true);
+           g_game->set_sinden_border(i<<2);
+           g_game->set_manymouse(true);
            bResult = true;
         } else {
            printerror("SINGE: border out of scope: <1-10>");
@@ -507,7 +510,7 @@ bool singe::handle_cmdline_arg(const char *arg)
            printerror("SINGE: invalid border color: w, r, g, b or x");
            bResult = false;
         } else {
-           game::set_sinden_border_color(j);
+           g_game->set_sinden_border_color(j);
         }
     }
     else if (strcasecmp(arg, "-xratio") == 0) {
@@ -622,15 +625,13 @@ void singe::repaint()
             m_video_overlay_width  = cur_w;
             m_video_overlay_height = cur_h;
 
-            g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
-
             shutdown_video();
             if (!init_video()) {
                 printline(
                     "Fatal Error, trying to re-create the surface failed!");
-                game::set_game_errors(SINGE_ERROR_INIT);
                 set_quitflag();
             }
+            g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
             g_ldp->unlock_overlay(1000); // unblock game video overlay
         } else {
             g_pSingeOut->sep_print(
@@ -656,7 +657,7 @@ void singe::repaint()
                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
                    if (g_bezelboard.type == SINGE_SB_PANEL) {
                        m_video_overlay_width = m_video_overlay_width >> 1;
-                       video::set_score_bezel(false);
+                       video::set_scoreboard_bezel(false);
                    }
                    break;
                 }
@@ -769,13 +770,23 @@ void singe::bezel_enable(bool bEnable)
 {
     g_game->m_software_scoreboard = m_bezel_scoreboard =
                g_bezelboard.repaint = bEnable;
-    video::set_score_bezel(bEnable);
+    video::set_scoreboard_bezel(bEnable);
 }
 
 void singe::set_custom_overlay(uint16_t w, uint16_t h)
 {
     m_custom_overlay_w = w;
     m_custom_overlay_h = h;
+}
+
+bool singe::overlay_unmask()
+{
+    if (g_game->get_overlay_depth() == GAME_OVERLAY_FULL) {
+        g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
+        return true;
+    }
+
+    return false;
 }
 
 void singe::set_gamepad_rumble(uint8_t s, uint8_t l, uint8_t id)

@@ -76,24 +76,6 @@ bool g_send_data_to_server = true; // whether user allows us to send data to
 void net_server_send(bool c) { g_send_data_to_server = c; }
 bool net_send_enabled() { return g_send_data_to_server; }
 
-int g_sockfd = -1;          // our socket file descriptor
-struct net_packet g_packet; // what we're gonna send
-
-void net_set_gamename(char *gamename)
-{
-    strncpy(g_packet.gamename, gamename, sizeof(g_packet.gamename)-1);
-}
-
-void net_set_ldpname(char *ldpname)
-{
-    strncpy(g_packet.ldpname, ldpname, sizeof(g_packet.ldpname)-1);
-}
-
-#if defined(_MSC_VER) && defined(_M_IX86)
-// some code I found to calculate cpu mhz
-_inline unsigned __int64 GetCycleCount(void) { _asm _emit 0x0F _asm _emit 0x31 }
-#endif
-
 // gets the cpu's memory, rounds to nearest 64 megs of RAM
 unsigned int get_sys_mem()
 {

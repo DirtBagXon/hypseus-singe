@@ -223,8 +223,6 @@ class ldp
     void set_search_latency(Uint32);
     void set_stop_on_quit(bool); // enables the stop_on_quit bool flag
 
-    void set_runtime_error(short);
-
     Uint32 get_discvideo_height(); // gets the height of the laserdisc video
                                    // (only meaningful with mpeg)
     Uint32 get_discvideo_width(); // gets the width of the laserdisc video (only

@@ -22,6 +22,8 @@
 #include "udp.h"
 #include "select.h"
 
+unsigned char socket_disabled();
+
 /*-------------------------------------------------------------------------*\
 * Internal function prototypes
 \*-------------------------------------------------------------------------*/
@@ -97,9 +99,11 @@ static int base_open(lua_State *L) {
 * Initializes all library modules.
 \*-------------------------------------------------------------------------*/
 LUASOCKET_API int luaopen_socket_core(lua_State *L) {
-    int i;
-    base_open(L);
-    luaL_register(L, "socket", mod);
-    for (i = 0; mod[i].name; i++) mod[i].func(L);
-    return 1;
+    if (!socket_disabled()) {
+        base_open(L);
+        luaL_register(L, "socket", mod);
+        for (int i = 0; mod[i].name; i++) mod[i].func(L);
+        return 1;
+    }
+    return 0;
 }

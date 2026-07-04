@@ -3,6 +3,9 @@
 HYPSEUS_BIN=hypseus.bin
 HYPSEUS_SHARE=~/.hypseus
 
+# Force an SDL Audio Driver
+#export SDL_AUDIODRIVER=alsa
+
 function STDERR () {
 	/bin/cat - 1>&2
 }

@@ -8,6 +8,7 @@
 
 #cmakedefine BENCHMARK
 #cmakedefine DEBUG
+#cmakedefine DEFUNC
 #cmakedefine VLDP_DEBUG
 #cmakedefine CPU_DEBUG
 #cmakedefine BUILD_SINGE

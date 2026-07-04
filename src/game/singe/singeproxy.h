@@ -44,6 +44,10 @@
      (SDL_IMAGE_MAJOR_VERSION == (x) && SDL_IMAGE_MINOR_VERSION > (y)) || \
      (SDL_IMAGE_MAJOR_VERSION == (x) && SDL_IMAGE_MINOR_VERSION == (y) && SDL_IMAGE_PATCHLEVEL >= (z)))
 
+#define SEP_OVERLAY_ALPHA  4
+#define SEP_OVERLAY_MONO   3
+#define SEP_OVERLAY_FULL   1
+
 #if __cplusplus < 201103L
 #define __func__ "unknown"
 #endif
@@ -148,6 +152,7 @@ static int sep_overlay_box(lua_State *L);
 static int sep_pause(lua_State *L);
 static int sep_play(lua_State *L);
 static int sep_say(lua_State *L);
+static int sep_banner(lua_State *L);
 static int sep_say_font(lua_State *L);
 static int sep_screenshot(lua_State *L);
 static int sep_search(lua_State *L);
@@ -234,6 +239,8 @@ static int sep_get_fvalue(lua_State *L);
 static int sep_doluafile(lua_State *L);
 static int sep_set_overlaysize(lua_State *L);
 static int sep_set_overlayfullalpha(lua_State *L);
+static int sep_set_overlayopacity(lua_State *L);
+static int sep_set_overlayblend(lua_State *L);
 static int sep_set_custom_overlay(lua_State *L);
 static int sep_controller_rumble(lua_State *L);
 static int sep_bezel_loaded(lua_State *L);
@@ -248,6 +255,10 @@ static int sep_pseudo_audio_call(lua_State *L);
 static int sep_invalid_api_call(lua_State *L);
 static int sep_lua_rewrite(lua_State *L);
 static int sep_joymouse_enable(lua_State *L);
+static int sep_subtitle_load(lua_State *L);
+static int sep_subtitle_clear(lua_State *L);
+static int sep_subtitle_enable(lua_State *L);
+static int sep_subtitle_position(lua_State *L);
 #if SDL_IMAGE_VERSION_AT_LEAST(2, 6, 0)
 static int sep_sprite_get_frame(lua_State *L);
 static int sep_sprite_playing(lua_State *L);

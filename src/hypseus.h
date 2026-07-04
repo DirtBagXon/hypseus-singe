@@ -22,15 +22,8 @@
 
 // hypseus.h
 
-#ifndef DAPHNE_H
-#define DAPHNE_H
-
-#define SDL_ERROR_INIT           0x96
-#define SDL_ERROR_MAINRENDERER   0x97
-#define SDL_ERROR_SCOREWINDOW    0x98
-#define SDL_ERROR_SCORERENDERER  0x99
-#define SDL_ERROR_FONT           0x9A
-#define SDL_ERROR_SCREENSHOT     0x9B
+#ifndef HYPSEUS_H
+#define HYPSEUS_H
 
 // global definitions ...
 
@@ -45,14 +38,8 @@ void set_quitflag();
 unsigned char get_quitflag();
 bool change_dir(const char *pszNewDir);
 void set_cur_dir(const char *exe_loc);
-//int main(int, char **);
-void set_unix_signals();
-void handle_unix_signals(int);
 void set_search_offset(int i);
 int get_search_offset();
-void set_file_mask(char *mask);
-char *get_file_mask();
-unsigned char get_autostart();
 unsigned char get_frame_modifier();
 void set_frame_modifier(unsigned char value);
 void set_scoreboard(unsigned char value);
@@ -64,7 +51,6 @@ unsigned char get_scoreboard();
 void set_scoreboard_port(unsigned int value);
 unsigned int get_scoreboard_port();
 void reset_logfile(int argc, char **argv);
-void set_scoreboard_text(char sb_text[]);
 
 void set_idleexit(unsigned int value); // added by JFA for -idleexit
 unsigned int get_idleexit(); // added by JFA for -idleexit
@@ -82,5 +68,5 @@ bool get_usb_rts();
 void set_log_was_disabled(bool value);
 // end edit
 
-#endif // DAPHNE_H
+#endif // HYPSEUS_H
 

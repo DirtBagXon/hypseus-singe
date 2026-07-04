@@ -135,12 +135,9 @@ game::game()
     // Software scoreboard for lair/ace
     m_software_scoreboard = false;
 
-    // old style overlays
-    m_old_overlay = false;
-
     // overlay depth and size
-    m_overlay_depth = GAME_OVERLAY_DEPTH;
-    m_overlay_upgrade = false;
+    m_overlay_depth = GAME_OVERLAY_STD;
+    m_overlay_upgrade = GAME_OVERLAY_DEFAULT;
     m_dynamic_overlay = false;
 
     // running in EmulationStation
@@ -149,9 +146,6 @@ game::game()
     // Set a sinden border
     m_sinden_border = 0;
     m_sinden_border_color = 0;
-
-    // Did the game encounter any errors
-    m_game_error = 0;
 }
 
 game::~game()
@@ -342,8 +336,11 @@ void game::OnLDV1000LineChange(bool bIsStatus, bool bIsEnabled)
 // palette_shutdown
 bool game::init_video()
 {
+    int index = 0;
     bool result = false;
-    int index   = 0;
+
+    Uint32 format = (m_overlay_depth == GAME_OVERLAY_STD) ?
+                     SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA8888;
 
     video::reset_yuv_overlay();
     video::init_display();
@@ -362,13 +359,13 @@ bool game::init_video()
 
             // create each buffer
             for (index = 0; index < m_video_overlay_count; index++) {
-                m_video_overlay[index] =
-                    SDL_CreateRGBSurface(SDL_SWSURFACE, m_video_overlay_width,
-                                         m_video_overlay_height, m_overlay_depth, 0, 0, 0, 0); // create a surface
+                m_video_overlay[index] = SDL_CreateRGBSurfaceWithFormat(0,
+                    m_video_overlay_width, m_video_overlay_height, m_overlay_depth,
+                        format);
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {
-                    LOGE << "SDL_CreateRGBSurface failed in init_video!";
+                    LOGE << "SDL_CreateRGBSurfaceWithFormat failed in init_video!";
                     result = false;
                 }
             }
@@ -538,6 +535,8 @@ void game::set_video_overlay_needs_update(bool value)
     m_video_overlay_needs_update = value;
 }
 
+Uint8 game::get_overlay_depth() { return m_overlay_depth; }
+
 unsigned int game::get_video_overlay_height() { return m_video_overlay_height; }
 
 unsigned int game::get_video_overlay_width() { return m_video_overlay_width; }
@@ -547,13 +546,7 @@ unsigned int game::get_sinden_border_color() { return m_sinden_border_color; }
 
 int game::get_stretch_value() { return m_stretch; }
 
-short game::get_game_errors() { return m_game_error; }
-
 bool game::get_es_flag() { return m_run_on_es; }
-
-bool game::use_old_overlay() { return m_old_overlay; }
-
-bool game::get_overlay_upgrade() { return m_overlay_upgrade; }
 
 bool game::get_dynamic_overlay() { return m_dynamic_overlay; }
 
@@ -567,8 +560,6 @@ void game::set_fastboot(bool value) { m_fastboot = value; }
 
 void game::set_es_flag(bool value) { m_run_on_es = value; }
 
-void game::set_game_errors(short value) { m_game_error = value; }
-
 void game::set_sinden_border(int value) { m_sinden_border = value; }
 void game::set_sinden_border_color(int value) { m_sinden_border_color = value; }
 
@@ -576,25 +567,34 @@ void game::set_manymouse(bool value) { m_manymouse = value; }
 
 void game::switch_scoreboard_display() { video::vid_scoreboard_switch(); }
 
-void game::set_overlay_upgrade(bool value) { m_overlay_upgrade = value; }
-
 void game::set_dynamic_overlay(bool value) { m_dynamic_overlay = value; }
 
-void game::set_32bit_overlay(bool value)
+bool game::has_overlay_upgrade(Uint8 value)
 {
-	m_overlay_depth = value ? GAME_OVERLAY_FULL : GAME_OVERLAY_DEPTH;
-	m_overlay_upgrade = value;
+    if (value >= 8) return false;
+    return (m_overlay_upgrade & (1u << value)) != 0;
+}
+
+void game::set_overlay_upgrade(Uint8 value, bool depth)
+{
+    if (value >= 8) return;
+
+    m_overlay_upgrade = (value == GAME_OVERLAY_DEFAULT)
+        ? GAME_OVERLAY_DEFAULT
+        : (m_overlay_upgrade | (1u << value));
+
+    m_overlay_depth = depth ? GAME_OVERLAY_FULL : GAME_OVERLAY_STD;
 }
 
 void game::set_stretch_value(int value)
 {
-	if (m_stretch == TMS_VERTICAL_OFFSET)
-	{
-	    if (m_game_type == GAME_CLIFF)
-	        video::set_yuv_scale(value, YUV_V);
+    if (m_stretch == TMS_VERTICAL_OFFSET)
+    {
+        if (m_game_type == GAME_CLIFF)
+            video::set_yuv_scale(value, YUV_V);
 
-	    m_stretch -= value;
-        }
+         m_stretch -= value;
+    }
 }
 
 // generic preset function, does nothing

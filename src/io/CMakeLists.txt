@@ -68,6 +68,12 @@ endif()
 
 include_directories( ${ZLIB_INCLUDE_DIRS} )
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set_source_files_properties( serialib.cpp
+        PROPERTIES COMPILE_OPTIONS -Wno-unused-private-field
+    )
+endif()
+
 set_source_files_properties( zippp.cpp PROPERTIES COMPILE_FLAGS -Wno-deprecated-declarations )
 
 add_library( io ${LIB_SOURCES} ${LIB_HEADERS} )

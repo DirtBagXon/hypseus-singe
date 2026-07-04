@@ -98,7 +98,6 @@ typedef enum {
 #endif
 } seek_type;
 
-void mpo_test();
 bool mpo_file_exists(const char *filename);
 
 // returns a pointer to an mpo_io structure if successful, NULL if unsuccessful
@@ -108,6 +107,7 @@ bool mpo_read(void *buf, size_t bytes_to_read, MPO_BYTES_READ *bytes_read, mpo_i
 bool mpo_write(const void *buf, size_t bytes_to_write,
                unsigned int *bytes_written, mpo_io *io);
 bool mpo_seek(int64_t offset, seek_type type, mpo_io *io);
+bool mpo_rewind(mpo_io *io);
 void mpo_close(mpo_io *io);
 
 bool safe_dir(const char*, int);

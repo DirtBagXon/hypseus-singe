@@ -105,6 +105,7 @@ void set_use_gamepad(bool);
 void set_trigger_threshold(double);
 void set_gamepad_order(int *c, int);
 void do_gamepad_rumble(Uint8, Uint8, Uint8);
+void net_server_send(bool);
 void disable_haptics();
 void set_haptic(Uint8);
 void absolute_only();

@@ -99,11 +99,6 @@ enum {
 };
 
 bool init_display();
-
-// MAC: YUV surface protection block: it needs protection because it's accessed from both
-// the main "hypseus" thread and the vldp thread.
-
-bool init_display();
 bool deinit_display();
 
 void vid_setup_yuv_overlay (int width, int height);
@@ -116,30 +111,23 @@ void vid_update_overlay_surface(SDL_Surface *tx);
 void vid_blit();
 // MAC: sdl_video_run thread block ends here
 
-void shutdown_display();
-
-// flips the video buffers (if in double buffering mode)
-void vid_flip();
-
 // blanks the back video buffer (makes it black)
 void vid_blank();
 
 bool load_bmps();
 bool draw_led(int, int, int, unsigned char);
 void draw_overlay_leds(unsigned int led_values[], int num_values, int x, int y);
+void draw_string(const char *, int, int, SDL_Surface *, SDL_Color, bool);
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y);
 bool draw_othergfx(int which, int x, int y);
 void free_bmps();
-SDL_Window *get_window();
 SDL_Renderer *get_renderer();
-SDL_Texture *get_screen();
-SDL_Texture *get_yuv_screen();
-SDL_Surface *get_screen_blitter();
+SDL_Texture *get_overlay_texture();
 SDL_Surface *get_screen_leds();
 SDL_Rect get_aux_rect();
-SDL_Rect get_sb_rect();
+SDL_Rect get_scoreboard_rect();
 FC_Font *get_font();
-bool use_old_font();
+bool use_legacy_font();
 bool get_opengl();
 bool get_vulkan();
 bool get_fullscreen();
@@ -180,6 +168,7 @@ void set_rotate_degrees(float fDegrees);
 void set_sboverlay_characterset(int value);
 void set_sboverlay_white(bool value);
 void set_window_title(char* value);
+void set_overlay_alpha(uint8_t value);
 void set_game_window(const char* value);
 Uint16 get_video_width();
 Uint16 get_viewport_width();
@@ -187,8 +176,8 @@ Uint16 get_viewport_height();
 Uint16 get_video_height();
 void set_video_width(Uint16);
 void set_video_height(Uint16);
-void draw_string(const char *, int, int, SDL_Surface *);
-void draw_subtitle(char *, bool, bool);
+void draw_srt(const char*, uint8_t, int);
+void draw_subtitle(const char *, uint8_t, bool);
 void vid_toggle_fullscreen();
 void vid_toggle_scanlines();
 void vid_toggle_bezel();
@@ -202,11 +191,11 @@ void set_bezel_file(const char *);
 void set_bezel_path(const char *);
 void set_bezel_reverse(bool display);
 void set_aspect_change(int aspectWidth, int aspectHeight);
-void set_sb_window_position(int, int);
+void set_scoreboard_window_position(int, int);
 void set_aux_bezel_position(int, int);
-void set_score_bezel(bool bEnabled);
-void set_score_bezel_alpha(int8_t value);
-void set_score_bezel_scale(int value);
+void set_scoreboard_bezel(bool bEnabled);
+void set_scoreboard_bezel_alpha(int8_t value);
+void set_scoreboard_bezel_scale(int value);
 void set_aux_bezel_scale(int value);
 void set_tq_keyboard(bool bEnabled);
 void set_annun_lamponly(bool bEnabled);
@@ -216,11 +205,13 @@ void set_aux_bezel_alpha(int8_t value);
 void set_scale_h_shift(int value);
 void set_scale_v_shift(int value);
 void set_display_screen(int value);
-void set_score_screen(int value);
+void set_scoreboard_screen(int value);
 void set_fRotateDegrees(float fDegrees, bool);
 void set_yuv_scale(int value, uint8_t axis);
 void set_yuv_rect(int, int, int, int);
 void reset_yuv_rect();
+
+void set_legacy_overlay(bool);
 
 void set_vertical_orientation(bool);
 
@@ -238,7 +229,7 @@ void reset_shiftvalue(int, bool, uint8_t);
 int get_scale_h_shift();
 int get_scale_v_shift();
 
-int get_score_bezel_scale();
+int get_scoreboard_bezel_scale();
 int get_aux_bezel_scale();
 
 void set_overlay_offset(int offset);

@@ -9,6 +9,8 @@
 #define LED_HEIGHT 53
 #define TITLE_HEIGHT 20
 
+namespace {
+
 const int player_title_x = 65;
 const int player_score_x = 45;
 const int player1_score_y = 75;
@@ -29,6 +31,8 @@ const int thayers_time_x = 130;
 const int thayers_time_y = 18;
 const int time_title_x = thayers_time_x + (LED_WIDTH * 2.6);
 const int time_title_y = thayers_time_y + (LED_HEIGHT / 2.5);
+
+}
 
 void ImgScoreboard::DeleteInstance()
 {

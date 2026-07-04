@@ -4071,20 +4071,20 @@ const char *m80_info(void *context, int regnum)
 	// find which register they are requesting info about
 	switch( regnum )
 	{
-		case CPU_INFO_REG+M80_PC: snprintf(buffer[which], sizeof(buffer[which]), "PC:%04X", PC); break;
-		case CPU_INFO_REG+M80_SP: snprintf(buffer[which], sizeof(buffer[which]), "SP:%04X", SP); break;
-		case CPU_INFO_REG+M80_AF: snprintf(buffer[which], sizeof(buffer[which]), "AF:%04X", AF); break;
-		case CPU_INFO_REG+M80_BC: snprintf(buffer[which], sizeof(buffer[which]), "BC:%04X", BC); break;
-		case CPU_INFO_REG+M80_DE: snprintf(buffer[which], sizeof(buffer[which]), "DE:%04X", DE); break;
-		case CPU_INFO_REG+M80_HL: snprintf(buffer[which], sizeof(buffer[which]), "HL:%04X", HL); break;
-		case CPU_INFO_REG+M80_IX: snprintf(buffer[which], sizeof(buffer[which]), "IX:%04X", IX); break;
-		case CPU_INFO_REG+M80_IY: snprintf(buffer[which], sizeof(buffer[which]), "IY:%04X", IY); break;
-		case CPU_INFO_REG+M80_RI: snprintf(buffer[which], sizeof(buffer[which]), "RI:%02X %02X", R, I); break;
-		case CPU_INFO_REG+M80_AFPRIME: snprintf(buffer[which], sizeof(buffer[which]), "AF'%04X", AFPRIME); break;
-		case CPU_INFO_REG+M80_BCPRIME: snprintf(buffer[which], sizeof(buffer[which]), "BC'%04X", BCPRIME); break;
-		case CPU_INFO_REG+M80_DEPRIME: snprintf(buffer[which], sizeof(buffer[which]), "DE'%04X", DEPRIME); break;
-		case CPU_INFO_REG+M80_HLPRIME: snprintf(buffer[which], sizeof(buffer[which]), "HL'%04X", HLPRIME); break;
-		case CPU_INFO_REG+M80_RI+1: snprintf(buffer[which], sizeof(buffer[which]), "IFF1: %02X IFF2: %02X",
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_PC): snprintf(buffer[which], sizeof(buffer[which]), "PC:%04X", PC); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_SP): snprintf(buffer[which], sizeof(buffer[which]), "SP:%04X", SP); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_AF): snprintf(buffer[which], sizeof(buffer[which]), "AF:%04X", AF); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_BC): snprintf(buffer[which], sizeof(buffer[which]), "BC:%04X", BC); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_DE): snprintf(buffer[which], sizeof(buffer[which]), "DE:%04X", DE); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_HL): snprintf(buffer[which], sizeof(buffer[which]), "HL:%04X", HL); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_IX): snprintf(buffer[which], sizeof(buffer[which]), "IX:%04X", IX); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_IY): snprintf(buffer[which], sizeof(buffer[which]), "IY:%04X", IY); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_RI): snprintf(buffer[which], sizeof(buffer[which]), "RI:%02X %02X", R, I); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_AFPRIME): snprintf(buffer[which], sizeof(buffer[which]), "AF'%04X", AFPRIME); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_BCPRIME): snprintf(buffer[which], sizeof(buffer[which]), "BC'%04X", BCPRIME); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_DEPRIME): snprintf(buffer[which], sizeof(buffer[which]), "DE'%04X", DEPRIME); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_HLPRIME): snprintf(buffer[which], sizeof(buffer[which]), "HL'%04X", HLPRIME); break;
+		case static_cast<int>(CPU_INFO_REG) + static_cast<int>(M80_RI) + 1: snprintf(buffer[which], sizeof(buffer[which]), "IFF1: %02X IFF2: %02X",
 										g_context.IFF1, g_context.IFF2); break;
 
 		case CPU_INFO_FLAGS:

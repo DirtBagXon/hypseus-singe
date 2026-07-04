@@ -10,7 +10,8 @@ set( LIB_SOURCES
     lumux.c socket/auxiliar.c socket/buffer.c socket/compat.c
     socket/except.c socket/inet.c socket/io.c socket/luasocket.c
     socket/mime.c socket/options.c socket/select.c socket/tcp.c
-    socket/timeout.c socket/udp.c
+    socket/timeout.c socket/udp.c lpeg/lpcap.c lpeg/lpcode.c
+    lpeg/lpcset.c lpeg/lpprint.c lpeg/lptree.c lpeg/lpvm.c
 )
 
 set( LIB_HEADERS
@@ -22,7 +23,9 @@ set( LIB_HEADERS
     cjson/fpconv.h lfszippp.h socket/auxiliar.h socket/buffer.h
     socket/compat.h socket/except.h socket/inet.h socket/io.h
     socket/luasocket.h socket/mime.h socket/options.h socket/tcp.h
-    socket/select.h  socket/timeout.h socket/udp.h
+    socket/select.h  socket/timeout.h socket/udp.h lpeg/lpcap.h
+    lpeg/lpcode.h lpeg/lpcset.h lpeg/lpprint.h lpeg/lptree.h
+    lpeg/lpvm.h
 )
 
 if( WIN32 )

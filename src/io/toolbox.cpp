@@ -47,6 +47,7 @@
 #include "../video/video.h"
 #include <algorithm>
 #include <math.h>
+#include <cstdio>
 
 void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
 {
@@ -59,8 +60,8 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
 
     switch(layer) {
     case 1:
-        rect = video::get_sb_rect();
-        s = video::get_score_bezel_scale();
+        rect = video::get_scoreboard_rect();
+        s = video::get_scoreboard_bezel_scale();
         h = rect.x;
         v = rect.y;
         break;
@@ -121,7 +122,7 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
     case SDLK_KP_PERIOD:
         mplex = (mplex == 10) ? 1 : 10;
         snprintf(txt, sizeof(txt), "stepping: %d", mplex == 10);
-        video::draw_subtitle(txt, true, true);
+        video::draw_subtitle(txt, 1, true);
         break;
     case SDLK_KP_ENTER:
         if (recent != key) video::notify_positions();
@@ -129,7 +130,7 @@ void input_toolbox(SDL_Keycode key, SDL_Keycode recent, bool thayers)
     case SDLK_KP_0:
         layer = (layer + 1) % 3;
         snprintf(txt, sizeof(txt), "layer: %d", layer);
-        video::draw_subtitle(txt, true, true);
+        video::draw_subtitle(txt, 1, true);
         break;
     case SDLK_KP_2:
         switch(layer) {

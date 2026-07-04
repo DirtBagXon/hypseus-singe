@@ -31,24 +31,7 @@
 #define NET_STRSIZE 15
 #define NET_LONGSTRSIZE 80
 
-struct net_packet {
-    unsigned char protocol;
-    unsigned char os;
-    char os_desc[NET_LONGSTRSIZE]; // long OS description
-    unsigned int mem;
-    char cpu_name[NET_LONGSTRSIZE];   // long cpu description
-    char video_desc[NET_LONGSTRSIZE]; // long video description
-    char hypseus_version[NET_STRSIZE];
-    char gamename[NET_STRSIZE];
-    char ldpname[NET_STRSIZE];
-
-    // keep this always at the end
-    unsigned int crc32; // a checksum of the preceeding data
-};
-
 void net_server_send(bool);
-void net_set_gamename(char *gamename);
-void net_set_ldpname(char *ldpname);
 unsigned int get_sys_mem();
 char *get_video_description();
 char *get_cpu_name();
