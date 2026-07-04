@@ -35,6 +35,8 @@ extern "C" {
 // But CMake does the right thing here 
 #include <SDL.h> // only used for threading
 
+#include <mpeg2.h>
+
 struct yuv_buf {
     uint8_t *Y;     // Y channel
     uint8_t *U;     // U channel
