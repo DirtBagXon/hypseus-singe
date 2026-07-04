@@ -296,7 +296,6 @@ int main(int argc, char **argv)
     restore_leds(); // sets keyboard leds back how they were (this is safe even
                     // if we have the led's disabled)
 
-    MIX_Quit();
     TTF_Quit();
 
     SDL_Quit();

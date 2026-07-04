@@ -28,6 +28,7 @@
 #include <plog/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <atomic>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_audio.h>
@@ -51,6 +52,7 @@ namespace sound
 {
 
 SDL_AudioStream *g_audio_device = NULL;
+
 sample_s g_samples[MAX_NUM] = {{0}};
 sample_s g_sample_saveme; // the special saveme wav which is loaded
                           // independently of any game
@@ -85,6 +87,7 @@ unsigned int g_uVolumeNonVLDP = MAX_VOLUME;
 
 int cur_wave = 0; // the current wave being played (0 to NUM_DL_BEEPS-1)
 bool g_sound_initialized = false; // whether the sound will work
+static std::atomic<bool> shutting_down{false};
 
 // added by JFA for -startsilent
 void set_mute(bool bMuted)
@@ -180,8 +183,6 @@ bool init()
             else {
                 LOGW << "ERROR: one or more required sound sample "
                         "files could not be loaded!";
-                SDL_DestroyAudioStream(g_audio_device);
-                g_audio_device = NULL;
             }
         }
         // if audio device could not be opened (ie no sound card)
@@ -204,6 +205,7 @@ void shutdown()
     // shutdown sound only if we previously initialized it
     if (g_sound_initialized) {
         LOGD << "Shutting down sound system...";
+        shutting_down = true;
         SDL_ClearAudioStream(g_audio_device);
         SDL_DestroyAudioStream(g_audio_device);
         g_audio_device = NULL;
@@ -577,6 +579,8 @@ void mixWithMults(Uint8 *stream, int length)
 
 void SDLCALL StreamAudio(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
 {
+    if (shutting_down) return;
+
     static const int buf = (int)g_uSoundChipBufSize;
 
     if (SDL_GetAudioStreamAvailable(stream) > buf)

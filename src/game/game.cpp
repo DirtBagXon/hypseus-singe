@@ -356,7 +356,7 @@ bool game::init_video()
             // create each buffer
             for (index = 0; index < m_video_overlay_count; index++) {
                 m_video_overlay[index] = SDL_CreateSurface(m_video_overlay_width,
-				m_video_overlay_height, format);
+                                m_video_overlay_height, format);
 
                 // check to see if we got an error (this should never happen)
                 if (!m_video_overlay[index]) {

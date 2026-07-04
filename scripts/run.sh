@@ -84,7 +84,7 @@ if [ -z "$1" ] ; then
     echo
     echo  -e "$0 [-fullscreen] [-blanking] [-blend] [-gamepad] [-linear] [-prototype] [-scanlines] [-scoreboard] <gamename>" | STDERR
 
-    for game in ace aceeuro ace91 astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cliff_ox cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 galaxy galaxyp gpworld gtg interstellar lair laireuro lair_ita lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
+    for game in ace aceeuro ace91 astron badlands badlandp bega blazer cliff cliffalt cliffalt2 cliff_ox cobra cobraab cobraconv cobram3 dle21 esh eshalt eshalt2 eshfix7 eshfix7alt eshfix7alt2 galaxy galaxyp gpworld gtg interstellar lair laireuro lair_ita lair2 mach3 roadblaster sae sdq sdqshort sdqshortalt tq tq_alt tq_swear uvt; do
 	if ls $HYPSEUS_SHARE/vldp/$game >/dev/null 2>&1; then
 	    installed="$installed $game"
 	else
@@ -161,9 +161,7 @@ case "$1" in
 		BANKS="-bank 1 00110111 -bank 0 11011000"
 	fi
 	;;
-    esh|eshalt|eshalt2)
-	# Run a fixed ROM so disable CRC
-	FASTBOOT="-nocrc"
+    esh|eshalt|eshalt2|eshfix7|eshfix7alt|eshfix7alt2)
 	;;
     galaxy|galaxyp)
 	KEYINPUT="-keymapfile flightkey.ini"

@@ -341,6 +341,15 @@ bool parse_game_type()
     } else if (strcasecmp(s, "eshalt2") == 0) {
         g_game = new esh();
         g_game->set_version(3);
+    } else if (strcasecmp(s, "eshfix7") == 0) {
+        g_game = new esh();
+        g_game->set_version(4);
+    } else if (strcasecmp(s, "eshfix7alt") == 0) {
+        g_game = new esh();
+        g_game->set_version(5);
+    } else if (strcasecmp(s, "eshfix7alt2") == 0) {
+        g_game = new esh();
+        g_game->set_version(6);
     } else if (strcasecmp(s, "galaxy") == 0) {
         g_game = new galaxy();
     } else if (strcasecmp(s, "galaxyp") == 0) {

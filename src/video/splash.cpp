@@ -272,6 +272,7 @@ void splash(bool eon) {
 
     SDL_DestroyTexture(logo_frame);
     SDL_DestroyTexture(splash_frames);
+    TTF_DestroyText(vers);
     TTF_CloseFont(font);
     splash_frames = NULL;
     logo_frame = NULL;

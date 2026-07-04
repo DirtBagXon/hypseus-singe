@@ -160,70 +160,76 @@ void esh::set_version(int version)
              {"c6_v.bin", "esh", &miscprom[0x0100], 0x0100, 0x7157BA22},
              {NULL}};
         m_rom_list = roms;
+    } else if (version == 4) // stage7 fix
+    {
+        m_shortgamename = "eshfix7";
+
+        // NOTE : this must be static
+        static struct rom_def roms[] =
+            {// Z80 program
+             {"h8_is1.bin", "esh", &m_cpumem[0x0000], 0x2000, 0x114C912B},
+             // frame reference fix in f8_is2.bin
+             {"f8_is2-fixed.bin", NULL, &m_cpumem[0x2000], 0x2000, 0x1F05561D},
+
+             // character (tile) graphics
+             {"m3_a.bin", "esh", &character[0x0000], 0x1000, 0xA04736D8},
+             {"l3_b.bin", "esh", &character[0x1000], 0x1000, 0x9366DDE7},
+             {"k3_c.bin", "esh", &character[0x2000], 0x1000, 0xA936EF01},
+
+             // color lookup prom, video timing proms
+             {"j1_rgb.bin", "esh", &color_prom[0x0000], 0x0200, 0x1E9F795F},
+             {"c5_h.bin", "esh", &miscprom[0x0000], 0x0100, 0xABDE5E4B},
+             {"c6_v.bin", "esh", &miscprom[0x0100], 0x0100, 0x7157BA22},
+             {NULL}};
+        m_rom_list = roms;
+    } else if (version == 5) // stage7 fix for alt1
+    {
+        m_shortgamename = "eshfix7alt";
+
+        // NOTE : this must be static
+        static struct rom_def roms[] =
+            {// Z80 program
+             {"h8_is1.bin", "esh", &m_cpumem[0x0000], 0x2000, 0x114C912B},
+             {"f8_is2-fixed-alt.bin", NULL, &m_cpumem[0x2000], 0x2000, 0x6B681736},
+             // NOTE : f8 is the only rom that has changed from the default set
+
+             // character (tile) graphics
+             {"m3_a.bin", "esh", &character[0x0000], 0x1000, 0xA04736D8},
+             {"l3_b.bin", "esh", &character[0x1000], 0x1000, 0x9366DDE7},
+             {"k3_c.bin", "esh", &character[0x2000], 0x1000, 0xA936EF01},
+
+             // color lookup prom, video timing proms
+             {"j1_rgb.bin", "esh", &color_prom[0x0000], 0x0200, 0x1E9F795F},
+             {"c5_h.bin", "esh", &miscprom[0x0000], 0x0100, 0xABDE5E4B},
+             {"c6_v.bin", "esh", &miscprom[0x0100], 0x0100, 0x7157BA22},
+             {NULL}};
+        m_rom_list = roms;
+    } else if (version == 6) // stage7 fix for alt2
+    {
+        m_shortgamename = "eshfix7alt2";
+
+        // NOTE : this must be static
+        static struct rom_def roms[] =
+            {// Z80 program
+             {"h8_alt2.bin", "eshalt2", &m_cpumem[0x0000], 0x2000, 0x8D27D363},
+             // NOTE : h8 is the only rom that has changed from the default set
+             {"f8_is2-fixed.bin", NULL, &m_cpumem[0x2000], 0x2000, 0x1F05561D},
+
+             // character (tile) graphics
+             {"m3_a.bin", "esh", &character[0x0000], 0x1000, 0xA04736D8},
+             {"l3_b.bin", "esh", &character[0x1000], 0x1000, 0x9366DDE7},
+             {"k3_c.bin", "esh", &character[0x2000], 0x1000, 0xA936EF01},
+
+             // color lookup prom, video timing proms
+             {"j1_rgb.bin", "esh", &color_prom[0x0000], 0x0200, 0x1E9F795F},
+             {"c5_h.bin", "esh", &miscprom[0x0000], 0x0100, 0xABDE5E4B},
+             {"c6_v.bin", "esh", &miscprom[0x0100], 0x0100, 0x7157BA22},
+             {NULL}};
+        m_rom_list = roms;
     } else {
         LOGW << "Unsupported -version parameter, ignoring...";
     }
 }
-
-/*
-// eshalt constructor
-eshalt::eshalt()
-{
-    m_shortgamename = "eshalt";
-
-    // NOTE : this must be static
-    static struct rom_def roms[] =
-    {
-        // Z80 program
-        { "h8_is1.bin", "esh", &m_cpumem[0x0000], 0x2000, 0x114C912B },
-        { "f8_is2.bin", NULL, &m_cpumem[0x2000], 0x2000, 0x7A562F49 },
-        // NOTE : f8 is the only rom that has changed, the rest of these load
-from the
-        // esh directory
-
-        // character (tile) graphics
-        { "m3_a.bin", "esh", &character[0x0000], 0x1000, 0xA04736D8 },
-        { "l3_b.bin", "esh", &character[0x1000], 0x1000, 0x9366DDE7 },
-        { "k3_c.bin", "esh", &character[0x2000], 0x1000, 0xA936EF01 },
-
-        // color lookup prom, video timing proms
-        { "j1_rgb.bin", "esh", &color_prom[0x0000], 0x0200, 0x1E9F795F },
-        { "c5_h.bin", "esh", &miscprom[0x0000], 0x0100, 0xABDE5E4B },
-        { "c6_v.bin", "esh", &miscprom[0x0100], 0x0100, 0x7157BA22 },
-        { NULL }
-    };
-
-    m_rom_list = roms;
-
-}
-
-// eshalt2 constructor
-eshalt2::eshalt2()
-{
-    m_shortgamename = "eshalt2";
-
-    // NOTE : this must be static
-    static struct rom_def roms[] =
-    {
-        // Z80 program
-        { "h8_1.bin", NULL, &m_cpumem[0x0000], 0x2000, 0x8D27D363 },
-        { "f8_is2.bin", NULL, &m_cpumem[0x2000], 0x2000, 0x0E3B6E62 },
-
-        // character (tile) graphics
-        { "m3_a.bin", "esh", &character[0x0000], 0x1000, 0xA04736D8 },
-        { "l3_b.bin", "esh", &character[0x1000], 0x1000, 0x9366DDE7 },
-        { "k3_c.bin", "esh", &character[0x2000], 0x1000, 0xA936EF01 },
-
-        // color lookup prom, video timing proms
-        { "j1_rgb.bin", "esh", &color_prom[0x0000], 0x0200, 0x1E9F795F },
-        { "c5_h.bin", "esh", &miscprom[0x0000], 0x0100, 0xABDE5E4B },
-        { "c6_v.bin", "esh", &miscprom[0x0100], 0x0100, 0x7157BA22 },
-        { NULL }
-    };
-
-    m_rom_list = roms;
-}
-*/
 
 // does anything special needed to send an IRQ
 void esh::do_irq(unsigned int which_irq)

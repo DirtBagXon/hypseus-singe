@@ -7,4 +7,4 @@ set( LIB_HEADERS
 )
 
 add_library( timer ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries(timer PRIVATE sdl3_deps)
+target_link_libraries( timer PRIVATE sdl3_deps )

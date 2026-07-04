@@ -37,6 +37,7 @@
 #include <vector>
 #include <ctime>
 #include <fstream>
+#include <unordered_map>
 
 using namespace std;
 using namespace libzippp;
@@ -109,6 +110,16 @@ typedef struct m_srtType {
         std::string text;
 } m_srtT;
 
+struct ZipMem {
+    void* data;
+    size_t size;
+};
+
+struct ZipFont {
+    TTF_Font *font = nullptr;
+    std::unique_ptr<char[]> buffer;
+};
+
 // These are pointers and values needed by the script engine to interact with Hypseus
 static lua_State    *g_se_lua_context;
 static SDL_Surface  *g_se_surface                  = NULL;
@@ -167,7 +178,6 @@ static std::string           m_altgame;
 static m_textureT            m_tx                  = {0};
 static m_blankT              m_blank               = {0, 0, false};
 static const std::string     m_ramfiles[]          = {".cfg", ".ram"};
-static SDL_AudioSpec         m_sound_load          = {};
 
 MIX_Mixer*                   m_mixer               = nullptr;
 
@@ -180,6 +190,7 @@ static vector<m_srtT>       m_srt;
 static bool                 m_srt_display          = false;
 static int                  m_srt_height           = 0x50;
 
+std::unordered_map<TTF_Font *, std::unique_ptr<char[]>> g_fontBuffers;
 static const SDL_Color m_colorTransparent = {0, 0, 0, 0};
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
@@ -235,7 +246,7 @@ static MIX_Track* GetCurrentlyPlayingTrack()
     return NULL;
 }
 
-inline float LegacyVolume(int value)
+static inline float LegacyVolume(int value)
 {
     if (value < 0 || value > 128) return 0.0f;
 
@@ -839,7 +850,12 @@ static void sep_unload_fonts(void)
   if (m_fontList.size() > 0) {
 
       for (int x = 0; x < (int)m_fontList.size(); x++)
-           TTF_CloseFont(m_fontList[x]);
+      {
+          TTF_CloseFont(m_fontList[x]);
+
+          if (m_rom_zip)
+              g_fontBuffers.erase(m_fontList[x]);
+     }
 
       m_fontList.clear();
   }
@@ -930,6 +946,8 @@ void sep_shutdown(void)
         g_se_lua_context = nullptr;
         g_bLuaInitialized = false;
     }
+
+    MIX_Quit();
 }
 
 static void sep_sprite_reset()
@@ -1122,7 +1140,7 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
            if (dest->bits_per_pixel != 8) {
                    sep_die("sep_srf32_to_srf8 surfaces are mismatched....");
                    return bResult;
-	   } else
+           } else
                debounced = true;
         }
 
@@ -1234,7 +1252,7 @@ static bool sep_format_srf32(SDL_Surface *src, SDL_Texture *dst)
             {
                 Uint32 u32SrcPix = *p32SrcPix;
 
-		const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(src->format);
+                const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(src->format);
 
                 Uint8 u32A = (u32SrcPix & fmt->Amask) >> fmt->Ashift;
                 Uint8 u32R = (u32SrcPix & fmt->Rmask) >> fmt->Rshift;
@@ -1356,10 +1374,9 @@ void sep_do_blit(SDL_Surface *srfDest)
     }
 }
 
-static SDL_IOStream* sep_unzip(const std::string& s)
+static ZipMem sep_unzip(const std::string& s)
 {
-    void* found = nullptr;
-    size_t size = 0;
+    ZipMem out{nullptr, 0};
 
     if (!g_zf->isOpen())
         g_zf->open(ZipArchive::ReadOnly);
@@ -1368,11 +1385,9 @@ static SDL_IOStream* sep_unzip(const std::string& s)
         m_zipList = g_zf->getEntries();
 
         for (auto& entry : m_zipList) {
-            std::string name = entry.getName();
-
-            if (name.find(s) != std::string::npos) {
-                found = entry.readAsBinary();
-                size = entry.getSize();
+            if (entry.getName().find(s) != std::string::npos) {
+                out.data = entry.readAsBinary();
+                out.size = entry.getSize();
                 break;
             }
         }
@@ -1383,25 +1398,45 @@ static SDL_IOStream* sep_unzip(const std::string& s)
             g_zf->close();
     }
 
-    if (!found)
-        return nullptr;
-
-    return SDL_IOFromConstMem(found, size);
+    return out;
 }
 
 static bool sep_sound_zip(std::string s, m_soundT *sound)
 {
-    bool load = SDL_LoadWAV_IO(sep_unzip(s), 1, &sound->audioSpec,
-		    &sound->buffer, &sound->length);
+    auto zip = sep_unzip(s);
+
+    if (!zip.data)
+        return false;
+
+    SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
+
+    bool load = SDL_LoadWAV_IO(io, 1, &sound->audioSpec,
+                    &sound->buffer, &sound->length);
+
+    delete[] static_cast<char*>(zip.data);
 
     return load;
 }
 
-static TTF_Font* sep_font_zip(std::string s, int points)
+static ZipFont sep_font_zip(std::string s, int points)
 {
-    TTF_Font *font = TTF_OpenFontIO(sep_unzip(s), 1, points);
+    ZipFont result;
 
-    return font;
+    auto zip = sep_unzip(s);
+
+    if (!zip.data)
+        return result;
+
+    result.buffer.reset(static_cast<char*>(zip.data));
+
+    SDL_IOStream *io = SDL_IOFromConstMem(result.buffer.get(), zip.size);
+
+    result.font = TTF_OpenFontIO(io, true, points);
+
+    if (!result.font)
+        result.buffer.reset();
+
+    return result;
 }
 
 static bool sep_mixer_zip(std::string s, MIX_Mixer *mixer,
@@ -1409,51 +1444,88 @@ static bool sep_mixer_zip(std::string s, MIX_Mixer *mixer,
 {
     if (!mixer || !audio || !track) return false;
 
-    *audio = MIX_LoadAudio_IO(mixer, sep_unzip(s), false, true);
+    auto zip = sep_unzip(s);
+
+    if (!zip.data)
+        return false;
+
+    SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
+
+    *audio = MIX_LoadAudio_IO(mixer, io, false, true);
     *track = MIX_CreateTrack(mixer);
 
-    if (*track && *audio)
-        return MIX_SetTrackAudio(*track, *audio);
+    bool data = (*track && *audio && MIX_SetTrackAudio(*track, *audio));
 
-    return false;
+    delete[] static_cast<char*>(zip.data);
+
+    return data;
 }
 
 static std::string sep_srt_zip(const std::string& s)
 {
-    SDL_IOStream *rw = sep_unzip(s);
-    if (!rw) return {};
+    auto zip = sep_unzip(s);
+
+    if (!zip.data)
+        return {};
+
+    SDL_IOStream *rw = SDL_IOFromConstMem(zip.data, zip.size);
+
+    if (!rw)
+    {
+        delete[] static_cast<char*>(zip.data);
+        return {};
+    }
 
     Sint64 size = SDL_GetIOSize(rw);
     if (size <= 0)
     {
         SDL_CloseIO(rw);
+        delete[] static_cast<char*>(zip.data);
         return {};
     }
 
     std::string buffer(static_cast<size_t>(size), '\0');
+
     size_t read = SDL_ReadIO(rw, &buffer[0], size);
 
-    if (read != static_cast<size_t>(size))
-    {
-        SDL_CloseIO(rw);
-        return {};
-    }
-
     SDL_CloseIO(rw);
+
+    delete[] static_cast<char*>(zip.data);
+
+    if (read != static_cast<size_t>(size))
+        return {};
 
     return buffer;
 }
 
 static IMG_Animation* sep_animation_zip(std::string s)
 {
-    IMG_Animation *animation = IMG_LoadAnimation_IO(sep_unzip(s), 1);
+    auto zip = sep_unzip(s);
+
+    if (!zip.data)
+        return nullptr;
+
+    SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
+
+    IMG_Animation *animation = IMG_LoadAnimation_IO(io, 1);
+
+    delete[] static_cast<char*>(zip.data);
 
     return animation;
 }
 
 static SDL_Surface* sep_surface_zip(std::string s)
 {
-    SDL_Surface *surface = IMG_Load_IO(sep_unzip(s), 1);
+    auto zip = sep_unzip(s);
+
+    if (!zip.data)
+        return nullptr;
+
+    SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
+
+    SDL_Surface *surface = IMG_Load_IO(io, 1);
+
+    delete[] static_cast<char*>(zip.data);
 
     return surface;
 }
@@ -2093,7 +2165,11 @@ static int sep_font_load(lua_State *L)
 
         if (m_rom_zip) {
 
-            temp = sep_font_zip(fontpath, points);
+            auto zipfont = sep_font_zip(fontpath, points);
+            temp = zipfont.font;
+
+            if (temp)
+                g_fontBuffers.emplace(temp, std::move(zipfont.buffer));
 
         } else {
 
@@ -2992,7 +3068,6 @@ static int sep_sound_loadata(lua_State *L)
 
           if (load && audio_format(&temp.audioSpec)) {
               if (m_firstsnd) sep_sound_reset();
-              m_sound_load = temp.audioSpec;
               m_soundList.push_back(temp);
               result = m_soundList.size() - 1;
               m_soundList[result].load = true;
@@ -3041,7 +3116,6 @@ static int sep_sound_load(lua_State *L)
 
       if (load) { // check audio_format() ?
           if (m_firstsnd) sep_sound_reset();
-          m_sound_load = temp.audioSpec;
           m_soundList.push_back(temp);
           result = m_soundList.size() - 1;
           m_soundList[result].load = true;
@@ -4755,9 +4829,8 @@ static int sep_music_stop(lua_State *L)
 	int n = lua_gettop(L);
 
 	if (n == 1)
-	    if (lua_isnumber(L, 1)) {
+	    if (lua_isnumber(L, 1))
 		fade = std::min(std::max((int)lua_tonumber(L, 1), 0), 10000);
-	    }
 
 	MIX_StopTrack(GetCurrentlyPlayingTrack(), (Sint64)fade);
 

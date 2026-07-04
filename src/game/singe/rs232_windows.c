@@ -787,7 +787,7 @@ fix_device_name(char *device, char *ret)
 #ifdef UNDER_CE
 	return s;
 #else
-	snprintf(ret, RS232_STRLEN_DEVICE, "\\\\.\\%s", s);
+	snprintf(ret, RS232_STRLEN_DEVICE + 5, "\\\\.\\%s", s);
 	return ret;
 #endif
 }

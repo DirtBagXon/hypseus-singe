@@ -25,7 +25,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | cobra, cobraab, cobraconv, cobram3 | Cobra Command |
 | dle11         | Dragon's Lair Enhancement v1.1 |
 | dle21         | Dragon's Lair Enhancement v2.1 |
-| esh, eshalt, eshalt2 | Esh's Aurunmilla       |
+| esh, eshalt, eshalt2, eshfix7, eshfix7alt, eshfix7alt2 | Esh's Aurunmilla       |
 | galaxy, galaxyp | Galaxy Ranger              |
 | gpworld       | GP World                    |
 | gtg           | Goal to Go                  |
