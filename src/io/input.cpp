@@ -549,6 +549,7 @@ static void CFG_Keys()
                                 int divider = (sval4.length() > 4) ? 1000 : 100;
                                 if (g_use_joystick) id = safe_id(abs(val4 / divider));
 
+                                controller_axis_map[id][i][0] = abs(val4 / divider);
                                 controller_axis_map[id][i][1] = abs(val4 % divider);
                                 controller_axis_map[id][i][2] = (val4 == 0) ? 0 : ((val4 < 0) ? -1 : 1);
                             }
