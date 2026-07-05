@@ -147,14 +147,14 @@ int g_key_defs[SWITCH_COUNT][2] =
 
 ////////////
 
-int controller_button_map[MAX_GAMECONTROLLER][SWITCH_COUNT][3] = {{{0}}};
+int controller_button_map[MAX_GAMECONTROLLER][SWITCH_COUNT] = {{0}};
 
 //  {0, 0, 2, -1}, // up
 //  {0, 0, 1, -1}, // left
 //  {0, 0, 2, 1},  // down
 //  {0, 0, 1, 1}   // right
 
-int controller_axis_map[MAX_GAMECONTROLLER][SWITCH_START1][4] = {{{0}}};
+int controller_axis_map[MAX_GAMECONTROLLER][SWITCH_START1][2] = {{{0}}};
 
 // Game controller triggers activated
 bool controller_trigger_pressed[MAX_GAMECONTROLLER][SDL_GAMEPAD_AXIS_COUNT] = { {false} };
@@ -294,7 +294,7 @@ static bool mouseButtonMap(SDL_Event *event, bool enable)
 
     for (int j = 0; j < MAX_CONTROLLERCONFIG; j++) {
         for (int i = SWITCH_BUTTON1; i < SWITCH_COIN1; ++i) {
-            if (button == controller_button_map[j][i][1]-1) {
+            if (button == controller_button_map[j][i]-1) {
 
                 (enable ? input_enable : input_disable)(i, player + g_gamepad_wad);
                 if (enabled_haptic) doRumble(slot);
@@ -532,14 +532,12 @@ static void CFG_Keys()
                             {
                                 id = 0;
                                 if (val3 > AXIS_TRIGGER) {
-                                    controller_button_map[id][i][0] = (val3 / AXIS_TRIGGER);
-                                    controller_button_map[id][i][1] = val3;
+                                    controller_button_map[id][i] = val3;
                                 } else {
                                     int divider = (sval3.length() == 4) ? 1000 : 100;
                                     if (g_use_joystick) id = safe_id(val3 / divider);
 
-                                    controller_button_map[id][i][0] = (val3 / divider);
-                                    controller_button_map[id][i][1] = (val3 % divider);
+                                    controller_button_map[id][i] = (val3 % divider);
                                 }
                             }
 
@@ -549,25 +547,18 @@ static void CFG_Keys()
                                 int divider = (sval4.length() > 4) ? 1000 : 100;
                                 if (g_use_joystick) id = safe_id(abs(val4 / divider));
 
-                                controller_axis_map[id][i][0] = abs(val4 / divider);
-                                controller_axis_map[id][i][1] = abs(val4 % divider);
-                                controller_axis_map[id][i][2] = (val4 == 0) ? 0 : ((val4 < 0) ? -1 : 1);
+                                controller_axis_map[id][i][0] = abs(val4 % divider);
+                                controller_axis_map[id][i][1] = (val4 == 0) ? 0 : ((val4 < 0) ? -1 : 1);
                             }
 
                             if (g_use_gamepad && val5 != 0)
                             {
                                 id = 1;
-                                int adj = (val5 > AXIS_TRIGGER)
-                                    ? (val5 / AXIS_TRIGGER)
-                                    : val5;
-
-                                controller_button_map[id][i][0] = adj;
-                                controller_button_map[id][i][1] = val5;
+                                controller_button_map[id][i] = val5;
 
                                 if (val6 != 0) {
                                     controller_axis_map[id][i][0] = abs(val6);
-                                    controller_axis_map[id][i][1] = abs(val6);
-                                    controller_axis_map[id][i][2] = (val6 == 0) ? 0 : ((val6 < 0) ? -1 : 1);
+                                    controller_axis_map[id][i][1] = (val6 == 0) ? 0 : ((val6 < 0) ? -1 : 1);
                                 }
                             }
 
@@ -1219,7 +1210,7 @@ void process_event(SDL_Event *event)
 
         for (int i = 0; i < SWITCH_COUNT; i++)
         {
-            if (controller_button_map[g_controllers[slot].player][i][1]-1 == event->gbutton.button)
+            if (controller_button_map[g_controllers[slot].player][i]-1 == event->gbutton.button)
             {
                 if (i == SWITCH_COIN1) g_hotkey = true;
                 input_enable(i, (g_mouse_mode == MANY_MOUSE) ?
@@ -1245,7 +1236,7 @@ void process_event(SDL_Event *event)
 
         for (int i = 0; i < SWITCH_COUNT; i++)
         {
-            if (controller_button_map[g_controllers[slot].player][i][1]-1 == event->gbutton.button)
+            if (controller_button_map[g_controllers[slot].player][i]-1 == event->gbutton.button)
             {
                 input_disable(i, (g_mouse_mode == MANY_MOUSE) ?
                                       g_controllers[slot].player + g_gamepad_wad : NOMOUSE);
@@ -1274,7 +1265,7 @@ void process_event(SDL_Event *event)
 
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i][1]-1) {
+            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i]-1) {
                 if (i == SWITCH_COIN1) g_hotkey = true;
                 input_enable(i, NOMOUSE);
                 break;
@@ -1292,7 +1283,7 @@ void process_event(SDL_Event *event)
         int slot = findSlotByDevice(id, JOYSTICK);
         // loop through map and find corresponding action
         for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i][1]-1) {
+            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i]-1) {
                 input_disable(i, NOMOUSE);
                 break;
             }
@@ -1474,7 +1465,7 @@ void process_controller_motion(SDL_Event *event)
     for (int j = 0; j < configs; j++) {
         for (int i = 0; i < SWITCH_COUNT; i++)
         {
-            if (controller_button_map[j][i][1] - AXIS_TRIGGER == axis)
+            if (controller_button_map[j][i] - AXIS_TRIGGER == axis)
             {
                 if (abs(event->gaxis.value) > JOY_AXIS_TRIG)
                 {
@@ -1503,8 +1494,8 @@ void process_controller_motion(SDL_Event *event)
     int key = -1;
 
     for (int i = 0; i < SWITCH_START1; i++) {
-        if (axis == controller_axis_map[player][i][1]-1 &&
-            ((value < 0) ? -1 : 1) == controller_axis_map[player][i][2]) {
+        if (axis == controller_axis_map[player][i][0]-1 &&
+            ((value < 0) ? -1 : 1) == controller_axis_map[player][i][1]) {
             key = i;
             break;
         }
@@ -1551,8 +1542,8 @@ void process_joystick_motion(SDL_Event *event)
     // loop through map and find corresponding action
     int key = -1;
     for (int i = 0; i < SWITCH_START1; i++) {
-        if (event->jaxis.axis == controller_axis_map[player][i][1]-1
-            && ((event->jaxis.value < 0) ? -1 : 1) == controller_axis_map[player][i][2]) {
+        if (event->jaxis.axis == controller_axis_map[player][i][0]-1
+            && ((event->jaxis.value < 0) ? -1 : 1) == controller_axis_map[player][i][1]) {
             key = i;
             break;
         }
