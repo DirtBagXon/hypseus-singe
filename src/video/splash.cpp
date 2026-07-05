@@ -81,7 +81,8 @@ void splash(bool eon) {
     SDL_RectToFRect(&workspace, &logical);
 
     if (!video::get_fullscreen())
-        logical = SDL_FRect{ 0x0, 0x0, 640, 480 };
+        logical = SDL_FRect{ 0x0, 0x0, video::get_viewport_width(),
+                               video::get_viewport_height() };
 
     if (which != 0) {
         std::vector<SDL_Rect> dimensions = video::get_displays();
@@ -277,4 +278,5 @@ void splash(bool eon) {
     splash_frames = NULL;
     logo_frame = NULL;
     font = nullptr;
+    vers = NULL;
 }

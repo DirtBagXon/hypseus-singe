@@ -190,7 +190,7 @@ static vector<m_srtT>       m_srt;
 static bool                 m_srt_display          = false;
 static int                  m_srt_height           = 0x50;
 
-std::unordered_map<TTF_Font *, std::unique_ptr<char[]>> g_fontBuffers;
+static std::unordered_map<TTF_Font *, std::unique_ptr<char[]>> m_fontBuffers;
 static const SDL_Color m_colorTransparent = {0, 0, 0, 0};
 
 int (*g_original_prepare_frame)(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
@@ -852,10 +852,8 @@ static void sep_unload_fonts(void)
       for (int x = 0; x < (int)m_fontList.size(); x++)
       {
           TTF_CloseFont(m_fontList[x]);
-
-          if (m_rom_zip)
-              g_fontBuffers.erase(m_fontList[x]);
-     }
+          m_fontBuffers.erase(m_fontList[x]);
+      }
 
       m_fontList.clear();
   }
@@ -2145,6 +2143,7 @@ static int sep_font_unload(lua_State *L)
             int id  = lua_tonumber(L, 1);
             if (m_fontList.size() > 0) {
                 TTF_CloseFont(m_fontList[id]);
+                m_fontBuffers.erase(m_fontList[id]);
                 m_fontList[id] = NULL;
             }
         }
@@ -2169,7 +2168,7 @@ static int sep_font_load(lua_State *L)
             temp = zipfont.font;
 
             if (temp)
-                g_fontBuffers.emplace(temp, std::move(zipfont.buffer));
+                m_fontBuffers.emplace(temp, std::move(zipfont.buffer));
 
         } else {
 

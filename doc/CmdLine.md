@@ -66,7 +66,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -force_aspect_ratio              | Tells Hypseus to force the 4:3 aspect ratio regardless of the video size. |
 | -fullscreen                      | Runs Hypseus in fullscreen mode (instead of windowed mode).   |
 | -gamepad                         | Enable SDL_GameController configuration. Use -haptic [0-4] to configure rumble. |
-| -gamepad_reorder 3 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput_gamepad.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3]_|
+| -gamepad_reorder 7 .. 0          | Reorder SDL_GameController indexes, will allow polling focus to the first specified Controllers in [hypinput_gamepad.ini](hypinput_gamepad.ini):  &nbsp;_[Default: 0 1 2 3 4 5 6 7]_|
 | -grabmouse                       | Force the capture of mouse in SDL window.                     |
 | -homedir \<dirname>              | Sets the Home Directory that Hypseus will use.                |
 | -horizontal_stretch \<value>     | Horizontally stretches the video screen outward from the center. |
