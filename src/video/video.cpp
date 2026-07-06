@@ -211,6 +211,16 @@ static void LogicalPosition(SDL_Rect *port, SDL_Rect *dst, int x, int y)
     *dst = tmpRect;
 }
 
+static inline void copyPlane(uint8_t *dst, const uint8_t *src, int w, int h, int srcPitch)
+{
+    if (srcPitch == w) {
+        memcpy(dst, src, (size_t)w * h);
+    } else {
+        for (int y = 0; y < h; ++y)
+            memcpy(dst + (size_t)y * w, src + (size_t)y * srcPitch, w);
+    }
+}
+
 static void calcAuxRect()
 {
      double scale = 9.0f - double((g_aux_bezel_scale << 1) / 10.0f);
@@ -2097,9 +2107,12 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
         break;
     default:
         if (!g_yuv_flags) {
-            memcpy(g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
-            memcpy(g_yuv_surface->Uplane, Uplane, g_yuv_surface->Usize);
-            memcpy(g_yuv_surface->Vplane, Vplane, g_yuv_surface->Vsize);
+            copyPlane(g_yuv_surface->Yplane, Yplane,
+                g_yuv_surface->width, g_yuv_surface->height, Ypitch);
+            copyPlane(g_yuv_surface->Uplane, Uplane,
+                g_yuv_surface->width / 2, g_yuv_surface->height / 2, Upitch);
+            copyPlane(g_yuv_surface->Vplane, Vplane,
+                g_yuv_surface->width / 2, g_yuv_surface->height / 2, Vpitch);
             break;
         }
 
@@ -2108,7 +2121,8 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
                 g_yuv_surface->height, Ypitch, g_yuv_surface->Ypitch);
 
         } else {
-            memcpy(g_yuv_surface->Yplane, Yplane, g_yuv_surface->Ysize);
+            copyPlane(g_yuv_surface->Yplane, Yplane,
+                g_yuv_surface->width, g_yuv_surface->height, Ypitch);
         }
 
         if (g_yuv_flags & YUV_FLAG_LUMA) {
@@ -2129,9 +2143,9 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
         break;
     }
 
-    g_yuv_surface->Ypitch = Ypitch;
-    g_yuv_surface->Upitch = Upitch;
-    g_yuv_surface->Vpitch = Vpitch;
+    g_yuv_surface->Ypitch = g_yuv_surface->width;
+    g_yuv_surface->Upitch = g_yuv_surface->width / 2;
+    g_yuv_surface->Vpitch = g_yuv_surface->width / 2;
 
     g_yuv_video_needs_update = true;
 

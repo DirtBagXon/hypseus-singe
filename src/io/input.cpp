@@ -315,7 +315,8 @@ static float absLevel(Sint16 limit)
     return (limit - MIN_AXIS) / float(MAX_AXIS - MIN_AXIS);
 }
 
-static bool parse_bool(const char* val) {
+static bool parse_bool(const char* val)
+{
     return val && strcasecmp(val, "TRUE") == 0;
 }
 
@@ -954,12 +955,12 @@ int SDL_input_init()
                     }
 
                     SDL_JoystickID id = ids[i];
-                    ControllerSlot& gp = g_controllers[slot];
+                    ControllerSlot& joy = g_controllers[slot];
 
-                    gp.joystick = joystick;
-                    gp.device  = id;
-                    gp.player  = slot;
-                    gp.haptic  = false;
+                    joy.joystick = joystick;
+                    joy.device  = id;
+                    joy.player  = slot;
+                    joy.haptic  = false;
 
                     LOGI << "Joystick #" << i << " [ID:" << ids[i] << "] was successfully opened";
 
