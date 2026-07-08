@@ -73,7 +73,7 @@ void splash(bool eon) {
 
     SDL_Window *window = video::get_window();
     SDL_Renderer *renderer = video::get_renderer();
-    SDL_DisplayID winId = SDL_GetDisplayForWindow(video::get_window());
+    SDL_DisplayID winId = SDL_GetDisplayForWindow(window);
 
     SDL_GetDisplayBounds(winId, &workspace);
     int which = video::get_display_no();

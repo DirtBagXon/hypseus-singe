@@ -47,6 +47,6 @@ Configuration in [hypinput.ini](https://github.com/DirtBagXon/hypseus-singe/blob
 
 Use the `hypjsch` application in the `C:\Hypseus Singe` folder to help calculate values.
 
-See also the **GameController** configuration option: [hypinput_gamepad.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput_gamepad.ini)
+See also the **Gamepad** configuration option: [hypinput_gamepad.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput_gamepad.ini)
 
 **Note:** Hypseus Singe uses **SDL2** keycodes. See information in *hypinput.ini*

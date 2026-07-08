@@ -15,7 +15,7 @@ Features:
 * Updated MPEG2 decoder
 * Integrated _(active)_ [bezel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/bezel.png) support
 * Singe full 32bit overlay support (details below)
-* Multiple *GameController* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
+* Multiple *Gamepad* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/scoreboard.png) original scoreboards.
 * 64bit Windows and MacOS X Ports
@@ -94,13 +94,13 @@ Although this is now discouraged in favor of the _Zipped LUA_ (`zlua`) packages.
 
 Configuration of button keycodes and joysticks should be made within [hypinput.ini](doc/hypinput.ini)
 
-By SDL3 Keycodes and Joystick API configuration used.
+By default SDL3 Keycodes and Joystick API configuration are used.
 
 Use the [hypjsch](https://github.com/DirtBagXon/hypjsch) utilities to help with advanced scancode configurations.
 
-SDL GameController API configuration can now be enabled for supported controllers.
+SDL Gamepad API configuration can now be enabled for supported controllers.
 
-Enable **SDL_GameController** using `-gamepad`. Example config: [hypinput_gamepad.ini](doc/hypinput_gamepad.ini)
+Enable **SDL_Gamepad** using `-gamepad`. Example config: [hypinput_gamepad.ini](doc/hypinput_gamepad.ini)
 
 Update the Controllers _db_ by placing `gamecontrollerdb.txt` in the Hypseus home folder.
 

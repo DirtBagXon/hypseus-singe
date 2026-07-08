@@ -79,6 +79,7 @@ class singe : public game
     bool init();
     void start();
     void shutdown();
+    void enableFullAlpha();
     void input_enable(Uint8, Sint8);
     void input_disable(Uint8, Sint8);
     void OnMouseMotion(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouseID);

@@ -258,7 +258,8 @@ static void resize_cleanup()
     SDL_DestroyTexture(g_mix_texture);
     SDL_DestroyTexture(g_overlay_texture);
 
-    if (g_renderer) {
+    if (g_renderer)
+    {
         SDL_RenderClear(g_renderer);
         SDL_RenderPresent(g_renderer);
         SDL_DestroyRenderer(g_renderer);
@@ -273,17 +274,20 @@ static void resize_cleanup()
 
 static void load_fonts()
 {
-    if (g_font) {
+    if (g_font)
+    {
        TTF_CloseFont(g_font);
        g_font = nullptr;
     }
 
-    if (g_ttfont) {
+    if (g_ttfont)
+    {
         TTF_CloseFont(g_ttfont);
         g_ttfont = nullptr;
     }
 
-    if (g_font_engine) {
+    if (g_font_engine)
+    {
         TTF_DestroyRendererTextEngine(g_font_engine);
         g_font_engine = nullptr;
     }
@@ -303,12 +307,14 @@ static void load_fonts()
 
     TTF_SetFontStyle(g_font, TTF_STYLE_NORMAL);
 
-    if (!g_font) {
+    if (!g_font)
+    {
         LOG_ERROR << fmt("Cannot load TTF font: %s", base);
         set_quitflag();
     }
 
-    if (!g_ttfont) {
+    if (!g_ttfont)
+    {
         LOG_ERROR << fmt("Cannot load TTF font: '%s'", (char*)ttfont);
         set_quitflag();
     }
@@ -328,7 +334,8 @@ static void format_window_render()
     g_logical_rect.w = g_scaling_rect.w;
     g_logical_rect.h = g_scaling_rect.h;
 
-    if (!g_rescale) {
+    if (!g_rescale)
+    {
         g_border_rect = (SDL_Rect){0, 0, g_viewport_width, g_viewport_height};
         load_fonts();
     }
@@ -339,10 +346,13 @@ static void format_fullscreen_render()
     int w, h;
     double ratio = static_cast<double>(g_viewport_width) / g_viewport_height;
 
-    if (g_video_resized) {
+    if (g_video_resized)
+    {
         w = g_viewport_width;
         h = g_viewport_height;
-    } else {
+    }
+    else
+    {
         h = g_vertical_orientation ? g_logical_rect.w : g_logical_rect.h;
 
         switch (g_aspect_ratio) {
@@ -363,15 +373,19 @@ static void format_fullscreen_render()
     g_scaling_rect.x = (g_logical_rect.w - g_scaling_rect.w) >> 1;
     g_scaling_rect.y = (g_logical_rect.h - g_scaling_rect.h) >> 1;
 
-    if (g_keyboard_bezel && !g_scaled) {
+    if (g_keyboard_bezel && !g_scaled)
+    {
         g_scaling_rect.y /= 4;
         g_scale_v_shift = 0;
-    } else {
+    }
+    else
+    {
         g_scaling_rect.x = (g_scaling_rect.x * g_scale_h_shift) / 100;
         g_scaling_rect.y = (g_scaling_rect.y * g_scale_v_shift) / 100;
     }
 
-    if (g_scoreboard_bezel) {
+    if (g_scoreboard_bezel)
+    {
         g_bezel_scalewidth = w;
         double bezel_ratio = static_cast<double>(g_scoreboard_h) / g_scoreboard_w;
         double scale = 9.0 - (static_cast<double>(g_scoreboard_bezel_scale) * 2.0 / 10.0);
@@ -382,7 +396,8 @@ static void format_fullscreen_render()
         g_bezel_toggle = true;
     }
 
-    if (!g_rescale) {
+    if (!g_rescale)
+    {
         g_border_rect = {
             (g_logical_rect.w - w) / 2,
             (g_logical_rect.h - h) / 2,
@@ -545,7 +560,8 @@ bool init_display()
 
         SDL_RaiseWindow(g_window);
 
-        if (!g_renderer) {
+        if (!g_renderer)
+        {
             LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
             set_quitflag();
             goto exit;
@@ -1484,7 +1500,8 @@ void set_fRotateDegrees(float fDegrees, bool verbose)
 {
      char d[8]; // In-game
 
-     if (verbose) {
+     if (verbose)
+     {
          snprintf(d, sizeof(d), "%d\xC2\xB0", int(fDegrees));
          draw_subtitle(d, 1, true);
      }
@@ -1804,13 +1821,15 @@ void draw_subtitle(const char *s, uint8_t func, bool center = false)
     static bool align = false;
     const int timeout = 200;
 
-    if (func & 1) {
+    if (func & 1)
+    {
         align = center;
         m_message_timer = 0;
         g_bSubtitleShown |= (1 << 0);
         set_subtitle_display(s);
     }
-    else if (m_message_timer > timeout) {
+    else if (m_message_timer > timeout)
+    {
         g_bSubtitleShown = 0;
         return;
     }
@@ -1820,9 +1839,12 @@ void draw_subtitle(const char *s, uint8_t func, bool center = false)
     int w = 0, h = 0;
     TTF_GetStringSize(g_font, s, 0, &w, &h);
 
-    if (align) {
+    if (align)
+    {
         p.x = (float)((g_scaling_rect.w / 2) + g_scaling_rect.x - (w / 2));
-    } else {
+    }
+    else
+    {
         p.x = (float)(g_scaling_rect.x + pad_x);
     }
 
@@ -2458,7 +2480,8 @@ void vid_blit()
         draw_scanlines(g_scanline_shunt);
 
     // If there's a subtitle overlay
-    if (g_bSubtitleShown) {
+    if (g_bSubtitleShown)
+    {
         if (g_bSubtitleShown & (1 << 0 ))
             draw_subtitle(subchar, 0);
         else draw_srt(srtchar, 0);

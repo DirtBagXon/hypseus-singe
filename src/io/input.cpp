@@ -367,6 +367,13 @@ static void CFG_System()
         } else if (strcasecmp(key.c_str(), "GAMEPAD") == 0) {
             g_use_gamepad = parse_bool(val);
             g_use_joystick = !g_use_gamepad;
+#ifdef BUILD_SINGE
+        } else if (strcasecmp(key.c_str(), "FULLALPHA") == 0) {
+                if (parse_bool(val) && thisGame == GAME_SINGE) {
+                    singe* l_singe = dynamic_cast<singe*>(g_game);
+                    if (l_singe) l_singe->enableFullAlpha();
+                }
+#endif
         } else if (strcasecmp(key.c_str(), "SCANLINES") == 0) {
             video::set_scanlines(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "SPLASH") == 0) {
@@ -906,6 +913,9 @@ int SDL_input_init()
 {
     int result = 0;
 
+    if (thisGame == GAME_UNDEFINED)
+        thisGame = g_game->get_game_type();
+
     // Set ini based argument list (Note: will override cli arguments)
     CFG_System();
 
@@ -983,10 +993,6 @@ int SDL_input_init()
     }
 
     idle_timer = refresh_ms_time(); // added by JFA for -idleexit
-
-
-     if (thisGame == GAME_UNDEFINED)
-         thisGame = g_game->get_game_type();
 
      if (g_game->get_manymouse() && thisGame != GAME_THAYERS)
          g_mouse_mode = MANY_MOUSE;
@@ -1078,7 +1084,6 @@ void process_event(SDL_Event *event)
     // by RDG2010
     // make things easier to read...
     SDL_Keycode keyPressed = event->key.key;
-    if (thisGame == GAME_UNDEFINED) thisGame = g_game->get_game_type();
 
     switch (event->type) {
     case SDL_EVENT_KEY_DOWN:

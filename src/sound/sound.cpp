@@ -52,7 +52,6 @@ namespace sound
 {
 
 SDL_AudioStream *g_audio_device = NULL;
-
 sample_s g_samples[MAX_NUM] = {{0}};
 sample_s g_sample_saveme; // the special saveme wav which is loaded
                           // independently of any game
@@ -576,18 +575,24 @@ void mixWithMults(Uint8 *stream, int length)
     }
 }
 
-
 void SDLCALL StreamAudio(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
 {
     if (shutting_down) return;
 
+    (void)userdata;
+    (void)total_amount;
+    (void)additional_amount;
+
     static const int buf = (int)g_uSoundChipBufSize;
+    static std::vector<Uint8> mix;
 
     if (SDL_GetAudioStreamAvailable(stream) > buf)
         return;
 
-    const size_t bytes = buf;
     struct chip *cur = g_chip_head;
+
+    if ((int)mix.size() < buf)
+        mix.resize(buf);
 
     while (cur)
     {
@@ -597,9 +602,12 @@ void SDLCALL StreamAudio(void *userdata, SDL_AudioStream *stream, int additional
         cur = cur->next;
     }
 
-    std::vector<Uint8> mix(bytes);
-    g_soundmix_callback(mix.data(), bytes);
-    SDL_PutAudioStreamData(stream, mix.data(), bytes);
+    g_soundmix_callback(mix.data(), buf);
+
+    if (!SDL_PutAudioStreamData(stream, mix.data(), buf))
+    {
+        LOGE << fmt("SDL_PutAudioStreamData failed: %s", SDL_GetError());
+    }
 }
 
 void writedata(Uint8 id, Uint8 data)

@@ -473,14 +473,8 @@ bool singe::handle_cmdline_arg(const char *arg)
         }
     }
     else if (strcasecmp(arg, "-fullalpha") == 0) {
-
-        if (m_upgrade_overlay & (1 << 0)) {
-            printline("Enabling Singe full alpha-range overlay...");
-            m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 0)) | (1 << 1);
-            g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
-            video::set_singe_blend_sprite(true);
+            enableFullAlpha();
             bResult = true;
-        }
     }
     else if (strcasecmp(arg, "-8bit_overlay") == 0) {
         g_game->set_overlay_upgrade(GAME_OVERLAY_DEFAULT, false);
@@ -823,6 +817,21 @@ string singe::show_version()
     return breakpoints;
 }
 
+void singe::enableFullAlpha()
+{
+    if (m_upgrade_overlay & (1 << 0)) {
+        printline("Enabling a full alpha range in the overlay.");
+        m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 0)) | (1 << 1);
+        g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
+        video::set_singe_blend_sprite(true);
+    }
+}
+
+void singe::ControllerAxisProxy(Uint8 axis, Sint16 value, Uint8 id)
+{
+    if (m_running) g_pSingeOut->sep_controller_set_axis(axis, value, id);
+}
+
 // Have SINGE deal directly with SDL input
 // This handles when a key is pressed down
 void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
@@ -998,9 +1007,4 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     }
 
     if (alt_commands) alt_lastkey = SDLK_UNKNOWN;
-}
-
-void singe::ControllerAxisProxy(Uint8 axis, Sint16 value, Uint8 id)
-{
-    if (m_running) g_pSingeOut->sep_controller_set_axis(axis, value, id);
 }
