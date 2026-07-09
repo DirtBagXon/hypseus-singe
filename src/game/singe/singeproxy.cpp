@@ -750,7 +750,7 @@ void sep_set_surface(int width, int height)
 
     if (createSurface)
     {
-        g_se_surface = SDL_CreateSurface(g_se_overlay_width, g_se_overlay_height, SDL_PIXELFORMAT_RGBA8888);
+        g_se_surface = SDL_CreateSurface(g_se_overlay_width, g_se_overlay_height, SDL_PIXELFORMAT_RGBA32);
 
         if (!g_se_surface)
             sep_die("sep_set_surface creation failed: %s\n", SDL_GetError());
@@ -1050,18 +1050,21 @@ static void sep_sound_ended(Uint8 *buffer, unsigned int slot)
     sep_call_lua("onSoundCompleted", "i", slot);
 }
 
-static void sep_draw_pixel(int x, int y, SDL_Color *c) {
+static inline void sep_draw_pixel(int x, int y, const SDL_Color *c)
+{
+    if ((x < 0) || (x >= g_se_surface->w) ||
+        (y < 0) || (y >= g_se_surface->h))
+        return;
 
-    if ((x < 0) || (x >= g_se_surface->w) || (y < 0) || (y >= g_se_surface->h)) return;
+    const SDL_Color f = m_colorkey
+        ? SDL_Color{c->r, c->g, c->b, 0xff}
+        : m_colorTransparent;
 
-    SDL_Color f = m_colorkey ? SDL_Color{c->r, c->g, c->b, 0xff} : m_colorTransparent;
+    Uint8 *p = (Uint8 *)g_se_surface->pixels +
+               y * g_se_surface->pitch +
+               x * sizeof(Uint32);
 
-    Uint8 *p = (Uint8 *)g_se_surface->pixels + y * g_se_surface->pitch + x * 4;
-
-    Uint32 pixel = ((Uint32)f.r << 24) | ((Uint32)f.g << 16) |
-                   ((Uint32)f.b << 8)  | ((Uint32)f.a);
-
-    *(Uint32 *)p = pixel;
+    *(Uint32 *)p = PIXEL_ABGR8888(f.r, f.g, f.b, f.a);
 }
 
 static void sep_draw_line(int x1, int y1, int x2, int y2, SDL_Color *c) {
@@ -1123,87 +1126,77 @@ bool sep_srf32_to_srf8(SDL_Surface *src, SDL_Surface *dst)
 {
     bool bResult = false;
     static bool debounced = false;
-	
-    // convert a 32-bit surface to an 8-bit surface (where the palette is one we've defined)
 
-    if (
-        ((dst->w == src->w) && (dst->h == src->h)) && (m_tx.srfbpp == 32)
-    )
+    // convert a 32-bit surface to an 8-bit surface
+    // destination palette is predefined
+
+    if (((dst->w == src->w) && (dst->h == src->h)) &&
+        (m_tx.srfbpp == 32))
     {
-       if (!debounced)
-       {
-           // dst must be 8-bit here  - expensive SDL3 checks, so bail out early
-           // 8-bit Singe surfaces is just a novelty feature these days.
-           static const SDL_PixelFormatDetails *dest = SDL_GetPixelFormatDetails(dst->format);
-           if (dest->bits_per_pixel != 8) {
-                   sep_die("sep_srf32_to_srf8 surfaces are mismatched....");
-                   return bResult;
-           } else
-               debounced = true;
-        }
+        if (!debounced)
+        {
+            // dst must be 8-bit here - expensive SDL3 checks, so bail early
+            static const SDL_PixelFormatDetails *dest =
+                SDL_GetPixelFormatDetails(dst->format);
 
-        static const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(src->format);
+            if (dest->bits_per_pixel != 8)
+            {
+                sep_die("sep_srf32_to_srf8 surfaces are mismatched....");
+                return bResult;
+            }
+
+            debounced = true;
+        }
 
         SDL_LockSurface(dst);
         SDL_LockSurface(src);
 
-        void *pSrcLine = src->pixels;
-        void *pDstLine = dst->pixels;
-        for (unsigned int uRowIdx = 0; uRowIdx < (unsigned int) src->h; ++uRowIdx)
+        Uint8 *pSrcLine = (Uint8 *)src->pixels;
+        Uint8 *pDstLine = (Uint8 *)dst->pixels;
+
+        for (unsigned int uRowIdx = 0;
+             uRowIdx < (unsigned int)src->h;
+             ++uRowIdx)
         {
+            Uint32 *p32SrcPix = (Uint32 *)pSrcLine;
+            Uint8  *p8DstPix  = pDstLine;
 
-            Uint32 *p32SrcPix = (Uint32 *) pSrcLine;
-            Uint8 *p8DstPix = (Uint8 *) pDstLine;
-
-            // do one line
-            for (unsigned int uColIdx = 0; uColIdx < (unsigned int) src->w; ++uColIdx)
+            for (unsigned int uColIdx = 0;
+                 uColIdx < (unsigned int)src->w;
+                 ++uColIdx)
             {
-                // get source pixel ...
-                Uint32 u32SrcPix = *p32SrcPix;
+                Uint32 pixel = *p32SrcPix;
 
-                Uint8 u8B = (u32SrcPix & fmt->Bmask) >> fmt->Bshift;
-                Uint8 u8G = (u32SrcPix & fmt->Gmask) >> fmt->Gshift;
-                Uint8 u8R = (u32SrcPix & fmt->Rmask) >> fmt->Rshift;
-                Uint8 u8A = (u32SrcPix & fmt->Amask) >> fmt->Ashift;
+                Uint8 u8Idx;
 
-                u8B &= 0xE0;  // blue has 3 bits (8 shades)
-                u8G &= 0xC0;  // green has 2 bits
-                u8R &= 0xE0;  // red has 3 bits
-
-                // compute 8-bit index
-                Uint8 u8Idx = u8R | (u8G >> 3) | (u8B >> 5);
-
-                if (u8Idx > 0xFE) u8Idx--;
-
-                // if alpha channel is more opaque, then make it fully opaque
-                if (u8A > 0x7F)
+                if (pixel & 0x80000000)
                 {
-                    // if resulting index is 0, we have to change
-                    // it because 0 is reserved for transparent
+                    Uint8 r = (Uint8)pixel;
+                    Uint8 g = (Uint8)(pixel >> 8);
+                    Uint8 b = (Uint8)(pixel >> 16);
+
+                    // 3:2:3 palette reduction
+                    u8Idx = (r & 0xE0) |
+                            ((g & 0xC0) >> 3) |
+                            ((b & 0xE0) >> 5);
+
                     if (u8Idx == 0)
-                    {
-                        // 1 becomes the replacement (and will be black)
                         u8Idx = 1;
-                    }
-                    // else leave it alone
                 }
-                // else make it fully transparent
                 else
                 {
                     u8Idx = 0;
                 }
 
-                // store computed value
                 *p8DstPix = u8Idx;
 
-                ++p8DstPix;	// go to the next one ...
-                ++p32SrcPix;	// go to the next one ...
-            } // end doing current line
+                ++p8DstPix;
+                ++p32SrcPix;
+            }
 
-            pSrcLine = ((Uint8 *) pSrcLine) + src->pitch;	// go to the next line
-            pDstLine = ((Uint8 *) pDstLine) + dst->pitch;	// " " "
-
-        } // end doing all rows
+            pSrcLine += src->pitch;
+            pDstLine += dst->pitch;
+        }
 
         SDL_UnlockSurface(src);
         SDL_UnlockSurface(dst);
@@ -1231,36 +1224,37 @@ static bool sep_format_srf32(SDL_Surface *src, SDL_Texture *dst)
 {
     bool bResult = false;
 
-    // cleanup 32-bit surface
-
-    if (
-        ((m_tx.width == src->w) && (m_tx.height == src->h)) &&
-        (m_tx.bpp == 32) && (m_tx.srfbpp == 32)
-    )
+    if (((m_tx.width == src->w) && (m_tx.height == src->h)) &&
+        (m_tx.bpp == 32) && (m_tx.srfbpp == 32))
     {
         SDL_LockSurface(src);
 
-        void *pSrcLine = src->pixels;
+        Uint8 *pSrcLine = (Uint8 *)src->pixels;
 
-        for (unsigned int uRowIdx = 0; uRowIdx < (unsigned int)src->h; ++uRowIdx)
+        for (unsigned int uRowIdx = 0;
+             uRowIdx < (unsigned int)src->h;
+             ++uRowIdx)
         {
             Uint32 *p32SrcPix = (Uint32 *)pSrcLine;
 
-            for (unsigned int uColIdx = 0; uColIdx < (unsigned int)src->w; ++uColIdx)
+            for (unsigned int uColIdx = 0;
+                 uColIdx < (unsigned int)src->w;
+                 ++uColIdx)
             {
                 Uint32 u32SrcPix = *p32SrcPix;
 
-                const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(src->format);
+                // R=0, G=8, B=16, A=24
+                Uint8 u32R = (Uint8)(u32SrcPix);
+                Uint8 u32G = (Uint8)(u32SrcPix >> 8);
+                Uint8 u32B = (Uint8)(u32SrcPix >> 16);
+                Uint8 u32A = (Uint8)(u32SrcPix >> 24);
 
-                Uint8 u32A = (u32SrcPix & fmt->Amask) >> fmt->Ashift;
-                Uint8 u32R = (u32SrcPix & fmt->Rmask) >> fmt->Rshift;
-                Uint8 u32G = (u32SrcPix & fmt->Gmask) >> fmt->Gshift;
-                Uint8 u32B = (u32SrcPix & fmt->Bmask) >> fmt->Bshift;
-
-                Uint32 u32Idx = (u32A << 24) | (u32R << 16) | (u32G << 8) | u32B;
+                Uint32 u32Idx;
 
                 if (u32A > 0x7F)
                 {
+                    u32Idx = PIXEL_ABGR8888(u32R, u32G, u32B, u32A);
+
                     if (u32Idx == 0)
                         u32Idx = 1;
                 }
@@ -1273,14 +1267,16 @@ static bool sep_format_srf32(SDL_Surface *src, SDL_Texture *dst)
                 ++p32SrcPix;
             }
 
-            pSrcLine = ((Uint8 *)pSrcLine) + src->pitch;
+            pSrcLine += src->pitch;
         }
+
         SDL_UnlockSurface(src);
 
         SDL_UpdateTexture(dst, NULL, src->pixels, src->pitch);
 
         bResult = true;
     }
+
     return bResult;
 }
 
@@ -1288,53 +1284,33 @@ static bool sep_format_monochrome(SDL_Surface *src, SDL_Texture *dst)
 {
     bool bResult = false;
 
-    // convert to monochrome grayscale surface
-
-    if (
-        ((m_tx.width == src->w) && (m_tx.height == src->h)) &&
-        (m_tx.bpp == 32) && (m_tx.srfbpp == 32)
-    )
+    if (((m_tx.width == src->w) && (m_tx.height == src->h)) &&
+        (m_tx.bpp == 32) && (m_tx.srfbpp == 32))
     {
         SDL_LockSurface(src);
-
-        Uint8 gray;
-        Uint8 r, g, b, a;
-        Uint32 pixel, u32Idx;
-
-        const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(src->format);
-
-        Uint32 Rmask = fmt->Rmask;
-        Uint32 Gmask = fmt->Gmask;
-        Uint32 Bmask = fmt->Bmask;
-        Uint32 Amask = fmt->Amask;
-
-        int Rshift = fmt->Rshift;
-        int Gshift = fmt->Gshift;
-        int Bshift = fmt->Bshift;
-        int Ashift = fmt->Ashift;
 
         Uint32 *p32Src = (Uint32 *)src->pixels;
         Uint32 *srcEnd = p32Src + (src->w * src->h);
 
         while (p32Src < srcEnd)
         {
-            pixel = *p32Src;
+            Uint32 pixel = *p32Src;
 
-            r = (pixel & Rmask) >> Rshift;
-            g = (pixel & Gmask) >> Gshift;
-            b = (pixel & Bmask) >> Bshift;
-            a = (pixel & Amask) >> Ashift;
+            Uint8 r = (Uint8)(pixel);
+            Uint8 g = (Uint8)(pixel >> 8);
+            Uint8 b = (Uint8)(pixel >> 16);
+            Uint8 a = (Uint8)(pixel >> 24);
 
-            gray = (Uint8)((77 * r + 151 * g + 28 * b) >> 8);
+            Uint32 u32Idx;
 
             if (a > 0x7F)
             {
-                u32Idx = ((Uint32)a    << 24) |
-                         ((Uint32)gray << 16) |
-                         ((Uint32)gray <<  8) |
-                         ((Uint32)gray);
+                Uint8 gray = (Uint8)((77 * r + 151 * g + 28 * b) >> 8);
 
-                if (u32Idx == 0) u32Idx = 1;
+                u32Idx = PIXEL_ABGR8888(gray, gray, gray, a);
+
+                if (u32Idx == 0)
+                    u32Idx = 1;
             }
             else
                 u32Idx = 0;

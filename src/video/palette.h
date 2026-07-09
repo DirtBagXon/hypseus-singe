@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#define ABGR_ALPHA_MASK 0xFF000000u
+
 namespace palette
 {
 typedef struct {

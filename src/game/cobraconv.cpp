@@ -403,7 +403,7 @@ void cobraconv::repaint()
     game::resize();
 
     // fast screen clear
-    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0x00000000);
 
     // draw sprites first(?)
     draw_sprites(0x2800, character2);

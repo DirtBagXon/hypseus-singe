@@ -98,13 +98,17 @@ void set_transparency(unsigned int uColorIndex, bool transparent)
 
     g_yuv[uColorIndex].transparent = transparent;
 
-    if (transparent) {
-        g_rgb[uColorIndex].a = 0x00;
-        g_uRGBAPalette[uColorIndex] &= 0x00FFFFFF; // set alpha channel to 0
-    } else {
-        g_rgb[uColorIndex].a = 0xFF;
-        g_uRGBAPalette[uColorIndex] |= 0xFF000000; // set alpha channel to FF
+    if (transparent)
+    {
+        g_rgb[uColorIndex].a = 0;
+        g_uRGBAPalette[uColorIndex] &= ~ABGR_ALPHA_MASK;
     }
+    else
+    {
+        g_rgb[uColorIndex].a = 255;
+        g_uRGBAPalette[uColorIndex] |= ABGR_ALPHA_MASK;
+    }
+
 }
 
 // call this function when a color has changed

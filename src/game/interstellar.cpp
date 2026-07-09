@@ -592,7 +592,7 @@ void interstellar::palette_calculate()
 void interstellar::repaint()
 {
     // clear the video before drawing
-    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0x00000000);
 
     // draw the sprites
     for (int sprite = 0x200 - 4; sprite >= 0x000; sprite -= 4) {

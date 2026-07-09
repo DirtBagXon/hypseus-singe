@@ -337,7 +337,7 @@ bool game::init_video()
     bool result = false;
 
     SDL_PixelFormat format = (m_overlay_depth == GAME_OVERLAY_STD) ?
-                     SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA8888;
+                     SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA32;
 
     video::reset_yuv_overlay();
     video::init_display();

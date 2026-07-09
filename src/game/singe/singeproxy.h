@@ -39,6 +39,24 @@
 #define __func__ "unknown"
 #endif
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+
+#define PIXEL_ABGR8888(r,g,b,a) \
+    (((Uint32)(a) << 24) | \
+     ((Uint32)(b) << 16) | \
+     ((Uint32)(g) << 8)  | \
+     ((Uint32)(r)))
+
+#else
+
+#define PIXEL_ABGR8888(r,g,b,a) \
+    (((Uint32)(r))       | \
+     ((Uint32)(g) << 8)  | \
+     ((Uint32)(b) << 16) | \
+     ((Uint32)(a) << 24))
+
+#endif
+
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
 {

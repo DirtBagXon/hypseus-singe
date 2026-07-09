@@ -1084,7 +1084,7 @@ void mach3::repaint()
 {
 
     // fast screen clear
-    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0);
+    SDL_FillSurfaceRect(m_video_overlay[m_active_video_overlay], NULL, 0x00000000);
 
     // graphics are blanked when this bit is cleared
     // FIXME:  LD video should be blanked as well (screen should be all black)

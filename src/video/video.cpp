@@ -598,7 +598,7 @@ bool init_display()
 
                 if (!g_scoreboard_blit_surface)
                     g_scoreboard_blit_surface = SDL_CreateSurface( g_scoreboard_w,
-                                                   g_scoreboard_h, SDL_PIXELFORMAT_RGBA8888);
+                                                   g_scoreboard_h, SDL_PIXELFORMAT_RGBA32);
 
                 if (!g_scoreboard_blit_surface) {
                     LOGE << fmt("Could not initialize g_scoreboard_blit_surface: %s", SDL_GetError());
@@ -670,7 +670,7 @@ bool init_display()
                 g_aux_ratio = (float)g_anun_h / (float)g_anun_w;
 
                 g_aux_blit_surface = SDL_CreateSurface(g_anun_w, g_anun_h,
-                                           SDL_PIXELFORMAT_RGBA8888);
+                                           SDL_PIXELFORMAT_RGBA32);
 
                 if (!g_aux_blit_surface) {
                     LOGE << fmt("Failed to create auxillary surface: %s", SDL_GetError());
@@ -710,7 +710,7 @@ bool init_display()
 
             g_overlay_surface =
                 SDL_CreateSurface(g_overlay_width, g_overlay_height,
-                                         SDL_PIXELFORMAT_RGBA8888);
+                                         SDL_PIXELFORMAT_RGBA32);
 
             if (!g_overlay_surface) {
                 LOGE << fmt("Could not initialize g_overlay_surface: %s", SDL_GetError());
@@ -722,25 +722,23 @@ bool init_display()
             g_enhance_overlay = g_game->has_overlay_upgrade(GAME_OVERLAY_UPGRADE);
             g_overlay_dynamic = g_game->get_dynamic_overlay();
 
-            // Convert the LEDs surface to the destination surface format for faster
-            // blitting, and set it's color key to NOT copy 0x000000ff pixels.
+            // Set it's color key to NOT copy 0x000000ff pixels.
             ConvertSurface(&g_other_bmps[B_OVERLAY_LEDS], g_overlay_surface->format);
-            SDL_SetSurfaceColorKey(g_other_bmps[B_OVERLAY_LEDS], true, 0x000000ff);
+
+            Uint32 colorkey = SDL_MapSurfaceRGB(g_other_bmps[B_OVERLAY_LEDS], 0, 0, 0);
+            SDL_SetSurfaceColorKey(g_other_bmps[B_OVERLAY_LEDS], true, colorkey);
 
             if (g_aux_blit_surface)
                 ConvertSurface(&g_aux_blit_surface, g_overlay_surface->format);
 
             ConvertSurface(&g_other_bmps[B_OVERLAY_LDP1450], g_overlay_surface->format);
-            SDL_SetSurfaceColorKey(g_other_bmps[B_OVERLAY_LDP1450], true, 0x000000ff);
+            colorkey = SDL_MapSurfaceRGB(g_other_bmps[B_OVERLAY_LDP1450], 0, 0, 0);
+            SDL_SetSurfaceColorKey(g_other_bmps[B_OVERLAY_LDP1450], true, colorkey);
 
             if (g_overlay_width && g_overlay_height) {
 
-                SDL_PixelFormat format = (g_game->get_overlay_depth() == GAME_OVERLAY_FULL)
-                                && !(g_game->has_overlay_upgrade(GAME_OVERLAY_ALPHA))
-                                ? SDL_PIXELFORMAT_ARGB8888 : SDL_PIXELFORMAT_RGBA8888;
-
-                g_overlay_texture = SDL_CreateTexture(g_renderer, format, g_texture_access,
-                                        g_overlay_width, g_overlay_height);
+                g_overlay_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
+                                        g_texture_access, g_overlay_width, g_overlay_height);
 
                 if (!g_overlay_texture) {
                     LOGE << fmt("Could not initialize g_overlay_texture: %s", SDL_GetError());
@@ -755,7 +753,7 @@ bool init_display()
                           SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
             }
 
-            g_mix_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
+            g_mix_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
                       SDL_TEXTUREACCESS_TARGET, g_logical_rect.w, g_logical_rect.h);
 
             if (!g_mix_texture) {
@@ -1137,6 +1135,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits,
     src.h = OVERLAY_LED_HEIGHT;
 
     SDL_Rect base = {0, dest.y + 1, dest.w, dest.h};
+    static const Uint32 colorkey = SDL_MapSurfaceRGB(g_other_bmps[B_OVERLAY_LEDS], 0xA, 0xA, 0xA);
 
     // Draw the digit(s) to the overlay surface
     for (int i = 0; i < num_digits; i++)
@@ -1145,7 +1144,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits,
         base.x = dest.x - 1;
 
         if (!g_legacy_overlay)
-            SDL_FillSurfaceRect(g_overlay_surface, &base, 0x0A0A0AFF);
+            SDL_FillSurfaceRect(g_overlay_surface, &base, colorkey);
 
         if (!SDL_BlitSurface(g_other_bmps[B_OVERLAY_LEDS], &src, g_overlay_surface, &dest)) {
             LOGE << fmt("Could not Blit Overlay LED's: %s", SDL_GetError());
@@ -2344,7 +2343,7 @@ static void vid_render_aux()
         }
         else
         {
-            g_aux_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA8888,
+            g_aux_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
                                 g_texture_access, g_anun_w, g_anun_h);
 
             if (!g_aux_texture) {
