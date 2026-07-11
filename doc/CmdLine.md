@@ -137,13 +137,12 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | Option                           | Description                                                                                                                 |
 |----------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | -8bit_overlay                    | Restore original 8bit overlays.                                                                                             |
-| -blend_sprites                   | Blend sprites in overlay (without full alpha).                                                                              |
+| -border \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |
 | -fullalpha                       | Observe the full RGBA alpha channel value in overlay sprite bltting.                                                        |
 | -js_range \<1-20>                | Adjust joystick-mouse sensitivity: *[default:5]*                                                                            |
 | -nocrosshair                     | Request the game does not display crosshairs.                                                                               |
 | -nojoymouse                      | Disable the joysticks ability to control mouse input.                                                                       |
 | -script                          | Defines the location of the Singe LUA script. **Required** for LUA games.                                                   |
-| -sinden \<1-10> \<color>         | Enable a Sinden style border for Gun Games. Color: *(w)hite, (r)ed, (g)reen, (b)lue or (x*)                                 |
 | -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.<br>`-altscript` is an alias.     |
 | -xratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the horizontal scale.<br>_1.33_ adjusts _16:9_ to _4:3_ |
 | -yratio \<float>                 | Pass a float value to help adjust the in-game mouse co-ordinates on the vertical scale.<br>Requires game LUA interaction.   |

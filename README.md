@@ -163,7 +163,7 @@ Singe supports Sinden and many other lightguns with the `-manymouse` argument.
 
 This argument enables *absolute* (``EV_ABS``) mouse input event codes.
 
-**Note:** `-outline` automatically enables `-manymouse`
+**Note:** `-border` automatically enables `-manymouse`
 
 ## Singe joystick [mouse] support
 

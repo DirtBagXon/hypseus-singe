@@ -154,7 +154,6 @@ static double                m_se_overlay_scale_y  =  1;
 static double                m_se_yuv_scale_x      =  1;
 static double                m_se_yuv_scale_y      =  1;
 static bool                  m_show_crosshair      = true;
-static bool                  m_blend_sprite        = false;
 static bool                  m_trace               = false;
 static bool                  m_rom_zip             = false;
 static bool                  m_firstload           = true;
@@ -837,8 +836,10 @@ SDL_Surface *sep_copy_surface(SDL_Surface *src, SDL_Rect *rect)
 
     dst = SDL_CreateSurface(w, h, fmt->format);
 
-    if (dst != NULL)
+    if (dst != NULL) {
         SDL_BlitSurface(src, rect, dst, NULL);
+        SDL_SetSurfaceBlendMode(dst, SDL_BLENDMODE_NONE);
+    }
     else
         sep_die("sep_copy_surface failed: %s\n", SDL_GetError());
 
@@ -1276,7 +1277,6 @@ static bool sep_format_srf32(SDL_Surface *src, SDL_Texture *dst)
 
         bResult = true;
     }
-
     return bResult;
 }
 
@@ -1384,7 +1384,7 @@ static bool sep_sound_zip(std::string s, m_soundT *sound)
 
     SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
 
-    bool load = SDL_LoadWAV_IO(io, 1, &sound->audioSpec,
+    bool load = SDL_LoadWAV_IO(io, true, &sound->audioSpec,
                     &sound->buffer, &sound->length);
 
     delete[] static_cast<char*>(zip.data);
@@ -1481,7 +1481,7 @@ static IMG_Animation* sep_animation_zip(std::string s)
 
     SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
 
-    IMG_Animation *animation = IMG_LoadAnimation_IO(io, 1);
+    IMG_Animation *animation = IMG_LoadAnimation_IO(io, true);
 
     delete[] static_cast<char*>(zip.data);
 
@@ -1497,7 +1497,7 @@ static SDL_Surface* sep_surface_zip(std::string s)
 
     SDL_IOStream *io = SDL_IOFromConstMem(zip.data, zip.size);
 
-    SDL_Surface *surface = IMG_Load_IO(io, 1);
+    SDL_Surface *surface = IMG_Load_IO(io, true);
 
     delete[] static_cast<char*>(zip.data);
 
@@ -1754,7 +1754,6 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
     lua_register(g_se_lua_context, "setOverlayFullAlpha",    sep_set_overlayfullalpha);
     lua_register(g_se_lua_context, "setOverlayOpacity",      sep_set_overlayopacity);
-    lua_register(g_se_lua_context, "setOverlaySpriteBlend",  sep_set_overlayblend);
     lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "spriteLoadFrames",       sep_sprite_loadframes);
@@ -1839,8 +1838,6 @@ void sep_startup(const char *data)
 
     sep_capture_vldp();
     g_bLuaInitialized = true;
-
-    m_blend_sprite = video::get_singe_blend_sprite();
 
     m_scriptpath = data;
 
@@ -1942,10 +1939,8 @@ void sep_upgrade_overlay(void)
 
 void sep_fullalpha_overlay(void)
 {
-   if (g_pSingeIn->cfm_overlay_unmask(g_pSingeIn->pSingeInstance)) {
+   if (g_pSingeIn->cfm_overlay_unmask(g_pSingeIn->pSingeInstance))
        m_upgrade_overlay = (1 << 2);
-       m_blend_sprite = true;
-   }
 }
 
 void sep_enable_trace(void)
@@ -2237,6 +2232,8 @@ static int sep_font_sprite(lua_State *L)
 
                   SDL_SetSurfaceRLE(textsurface, true);
                   if (m_colorkey) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
+
+                  SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 
                   m_spriteT sprite;
                   sprite.scaleX = 1.0;
@@ -2593,17 +2590,6 @@ static int sep_set_overlaysize(lua_State *L)
    return 0;
 }
 
-static int sep_set_overlayblend(lua_State *L)
-{
-   int n = lua_gettop(L);
-
-   if (n == 1)
-       if (lua_isboolean(L, 1))
-           m_blend_sprite = lua_toboolean(L, 1);
-
-   return 0;
-}
-
 static int sep_set_overlayopacity(lua_State *L)
 {
     int n = lua_gettop(L);
@@ -2650,12 +2636,8 @@ static int sep_draw_transparent(lua_State *L)
     int n = lua_gettop(L);
 
     if (n == 1)
-        if (lua_isboolean(L, 1)) {
+        if (lua_isboolean(L, 1))
             m_colorkey = !lua_toboolean(L, 1);
-
-            if (m_upgrade_overlay == SEP_OVERLAY_ALPHA)
-                m_blend_sprite = m_colorkey;
-        }
 
     return 0;
 }
@@ -2795,8 +2777,7 @@ static int sep_say_font(lua_State *L)
 
                     if (m_colorkey) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
 
-                    SDL_SetSurfaceBlendMode(textsurface, m_blend_sprite ?
-                                            SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
+                    SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 
                     SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
                     SDL_DestroySurface(textsurface);
@@ -3313,9 +3294,6 @@ static int sep_sprite_animate(lua_State *L)
 
           if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
 
-          SDL_SetSurfaceBlendMode(m_sprites[id].present, m_blend_sprite ?
-                                  SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-
           frame = (frame < 1 || frame > m_sprites[id].frames) ? 1 : frame;
 
           src.w = m_sprites[id].fwidth;
@@ -3375,9 +3353,6 @@ static int sep_sprite_animate_rotated(lua_State *L)
           }
 
           if (!sep_sprite_valid(L, id, m_sprites[id].frame, __func__)) return 0;
-
-          SDL_SetSurfaceBlendMode(m_sprites[id].frame, m_blend_sprite ?
-                                  SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
           dest.w = m_sprites[id].fwidth * ((n == 3) ? 1 : scalex);
           dest.h = m_sprites[id].present->h * ((n == 3) ? 1 : (n == 5 ? scaley : scalex));
@@ -3478,9 +3453,6 @@ static int sep_sprite_draw(lua_State *L)
                   }
               }
 
-              SDL_SetSurfaceBlendMode(m_sprites[id].present, m_blend_sprite ?
-                                      SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-
               if ((n == 3) || (n == 4)) {
                   dest.w = m_sprites[id].present->w;
                   dest.h = m_sprites[id].present->h;
@@ -3543,9 +3515,6 @@ static int sep_sprite_grid(lua_State *L)
       sep_die("Out of bound sprite dimensions given in spriteDrawGrid");
       return 0;
   }
-
-  SDL_SetSurfaceBlendMode(m_sprites[id].present, m_blend_sprite ?
-                          SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
 
   SDL_BlitSurface(m_sprites[id].present, &src, g_se_surface, &dest);
 
@@ -3635,6 +3604,9 @@ static int sep_sprite_loadata(lua_State *L)
 
                 SDL_SetSurfaceRLE(temp, true);
                 if (m_colorkey) SDL_SetSurfaceColorKey(temp, true, 0x0);
+
+                SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE);
+
                 sprite.store = sep_copy_surface(temp, NULL);
                 sprite.present = temp;
                 sprite.scaleX = 1.0;
@@ -3721,6 +3693,9 @@ static int sep_sprite_load(lua_State *L)
 
                SDL_SetSurfaceRLE(image, true);
                if (m_colorkey) SDL_SetSurfaceColorKey(image, true, 0x0);
+
+               SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
+
                sprite.store = sep_copy_surface(image, NULL);
                sprite.present = image;
                sprite.animation = NULL;
@@ -3730,6 +3705,7 @@ static int sep_sprite_load(lua_State *L)
                if (m_colorkey) {
                    for (int x = 0; x < temp->count; x++) {
                        SDL_SetSurfaceColorKey(temp->frames[x], true, 0x0);
+                       SDL_SetSurfaceBlendMode(temp->frames[x], SDL_BLENDMODE_NONE);
                    }
 	       }
 
@@ -3818,6 +3794,8 @@ static int sep_sprite_loadframes(lua_State *L)
 
                 SDL_SetSurfaceRLE(temp, true);
                 if (m_colorkey) SDL_SetSurfaceColorKey(temp, true, 0x0);
+
+                SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE);
 
                 m_spriteT sprite;
                 sprite.scaleX = 1.0;

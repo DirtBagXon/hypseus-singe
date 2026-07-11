@@ -445,7 +445,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         if (bResult) m_zipAltName = s;
     }
     else if (strcasecmp(arg, "-blend_sprites") == 0) {
-        video::set_singe_blend_sprite(true);
+        printline("Obsolete argument supplied, ignoring...");
         bResult = true;
     }
     else if (strcasecmp(arg, "-espath") == 0 || strcasecmp(arg, "-retropath") == 0) {
@@ -485,7 +485,7 @@ bool singe::handle_cmdline_arg(const char *arg)
         m_crosshair = false;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-outline") == 0) {
+    else if (strcasecmp(arg, "-border") == 0 || strcasecmp(arg, "-sinden") == 0) {
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
@@ -823,7 +823,6 @@ void singe::enableFullAlpha()
         printline("Enabling a full alpha range in the overlay.");
         m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 0)) | (1 << 1);
         g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
-        video::set_singe_blend_sprite(true);
     }
 }
 

@@ -100,15 +100,14 @@ void set_transparency(unsigned int uColorIndex, bool transparent)
 
     if (transparent)
     {
-        g_rgb[uColorIndex].a = 0;
+        g_rgb[uColorIndex].a = 0x00;
         g_uRGBAPalette[uColorIndex] &= ~ABGR_ALPHA_MASK;
     }
     else
     {
-        g_rgb[uColorIndex].a = 255;
+        g_rgb[uColorIndex].a = 0xFF;
         g_uRGBAPalette[uColorIndex] |= ABGR_ALPHA_MASK;
     }
-
 }
 
 // call this function when a color has changed

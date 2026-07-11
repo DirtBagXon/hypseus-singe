@@ -1296,7 +1296,6 @@ bool get_opengl() { return g_opengl; }
 bool get_vulkan() { return g_vulkan; }
 bool get_fullscreen() { return g_fullscreen; }
 bool get_aux_bezel() { return (g_aux_texture != NULL); }
-bool get_singe_blend_sprite() { return g_singe_blend_sprite; }
 bool get_video_resized() { return g_video_resized; }
 bool use_legacy_font() { return g_legacy_overlay; }
 
@@ -1317,7 +1316,6 @@ void set_shunt(uint8_t value) { g_scanline_shunt = value; }
 void set_alpha(uint8_t value) { g_scanline_alpha = value; }
 void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
 void set_scale_linear(bool value) { g_scale_linear = value; }
-void set_singe_blend_sprite(bool value) { g_singe_blend_sprite = value; }
 void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
 void set_sboverlay_white(bool value) { m_sboverlay_white = value; }
 void set_legacy_overlay(bool value) { g_legacy_overlay = value; }

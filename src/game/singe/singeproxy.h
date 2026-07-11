@@ -245,7 +245,6 @@ static int sep_doluafile(lua_State *L);
 static int sep_set_overlaysize(lua_State *L);
 static int sep_set_overlayfullalpha(lua_State *L);
 static int sep_set_overlayopacity(lua_State *L);
-static int sep_set_overlayblend(lua_State *L);
 static int sep_set_custom_overlay(lua_State *L);
 static int sep_controller_rumble(lua_State *L);
 static int sep_bezel_loaded(lua_State *L);
