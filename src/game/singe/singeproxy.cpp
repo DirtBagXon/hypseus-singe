@@ -79,6 +79,7 @@ typedef struct m_spriteType {
 	int     fwidth = 0;
 	bool    gfx    = false;
 	bool    smooth = false;
+	bool    blend  = false;
 	bool    rekey  = false;
 	bool    nokey  = false;
 	SDL_Surface *store;
@@ -1729,6 +1730,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "spriteScale",            sep_sprite_scale);
     lua_register(g_se_lua_context, "spriteRotateAndScale",   sep_sprite_rotatescale);
     lua_register(g_se_lua_context, "spriteQuality",          sep_sprite_quality);
+    lua_register(g_se_lua_context, "spriteBlend",            sep_sprite_blend);
     lua_register(g_se_lua_context, "spriteUnload",           sep_sprite_unload);
     lua_register(g_se_lua_context, "soundUnload",            sep_sound_unload);
     lua_register(g_se_lua_context, "fontUnload",             sep_font_unload);
@@ -3461,6 +3463,10 @@ static int sep_sprite_draw(lua_State *L)
                   dest.x -= dest.w * 0.5;
                   dest.y -= dest.h * 0.5;
               }
+
+              if (m_sprites[id].blend)
+                  SDL_SetSurfaceBlendMode(m_sprites[id].present, SDL_BLENDMODE_BLEND);
+
               if ((n == 3) || (n == 4)) {
                   SDL_BlitSurface(m_sprites[id].present, NULL, g_se_surface, &dest);
               } else {
@@ -3515,6 +3521,9 @@ static int sep_sprite_grid(lua_State *L)
       sep_die("Out of bound sprite dimensions given in spriteDrawGrid");
       return 0;
   }
+
+  if (m_sprites[id].blend)
+      SDL_SetSurfaceBlendMode(m_sprites[id].present, SDL_BLENDMODE_BLEND);
 
   SDL_BlitSurface(m_sprites[id].present, &src, g_se_surface, &dest);
 
@@ -3860,6 +3869,27 @@ static int sep_frame_width(lua_State *L)
 
   lua_pushnumber(L, result);
   return 1;
+}
+
+static int sep_sprite_blend(lua_State *L)
+{
+  int n = lua_gettop(L);
+  int id = -1;
+
+  if (n == 2) {
+      if (lua_isboolean(L, 1) && lua_isnumber(L, 2)) {
+          id = lua_tonumber(L, 2);
+          if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
+          m_sprites[id].blend = lua_toboolean(L, 1);
+      }
+  }
+
+  if (id < 0) {
+      sep_trace(L);
+      sep_die("spriteBlend Failed!");
+  }
+
+  return 0;
 }
 
 static int sep_sprite_rotateframe(lua_State *L)

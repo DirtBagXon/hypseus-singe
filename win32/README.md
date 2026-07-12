@@ -49,4 +49,4 @@ Use the `hypjsch` application in the `C:\Hypseus Singe` folder to help calculate
 
 See also the **Gamepad** configuration option: [hypinput_gamepad.ini](https://github.com/DirtBagXon/hypseus-singe/blob/master/doc/hypinput_gamepad.ini)
 
-**Note:** Hypseus Singe uses **SDL2** keycodes. See information in *hypinput.ini*
+**Note:** Hypseus Singe uses **SDL3** keycodes. See information in *hypinput.ini*

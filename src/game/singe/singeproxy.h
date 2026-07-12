@@ -175,6 +175,7 @@ static int sep_sprite_draw(lua_State *L);
 static int sep_sprite_animate(lua_State *L);
 static int sep_sprite_grid(lua_State *L);
 static int sep_sprite_color_rekey(lua_State *L);
+static int sep_sprite_blend(lua_State *L);
 static int sep_sprite_frames(lua_State *L);
 static int sep_frame_width(lua_State *L);
 static int sep_sprite_height(lua_State *L);
