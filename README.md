@@ -10,7 +10,7 @@ This version includes _Singe LUA_ support for Fan Made [American Laser Games][AL
 
 Features:
 
-* SDL3 upgrade
+* SDL3
 * VLDP 32bit upgrade
 * Updated MPEG2 decoder
 * Integrated _(active)_ [bezel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/bezel.png) support

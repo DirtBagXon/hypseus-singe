@@ -3702,11 +3702,9 @@ static int sep_sprite_load(lua_State *L)
 
             } else {
 
-               if (m_colorkey) {
-                   for (int x = 0; x < temp->count; x++) {
-                       SDL_SetSurfaceColorKey(temp->frames[x], true, 0x0);
-                       SDL_SetSurfaceBlendMode(temp->frames[x], SDL_BLENDMODE_NONE);
-                   }
+               for (int x = 0; x < temp->count; x++) {
+                   SDL_SetSurfaceBlendMode(temp->frames[x], SDL_BLENDMODE_NONE);
+                   if (m_colorkey) SDL_SetSurfaceColorKey(temp->frames[x], true, 0x0);
 	       }
 
                sprite.present = sep_copy_surface(temp->frames[0], NULL);
