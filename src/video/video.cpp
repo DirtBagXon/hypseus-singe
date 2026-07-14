@@ -58,7 +58,7 @@ int g_viewport_width = g_video_width, g_viewport_height = g_video_height;
 int g_aspect_width = 0, g_aspect_height = 0;
 int g_alloc_screen = 0;
 int g_scoreboard_screen = -1;
-int g_displays = 0;
+int g_displays_total = 0;
 int g_display = 0;
 
 int scoreboard_window_pos_x = 0, scoreboard_window_pos_y = 0;
@@ -463,16 +463,16 @@ bool init_display()
         }
     }
 
-    SDL_DisplayID *id = SDL_GetDisplays(&g_displays);
-    displayDimensions.resize(g_displays);
+    SDL_DisplayID *id = SDL_GetDisplays(&g_displays_total);
+    displayDimensions.resize(g_displays_total);
 
-    for (int i = 0; i < g_displays; i++) {
+    for (int i = 0; i < g_displays_total; i++) {
         SDL_GetDisplayBounds(id[i], &displayDimensions[i]);
     }
 
     SDL_free(id);
 
-    if (g_alloc_screen > g_display && g_alloc_screen < g_displays)
+    if (g_alloc_screen > g_display && g_alloc_screen < g_displays_total)
         g_display = g_alloc_screen;
 
     if (notify && g_window && !VIDEO_HAS(TEARDOWN)) {
@@ -583,7 +583,7 @@ bool init_display()
                         goto exit;
                     }
 
-                    if (g_displays > 1) {
+                    if (g_displays_total > 1) {
 
                         int screen;
 
@@ -1900,11 +1900,11 @@ void vid_scoreboard_switch()
 {
     if (!g_scoreboard_window) return;
 
-    g_scoreboard_screen = max(0, min(g_scoreboard_screen, g_displays - 1));
+    g_scoreboard_screen = max(0, min(g_scoreboard_screen, g_displays_total - 1));
 
     char s[16] = "screen: 0";
 
-    if (g_displays > 1)
+    if (g_displays_total > 1)
     {
         snprintf(s, sizeof(s), "screen: %d", (unsigned char)g_scoreboard_screen);
 
@@ -1912,7 +1912,7 @@ void vid_scoreboard_switch()
            displayDimensions[g_scoreboard_screen].x + scoreboard_window_pos_x,
               displayDimensions[g_scoreboard_screen].y + scoreboard_window_pos_y);
 
-        if (++g_scoreboard_screen == g_displays) g_scoreboard_screen = 0;
+        if (++g_scoreboard_screen == g_displays_total) g_scoreboard_screen = 0;
 
     } else
         SDL_SetWindowPosition(g_scoreboard_window, scoreboard_window_pos_x,

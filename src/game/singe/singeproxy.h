@@ -57,17 +57,21 @@
 
 #endif
 
-#define SPRITE_SET(s, flag) \
-    ((s).flags |= (flag))
+#define FLAGS_SET(bits, flag)      ((bits) |= (flag))
+#define FLAGS_CLEAR(bits, flag)    ((bits) &= ~(flag))
+#define FLAGS_HAS(bits, flag)      (((bits) & (flag)) != 0)
+#define FLAGS_ASSIGN(bits, flag, value) \
+    ((value) ? FLAGS_SET((bits), (flag)) : FLAGS_CLEAR((bits), (flag)))
 
-#define SPRITE_CLEAR(s, flag) \
-    ((s).flags &= ~(flag))
+#define SEP_SET(flag)            FLAGS_SET(g_sepflags, flag)
+#define SEP_CLEAR(flag)          FLAGS_CLEAR(g_sepflags, flag)
+#define SEP_HAS(flag)            FLAGS_HAS(g_sepflags, flag)
+#define SEP_ASSIGN(flag,v)       FLAGS_ASSIGN(g_sepflags, flag, v)
 
-#define SPRITE_HAS(s, flag) \
-    ((((s).flags) & (flag)) != 0)
-
-#define SPRITE_ASSIGN(s, flag, value) \
-    ((value) ? SPRITE_SET((s), (flag)) : SPRITE_CLEAR((s), (flag)))
+#define SPRITE_SET(s, flag)      FLAGS_SET((s).flags, flag)
+#define SPRITE_CLEAR(s, flag)    FLAGS_CLEAR((s).flags, flag)
+#define SPRITE_HAS(s, flag)      FLAGS_HAS((s).flags, flag)
+#define SPRITE_ASSIGN(s,f,v)     FLAGS_ASSIGN((s).flags, f, v)
 
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
@@ -134,6 +138,22 @@ enum
     SPR_NOKEY      = 1u << 4,
     SPR_LOOP       = 1u << 5,
     SPR_ANIMATING  = 1u << 6
+};
+
+enum SingeFlags : uint16_t
+{
+    SEP_TRACE          = 1u << 0,
+    SEP_ROM_ZIP        = 1u << 1,
+    SEP_PAUSE_STATE    = 1u << 2,
+    SEP_FIRSTSPRITE    = 1u << 3,
+    SEP_FIRSTFONT      = 1u << 4,
+    SEP_FIRSTMIX       = 1u << 5,
+    SEP_FIRSTSND       = 1u << 6,
+    SEP_COLORKEY       = 1u << 7,
+    SEP_ZLUA_ARG       = 1u << 8,
+    SEP_PIXELREADY     = 1u << 9,
+    SEP_SRT_DISPLAY    = 1u << 10,
+    SEP_CROSSHAIR      = 1u << 11,
 };
 
 ////////////////////////////////////////////////////////////////////////////////

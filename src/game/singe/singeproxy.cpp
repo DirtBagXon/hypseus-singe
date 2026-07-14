@@ -130,6 +130,10 @@ static unsigned int *g_se_uDiscFPKS;
 static bool g_bLuaInitialized                      = false;
 static bool m_se_grunt                             = true;
 
+static uint16_t g_sepflags = SEP_CROSSHAIR    | SEP_FIRSTFONT |
+                             SEP_FIRSTSPRITE  | SEP_FIRSTMIX  |
+                             SEP_FIRSTSND     | SEP_COLORKEY;
+
 // Communications from the DLL to and from Hypseus
 struct       singe_out_info  g_SingeOut;
 const struct singe_in_info  *g_pSingeIn            = NULL;
@@ -148,22 +152,11 @@ static double                m_se_overlay_scale_x  =  1;
 static double                m_se_overlay_scale_y  =  1;
 static double                m_se_yuv_scale_x      =  1;
 static double                m_se_yuv_scale_y      =  1;
-static bool                  m_show_crosshair      = true;
-static bool                  m_trace               = false;
-static bool                  m_rom_zip             = false;
-static bool                  m_firstload           = true;
-static bool                  m_firstfont           = true;
-static bool                  m_firstmix            = true;
-static bool                  m_firstsnd            = true;
-static bool                  m_pixelready          = false;
-static bool                  m_colorkey            = true;
-static bool                  m_zlua_arg            = false;
 static uint8_t               m_upgrade_overlay     = 0;
 
 static bool                  g_keyboard_state[SDL_SCANCODE_COUNT] = {false};
 static int                   g_keyboard_down       = SDL_SCANCODE_UNKNOWN;
 static int                   g_keyboard_up         = SDL_SCANCODE_UNKNOWN;
-static bool                  g_pause_state         = false; // by RDG2010
 const char*                  g_zipFile             = NULL;
 
 static m_positionT           m_tract;
@@ -181,7 +174,6 @@ static vector<ZipEntry>      m_zipList;
 static vector<ZipEntry>::iterator m_iter;
 
 static vector<m_srtT>       m_srt;
-static bool                 m_srt_display          = false;
 static int                  m_srt_height           = 0x50;
 
 static std::unordered_map<TTF_Font *, std::unique_ptr<char[]>> m_fontBuffers;
@@ -382,8 +374,8 @@ static bool audio_format(SDL_AudioSpec *sound)
 
 static void sep_trace(lua_State *L)
 {
-    if (m_trace) {
-        if (m_rom_zip) {
+    if (SEP_HAS(SEP_TRACE)) {
+        if (SEP_HAS(SEP_ROM_ZIP)) {
             static bool notice = false;
             if (!notice) {
                 LOGW << sep_fmt("Uncompress the ROM to enable trace debugging.");
@@ -680,7 +672,7 @@ int sep_prepare_frame_callback(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane
                ? VLDP_TRUE
                : VLDP_FALSE;
 
-    if (m_pixelready)
+    if (SEP_HAS(SEP_PIXELREADY))
     {
         memcpy(m_se_yuv_buf.Y.get(), Yplane, g_se_vldp_width * g_se_vldp_height);
         memcpy(m_se_yuv_buf.U.get(), Uplane, m_se_yuv_buf.UVw * m_se_yuv_buf.UVh);
@@ -947,25 +939,25 @@ void sep_shutdown(void)
 static void sep_sprite_reset()
 {
     m_sprites.clear();
-    m_firstload = false;
+    SEP_CLEAR(SEP_FIRSTSPRITE);
 }
 
 static void sep_font_reset()
 {
     m_fontList.clear();
-    m_firstfont = false;
+    SEP_CLEAR(SEP_FIRSTFONT);
 }
 
 static void sep_sound_reset()
 {
     m_soundList.clear();
-    m_firstsnd = false;
+    SEP_CLEAR(SEP_FIRSTSND);
 }
 
 static void sep_mixer_reset()
 {
     m_mixerList.clear();
-    m_firstmix = false;
+    SEP_CLEAR(SEP_FIRSTMIX);
 }
 
 template <typename T>
@@ -980,7 +972,7 @@ inline bool sep_animation_valid(lua_State *L, int sprite, IMG_Animation *animati
 
         static bool die = false;
         if (!die) {
-            m_trace = true; sep_trace(L);
+            SEP_SET(SEP_TRACE); sep_trace(L);
             sep_die("Call on invalid Animation: %s()", func);
             die = true;
         }
@@ -995,7 +987,7 @@ static inline bool sep_sprite_valid(lua_State *L, int sprite, SDL_Surface *surfa
 
         static bool die = false;
         if (!die) {
-            m_trace = true; sep_trace(L);
+            SEP_SET(SEP_TRACE); sep_trace(L);
             sep_die("Call on invalid Sprite: %s()", func);
             die = true;
         }
@@ -1032,7 +1024,7 @@ static inline bool sep_font_valid(lua_State *L, TTF_Font *font, const char* func
 
         static bool die = false;
         if (!die) {
-            m_trace = true; sep_trace(L);
+            SEP_SET(SEP_TRACE); sep_trace(L);
             sep_die("Call on invalid Font: %s()", func);
             die = true;
         }
@@ -1052,7 +1044,7 @@ static inline void sep_draw_pixel(int x, int y, const SDL_Color *c)
         (y < 0) || (y >= g_se_surface->h))
         return;
 
-    const SDL_Color f = m_colorkey
+    const SDL_Color f = SEP_HAS(SEP_COLORKEY)
         ? SDL_Color{c->r, c->g, c->b, 0xff}
         : m_colorTransparent;
 
@@ -1324,7 +1316,7 @@ static bool sep_format_monochrome(SDL_Surface *src, SDL_Texture *dst)
 
 void sep_do_blit(SDL_Surface *srfDest)
 {
-    if (m_srt_display)
+    if (SEP_HAS(SEP_SRT_DISPLAY))
         UpdateSRT(m_srt, g_pSingeIn->get_current_frame());
 
     switch (m_upgrade_overlay) {
@@ -1515,7 +1507,7 @@ static std::vector<m_srtT> LoadSRT(const std::string& filename, double fps)
     std::vector<m_srtT> subtitles;
     std::string content;
 
-    if (m_rom_zip)
+    if (SEP_HAS(SEP_ROM_ZIP))
         content = sep_srt_zip(filename);
     else
     {
@@ -1841,7 +1833,7 @@ void sep_startup(const char *data)
     std::string ext = m_scriptpath.substr(++pos);
     int zip = ext.compare("zip");
 
-    if (m_zlua_arg || zip == 0) { // We have a zip
+    if (SEP_HAS(SEP_ZLUA_ARG) || zip == 0) { // We have a zip
 
          g_zf = new ZipArchive(data);
          g_zf->open(ZipArchive::ReadOnly);
@@ -1850,7 +1842,7 @@ void sep_startup(const char *data)
 
              const char *init = NULL;
              int size = 0;
-             m_rom_zip = true;
+             SEP_SET(SEP_ROM_ZIP);
              m_zipList = g_zf->getEntries();
              g_zipFile = data;
              std::string startup;
@@ -1920,12 +1912,12 @@ void sep_startup(const char *data)
 
 void sep_rom_compressed(void)
 {
-   m_zlua_arg = true;
+   SEP_SET(SEP_ZLUA_ARG);
 }
 
 void sep_no_crosshair(void)
 {
-   m_show_crosshair = false;
+   SEP_CLEAR(SEP_CROSSHAIR);
 }
 
 void sep_upgrade_overlay(void)
@@ -1941,7 +1933,7 @@ void sep_fullalpha_overlay(void)
 
 void sep_enable_trace(void)
 {
-   m_trace = true;
+   SEP_SET(SEP_TRACE);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2129,7 +2121,7 @@ static int sep_font_load(lua_State *L)
         int points = lua_tonumber(L, 2);
         TTF_Font *temp;
 
-        if (m_rom_zip) {
+        if (SEP_HAS(SEP_ROM_ZIP)) {
 
             auto zipfont = sep_font_zip(fontpath, points);
             temp = zipfont.font;
@@ -2150,7 +2142,7 @@ static int sep_font_load(lua_State *L)
 
         if (temp) {
             // Make it the current font and mark it as loaded.
-            if (m_firstfont) sep_font_reset();
+            if (SEP_HAS(SEP_FIRSTFONT)) sep_font_reset();
             m_fontList.push_back(temp);
             m_fontCurrent = m_fontList.size() - 1;
             result        = m_fontCurrent;
@@ -2224,10 +2216,10 @@ static int sep_font_sprite(lua_State *L)
                   return 0;
               } else {
 
-                  if (m_firstload) sep_sprite_reset();
+                  if (SEP_HAS(SEP_FIRSTSPRITE)) sep_sprite_reset();
 
                   SDL_SetSurfaceRLE(textsurface, true);
-                  if (m_colorkey) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
+                  if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
 
                   SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 
@@ -2443,8 +2435,8 @@ static bool yuv_from_buf(lua_State* L, uint8_t& Y, uint8_t& U, uint8_t& V)
                 U = m_se_yuv_buf.U[UV_index];
                 V = m_se_yuv_buf.V[UV_index];
 
-                if (!m_pixelready)
-                    m_pixelready = true;
+                if (!SEP_HAS(SEP_PIXELREADY))
+                    SEP_SET(SEP_PIXELREADY);
 
                 return true;
             }
@@ -2623,7 +2615,7 @@ static int sep_get_fvalue(lua_State *L)
 
 static int sep_singe_wants_crosshair(lua_State *L)
 {
-   lua_pushboolean(L, m_show_crosshair);
+   lua_pushboolean(L, SEP_HAS(SEP_CROSSHAIR));
    return 1;
 }
 
@@ -2633,7 +2625,7 @@ static int sep_draw_transparent(lua_State *L)
 
     if (n == 1)
         if (lua_isboolean(L, 1))
-            m_colorkey = !lua_toboolean(L, 1);
+            SEP_ASSIGN(SEP_COLORKEY,!lua_toboolean(L, 1));
 
     return 0;
 }
@@ -2655,7 +2647,7 @@ static int sep_overlay_clear(lua_State *L)
 
 static int sep_lua_rewrite(lua_State *L)
 {
-    lua_pushboolean(L, !m_rom_zip && g_pSingeIn->get_es_path());
+    lua_pushboolean(L, !SEP_HAS(SEP_ROM_ZIP) && g_pSingeIn->get_es_path());
 
     return 1;
 }
@@ -2663,7 +2655,7 @@ static int sep_lua_rewrite(lua_State *L)
 static int sep_pause(lua_State *L)
 {
     g_pSingeIn->pre_pause();
-    g_pause_state = true; // by RDG2010
+    SEP_SET(SEP_PAUSE_STATE);
 
     return 0;
 }
@@ -2671,7 +2663,7 @@ static int sep_pause(lua_State *L)
 static int sep_play(lua_State *L)
 {
     g_pSingeIn->pre_play();
-    g_pause_state = false; // by RDG2010
+    SEP_CLEAR(SEP_PAUSE_STATE);
 
    return 0;
 }
@@ -2771,7 +2763,7 @@ static int sep_say_font(lua_State *L)
                     dest.x = lua_tonumber(L, 1) + m_se_overlay_scale_x;
                     dest.y = lua_tonumber(L, 2) + m_se_overlay_scale_y;
 
-                    if (m_colorkey) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
+                    if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
 
                     SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
 
@@ -2823,7 +2815,7 @@ static int sep_subtitle_load(lua_State *L)
             m_srt = LoadSRT(lua_tostring(L, 1), *g_se_disc_fps);
 
 	    if (m_srt.empty())
-                m_srt_display = false;
+                SEP_CLEAR(SEP_SRT_DISPLAY);
             else
                 result = true;
         }
@@ -2852,9 +2844,9 @@ static int sep_subtitle_enable(lua_State *L)
 
     if (n == 1)
         if (lua_isboolean(L, 1)) {
-            m_srt_display = lua_toboolean(L, 1);
+            SEP_ASSIGN(SEP_SRT_DISPLAY, lua_toboolean(L, 1));
 
-            if (!m_srt_display)
+            if (!SEP_HAS(SEP_SRT_DISPLAY))
                 video::draw_srt("-", 2, -1);
         }
 
@@ -2978,7 +2970,7 @@ static int sep_skip_to_frame(lua_State *L)
           g_pSingeIn->framenum_to_frame(lua_tonumber(L, 1), s);
           g_pSingeIn->pre_search(s, true);
           g_pSingeIn->pre_play();
-          g_pause_state = false; // BY RDG2010
+          SEP_CLEAR(SEP_PAUSE_STATE);
       }
   }
   return 0;
@@ -3019,7 +3011,7 @@ static int sep_sound_loadata(lua_State *L)
                                &temp.buffer, &temp.length);
 
           if (load && audio_format(&temp.audioSpec)) {
-              if (m_firstsnd) sep_sound_reset();
+              if (SEP_HAS(SEP_FIRSTSND)) sep_sound_reset();
               m_soundList.push_back(temp);
               result = m_soundList.size() - 1;
               m_soundList[result].load = true;
@@ -3048,7 +3040,7 @@ static int sep_sound_load(lua_State *L)
       std::string filepath = lua_tostring(L, 1);
       m_soundT temp;
 
-      if (m_rom_zip) {
+      if (SEP_HAS(SEP_ROM_ZIP)) {
 
           load = sep_sound_zip(filepath, &temp);
 
@@ -3067,7 +3059,7 @@ static int sep_sound_load(lua_State *L)
       }
 
       if (load) { // check audio_format() ?
-          if (m_firstsnd) sep_sound_reset();
+          if (SEP_HAS(SEP_FIRSTSND)) sep_sound_reset();
           m_soundList.push_back(temp);
           result = m_soundList.size() - 1;
           m_soundList[result].load = true;
@@ -3139,7 +3131,7 @@ static int sep_music_load(lua_State *L)
 
   if (n == 1 && lua_type(L, 1) == LUA_TSTRING)
   {
-      if (m_firstmix) {
+      if (SEP_HAS(SEP_FIRSTMIX)) {
           if (!sep_init_mixer())
               return result;
       }
@@ -3149,7 +3141,7 @@ static int sep_music_load(lua_State *L)
       MIX_Track *tmpTrk = NULL;
       bool load = false;
 
-      if (m_rom_zip)
+      if (SEP_HAS(SEP_ROM_ZIP))
       {
           load = sep_mixer_zip(mixpath, m_mixer, &tmpAud, &tmpTrk);
       }
@@ -3173,7 +3165,7 @@ static int sep_music_load(lua_State *L)
       if (load)
       {
           m_mixerT mixer;
-          if (m_firstmix) sep_mixer_reset();
+          if (SEP_HAS(SEP_FIRSTMIX)) sep_mixer_reset();
           mixer.audio = tmpAud;
           mixer.track = tmpTrk;
           mixer.load = true;
@@ -3602,10 +3594,10 @@ static int sep_sprite_loadata(lua_State *L)
             if (temp) {
 
                 m_spriteT sprite;
-                if (m_firstload) sep_sprite_reset();
+                if (SEP_HAS(SEP_FIRSTSPRITE)) sep_sprite_reset();
 
                 SDL_SetSurfaceRLE(temp, true);
-                if (m_colorkey) SDL_SetSurfaceColorKey(temp, true, 0x0);
+                if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(temp, true, 0x0);
 
                 SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE);
 
@@ -3616,7 +3608,7 @@ static int sep_sprite_loadata(lua_State *L)
                 SPRITE_SET(sprite, SPR_GFX);
                 sprite.frame = NULL;
                 sprite.animation = NULL;
-                if (!m_colorkey) SPRITE_SET(sprite, SPR_NOKEY);
+                if (!SEP_HAS(SEP_COLORKEY)) SPRITE_SET(sprite, SPR_NOKEY);
 
                 m_sprites.push_back(sprite);
                 result = m_sprites.size() - 1;
@@ -3643,7 +3635,7 @@ static int sep_sprite_load(lua_State *L)
     {
         std::string filepath = lua_tostring(L, 1);
 
-        if (m_rom_zip) {
+        if (SEP_HAS(SEP_ROM_ZIP)) {
 
             temp = sep_animation_zip(filepath);
 
@@ -3661,7 +3653,7 @@ static int sep_sprite_load(lua_State *L)
        if (temp) {
 
            m_spriteT sprite;
-           if (m_firstload) sep_sprite_reset();
+           if (SEP_HAS(SEP_FIRSTSPRITE)) sep_sprite_reset();
 
            if (temp->count < 2) {
 
@@ -3669,7 +3661,7 @@ static int sep_sprite_load(lua_State *L)
                temp = NULL;
 
                SDL_Surface *image = NULL;
-               if (m_rom_zip) image = sep_surface_zip(filepath);
+               if (SEP_HAS(SEP_ROM_ZIP)) image = sep_surface_zip(filepath);
                else image = IMG_Load(filepath.c_str());
 
                if (!image) {
@@ -3694,7 +3686,7 @@ static int sep_sprite_load(lua_State *L)
                image = convert;
 
                SDL_SetSurfaceRLE(image, true);
-               if (m_colorkey) SDL_SetSurfaceColorKey(image, true, 0x0);
+               if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(image, true, 0x0);
 
                SDL_SetSurfaceBlendMode(image, SDL_BLENDMODE_NONE);
 
@@ -3706,7 +3698,7 @@ static int sep_sprite_load(lua_State *L)
 
                for (int x = 0; x < temp->count; x++) {
                    SDL_SetSurfaceBlendMode(temp->frames[x], SDL_BLENDMODE_NONE);
-                   if (m_colorkey) SDL_SetSurfaceColorKey(temp->frames[x], true, 0x0);
+                   if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(temp->frames[x], true, 0x0);
                }
 
                sprite.present = sep_copy_surface(temp->frames[0], NULL);
@@ -3719,7 +3711,7 @@ static int sep_sprite_load(lua_State *L)
            SPRITE_SET(sprite, SPR_GFX);
            sprite.frame = NULL;
 
-           if (!m_colorkey) SPRITE_SET(sprite, SPR_NOKEY);
+           if (!SEP_HAS(SEP_COLORKEY)) SPRITE_SET(sprite, SPR_NOKEY);
 
            m_sprites.push_back(sprite);
            result = m_sprites.size() - 1;
@@ -3757,7 +3749,7 @@ static int sep_sprite_loadframes(lua_State *L)
                return result;
             }
 
-            if (m_rom_zip) {
+            if (SEP_HAS(SEP_ROM_ZIP)) {
 
                temp = sep_surface_zip(filepath);
 
@@ -3775,7 +3767,7 @@ static int sep_sprite_loadframes(lua_State *L)
 
             if (temp) {
 
-                if (m_firstload) sep_sprite_reset();
+                if (SEP_HAS(SEP_FIRSTSPRITE)) sep_sprite_reset();
 
                 SDL_Surface* convert = NULL;
 
@@ -3793,7 +3785,7 @@ static int sep_sprite_loadframes(lua_State *L)
                 temp = convert;
 
                 SDL_SetSurfaceRLE(temp, true);
-                if (m_colorkey) SDL_SetSurfaceColorKey(temp, true, 0x0);
+                if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(temp, true, 0x0);
 
                 SDL_SetSurfaceBlendMode(temp, SDL_BLENDMODE_NONE);
 
@@ -3806,7 +3798,7 @@ static int sep_sprite_loadframes(lua_State *L)
                 sprite.store = sep_copy_surface(temp, NULL);
                 sprite.present = temp;
                 sprite.animation = NULL;
-                if (!m_colorkey) SPRITE_SET(sprite, SPR_NOKEY);
+                if (!SEP_HAS(SEP_COLORKEY)) SPRITE_SET(sprite, SPR_NOKEY);
 
                 m_sprites.push_back(sprite);
                 result = m_sprites.size() - 1;
@@ -4513,7 +4505,7 @@ static int sep_controller_button(lua_State *L)
             }
             else b = lua_tonumber(L, 1);
 
-            if (m_trace) {
+            if (SEP_HAS(SEP_TRACE)) {
                 if (framework) {
                     LOGW << sep_fmt("Framework adjustment will be made to (%d)", b);
                 }
@@ -4717,7 +4709,7 @@ static int sep_get_pause_flag(lua_State *L)
 	* 
 	* A lua programmer can use this to prevent resuming playback accidentally.
 	*/
-	lua_pushboolean(L, g_pause_state);
+	lua_pushboolean(L, SEP_HAS(SEP_PAUSE_STATE));
 	return 1;
 
 }
@@ -4725,14 +4717,12 @@ static int sep_get_pause_flag(lua_State *L)
 static int sep_set_pause_flag(lua_State *L)
 {
 	int n = lua_gettop(L);
-	bool b1 = false;
 		
 	if (n == 1)
 	{		
 		if (lua_isboolean(L, 1))
 		{	
-			b1 = lua_toboolean(L, 1);
-			g_pause_state = b1;
+			SEP_ASSIGN(SEP_PAUSE_STATE, lua_toboolean(L, 1));
 			
 		}
 	}	
@@ -4907,7 +4897,7 @@ static int sep_doluafile(lua_State *L)
         {
             const char *fname = luaL_optstring(L, 1, NULL);
 
-            if (!m_rom_zip) {
+            if (!SEP_HAS(SEP_ROM_ZIP)) {
 
                 if (luaL_dofile(L, fname) != 0)
                     sep_die("error compiling script: %s", lua_tostring(L, -1));
