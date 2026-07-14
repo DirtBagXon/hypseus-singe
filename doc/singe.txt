@@ -67,11 +67,11 @@ spriteAnimPause,        sep_sprite_pause           (spr)
 spriteAnimPlay,         sep_sprite_play            (spr) -- GIF Data Stream or APNG
 spriteAnimSetFrame,     sep_sprite_set_frame       (frame, spr) -- loaded via spriteLoad()
 
+spriteBlend,            sep_sprite_blend           (bool, spr)
 spriteRotate,           sep_sprite_rotate          (rotation, spr)
 spriteRotateAndScale,   sep_sprite_rotatescale     (rotation, scale, [scaley], spr)
 spriteQuality,          sep_sprite_quality         (bool, spr)
 spriteScale,            sep_sprite_scale           (scale, [scaley], spr)
-spriteBlend,            sep_sprite_blend           (bool, spr)
 
 srtLoad,                sep_subtitle_load           (srt) - Return bool on load
 srtClear,               sep_subtitle_clear          (void)

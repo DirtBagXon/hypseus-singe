@@ -1,7 +1,7 @@
 /*
 * ____ DAPHNE COPYRIGHT NOTICE ____
 *
-* Copyright (C) 2001 Matt Ownby, 2016 DirtBagXon
+* Copyright (C) 2001 Matt Ownby, 2026 DirtBagXon
 *
 * This file is part of DAPHNE, a laserdisc arcade game emulator
 *

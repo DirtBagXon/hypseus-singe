@@ -77,20 +77,14 @@ typedef struct m_spriteType {
 	double  scaleY = 0.0f;
 	int     frames = 0;
 	int     fwidth = 0;
-	bool    gfx    = false;
-	bool    smooth = false;
-	bool    blend  = false;
-	bool    rekey  = false;
-	bool    nokey  = false;
 	SDL_Surface *store;
 	SDL_Surface *frame;
 	SDL_Surface *present;
 	IMG_Animation  *animation;
 	int     flow = 0;
-	bool    loop = false;
-	bool    animating = false;
 	int     last = 0;
 	int     ticks = 0;
+	uint8_t flags = 0;
 } m_spriteT;
 
 typedef struct g_positionType {
@@ -3233,20 +3227,19 @@ static int sep_music_play(lua_State *L)
 static int sep_sprite_color_rekey(lua_State *L)
 {
   int n = lua_gettop(L);
-  bool r = false;
   int id = -1;
 
   if (n == 2) {
       if (lua_isboolean(L, 1)) {
           if (lua_isnumber(L, 2)) {
-              r = lua_toboolean(L, 1);
               id = lua_tonumber(L, 2);
           }
       }
 
       if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
 
-      if (!m_sprites[id].nokey) m_sprites[id].rekey = r;
+      if (!SPRITE_HAS(m_sprites[id], SPR_NOKEY))
+          SPRITE_ASSIGN(m_sprites[id], SPR_REKEY, lua_toboolean(L, 1));
   }
 
   if (id < 0) {
@@ -3426,20 +3419,20 @@ static int sep_sprite_draw(lua_State *L)
 
               if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
 
-              if (m_sprites[id].animation != NULL && m_sprites[id].animating) {
+              if (m_sprites[id].animation != NULL && SPRITE_HAS(m_sprites[id], SPR_ANIMATING)) {
                   m_sprites[id].ticks += SDL_GetTicks() - m_sprites[id].last;
                   m_sprites[id].last = SDL_GetTicks();
-                  while (m_sprites[id].animating) {
+                  while (SPRITE_HAS(m_sprites[id], SPR_ANIMATING)) {
                       if (m_sprites[id].animation->delays[m_sprites[id].flow] < m_sprites[id].ticks) {
                           m_sprites[id].ticks -= m_sprites[id].animation->delays[m_sprites[id].flow];
                           m_sprites[id].flow++;
                           change = true;
                           if (m_sprites[id].flow >= m_sprites[id].animation->count) {
-                              if (m_sprites[id].loop) {
+                              if (SPRITE_HAS(m_sprites[id], SPR_LOOP)) {
                                   m_sprites[id].flow = 0;
                               } else {
                                   m_sprites[id].flow = m_sprites[id].animation->count - 1;
-                                  m_sprites[id].animating = false;
+                                  SPRITE_CLEAR(m_sprites[id], SPR_ANIMATING);
                               }
                           }
                       } else {
@@ -3450,8 +3443,8 @@ static int sep_sprite_draw(lua_State *L)
                       SDL_DestroySurface(m_sprites[id].frame);
                       m_sprites[id].frame = sep_copy_surface(m_sprites[id].animation->frames[m_sprites[id].flow], NULL);
                       SDL_DestroySurface(m_sprites[id].present);
-                      m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].frame, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
-                      if (m_sprites[id].rekey) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
+                      m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].frame, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, SPRITE_HAS(m_sprites[id], SPR_SMOOTH));
+                      if (SPRITE_HAS(m_sprites[id], SPR_REKEY)) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
                   }
               }
 
@@ -3464,7 +3457,7 @@ static int sep_sprite_draw(lua_State *L)
                   dest.y -= dest.h * 0.5;
               }
 
-              if (m_sprites[id].blend)
+              if (SPRITE_HAS(m_sprites[id], SPR_BLEND))
                   SDL_SetSurfaceBlendMode(m_sprites[id].present, SDL_BLENDMODE_BLEND);
 
               if ((n == 3) || (n == 4)) {
@@ -3522,7 +3515,7 @@ static int sep_sprite_grid(lua_State *L)
       return 0;
   }
 
-  if (m_sprites[id].blend)
+  if (SPRITE_HAS(m_sprites[id], SPR_BLEND))
       SDL_SetSurfaceBlendMode(m_sprites[id].present, SDL_BLENDMODE_BLEND);
 
   SDL_BlitSurface(m_sprites[id].present, &src, g_se_surface, &dest);
@@ -3620,10 +3613,10 @@ static int sep_sprite_loadata(lua_State *L)
                 sprite.present = temp;
                 sprite.scaleX = 1.0;
                 sprite.scaleY = 1.0;
-                sprite.gfx = true;
+                SPRITE_SET(sprite, SPR_GFX);
                 sprite.frame = NULL;
                 sprite.animation = NULL;
-                if (!m_colorkey) sprite.nokey = true;
+                if (!m_colorkey) SPRITE_SET(sprite, SPR_NOKEY);
 
                 m_sprites.push_back(sprite);
                 result = m_sprites.size() - 1;
@@ -3714,7 +3707,7 @@ static int sep_sprite_load(lua_State *L)
                for (int x = 0; x < temp->count; x++) {
                    SDL_SetSurfaceBlendMode(temp->frames[x], SDL_BLENDMODE_NONE);
                    if (m_colorkey) SDL_SetSurfaceColorKey(temp->frames[x], true, 0x0);
-	       }
+               }
 
                sprite.present = sep_copy_surface(temp->frames[0], NULL);
                sprite.store = sep_copy_surface(sprite.present, NULL);
@@ -3723,10 +3716,10 @@ static int sep_sprite_load(lua_State *L)
 
            sprite.scaleX = 1.0;
            sprite.scaleY = 1.0;
-           sprite.gfx = true;
+           SPRITE_SET(sprite, SPR_GFX);
            sprite.frame = NULL;
 
-           if (!m_colorkey) sprite.nokey = true;
+           if (!m_colorkey) SPRITE_SET(sprite, SPR_NOKEY);
 
            m_sprites.push_back(sprite);
            result = m_sprites.size() - 1;
@@ -3813,7 +3806,7 @@ static int sep_sprite_loadframes(lua_State *L)
                 sprite.store = sep_copy_surface(temp, NULL);
                 sprite.present = temp;
                 sprite.animation = NULL;
-                if (!m_colorkey) sprite.nokey = true;
+                if (!m_colorkey) SPRITE_SET(sprite, SPR_NOKEY);
 
                 m_sprites.push_back(sprite);
                 result = m_sprites.size() - 1;
@@ -3880,7 +3873,7 @@ static int sep_sprite_blend(lua_State *L)
       if (lua_isboolean(L, 1) && lua_isnumber(L, 2)) {
           id = lua_tonumber(L, 2);
           if (!sep_sprite_valid(L, id, m_sprites[id].present, __func__)) return 0;
-          m_sprites[id].blend = lua_toboolean(L, 1);
+          SPRITE_ASSIGN(m_sprites[id], SPR_BLEND, lua_toboolean(L, 1));
       }
   }
 
@@ -3925,8 +3918,8 @@ static int sep_sprite_rotateframe(lua_State *L)
                   SDL_Surface *temp = sep_copy_surface(m_sprites[id].store, &src);
 
                   SDL_DestroySurface(m_sprites[id].frame);
-                  m_sprites[id].frame = rotozoomSurfaceXY(temp, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
-                  if (m_sprites[id].rekey) SDL_SetSurfaceColorKey(m_sprites[id].frame, true, 0x0);
+                  m_sprites[id].frame = rotozoomSurfaceXY(temp, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, SPRITE_HAS(m_sprites[id], SPR_SMOOTH));
+                  if (SPRITE_HAS(m_sprites[id], SPR_REKEY)) SDL_SetSurfaceColorKey(m_sprites[id].frame, true, 0x0);
                   SDL_DestroySurface(temp);
               }
           }
@@ -3950,11 +3943,11 @@ static int sep_sprite_rotate(lua_State *L)
           if (lua_isnumber(L, 2)) {
               d = lua_tonumber(L, 1);  a = fmod(d, 360.0);
               id = lua_tonumber(L, 2);
-              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !m_sprites[id].gfx) return 0;
+              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !SPRITE_HAS(m_sprites[id], SPR_GFX)) return 0;
               m_sprites[id].angle = a;
               SDL_DestroySurface(m_sprites[id].present);
-              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
-              if (m_sprites[id].rekey) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
+              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, SPRITE_HAS(m_sprites[id], SPR_SMOOTH));
+              if (SPRITE_HAS(m_sprites[id], SPR_REKEY)) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
           }
       }
   }
@@ -3985,12 +3978,12 @@ static int sep_sprite_scale(lua_State *L)
                       id = lua_tonumber(L, 3);
                   }
               }
-              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !m_sprites[id].gfx) return 0;
+              if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !SPRITE_HAS(m_sprites[id], SPR_GFX)) return 0;
               m_sprites[id].scaleX = x;
               m_sprites[id].scaleY = y;
               SDL_DestroySurface(m_sprites[id].present);
-              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
-              if (m_sprites[id].rekey) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
+              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, SPRITE_HAS(m_sprites[id], SPR_SMOOTH));
+              if (SPRITE_HAS(m_sprites[id], SPR_REKEY)) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
           }
       }
   }
@@ -4023,13 +4016,13 @@ static int sep_sprite_rotatescale(lua_State *L)
                           id = lua_tonumber(L, 4);
                       }
                   }
-                  if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !m_sprites[id].gfx) return 0;
+                  if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__) || !SPRITE_HAS(m_sprites[id], SPR_GFX)) return 0;
                   m_sprites[id].angle = a;
                   m_sprites[id].scaleX = x;
                   m_sprites[id].scaleY = y;
                   SDL_DestroySurface(m_sprites[id].present);
-                  m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
-                  if (m_sprites[id].rekey) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
+                  m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, SPRITE_HAS(m_sprites[id], SPR_SMOOTH));
+                  if (SPRITE_HAS(m_sprites[id], SPR_REKEY)) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
               }
           }
       }
@@ -4053,10 +4046,10 @@ static int sep_sprite_quality(lua_State *L)
               int b = lua_tonumber(L, 1);  bool s = (b != 0);
               id = lua_tonumber(L, 2);
               if (!sep_sprite_valid(L, id, m_sprites[id].store, __func__)) return 0;
-              m_sprites[id].smooth = s;
+              SPRITE_ASSIGN(m_sprites[id], SPR_SMOOTH, s);
               SDL_DestroySurface(m_sprites[id].present);
-              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, m_sprites[id].smooth);
-              if (m_sprites[id].rekey) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
+              m_sprites[id].present = rotozoomSurfaceXY(m_sprites[id].store, 360 - m_sprites[id].angle, m_sprites[id].scaleX, m_sprites[id].scaleY, SPRITE_HAS(m_sprites[id], SPR_SMOOTH));
+              if (SPRITE_HAS(m_sprites[id], SPR_REKEY)) SDL_SetSurfaceColorKey(m_sprites[id].present, true, 0x0);
           }
       }
   }
@@ -5105,7 +5098,7 @@ static int sep_sprite_playing(lua_State *L)
         if (lua_isstring(L, 1)) {
             id = lua_tonumber(L, 1);
             if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
-            result = m_sprites[id].animating;
+            result = SPRITE_HAS(m_sprites[id], SPR_ANIMATING);
         }
      }
 
@@ -5121,15 +5114,13 @@ static int sep_sprite_loop(lua_State *L)
 {
     int n = lua_gettop(L);
     int id = -1;
-    bool loop = false;
 
     if (n == 2) {
         if (lua_isboolean(L, 1)) {
             if (lua_isnumber(L, 2)) {
-                loop = lua_toboolean(L, 1);
                 id = lua_tonumber(L, 2);
                 if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
-                m_sprites[id].loop = loop;
+                SPRITE_ASSIGN(m_sprites[id], SPR_LOOP, lua_toboolean(L, 1));
             }
         }
     }
@@ -5149,7 +5140,7 @@ static int sep_sprite_pause(lua_State *L)
         if (lua_isnumber(L, 1)) {
             id = lua_tonumber(L, 1);
             if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
-            m_sprites[id].animating = false;
+            SPRITE_CLEAR(m_sprites[id], SPR_ANIMATING);
        }
     }
 
@@ -5168,10 +5159,10 @@ static int sep_sprite_play(lua_State *L)
         if (lua_isnumber(L, 1)) {
             id = lua_tonumber(L, 1);
             if (!sep_animation_valid(L, id, m_sprites[id].animation, __func__)) return 0;
-            if (m_sprites[id].animating == false) {
+            if (!SPRITE_HAS(m_sprites[id], SPR_ANIMATING)) {
                 m_sprites[id].last = SDL_GetTicks();
             }
-            m_sprites[id].animating = true;
+            SPRITE_SET(m_sprites[id], SPR_ANIMATING);
        }
     }
 

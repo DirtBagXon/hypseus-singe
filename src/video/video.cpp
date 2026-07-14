@@ -43,7 +43,10 @@
 
 namespace video {
 
-int g_video_width = 640, g_video_height = 480; // default video dimensions
+uint64_t g_vflags = VSYNC | INTRO;
+
+// default video dimensions
+int g_video_width = 640, g_video_height = 480;
 
 unsigned int g_probe_width = g_video_width;
 unsigned int g_probe_height = g_video_height;
@@ -100,47 +103,7 @@ std::vector<SDL_Rect> displayDimensions;
 SDL_FRect fScaleRect;
 SDL_FRect *g_yuv_frect[2] = { NULL };
 
-bool m_isIndex8 = false;
-bool m_lua_game = false;
-bool m_sboverlay_white = false;
-bool m_block_driver_overlay = false;
-
-bool queue_take_screenshot = false;
-
-bool g_scale_linear = false;
-bool g_singe_blend_sprite = false;
-bool g_scanlines = false;
-bool g_softrender = false;
-bool g_opengl = false;
-bool g_vulkan = false;
-bool g_teardown = false;
-bool g_intro = true;
-bool g_forcetop = false;
-bool g_grabmouse = false;
-bool g_vsync = true;
-bool g_yuv_blue = false;
-bool g_video_resized = false;
-bool g_enhance_overlay = false;
-bool g_overlay_dynamic = false;
-bool g_bForceAspect = false;
-bool g_bIgnoreAspect = false;
-bool g_fullscreen = false;
-bool g_bezel_toggle = false;
-bool g_bezel_reverse = false;
-bool g_bezel_load = false;
-bool g_scoreboard_bezel = false;
-bool g_scaled = false;
-bool g_logo = false;
-bool g_rotate = false;
-bool g_keyboard_bezel = false;
-bool g_aux_bezel = false;
-bool g_ded_annun_bezel = false;
-bool g_annun_lamps = false;
-bool g_vertical_orientation = false;
-bool g_legacy_overlay = false;
-bool g_toggle_lock = false;
-
-int g_scalefactor = 100;   // by RDG2010
+int g_scalefactor = 100;
 int g_aspect_ratio = 0;
 int sboverlay_characterset = 2;
 int g_yuv_display = YUV_VISIBLE;
@@ -188,7 +151,7 @@ typedef struct {
 m_yuv_surface_t *g_yuv_surface;
 
 // Blitting parameters. Textures that need updating in a blitting strike?
-bool g_softsboard_needs_update = false;
+bool g_scoreboard_needs_update = false;
 bool g_yuv_video_needs_update  = false;
 bool g_aux_needs_update        = false;
 bool g_yuv_skip                = true;
@@ -230,8 +193,7 @@ static void calcAuxRect()
 
 static void resize_cleanup()
 {
-    g_rotate = false;
-    g_bezel_load = false;
+    VIDEO_CLEAR(BEZEL_LOAD);
 
     SDL_DestroySurface(g_overlay_surface);
     SDL_DestroySurface(g_aux_blit_surface);
@@ -297,10 +259,10 @@ static void load_fonts()
     int fs = g_scaling_rect.w / ((g_aspect_ratio == ASPECTPD) ? 24 : 36);
     const char *base = "fonts/default.ttf";
 
-    const char *ttfont = g_legacy_overlay ? "fonts/daphne.ttf" :
-        (m_lua_game ? "fonts/daphne.ttf" : "fonts/digital.ttf");
+    const char *ttfont = VIDEO_HAS(LEGACY_OVERLAY) ? "fonts/daphne.ttf" :
+        (VIDEO_HAS(LUA_GAME) ? "fonts/daphne.ttf" : "fonts/digital.ttf");
 
-    int size = g_legacy_overlay ? 12 : (m_lua_game ? 12 : 6);
+    int size = VIDEO_HAS(LEGACY_OVERLAY) ? 12 : (VIDEO_HAS(LUA_GAME) ? 12 : 6);
 
     g_font = TTF_OpenFont(base, fs);
     g_ttfont = TTF_OpenFont(ttfont, size);
@@ -346,34 +308,35 @@ static void format_fullscreen_render()
     int w, h;
     double ratio = static_cast<double>(g_viewport_width) / g_viewport_height;
 
-    if (g_video_resized)
+    if (VIDEO_HAS(VIDEO_RESIZED))
     {
         w = g_viewport_width;
         h = g_viewport_height;
     }
     else
     {
-        h = g_vertical_orientation ? g_logical_rect.w : g_logical_rect.h;
+        h = VIDEO_HAS(VERTICAL_ORIENTATION) ? g_logical_rect.w : g_logical_rect.h;
 
         switch (g_aspect_ratio) {
             case ASPECTWS:  w = (h * 16) / 9; break;
             case ASPECTSD:  w = (h * 4) / 3; break;
             case ASPECTPD:
-                if (g_vertical_orientation) h = static_cast<int>(h * 1.33);
+                if (VIDEO_HAS(VERTICAL_ORIENTATION)) h = static_cast<int>(h * 1.33);
                 w = (h * 3) / 4;
                 break;
             default: w = static_cast<int>(h * ratio); break;
         }
     }
 
-    w = g_bForceAspect ? (h * 4) / 3 : (g_bIgnoreAspect ? static_cast<int>(h * ratio) : w);
+    w = VIDEO_HAS(FORCE_ASPECT) ? (h * 4) / 3 : (VIDEO_HAS(IGNORE_ASPECT) ?
+                                     static_cast<int>(h * ratio) : w);
 
     g_scaling_rect.w = (w * g_scalefactor) / 100;
     g_scaling_rect.h = (h * g_scalefactor) / 100;
     g_scaling_rect.x = (g_logical_rect.w - g_scaling_rect.w) >> 1;
     g_scaling_rect.y = (g_logical_rect.h - g_scaling_rect.h) >> 1;
 
-    if (g_keyboard_bezel && !g_scaled)
+    if (VIDEO_HAS(KEYBOARD_BEZEL) && !VIDEO_HAS(SCALED))
     {
         g_scaling_rect.y /= 4;
         g_scale_v_shift = 0;
@@ -384,7 +347,7 @@ static void format_fullscreen_render()
         g_scaling_rect.y = (g_scaling_rect.y * g_scale_v_shift) / 100;
     }
 
-    if (g_scoreboard_bezel)
+    if (VIDEO_HAS(SCOREBOARD_BEZEL))
     {
         g_bezel_scalewidth = w;
         double bezel_ratio = static_cast<double>(g_scoreboard_h) / g_scoreboard_w;
@@ -393,7 +356,7 @@ static void format_fullscreen_render()
         g_scoreboard_bezel_rect = {scoreboard_window_pos_x, scoreboard_window_pos_y,
                            static_cast<int>(g_bezel_scalewidth / scale),
                            static_cast<int>((g_bezel_scalewidth / scale) * bezel_ratio)};
-        g_bezel_toggle = true;
+        VIDEO_SET(BEZEL_TOGGLE);
     }
 
     if (!g_rescale)
@@ -409,7 +372,7 @@ static void format_fullscreen_render()
 
 static bool draw_ranks()
 {
-    if (g_annun_lamps) return false;
+    if (VIDEO_HAS(ANNUN_LAMPS)) return false;
 
     SDL_Rect dest;
     dest.x = 10;
@@ -439,13 +402,13 @@ bool init_display()
     Uint32 sdl_scoreboard_flags = SDL_WINDOW_BORDERLESS;
     const char *sdl_render_flags = NULL;
 
-    if (g_forcetop)
+    if (VIDEO_HAS(FORCE_TOP))
         sdl_flags |= SDL_WINDOW_ALWAYS_ON_TOP;
 
-    if (g_opengl) {
+    if (VIDEO_HAS(OPENGL)) {
         sdl_flags |= SDL_WINDOW_OPENGL;
         sdl_scoreboard_flags |= SDL_WINDOW_OPENGL;
-    } else if (g_vulkan) {
+    } else if (VIDEO_HAS(VULKAN)) {
         sdl_flags |= SDL_WINDOW_VULKAN;
         sdl_scoreboard_flags |= SDL_WINDOW_VULKAN;
     }
@@ -457,13 +420,13 @@ bool init_display()
     g_probe_width = std::max((int)g_probe_width, 320);
     g_probe_height = std::max((int)g_probe_height, 240);
 
-    if (g_video_resized) {
+    if (VIDEO_HAS(VIDEO_RESIZED)) {
         g_viewport_width  = g_video_width;
         g_viewport_height = g_video_height;
 
     } else {
 
-        if (!g_bIgnoreAspect && g_aspect_width > 0) {
+        if (!VIDEO_HAS(IGNORE_ASPECT) && g_aspect_width > 0) {
             g_viewport_width  = g_aspect_width;
             g_viewport_height = g_aspect_height;
 
@@ -474,7 +437,7 @@ bool init_display()
     }
 
     // Enforce 4:3 aspect ratio
-    if (g_bForceAspect) {
+    if (VIDEO_HAS(FORCE_ASPECT)) {
         double dCurAspect = (double)g_viewport_width / g_viewport_height;
         const double dTARGET_ASPECT_RATIO = 4.0 / 3.0;
 
@@ -489,13 +452,13 @@ bool init_display()
     if (g_fRotateDegrees != 0 && g_fRotateDegrees != 180) {
         switch(g_aspect_ratio) {
         case ASPECTWS:
-            g_scalefactor = (!g_scaled) ? 56 : g_scalefactor;
+            g_scalefactor = (!VIDEO_HAS(SCALED)) ? 56 : g_scalefactor;
             break;
         case ASPECTPD:
-            g_scalefactor = (!g_scaled) ? 100 : g_scalefactor;
+            g_scalefactor = (!VIDEO_HAS(SCALED)) ? 100 : g_scalefactor;
             break;
         default:
-            g_scalefactor = (!g_scaled) ? 75 : g_scalefactor;
+            g_scalefactor = (!VIDEO_HAS(SCALED)) ? 75 : g_scalefactor;
             break;
         }
     }
@@ -512,7 +475,7 @@ bool init_display()
     if (g_alloc_screen > g_display && g_alloc_screen < g_displays)
         g_display = g_alloc_screen;
 
-    if (notify && g_window && !g_teardown) {
+    if (notify && g_window && !VIDEO_HAS(TEARDOWN)) {
         SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
         SDL_SetWindowPosition(g_window, displayDimensions[g_display].x +
             ((displayDimensions[g_display].w - g_viewport_width) >> 1),
@@ -520,7 +483,7 @@ bool init_display()
             ((displayDimensions[g_display].h - g_viewport_height) >> 1));
     } else {
 
-        if (g_teardown && g_window) {
+        if (VIDEO_HAS(TEARDOWN) && g_window) {
             SDL_DestroyWindow(g_window);
             SDL_Delay(40);
         }
@@ -536,10 +499,10 @@ bool init_display()
 
     } else {
 
-        if (g_fullscreen)
+        if (VIDEO_HAS(FULLSCREEN))
             SDL_SetWindowFullscreen(g_window, true);
         else if (!notify)
-            g_toggle_lock = true;
+            VIDEO_SET(TOGGLE_LOCK);
 
         if (strlen(g_window_title) > 0)
             SDL_SetWindowTitle(g_window, g_window_title);
@@ -552,10 +515,10 @@ bool init_display()
             SDL_DestroySurface(rep);
         }
 
-        if (g_softrender) sdl_render_flags = SDL_SOFTWARE_RENDERER;
+        if (VIDEO_HAS(SOFT_RENDER)) sdl_render_flags = SDL_SOFTWARE_RENDERER;
 
         g_renderer = SDL_CreateRenderer(g_window, sdl_render_flags);
-        SDL_SetRenderVSync(g_renderer, g_vsync ?
+        SDL_SetRenderVSync(g_renderer, VIDEO_HAS(VSYNC) ?
             SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED);
 
         SDL_RaiseWindow(g_window);
@@ -568,7 +531,7 @@ bool init_display()
 
         } else {
 
-            if (g_keyboard_bezel) {
+            if (VIDEO_HAS(KEYBOARD_BEZEL)) {
 
                 g_aux_needs_update = true;
 
@@ -578,7 +541,7 @@ bool init_display()
                     g_tqkeys = "pics/tqkeys.png";
             }
 
-            m_lua_game = (g_game->get_game_type() == GAME_SINGE);
+            VIDEO_ASSIGN(LUA_GAME, (g_game->get_game_type() == GAME_SINGE));
 
             Uint32 current = SDL_GetWindowFlags(g_window);
 
@@ -587,7 +550,7 @@ bool init_display()
                 g_logical_rect = displayDimensions[g_display];
 
                 if (!g_bezel_file.empty())
-                    g_bezel_toggle = true;
+                    VIDEO_SET(BEZEL_TOGGLE);
 
                 format_fullscreen_render();
 
@@ -606,7 +569,7 @@ bool init_display()
                     goto exit;
                 }
 
-                if (!g_scoreboard_bezel && !g_scoreboard_window) {
+                if (!VIDEO_HAS(SCOREBOARD_BEZEL) && !g_scoreboard_window) {
 
                     double scale = double((g_scoreboard_bezel_scale >> 1) / 7.0f);
 
@@ -649,7 +612,7 @@ bool init_display()
 
                     g_scoreboard_renderer = SDL_CreateRenderer(g_scoreboard_window,
                                                 sdl_render_flags);
-                    SDL_SetRenderVSync(g_scoreboard_renderer, g_vsync ?
+                    SDL_SetRenderVSync(g_scoreboard_renderer, VIDEO_HAS(VSYNC) ?
                                   SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED);
 
                     if (!g_scoreboard_renderer) {
@@ -663,9 +626,9 @@ bool init_display()
                 }
             }
 
-            if (g_aux_bezel) {
+            if (VIDEO_HAS(AUX_BEZEL)) {
 
-                if (g_ded_annun_bezel) g_aux_bezel_scale--;
+                if (VIDEO_HAS(DED_ANNUN_BEZEL)) g_aux_bezel_scale--;
 
                 g_aux_ratio = (float)g_anun_h / (float)g_anun_w;
 
@@ -680,7 +643,7 @@ bool init_display()
 
                 calcAuxRect();
 
-                if (g_ded_annun_bezel)
+                if (VIDEO_HAS(DED_ANNUN_BEZEL))
                     LogicalPosition(&g_logical_rect, &g_aux_rect, 99, 10);
                 else
                     LogicalPosition(&g_logical_rect, &g_aux_rect, 100, 90);
@@ -692,17 +655,17 @@ bool init_display()
                 }
 
                 draw_annunciator(0);
-                if (!g_ded_annun_bezel)
+                if (!VIDEO_HAS(DED_ANNUN_BEZEL))
                     draw_ranks();
             }
 
             // Always hide the mouse cursor
             SDL_HideCursor();
 
-            if (g_grabmouse)
+            if (VIDEO_HAS(GRAB_MOUSE))
                 SDL_SetWindowMouseGrab(g_window, true);
 
-            if (g_scanlines)
+            if (VIDEO_HAS(SCANLINES))
                 SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
             if (g_game->get_outline_border())
@@ -719,8 +682,8 @@ bool init_display()
             }
 
             // Check for game overlay enhancements (depth and size)
-            g_enhance_overlay = g_game->has_overlay_upgrade(GAME_OVERLAY_UPGRADE);
-            g_overlay_dynamic = g_game->get_dynamic_overlay();
+            VIDEO_ASSIGN(ENHANCE_OVERLAY, g_game->has_overlay_upgrade(GAME_OVERLAY_UPGRADE));
+            VIDEO_ASSIGN(OVERLAY_DYNAMIC,  g_game->get_dynamic_overlay());
 
             // Set it's color key to NOT copy 0x000000ff pixels.
             ConvertSurface(&g_other_bmps[B_OVERLAY_LEDS], g_overlay_surface->format);
@@ -749,7 +712,7 @@ bool init_display()
                 SDL_SetTextureBlendMode(g_overlay_texture, SDL_BLENDMODE_BLEND);
                 SDL_SetTextureAlphaMod(g_overlay_texture, 0xff);
 
-                SDL_SetTextureScaleMode(g_overlay_texture, g_scale_linear ?
+                SDL_SetTextureScaleMode(g_overlay_texture, VIDEO_HAS(SCALE_LINEAR) ?
                           SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
             }
 
@@ -764,7 +727,7 @@ bool init_display()
             SDL_SetTextureBlendMode(g_mix_texture, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(g_mix_texture, 0xff);
 
-            SDL_SetTextureScaleMode(g_mix_texture, g_scale_linear ?
+            SDL_SetTextureScaleMode(g_mix_texture, VIDEO_HAS(SCALE_LINEAR) ?
                       SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
 
             SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -772,9 +735,9 @@ bool init_display()
             SDL_RenderClear(g_renderer);
             SDL_RenderPresent(g_renderer);
 
-            m_isIndex8 = (g_game->get_overlay_depth() == GAME_OVERLAY_STD) ? true : false;
+            VIDEO_ASSIGN(INDEX8, (g_game->get_overlay_depth() == GAME_OVERLAY_STD) ? true : false);
 
-            if (!notify && g_intro) splash(g_logo);
+            if (!notify && VIDEO_HAS(INTRO)) splash(VIDEO_HAS(LOGO));
             result = true;
         }
     }
@@ -877,7 +840,7 @@ void vid_blank()
 
 static void colorLeds(SDL_Surface *src)
 {
-    if (m_sboverlay_white) return;
+    if (VIDEO_HAS(OVERLAY_WHITE)) return;
 
     const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(src->format);
 
@@ -1041,14 +1004,14 @@ bool draw_led(int value, int x, int y, unsigned char end)
 
         if (g_scoreboard_texture) SDL_DestroyTexture(g_scoreboard_texture);
 
-        SDL_Renderer *renderer = g_scoreboard_bezel ? g_renderer : g_scoreboard_renderer;
+        SDL_Renderer *renderer = VIDEO_HAS(SCOREBOARD_BEZEL) ? g_renderer : g_scoreboard_renderer;
 
         g_scoreboard_texture = SDL_CreateTextureFromSurface(renderer, g_scoreboard_blit_surface);
         if (!g_scoreboard_texture) return false;
 
-        if (!g_scoreboard_bezel) {
+        if (!VIDEO_HAS(SCOREBOARD_BEZEL)) {
             SDL_RenderTexture(g_scoreboard_renderer, g_scoreboard_texture, NULL, NULL);
-            g_softsboard_needs_update = true;
+            g_scoreboard_needs_update = true;
         }
         led = -1;
     }
@@ -1071,14 +1034,14 @@ static bool draw_annunciator1(int which)
 
     for (int i = 0; i < ANUN_LEVELS; i++) {
         dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * i) + spacer;
-        if (g_annun_lamps) dest.x = 110 - (-i * 15);
+        if (VIDEO_HAS(ANNUN_LAMPS)) dest.x = 110 - (-i * 15);
         SDL_FillSurfaceRect(g_aux_blit_surface, &dest, 0x00000000);
         SDL_BlitSurface(g_scoreboard_surface, NULL, g_aux_blit_surface, &dest);
     }
 
     if (which) {
         g_scoreboard_surface = g_other_bmps[B_ANUN_ON];
-        if (g_annun_lamps) dest.x = 110 - ((-which + 1) * 15);
+        if (VIDEO_HAS(ANNUN_LAMPS)) dest.x = 110 - ((-which + 1) * 15);
         dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * --which) + spacer;
         SDL_BlitSurface(g_scoreboard_surface, NULL, g_aux_blit_surface, &dest);
     }
@@ -1114,7 +1077,7 @@ static bool draw_annunciator2(int which)
 
 bool draw_annunciator(int which)
 {
-    (g_ded_annun_bezel) ? draw_annunciator2(which) : draw_annunciator1(which);
+    (VIDEO_HAS(DED_ANNUN_BEZEL)) ? draw_annunciator2(which) : draw_annunciator1(which);
 
     return true;
 }
@@ -1143,7 +1106,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits,
         src.x = values[i] * OVERLAY_LED_WIDTH;
         base.x = dest.x - 1;
 
-        if (!g_legacy_overlay)
+        if (!VIDEO_HAS(LEGACY_OVERLAY))
             SDL_FillSurfaceRect(g_overlay_surface, &base, colorkey);
 
         if (!SDL_BlitSurface(g_other_bmps[B_OVERLAY_LEDS], &src, g_overlay_surface, &dest)) {
@@ -1154,7 +1117,7 @@ void draw_overlay_leds(unsigned int values[], int num_digits,
         dest.x += OVERLAY_LED_WIDTH;
     }
 
-    m_block_driver_overlay = true;
+    VIDEO_SET(BLOCK_DRIVER_OVERLAY);
 }
 
 void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y)
@@ -1164,7 +1127,7 @@ void draw_singleline_LDP1450(char *LDP1450_String, int start_x, int y)
     int i = 0;
     int value = 0;
     int LDP1450_strlen;
-    m_block_driver_overlay = true;
+    VIDEO_SET(BLOCK_DRIVER_OVERLAY);
 
     if (g_aspect_ratio == ASPECTSD &&
              g_probe_width == NOSQUARE)
@@ -1292,42 +1255,42 @@ unsigned int get_logical_width() { return g_logical_rect.w; }
 unsigned int get_logical_height() { return g_logical_rect.h; }
 float get_fRotateDegrees() { return g_fRotateDegrees; }
 
-bool get_opengl() { return g_opengl; }
-bool get_vulkan() { return g_vulkan; }
-bool get_fullscreen() { return g_fullscreen; }
+bool get_opengl() { return VIDEO_HAS(OPENGL); }
+bool get_vulkan() { return VIDEO_HAS(VULKAN); }
+bool get_fullscreen() { return VIDEO_HAS(FULLSCREEN); }
 bool get_aux_bezel() { return (g_aux_texture != NULL); }
-bool get_video_resized() { return g_video_resized; }
-bool use_legacy_font() { return g_legacy_overlay; }
+bool get_video_resized() { return VIDEO_HAS(VIDEO_RESIZED); }
+bool use_legacy_font() { return VIDEO_HAS(LEGACY_OVERLAY); }
 
-void set_fullscreen(bool value) { g_fullscreen = value; }
-void set_software_render(bool value) { g_softrender = value; }
-void set_opengl(bool value) { g_opengl = value; }
-void set_vulkan(bool value) { g_vulkan = value; }
-void set_teardown() { g_teardown = true; }
-void set_forcetop(bool value) { g_forcetop = value; }
+void set_fullscreen(bool value) { VIDEO_ASSIGN(FULLSCREEN, value); }
+void set_software_render(bool value) { VIDEO_ASSIGN(SOFT_RENDER, value); }
+void set_opengl(bool value) { VIDEO_ASSIGN(OPENGL, value); }
+void set_vulkan(bool value) { VIDEO_ASSIGN(VULKAN, value); }
+void set_teardown() { VIDEO_SET(TEARDOWN); }
+void set_forcetop(bool value) { VIDEO_ASSIGN(FORCE_TOP, value);  }
 void set_textureaccess(SDL_TextureAccess value) { g_texture_access = value; }
-void set_grabmouse(bool value) { g_grabmouse = value; }
-void set_vsync(bool value) { g_vsync = value; }
-void set_intro(bool value) { g_intro = value; }
-void set_logo(bool value) { g_logo = value; }
-void set_yuv_blue(bool value) { g_yuv_blue = value; }
-void set_scanlines(bool value) { g_scanlines = value; }
+void set_grabmouse(bool value) { VIDEO_ASSIGN(GRAB_MOUSE, value); }
+void set_vsync(bool value) { VIDEO_ASSIGN(VSYNC, value); }
+void set_intro(bool value) { VIDEO_ASSIGN(INTRO, value); }
+void set_logo(bool value) { VIDEO_ASSIGN(LOGO, value); }
+void set_yuv_blue(bool value) { VIDEO_ASSIGN(YUV_BLUE, value); }
+void set_scanlines(bool value) { VIDEO_ASSIGN(SCANLINES, value); }
 void set_shunt(uint8_t value) { g_scanline_shunt = value; }
 void set_alpha(uint8_t value) { g_scanline_alpha = value; }
-void set_queue_screenshot(bool value) { queue_take_screenshot = value; }
-void set_scale_linear(bool value) { g_scale_linear = value; }
+void set_queue_screenshot(bool value) { VIDEO_ASSIGN(TAKE_SCREENSHOT, value); }
+void set_scale_linear(bool value) { VIDEO_ASSIGN(SCALE_LINEAR, value); }
 void set_sboverlay_characterset(int value) { sboverlay_characterset = value; }
-void set_sboverlay_white(bool value) { m_sboverlay_white = value; }
-void set_legacy_overlay(bool value) { g_legacy_overlay = value; }
-void set_force_aspect_ratio(bool value) { g_bForceAspect = value; }
-void set_ignore_aspect_ratio(bool value) { g_bIgnoreAspect = value; }
+void set_sboverlay_white(bool value) { VIDEO_ASSIGN(OVERLAY_WHITE, value); }
+void set_legacy_overlay(bool value) { VIDEO_ASSIGN(LEGACY_OVERLAY, value); }
+void set_force_aspect_ratio(bool value) { VIDEO_ASSIGN(FORCE_ASPECT, value); }
+void set_ignore_aspect_ratio(bool value) { VIDEO_ASSIGN(IGNORE_ASPECT, value); }
 void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
 void set_scoreboard_bezel_scale(int value) { g_scoreboard_bezel_scale = value; }
 void set_aux_bezel_scale(int value) { g_aux_bezel_scale = value; }
-void set_ded_annun_bezel(bool value) { g_ded_annun_bezel = value; }
-void set_annun_lamponly(bool bEnabled) { g_annun_lamps = bEnabled; }
+void set_ded_annun_bezel(bool bEnabled) { VIDEO_ASSIGN(DED_ANNUN_BEZEL, bEnabled); }
+void set_annun_lamponly(bool bEnabled) { VIDEO_ASSIGN(ANNUN_LAMPS, bEnabled); }
 void set_scale_h_shift(int value) { g_scale_h_shift = value; }
 void set_scale_v_shift(int value) { g_scale_v_shift = value; }
 void set_display_screen(int value) { g_alloc_screen = value; }
@@ -1375,14 +1338,14 @@ void toggle_grabmouse()
     const bool grabmode = g_game->get_manymouse() ||
           (SDL_GetWindowRelativeMouseMode(g_window) == false);
 
-    g_grabmouse ^= 1;
-    const bool state = (g_grabmouse ^ !grabmode) ? true : false;
+    VIDEO_TOGGLE(GRAB_MOUSE);
+    const bool state = (VIDEO_HAS(GRAB_MOUSE) ^ !grabmode) ? true : false;
 
     if (grabmode)
         SDL_SetWindowMouseGrab(g_window, state);
     else {
         SDL_SetWindowRelativeMouseMode(g_window, state);
-        g_grabmouse = !g_grabmouse;
+        VIDEO_TOGGLE(video::GRAB_MOUSE);
     }
 }
 
@@ -1404,13 +1367,13 @@ void set_yuv_blank(int value)
 void set_scalefactor(int value)
 {
      g_scalefactor = value;
-     g_scaled = true;
+     VIDEO_SET(SCALED);
 }
 
 void set_vertical_orientation(bool value)
 {
-     g_vertical_orientation = value;
-     g_scaled = true;
+     VIDEO_ASSIGN(VERTICAL_ORIENTATION, value);
+     VIDEO_SET(SCALED);
 }
 
 void set_window_title(char* value)
@@ -1436,34 +1399,35 @@ void set_game_window(const char* value)
 
 void set_rotate_degrees(float fDegrees)
 {
-     g_fullscreen = true;
+     VIDEO_SET(FULLSCREEN);
      g_fRotateDegrees = fDegrees;
 }
 
 void set_scoreboard_bezel(bool bEnabled)
 {
      if (bEnabled) {
-         if (!g_fullscreen && g_yuv_surface)
+         if (!VIDEO_HAS(FULLSCREEN) && g_yuv_surface)
              vid_toggle_fullscreen();
-         g_fullscreen = true;
+         VIDEO_SET(FULLSCREEN);
      }
-     g_scoreboard_bezel = bEnabled;
+     VIDEO_ASSIGN(SCOREBOARD_BEZEL, bEnabled);
 }
 
 void set_aux_bezel(bool bEnabled)
 {
      if (bEnabled) {
-         g_fullscreen = g_scoreboard_bezel = true;
+         VIDEO_SET(FULLSCREEN);
+         VIDEO_SET(SCOREBOARD_BEZEL);
          g_game->m_software_scoreboard = true;
-         g_scale_linear = true;
+         VIDEO_SET(SCALE_LINEAR);
      }
-     g_aux_bezel = bEnabled;
+     VIDEO_ASSIGN(AUX_BEZEL,bEnabled);
 }
 
 void set_bezel_reverse(bool d)
 {
      char s[] = "reverse priority";
-     g_bezel_reverse = !g_bezel_reverse;
+     VIDEO_TOGGLE(BEZEL_REVERSE);
      if (d) draw_subtitle(s, 1, true);
 }
 
@@ -1471,10 +1435,11 @@ void set_tq_keyboard(bool bEnabled)
 {
      if (bEnabled) {
          g_scalefactor = (g_scalefactor == 100) ? 75 : g_scalefactor;
-         g_fullscreen = g_scoreboard_bezel = true;
+         VIDEO_SET(FULLSCREEN);
+         VIDEO_SET(SCOREBOARD_BEZEL);
          g_game->m_software_scoreboard = true;
      }
-     g_keyboard_bezel = bEnabled;
+     VIDEO_ASSIGN(KEYBOARD_BEZEL, bEnabled);
 }
 
 void set_bezel_file(const char *bezelFile)
@@ -1482,7 +1447,7 @@ void set_bezel_file(const char *bezelFile)
      g_bezel_file = bezelFile;
 
      if (!g_bezel_file.empty()) {
-         g_fullscreen = true;
+         VIDEO_SET(FULLSCREEN);
      }
 }
 
@@ -1567,8 +1532,8 @@ void reset_scalefactor(int value, uint8_t bezel, bool verbose)
      char s[32]; // In-game
      if (rst)
      {
-         g_rescale = g_fullscreen ? 1 : 2;
-         g_scaled = true;
+         g_rescale = VIDEO_HAS(FULLSCREEN) ? 1 : 2;
+         VIDEO_SET(SCALED);
 
          if (!verbose) return;
          snprintf(s, sizeof(s), "scale: %d", value);
@@ -1620,7 +1585,7 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
          break;
      default:
          if (g_game->get_outline_border()) return;
-         if (g_keyboard_bezel) g_scaled = true;
+         if (VIDEO_HAS(KEYBOARD_BEZEL)) VIDEO_SET(SCALED);
          if (vert) g_scale_v_shift = value;
          else g_scale_h_shift = value;
          h = g_scale_h_shift - 0x64;
@@ -1630,7 +1595,7 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
 
      char s[32]; // In-game
      if (rst) {
-         g_rescale = g_fullscreen ? 1 : 2;
+         g_rescale = VIDEO_HAS(FULLSCREEN) ? 1 : 2;
          snprintf(s, sizeof(s), "x:%d, y:%d", h, v);
      }
      else snprintf(s, sizeof(s), "invalid layer");
@@ -1667,7 +1632,7 @@ void set_video_width(Uint16 width)
     // We need to support arbitrary resolution to accomodate stuff like screen
     // rotation
     g_video_width = width;
-    g_video_resized = true;
+    VIDEO_SET(VIDEO_RESIZED);
 }
 
 // sets g_video_height
@@ -1678,7 +1643,7 @@ void set_video_height(Uint16 height)
     // We need to support arbitrary resolution to accomodate stuff like screen
     // rotation
     g_video_height = height;
-    g_video_resized = true;
+    VIDEO_SET(VIDEO_RESIZED);
 }
 
 void draw_string(const char *t, int col, int row, SDL_Surface *overlay,
@@ -1855,12 +1820,12 @@ void draw_subtitle(const char *s, uint8_t func, bool center = false)
 
 void vid_toggle_fullscreen()
 {
-    if (g_toggle_lock) {
+    if (VIDEO_HAS(TOGGLE_LOCK)) {
         draw_srt("Fullscreen Toggle Locked", 1);
         return;
     }
 
-    g_bezel_toggle = false;
+    VIDEO_CLEAR(BEZEL_TOGGLE);
 
     Uint32 current = SDL_GetWindowFlags(g_window);
     bool flip = current & SDL_WINDOW_FULLSCREEN;
@@ -1875,17 +1840,17 @@ void vid_toggle_fullscreen()
 
     if ((flags & SDL_WINDOW_FULLSCREEN)) {
         g_logical_rect = displayDimensions[g_display];
-        g_fullscreen = true;
+        VIDEO_SET(FULLSCREEN);
         format_fullscreen_render();
         notify_stats(g_overlay_width, g_overlay_height, "u");
 
         if (g_aux_texture) g_aux_needs_update = true;
 
-        if (!g_bezel_file.empty()) g_bezel_toggle = true;
+        if (!g_bezel_file.empty()) VIDEO_SET(BEZEL_TOGGLE);
         return;
     }
 
-    g_fullscreen = false;
+    VIDEO_CLEAR(FULLSCREEN);;
     format_window_render();
     notify_stats(g_overlay_width, g_overlay_height, "u");
 
@@ -1902,29 +1867,29 @@ void vid_toggle_scanlines()
 {
     char s[16] = "scanlines off";
 
-    if (g_scanlines) {
+    if (VIDEO_HAS(SCANLINES)) {
         if (g_scanline_shunt < 10) {
             g_scanline_shunt++;
         } else {
-            g_scanlines = false;
+            VIDEO_CLEAR(SCANLINES);
             SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
             g_scanline_shunt = 2;
         }
     } else {
-        g_scanlines = true;
+        VIDEO_SET(SCANLINES);
         SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
     }
 
-    if (g_scanlines) snprintf(s, sizeof(s), "shunt: %d", g_scanline_shunt);
+    if (VIDEO_HAS(SCANLINES)) snprintf(s, sizeof(s), "shunt: %d", g_scanline_shunt);
 
     draw_subtitle(s, 1, true);
 }
 
 void vid_toggle_bezel()
 {
-    if (g_fullscreen) {
-        g_bezel_toggle = g_bezel_texture || g_aux_texture || g_scoreboard_bezel ?
-                 !g_bezel_toggle : g_bezel_toggle;
+    if (VIDEO_HAS(FULLSCREEN)) {
+        if (g_bezel_texture || g_aux_texture || VIDEO_HAS(SCOREBOARD_BEZEL))
+            VIDEO_TOGGLE(BEZEL_TOGGLE);
 
         char s[] = "bezel toggle";
         draw_subtitle(s, 1, true);
@@ -2008,9 +1973,9 @@ static void vid_flash_yuv_surface()
 static void vid_blank_yuv_surface()
 {
     // Blue: YUV#1DEB6B - Black: YUV#108080
-    uint8_t Y_value = g_yuv_blue ? 0x1d : 0x10;
-    uint8_t U_value = g_yuv_blue ? 0xeb : 0x80;
-    uint8_t V_value = g_yuv_blue ? 0x6b : 0x80;
+    uint8_t Y_value = VIDEO_HAS(YUV_BLUE) ? 0x1d : 0x10;
+    uint8_t U_value = VIDEO_HAS(YUV_BLUE) ? 0xeb : 0x80;
+    uint8_t V_value = VIDEO_HAS(YUV_BLUE) ? 0x6b : 0x80;
 
     memset(g_yuv_surface->Yplane, Y_value, g_yuv_surface->Ysize);
     memset(g_yuv_surface->Uplane, U_value, g_yuv_surface->Usize);
@@ -2028,9 +1993,9 @@ static void vid_blank_yuv_texture()
     uint8_t *u_plane = NULL;
     uint8_t *v_plane = NULL;
 
-    uint8_t Y_value = g_yuv_blue ? 0x1d : 0x10;
-    uint8_t U_value = g_yuv_blue ? 0xeb : 0x80;
-    uint8_t V_value = g_yuv_blue ? 0x6b : 0x80;
+    uint8_t Y_value = VIDEO_HAS(YUV_BLUE) ? 0x1d : 0x10;
+    uint8_t U_value = VIDEO_HAS(YUV_BLUE) ? 0xeb : 0x80;
+    uint8_t V_value = VIDEO_HAS(YUV_BLUE) ? 0x6b : 0x80;
 
     y_plane = (uint8_t *)malloc(w * h);
     u_plane = (uint8_t *)malloc(w * h / 4);
@@ -2175,22 +2140,22 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 
 void vid_update_overlay_surface(SDL_Surface *overlay)
 {
-    if (m_block_driver_overlay)
+    if (VIDEO_HAS(BLOCK_DRIVER_OVERLAY))
         return;
 
     SDL_Rect src = (SDL_Rect){0, 0, overlay->w, overlay->h};
     SDL_Rect* dst = NULL;
 
-    if (g_enhance_overlay) {
+    if (VIDEO_HAS(ENHANCE_OVERLAY)) {
         g_limit_rect.w = overlay->w - (g_limit_rect.x << 1);
         g_limit_rect.h = overlay->h - (g_limit_rect.y << 1);
         dst = &g_limit_rect;
     }
 
-    if (g_overlay_dynamic)
+    if (VIDEO_HAS(OVERLAY_DYNAMIC))
         g_limit_rect = src;
 
-    if (m_isIndex8) { // else texture was updated in driver
+    if (VIDEO_HAS(INDEX8)) { // else texture was updated in driver
         SDL_BlitSurface(overlay, NULL, g_overlay_surface, dst);
         SDL_UpdateTexture(g_overlay_texture, &src,
              (void *)g_overlay_surface->pixels, g_overlay_surface->pitch);
@@ -2213,7 +2178,7 @@ static void take_screenshot()
 
     SDL_Surface *screenshot = NULL;
 
-    if (g_fullscreen) SDL_GetDisplayBounds(0, &g_logical_rect);
+    if (VIDEO_HAS(FULLSCREEN)) SDL_GetDisplayBounds(0, &g_logical_rect);
     else SDL_GetCurrentRenderOutputSize(g_renderer, &g_logical_rect.w, &g_logical_rect.h);
 
     screenshot = SDL_RenderReadPixels(g_renderer, &g_logical_rect);
@@ -2313,7 +2278,7 @@ static void vid_render_aux()
 
     } else {
 
-        if (g_keyboard_bezel) {
+        if (VIDEO_HAS(KEYBOARD_BEZEL)) {
 
             g_aux_needs_update = false;
             g_aux_texture = IMG_LoadTexture(g_renderer, g_tqkeys.c_str());
@@ -2364,23 +2329,23 @@ static void vid_render_texture(SDL_Texture *texture, SDL_Rect rect)
 
 static void vid_render_bezels()
 {
-    if (!g_bezel_load) {
+    if (!VIDEO_HAS(BEZEL_LOAD)) {
         if (!g_bezel_file.empty() && !g_bezel_texture) {
             std::string bezelpath =  g_bezel_path + std::string(PATH_SEPARATOR) + g_bezel_file;
             g_bezel_texture = IMG_LoadTexture(g_renderer, bezelpath.c_str());
 
             if (g_bezel_texture) {
                 LOGI << fmt("Loaded bezel file: %s", bezelpath.c_str());
-                SDL_SetTextureScaleMode(g_bezel_texture, g_scale_linear ?
+                SDL_SetTextureScaleMode(g_bezel_texture, VIDEO_HAS(SCALE_LINEAR) ?
                               SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
             } else {
                 LOGW << fmt("Failed to load bezel: %s", bezelpath.c_str());
             }
         }
-        g_bezel_load = true;
+        VIDEO_SET(BEZEL_LOAD);
     }
 
-    if (g_bezel_reverse)
+    if (VIDEO_HAS(BEZEL_REVERSE))
     {
         vid_render_texture(g_scoreboard_texture, g_scoreboard_bezel_rect);
         vid_render_texture(g_aux_texture, g_aux_rect);
@@ -2455,7 +2420,7 @@ void vid_blit()
     }
 
     // Does OVERLAY texture need update from the local surfaces
-    if (m_block_driver_overlay) {
+    if (VIDEO_HAS(BLOCK_DRIVER_OVERLAY)) {
         SDL_UpdateTexture(g_overlay_texture, &g_local_size_rect,
 	    (void *)g_overlay_surface->pixels, g_overlay_surface->pitch);
     }
@@ -2473,7 +2438,7 @@ void vid_blit()
 
     if (g_aux_needs_update) vid_render_aux();
 
-    if (g_scanlines)
+    if (VIDEO_HAS(SCANLINES))
         draw_scanlines(g_scanline_shunt);
 
     // If there's a subtitle overlay
@@ -2497,18 +2462,18 @@ void vid_blit()
     else
         SDL_RenderTexture(g_renderer, g_mix_texture, &fScaleRect,  &fScaleRect);
 
-    if (g_bezel_toggle) vid_render_bezels();
+    if (VIDEO_HAS(BEZEL_TOGGLE)) vid_render_bezels();
 
-    if (queue_take_screenshot) {
-        queue_take_screenshot = false;
+    if (VIDEO_HAS(TAKE_SCREENSHOT)) {
+        VIDEO_CLEAR(TAKE_SCREENSHOT);
         take_screenshot();
     }
 
     SDL_RenderPresent(g_renderer);
 
-    if (g_softsboard_needs_update) {
+    if (g_scoreboard_needs_update) {
         SDL_RenderPresent(g_scoreboard_renderer);
-        g_softsboard_needs_update = false;
+        g_scoreboard_needs_update = false;
     }
 
     g_rescale = 0;
@@ -2541,7 +2506,7 @@ void set_overlay_offset(int offsetx, int offsety)
 void notify_stats(int overlaywidth, int overlayheight, const char* input)
 {
     char s[4] = {0};
-    if (!g_overlay_dynamic) snprintf(s, sizeof(s), "[s]");
+    if (!VIDEO_HAS(OVERLAY_DYNAMIC)) snprintf(s, sizeof(s), "[s]");
 
     LOGI << fmt("Viewport Stats:|w:%dx%d|v:%dx%d|o:%dx%d%s|l:%dx%d|%s",
          g_viewport_width, g_viewport_height, g_probe_width,

@@ -57,6 +57,18 @@
 
 #endif
 
+#define SPRITE_SET(s, flag) \
+    ((s).flags |= (flag))
+
+#define SPRITE_CLEAR(s, flag) \
+    ((s).flags &= ~(flag))
+
+#define SPRITE_HAS(s, flag) \
+    ((((s).flags) & (flag)) != 0)
+
+#define SPRITE_ASSIGN(s, flag, value) \
+    ((value) ? SPRITE_SET((s), (flag)) : SPRITE_CLEAR((s), (flag)))
+
 // since lua is written in C, we need to specify that all functions are C-styled
 extern "C"
 {
@@ -111,6 +123,17 @@ struct yuv_buffer
     int Vpitch = 0;
     int UVw    = 0;
     int UVh    = 0;
+};
+
+enum
+{
+    SPR_GFX        = 1u << 0,
+    SPR_SMOOTH     = 1u << 1,
+    SPR_BLEND      = 1u << 2,
+    SPR_REKEY      = 1u << 3,
+    SPR_NOKEY      = 1u << 4,
+    SPR_LOOP       = 1u << 5,
+    SPR_ANIMATING  = 1u << 6
 };
 
 ////////////////////////////////////////////////////////////////////////////////

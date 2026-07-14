@@ -44,6 +44,7 @@ int sdl3_keycode(const char *str)
 	else if (strcmp(str, "SDLK_SPACE") == 0) return SDLK_SPACE;
 	else if (strcmp(str, "SDLK_HASH") == 0) return SDLK_HASH;
 	else if (strcmp(str, "SDLK_QUOTE") == 0) return SDLK_APOSTROPHE;
+	else if (strcmp(str, "SDLK_APOSTROPHE") == 0) return SDLK_APOSTROPHE;
 	else if (strcmp(str, "SDLK_COMMA") == 0) return SDLK_COMMA;
 	else if (strcmp(str, "SDLK_MINUS") == 0) return SDLK_MINUS;
 	else if (strcmp(str, "SDLK_PERIOD") == 0) return SDLK_PERIOD;
@@ -65,6 +66,7 @@ int sdl3_keycode(const char *str)
 	else if (strcmp(str, "SDLK_RIGHTBRACKET") == 0) return SDLK_RIGHTBRACKET;
 	else if (strcmp(str, "SDLK_BACKSLASH") == 0) return SDLK_BACKSLASH;
 	else if (strcmp(str, "SDLK_BACKQUOTE") == 0) return SDLK_GRAVE;
+	else if (strcmp(str, "SDLK_GRAVE") == 0) return SDLK_GRAVE;
 	else if (strcasecmp(str, "SDLK_a") == 0) return SDLK_A;
 	else if (strcasecmp(str, "SDLK_b") == 0) return SDLK_B;
 	else if (strcasecmp(str, "SDLK_c") == 0) return SDLK_C;

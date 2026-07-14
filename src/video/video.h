@@ -44,6 +44,21 @@
 #define YUV_FLAG_GRAYSCALE 0x02
 #define YUV_FLAG_LUMA      0x04
 
+#define VIDEO_SET(flag) \
+    (g_vflags |= (flag))
+
+#define VIDEO_CLEAR(flag) \
+    (g_vflags &= ~(flag))
+
+#define VIDEO_HAS(flag) \
+    ((g_vflags & (flag)) != 0)
+
+#define VIDEO_ASSIGN(flag, value) \
+    ((value) ? VIDEO_SET(flag) : VIDEO_CLEAR(flag))
+
+#define VIDEO_TOGGLE(flag) \
+    (g_vflags ^= (flag))
+
 #include <SDL3_ttf/SDL_ttf.h>
 #include <SDL3/SDL.h>
 #include <vector>
@@ -69,7 +84,8 @@ static const uint8_t ANUN_CHAR_HEIGHT = 15;
 static const uint8_t ANUN_RANK_HEIGHT = 46;
 static const uint8_t ANUN_LEVELS = 3;
 
-enum {
+enum
+{
     B_DL_PLAYER1,
     B_DL_PLAYER2,
     B_DL_LIVES,
@@ -92,11 +108,64 @@ enum {
     B_EMPTY
 }; // bitmaps
 
-enum {
+enum
+{
     YUV_BLANK = 0,
     YUV_VISIBLE,
     YUV_SHUTTER,
     YUV_FLASH
+};
+
+enum VideoState : uint64_t
+{
+    INDEX8               = 1ull << 0,
+    LUA_GAME             = 1ull << 1,
+
+    FULLSCREEN           = 1ull << 2,
+    TAKE_SCREENSHOT      = 1ull << 3,
+
+    SCALE_LINEAR         = 1ull << 4,
+    SCANLINES            = 1ull << 5,
+
+    OPENGL               = 1ull << 6,
+    VULKAN               = 1ull << 7,
+    SOFT_RENDER          = 1ull << 8,
+    VSYNC                = 1ull << 9,
+
+    TEARDOWN             = 1ull << 10,
+    INTRO                = 1ull << 11,
+    LOGO                 = 1ull << 12,
+
+    FORCE_TOP            = 1ull << 13,
+    GRAB_MOUSE           = 1ull << 14,
+
+    YUV_BLUE             = 1ull << 15,
+
+    VIDEO_RESIZED        = 1ull << 16,
+
+    BLOCK_DRIVER_OVERLAY = 1ull << 17,
+
+    ENHANCE_OVERLAY      = 1ull << 18,
+    OVERLAY_DYNAMIC      = 1ull << 19,
+    LEGACY_OVERLAY       = 1ull << 20,
+    OVERLAY_WHITE        = 1ull << 21,
+
+    FORCE_ASPECT         = 1ull << 22,
+    IGNORE_ASPECT        = 1ull << 23,
+
+    BEZEL_LOAD           = 1ull << 24,
+    BEZEL_TOGGLE         = 1ull << 25,
+    BEZEL_REVERSE        = 1ull << 26,
+    KEYBOARD_BEZEL       = 1ull << 27,
+    SCOREBOARD_BEZEL     = 1ull << 28,
+
+    AUX_BEZEL            = 1ull << 29,
+    ANNUN_LAMPS          = 1ull << 30,
+    DED_ANNUN_BEZEL      = 1ull << 31,
+
+    SCALED               = 1ull << 32,
+    VERTICAL_ORIENTATION = 1ull << 33,
+    TOGGLE_LOCK          = 1ull << 34
 };
 
 bool init_display();
