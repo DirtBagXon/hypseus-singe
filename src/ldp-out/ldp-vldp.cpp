@@ -42,7 +42,6 @@
 #include "../io/numstr.h"  // for debug
 #include "../timer/timer.h"
 #include "../video/palette.h"
-#include "../video/rgb2yuv.h"
 #include "../video/video.h"
 #include "../vldp/vldp.h" // to get the vldp structs
 #include "framemod.h"

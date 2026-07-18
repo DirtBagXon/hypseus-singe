@@ -141,7 +141,7 @@ Use `KEY_TILT` to switch displays when using multiple screens.
 
 A *bezel* based alternate is also available via: `-scorebezel`
 
-The scorepanel, or bezel, can be positioned using `-scorepanel_position x y` - *Window Managers* may influence placement of the panel, *scorebezel* is not under their influence. The `-scorebezel_alpha` argument is a transparency option for the bezel based scoreboard.
+The scorepanel, or bezel, can be positioned using `-scorepanel_position x y` - *Window Managers* may influence placement of the panel, *scorebezel* is not under their influence.
 
 ## Singe
 

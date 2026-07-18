@@ -21,11 +21,6 @@
  */
 
 #include "config.h"
-
-// video.cpp
-// Part of the HYPSEUS emulator
-// This code started by Matt Ownby, May 2000
-
 #include "../hypseus.h"
 #include "../game/game.h"
 #include "../io/conout.h"
@@ -34,108 +29,115 @@
 #include "../io/mpo_mem.h"
 #include "icon.h"
 #include "video.h"
-#include <SDL3_image/SDL_image.h> // screenshot
+#include <SDL3_image/SDL_image.h>
 #include <plog/Log.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <string> // for some error messages
+#include <string>
 
 namespace video {
 
-uint64_t g_vflags = VSYNC | INTRO;
+uint64_t g_vflags                       = VSYNC | INTRO;
 
 // default video dimensions
-int g_video_width = 640, g_video_height = 480;
+int g_video_width                       = 640;
+int g_video_height                      = 480;
 
-unsigned int g_probe_width = g_video_width;
-unsigned int g_probe_height = g_video_height;
+int g_viewport_width                    = g_video_width;
+int g_viewport_height                   = g_video_height;
+int g_aspect_width                      = 0;
+int g_aspect_height                     = 0;
+int g_alloc_screen                      = 0;
+int g_displays_total                    = 0;
+int g_display                           = 0;
+int g_scale_h_shift                     = 100;
+int g_scale_v_shift                     = 100;
+int g_scoreboard_screen                 = -1;
+int aux_bezel_pos_x                     = 0;
+int aux_bezel_pos_y                     = 0;
+int scoreboard_window_pos_x             = 0;
+int scoreboard_window_pos_y             = 0;
 
-const int g_anun_w = 220, g_anun_h = 128;
-const int g_scoreboard_w = 340, g_scoreboard_h = 480;
-
-int g_viewport_width = g_video_width, g_viewport_height = g_video_height;
-int g_aspect_width = 0, g_aspect_height = 0;
-int g_alloc_screen = 0;
-int g_scoreboard_screen = -1;
-int g_displays_total = 0;
-int g_display = 0;
-
-int scoreboard_window_pos_x = 0, scoreboard_window_pos_y = 0;
-int aux_bezel_pos_x = 0, aux_bezel_pos_y = 0;
-int g_scale_h_shift = 100, g_scale_v_shift = 100;
+const int g_anun_w                      = 220;
+const int g_anun_h                      = 128;
+const int g_scoreboard_w                = 340;
+const int g_scoreboard_h                = 480;
 
 // the current game overlay dimensions
-unsigned int g_overlay_width = 0, g_overlay_height = 0;
+unsigned int g_overlay_width            = 0;
+unsigned int g_overlay_height           = 0;
+unsigned int g_probe_width              = g_video_width;
+unsigned int g_probe_height             = g_video_height;
 
-TTF_Font *g_font                    = nullptr;
-TTF_Font *g_ttfont                  = nullptr;
-TTF_TextEngine *g_font_engine       = nullptr;
-SDL_Surface *g_led_bmps[LED_RANGE]  = {0};
-SDL_Surface *g_other_bmps[B_EMPTY]  = {0};
-SDL_Window *g_window                = NULL;
-SDL_Window *g_scoreboard_window     = NULL;
-SDL_Renderer *g_renderer            = NULL;
-SDL_Renderer *g_scoreboard_renderer = NULL;
-SDL_Texture *g_overlay_texture      = NULL;
-SDL_Texture *g_yuv_texture          = NULL;
-SDL_Surface *g_overlay_surface      = NULL;
-SDL_Surface *g_scoreboard_surface   = NULL;
-SDL_Texture *g_scoreboard_texture   = NULL;
-SDL_Surface *g_aux_blit_surface     = NULL;
-SDL_Texture *g_bezel_texture        = NULL;
-SDL_Texture *g_aux_texture          = NULL;
-SDL_Texture *g_mix_texture          = NULL;
+TTF_Font *g_font                       = nullptr;
+TTF_Font *g_ttfont                     = nullptr;
+TTF_TextEngine *g_font_engine          = nullptr;
+
+SDL_Window *g_window                   = NULL;
+SDL_Window *g_scoreboard_window        = NULL;
+
+SDL_Renderer *g_renderer               = NULL;
+SDL_Renderer *g_scoreboard_renderer    = NULL;
+
+SDL_Surface *g_led_bmps[LED_RANGE]     = {0};
+SDL_Surface *g_other_bmps[B_EMPTY]     = {0};
+SDL_Surface *g_overlay_surface         = NULL;
+SDL_Surface *g_scoreboard_surface      = NULL;
+SDL_Surface *g_aux_blit_surface        = NULL;
 SDL_Surface *g_scoreboard_blit_surface = NULL;
+
+SDL_Texture *g_overlay_texture         = NULL;
+SDL_Texture *g_yuv_texture             = NULL;
+SDL_Texture *g_scoreboard_texture      = NULL;
+SDL_Texture *g_bezel_texture           = NULL;
+SDL_Texture *g_aux_texture             = NULL;
+SDL_Texture *g_mix_texture             = NULL;
+
+SDL_FRect fScaleRect;
+SDL_FRect *g_yuv_frect[2]              = {NULL};
 
 SDL_Rect g_aux_rect;
 SDL_Rect g_border_rect;
-SDL_Rect g_scaling_rect          = {0};
-SDL_Rect g_logical_rect          = {0};
-SDL_Rect g_scoreboard_bezel_rect = {0};
-SDL_Rect g_local_size_rect       = {0, 0, 320, 240};
+SDL_Rect g_scaling_rect                = {0};
+SDL_Rect g_logical_rect                = {0};
+SDL_Rect g_scoreboard_bezel_rect       = {0};
+SDL_Rect g_local_size_rect             = {0, 0, 320, 240};
+SDL_Rect g_limit_rect                  = g_local_size_rect;
+SDL_Rect g_annu_rect                   = g_local_size_rect;
 
-SDL_Rect g_limit_rect = g_local_size_rect;
-SDL_Rect g_annu_rect = g_local_size_rect;
+int g_aspect_ratio                     = 0;
+int g_scalefactor                      = 100;
+int g_scoreboard_bezel_scale           = 14;
+int g_aux_bezel_scale                  = 12;
+int g_bezel_scalewidth                 = 0;
+int g_yuv_display                      = YUV_VISIBLE;
+int sboverlay_characterset             = 2;
 
-std::vector<SDL_Rect> displayDimensions;
+int8_t g_rescale                       = 0;
+int8_t g_yuv_luma                      = YUV_FLAG_LUMA;
 
-SDL_FRect fScaleRect;
-SDL_FRect *g_yuv_frect[2] = { NULL };
+uint8_t g_scanline_alpha               = 128;
+uint8_t g_scanline_shunt               = 2;
+uint8_t g_bSubtitleShown               = 0;
+uint8_t g_yuv_flags                    = 0;
 
-int g_scalefactor = 100;
-int g_aspect_ratio = 0;
-int sboverlay_characterset = 2;
-int g_yuv_display = YUV_VISIBLE;
+char g_window_title[TITLE_LENGTH]      = "";
+char *subchar                          = NULL;
+char *srtchar                          = NULL;
 
-int8_t g_rescale = 0;
+SDL_TextureAccess g_texture_access     = SDL_TEXTUREACCESS_STREAMING;
 
-int g_scoreboard_bezel_scale = 14;
-int g_aux_bezel_scale = 12;
-int g_bezel_scalewidth = 0;
-
-uint8_t g_scanline_alpha = 128;
-uint8_t g_scanline_shunt = 2;
-uint8_t g_yuv_flags = 0;
-int8_t g_yuv_luma = YUV_FLAG_LUMA;
-
-uint8_t g_bSubtitleShown = 0;
-char g_window_title[TITLE_LENGTH] = "";
-char *subchar = NULL;
-char *srtchar = NULL;
-
-SDL_TextureAccess g_texture_access = SDL_TEXTUREACCESS_STREAMING;
-
-std::string g_bezel_path = "bezels";
+std::string g_bezel_path               = "bezels";
 std::string g_bezel_file;
 std::string g_tqkeys;
 
 // degrees in clockwise rotation
-float g_fRotateDegrees = 0.0f;
-double g_aux_ratio = 1.0f;
+float g_fRotateDegrees                 = 0.0f;
+double g_aux_ratio                     = 1.0f;
 
 // YUV stretching
-float g_yuv_scale[2] = { 1.0f, 1.0f };
+float g_yuv_scale[2]                   = {1.0f, 1.0f};
 
 // YUV structure
 typedef struct {
@@ -143,18 +145,19 @@ typedef struct {
     uint8_t *Uplane;
     uint8_t *Vplane;
     int width, height;
-    int Ysize, Usize, Vsize; // The size of each plane in bytes.
-    int Ypitch, Upitch, Vpitch; // The pitch of each plane in bytes.
+    int Ysize, Usize, Vsize;           // The size of each plane in bytes.
+    int Ypitch, Upitch, Vpitch;        // The pitch of each plane in bytes.
     SDL_Mutex *mutex;
 } m_yuv_surface_t;
 
-m_yuv_surface_t *g_yuv_surface;
+m_yuv_surface_t       *g_yuv_surface;
+std::vector<SDL_Rect> displayDimensions;
 
 // Blitting parameters. Textures that need updating in a blitting strike?
-bool g_scoreboard_needs_update = false;
-bool g_yuv_video_needs_update  = false;
-bool g_aux_needs_update        = false;
-bool g_yuv_skip                = true;
+bool g_scoreboard_needs_update         = false;
+bool g_yuv_video_needs_update          = false;
+bool g_aux_needs_update                = false;
+bool g_yuv_skip                        = true;
 
 //////////////////////////////////////////////////////////////////////////////
 

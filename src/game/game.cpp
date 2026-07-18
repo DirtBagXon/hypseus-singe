@@ -363,17 +363,6 @@ bool game::init_video()
                     LOGE << "SDL_CreateRGBSurfaceWithFormat failed in init_video!";
                     result = false;
                 }
-                else
-                {
-                    if (m_overlay_depth == GAME_OVERLAY_STD) {
-                        std::vector<SDL_Color> colors(m_palette_color_count,
-                                                          SDL_Color{0, 0, 0, 255});
-                        SDL_Palette *palette = SDL_CreatePalette(m_palette_color_count);
-                        SDL_SetPaletteColors(palette, colors.data(), 0, m_palette_color_count);
-                        SDL_SetSurfacePalette(m_video_overlay[index], palette);
-                        SDL_DestroyPalette(palette);
-                    }
-                }
             }
 
             // if we created the surfaces alright, then allocate space for the

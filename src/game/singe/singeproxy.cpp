@@ -33,6 +33,7 @@
 #include "sdl3_gfx/SDL3_rotozoom.h"
 
 #include <plog/Log.h>
+#include <bitset>
 #include <string>
 #include <vector>
 #include <ctime>
@@ -53,9 +54,9 @@ typedef struct m_soundType {
 } m_soundT;
 
 typedef struct m_mixerType {
-	MIX_Audio   *audio = NULL;
-	MIX_Track   *track = NULL;
-	bool        load   = false;
+	MIX_Audio  *audio = NULL;
+	MIX_Track  *track = NULL;
+	bool       load   = false;
 } m_mixerT;
 
 typedef struct {
@@ -72,47 +73,41 @@ typedef struct {
 } m_textureT;
 
 typedef struct m_spriteType {
+	uint8_t flags  = 0;
+	int     frames = 0;
+	int     fwidth = 0;
+	int     flow   = 0;
+	int     last   = 0;
+	int     ticks  = 0;
 	double  angle  = 0.0f;
 	double  scaleX = 0.0f;
 	double  scaleY = 0.0f;
-	int     frames = 0;
-	int     fwidth = 0;
 	SDL_Surface *store;
 	SDL_Surface *frame;
 	SDL_Surface *present;
-	IMG_Animation  *animation;
-	int     flow = 0;
-	int     last = 0;
-	int     ticks = 0;
-	uint8_t flags = 0;
+	IMG_Animation *animation;
 } m_spriteT;
 
 typedef struct g_positionType {
 	int     mouseX[MAX_MICE] = {0};
 	int     mouseY[MAX_MICE] = {0};
-	Sint16  axisvalue[MAX_GAMECONTROLLER][AXIS_COUNT];
-
-        g_positionType() {
-            for (int i = 0; i < MAX_GAMECONTROLLER; ++i)
-                for (int j = 0; j < AXIS_COUNT; ++j)
-                    axisvalue[i][j] = 0;
-        }
+	Sint16  axisvalue[MAX_GAMECONTROLLER][AXIS_COUNT] = {{0}};
 } m_positionT;
 
 typedef struct m_srtType {
-        int startFrame;
-        int endFrame;
-        std::string text;
+	int startFrame;
+	int endFrame;
+	std::string text;
 } m_srtT;
 
 struct ZipMem {
-    void* data;
-    size_t size;
+	void* data;
+	size_t size;
 };
 
 struct ZipFont {
-    TTF_Font *font = nullptr;
-    std::unique_ptr<char[]> buffer;
+	TTF_Font *font = nullptr;
+	std::unique_ptr<char[]> buffer;
 };
 
 // These are pointers and values needed by the script engine to interact with Hypseus
@@ -152,9 +147,9 @@ static double                m_se_overlay_scale_x  =  1;
 static double                m_se_overlay_scale_y  =  1;
 static double                m_se_yuv_scale_x      =  1;
 static double                m_se_yuv_scale_y      =  1;
-static uint8_t               m_upgrade_overlay     = 0;
+static uint8_t               m_upgrade_overlay     =  0;
 
-static bool                  g_keyboard_state[SDL_SCANCODE_COUNT] = {false};
+static std::bitset<SDL_SCANCODE_COUNT>             g_keyboard_state;
 static int                   g_keyboard_down       = SDL_SCANCODE_UNKNOWN;
 static int                   g_keyboard_up         = SDL_SCANCODE_UNKNOWN;
 const char*                  g_zipFile             = NULL;
@@ -453,13 +448,12 @@ void sep_keyboard_set_state(int keycode, bool state)
 {
     int scancode = SDL_GetScancodeFromKey(keycode, nullptr);
 
-    if (state) {
-        g_keyboard_down = scancode;
-        g_keyboard_state[scancode] = true;
-    } else {
-        g_keyboard_up = scancode;
-        g_keyboard_state[scancode] = false;
-    }
+    if (scancode < 0 || scancode >= SDL_SCANCODE_COUNT)
+        return;
+
+    (state ? g_keyboard_down : g_keyboard_up) = scancode;
+
+    g_keyboard_state.set(scancode, state);
 }
 
 void sep_controller_set_axis(Uint8 axis, Sint16 value, Uint8 id)
@@ -4619,29 +4613,28 @@ static int sep_keyboard_is_down(lua_State *L)
 {
     int n = lua_gettop(L);
     int s = 0;
-    bool r = false;
     bool result = false;
 
     if (n == 1) {
         if (lua_isnumber(L, 1)) {
             s = lua_tonumber(L, 1);
 
-            if (s < 0 || s > SDL_SCANCODE_COUNT) {
+            if (s < 0 || s >= SDL_SCANCODE_COUNT) {
                 sep_trace(L);
                 sep_die("keyboardIsDown received invalid value");
                 return 0;
             }
             result = true;
-            r = g_keyboard_state[s];
         }
     }
 
     if (!result) {
         sep_trace(L);
         sep_die("Failed on keyboardIsDown");
+        return 0;
     }
 
-    lua_pushboolean(L, r);
+    lua_pushboolean(L, g_keyboard_state.test(s));
     return 1;
 }
 

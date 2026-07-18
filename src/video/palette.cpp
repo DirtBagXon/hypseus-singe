@@ -1,7 +1,7 @@
 /*
- * ____ DAPHNE COPYRIGHT NOTICE ____
+ * ____ HYPSEUS COPYRIGHT NOTICE ____
  *
- * Copyright (C) 2002 Mark Broadhead
+ * Copyright (C) 2002 Mark Broadhead, 2026 DirtBagXon
  *
  * This file is part of DAPHNE, a laserdisc arcade game emulator
  *
@@ -26,7 +26,6 @@
 #include "../io/conout.h" // for printline
 #include "../video/video.h"
 #include "palette.h"
-#include "rgb2yuv.h"
 #include <plog/Log.h>
 
 #ifdef DEBUG
@@ -35,58 +34,47 @@
 
 namespace palette
 {
+
 unsigned int g_size = 0;
-SDL_Color *g_rgb    = NULL;
+bool g_modified     = true;
 
-// color palette lookup table (to make OpenGL texture conversions faster)
-Uint32 g_uRGBAPalette[256];
-
-t_yuv_color *g_yuv = NULL;
-
-bool g_modified = true;
+std::vector<SDL_Color> g_rgb;
 
 // call this function once to set size of game palette
 bool initialize(unsigned int num_colors)
 {
-    bool result = true;
-
-    g_size = num_colors;
-    // we can only have 256 max since all our surfaces are 8-bit
     if (num_colors > 256) {
         LOGE << fmt("Too many colors %d > 256!", num_colors);
-        result = false;
+        return false;
     }
 
-    if (result) {
-        g_rgb = new SDL_Color[num_colors];
-        g_yuv = new t_yuv_color[num_colors];
-    }
+    g_size = num_colors;
 
-    if (!((g_rgb) && (g_yuv))) {
-        LOGE << "Could not allocate palette arrays!";
-        shutdown();
-        result = false;
-    } else {
-        // set all colors to unmodified and black
-        for (unsigned int x = 0; x < g_size; x++) {
-            // set RGB values to black
-            g_rgb[x].r = g_rgb[x].g = g_rgb[x].b = 0;
-            g_rgb[x].a = 0xFF;
+    // Allocate and initialise the CPU-side palette
+    g_rgb.assign(num_colors, SDL_Color{0, 0, 0, 0xFF});
 
-            g_uRGBAPalette[x] = 0xFF000000; // initialize to opaque black
+    // Create and attach SDL palettes to every overlay surface.
+    for (int i = 0;; ++i) {
+        SDL_Surface *surface = g_game->get_video_overlay(i);
+        if (!surface)
+            break;
 
-            // set YUV values to black
-            g_yuv[x].y = 0;
-            g_yuv[x].u = g_yuv[x].v = 0x7F;
-            g_yuv[x].transparent            = false;
+        SDL_Palette *palette = SDL_CreatePalette(g_size);
+        if (!palette) {
+            LOGE << "SDL_CreatePalette failed";
+            shutdown();
+            return false;
         }
 
-        // Default color #0 to be transparent
-        // Game drivers can change this individually.
-        set_transparency(0, true);
+        SDL_SetPaletteColors(palette, g_rgb.data(), 0, g_size);
+        SDL_SetSurfacePalette(surface, palette);
+        SDL_DestroyPalette(palette);
     }
 
-    return result;
+    // Default colour 0 is transparent.
+    set_transparency(0, true);
+
+    return true;
 }
 
 void set_transparency(unsigned int uColorIndex, bool transparent)
@@ -96,17 +84,13 @@ void set_transparency(unsigned int uColorIndex, bool transparent)
     assert(uColorIndex < g_size);
 #endif
 
-    g_yuv[uColorIndex].transparent = transparent;
-
     if (transparent)
     {
         g_rgb[uColorIndex].a = 0x00;
-        g_uRGBAPalette[uColorIndex] &= ~ABGR_ALPHA_MASK;
     }
     else
     {
         g_rgb[uColorIndex].a = 0xFF;
-        g_uRGBAPalette[uColorIndex] |= ABGR_ALPHA_MASK;
     }
 }
 
@@ -127,21 +111,6 @@ void set_color(unsigned int color_num, SDL_Color color_value)
         g_rgb[color_num].g = color_value.g;
         g_rgb[color_num].b = color_value.b;
         g_modified       = true;
-
-        // change R,G,B, values, but don't change A
-        g_uRGBAPalette[color_num] = (g_uRGBAPalette[color_num] & 0xFF000000) |
-                                    color_value.r | (color_value.g << 8) |
-                                    (color_value.b << 16);
-
-        // MATT : seems to make more sense to calculate the YUV value of the
-        // color here
-        rgb2yuv_input[0] = g_rgb[color_num].r;
-        rgb2yuv_input[1] = g_rgb[color_num].g;
-        rgb2yuv_input[2] = g_rgb[color_num].b;
-        rgb2yuv();
-        g_yuv[color_num].y = rgb2yuv_result_y;
-        g_yuv[color_num].v = rgb2yuv_result_v;
-        g_yuv[color_num].u = rgb2yuv_result_u;
     }
 }
 
@@ -156,27 +125,19 @@ void finalize()
             // if we have a video overlay to set the colors no ...
             if (video_overlay) {
                 SDL_Palette *palette = SDL_GetSurfacePalette(video_overlay);
-                SDL_SetPaletteColors(palette, g_rgb, 0, g_size);
+                SDL_SetPaletteColors(palette, g_rgb.data(), 0, g_size);
             } else {
                 break;
             }
         }
     }
-
     g_modified = false;
 }
 
 // call this function on video shutdown
 void shutdown(void)
 {
-    if (g_rgb) {
-        delete[] g_rgb;
-        g_rgb = NULL;
-    }
-    if (g_yuv) {
-        delete[] g_yuv;
-        g_yuv = NULL;
-    }
+    g_rgb.clear();
 }
 
 bool get_yuv_overlay_ready()

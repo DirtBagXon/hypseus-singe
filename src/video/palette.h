@@ -20,17 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#define ABGR_ALPHA_MASK 0xFF000000u
-
 namespace palette
 {
-typedef struct {
-    Uint8 y;
-    Uint8 v;
-    Uint8 u;
-    bool transparent;
-} t_yuv_color;
-
 // Among other things, sets color #0 to be transparent.  You can change this
 //  by calling set_transparency.
 bool initialize(unsigned int num_colors);
@@ -42,6 +33,7 @@ bool initialize(unsigned int num_colors);
 // The default is for color #0 to be transparent, and this will be
 //  set in initialize.
 void set_transparency(unsigned int uColorIndex, bool transparent);
+
 void set_yuv_transparency(int state);
 bool get_yuv_overlay_ready();
 
