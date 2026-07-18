@@ -304,8 +304,8 @@ static void format_window_render()
     g_scaling_rect.x = (diff_w * g_scale_h_shift) / 100;
     g_scaling_rect.y = (diff_h * g_scale_v_shift) / 100;
 
-    g_logical_rect.w = g_scaling_rect.w;
-    g_logical_rect.h = g_scaling_rect.h;
+    g_logical_rect.w = g_mix_texture.w = g_scaling_rect.w;
+    g_logical_rect.h = g_mix_texture.h = g_scaling_rect.h;
 
     if (!g_rescale)
     {
