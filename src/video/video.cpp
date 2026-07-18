@@ -2459,14 +2459,6 @@ void vid_blit()
     if (VIDEO_HAS(SCANLINES))
         draw_scanlines(g_scanline_shunt);
 
-    // If there's a subtitle overlay
-    if (g_bSubtitleShown)
-    {
-        if (g_bSubtitleShown & (1 << 0 ))
-            draw_subtitle(subchar, 0);
-        else draw_srt(srtchar, 0);
-    }
-
     if (g_game->get_outline_border())
         draw_border(g_game->get_outline_border(),
             g_game->get_outline_border_color());
@@ -2479,6 +2471,14 @@ void vid_blit()
              &fScaleRect, g_fRotateDegrees, NULL, SDL_FLIP_NONE);
     else
         SDL_RenderTexture(g_renderer, g_mix_texture.t, &fScaleRect,  &fScaleRect);
+
+    // If there's a subtitle overlay
+    if (g_bSubtitleShown)
+    {
+        if (g_bSubtitleShown & (1 << 0 ))
+            draw_subtitle(subchar, 0);
+        else draw_srt(srtchar, 0);
+    }
 
     if (VIDEO_HAS(BEZEL_TOGGLE)) vid_render_bezels();
 
