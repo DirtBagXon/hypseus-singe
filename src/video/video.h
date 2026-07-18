@@ -165,7 +165,6 @@ enum VideoState : uint64_t
 
     SCALED               = 1ull << 32,
     VERTICAL_ORIENTATION = 1ull << 33,
-    TOGGLE_LOCK          = 1ull << 34
 };
 
 bool init_display();

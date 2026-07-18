@@ -367,7 +367,7 @@ bool game::init_video()
 
             // if we created the surfaces alright, then allocate space for the
             // color palette
-            if (result) {
+            if (result && m_overlay_depth == GAME_OVERLAY_STD) {
                 result = palette::initialize(m_palette_color_count);
                 if (result) {
                     palette_calculate();

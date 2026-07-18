@@ -561,6 +561,8 @@ bool singe::handle_cmdline_arg(const char *arg)
 
 void singe::palette_calculate()
 {
+    if (m_upgrade_overlay != 0) return;
+
     SDL_Color temp_color;
 
     temp_color.a = 0; // Eliminates a warning.

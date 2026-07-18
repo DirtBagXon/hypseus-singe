@@ -92,7 +92,6 @@ SDL_Texture *g_yuv_texture             = NULL;
 SDL_Texture *g_scoreboard_texture      = NULL;
 SDL_Texture *g_bezel_texture           = NULL;
 SDL_Texture *g_aux_texture             = NULL;
-SDL_Texture *g_mix_texture             = NULL;
 
 SDL_FRect fScaleRect;
 SDL_FRect *g_yuv_frect[2]              = {NULL};
@@ -150,10 +149,19 @@ typedef struct {
     SDL_Mutex *mutex;
 } m_yuv_surface_t;
 
-m_yuv_surface_t       *g_yuv_surface;
-std::vector<SDL_Rect> displayDimensions;
+// texture size caching
+typedef struct {
+    SDL_Texture *t;
+    int w;
+    int h;
+} m_textureT;
 
-// Blitting parameters. Textures that need updating in a blitting strike?
+m_yuv_surface_t                        *g_yuv_surface;
+std::vector<SDL_Rect>                  displayDimensions;
+
+m_textureT g_mix_texture               = {.t = NULL, .w = 0, .h = 0 };
+
+// blitting flags
 bool g_scoreboard_needs_update         = false;
 bool g_yuv_video_needs_update          = false;
 bool g_aux_needs_update                = false;
@@ -220,8 +228,8 @@ static void resize_cleanup()
     g_ttfont = nullptr;
     g_font_engine = nullptr;
 
-    SDL_DestroyTexture(g_mix_texture);
     SDL_DestroyTexture(g_overlay_texture);
+    SDL_DestroyTexture(g_mix_texture.t);
 
     if (g_renderer)
     {
@@ -230,7 +238,7 @@ static void resize_cleanup()
         SDL_DestroyRenderer(g_renderer);
     }
 
-    g_mix_texture = NULL;
+    g_mix_texture.t = NULL;
     g_overlay_texture = NULL;
     g_renderer = NULL;
 
@@ -504,8 +512,6 @@ bool init_display()
 
         if (VIDEO_HAS(FULLSCREEN))
             SDL_SetWindowFullscreen(g_window, true);
-        else if (!notify)
-            VIDEO_SET(TOGGLE_LOCK);
 
         if (strlen(g_window_title) > 0)
             SDL_SetWindowTitle(g_window, g_window_title);
@@ -719,20 +725,6 @@ bool init_display()
                           SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
             }
 
-            g_mix_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
-                      SDL_TEXTUREACCESS_TARGET, g_logical_rect.w, g_logical_rect.h);
-
-            if (!g_mix_texture) {
-                LOGE << fmt("Mixing texture creation failed: %s", SDL_GetError());
-                set_quitflag();
-                goto exit;
-            }
-            SDL_SetTextureBlendMode(g_mix_texture, SDL_BLENDMODE_BLEND);
-            SDL_SetTextureAlphaMod(g_mix_texture, 0xff);
-
-            SDL_SetTextureScaleMode(g_mix_texture, VIDEO_HAS(SCALE_LINEAR) ?
-                      SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
-
             SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
             SDL_RenderClear(g_renderer);
@@ -820,11 +812,11 @@ bool deinit_display()
     g_aux_texture = NULL;
 
     SDL_DestroyTexture(g_overlay_texture);
-    SDL_DestroyTexture(g_mix_texture);
+    SDL_DestroyTexture(g_mix_texture.t);
     SDL_DestroyRenderer(g_renderer);
     SDL_DestroyWindow(g_window);
 
-    g_mix_texture = NULL;
+    g_mix_texture.t = NULL;
     g_overlay_texture = NULL;
     g_renderer = NULL;
     g_window = NULL;
@@ -1823,11 +1815,6 @@ void draw_subtitle(const char *s, uint8_t func, bool center = false)
 
 void vid_toggle_fullscreen()
 {
-    if (VIDEO_HAS(TOGGLE_LOCK)) {
-        draw_srt("Fullscreen Toggle Locked", 1);
-        return;
-    }
-
     VIDEO_CLEAR(BEZEL_TOGGLE);
 
     Uint32 current = SDL_GetWindowFlags(g_window);
@@ -1839,9 +1826,8 @@ void vid_toggle_fullscreen()
     }
 
     current = SDL_GetWindowFlags(g_window);
-    Uint32 flags = (current ^ SDL_WINDOW_FULLSCREEN);
 
-    if ((flags & SDL_WINDOW_FULLSCREEN)) {
+    if ((current & SDL_WINDOW_FULLSCREEN)) {
         g_logical_rect = displayDimensions[g_display];
         VIDEO_SET(FULLSCREEN);
         format_fullscreen_render();
@@ -1853,7 +1839,7 @@ void vid_toggle_fullscreen()
         return;
     }
 
-    VIDEO_CLEAR(FULLSCREEN);;
+    VIDEO_CLEAR(FULLSCREEN);
     format_window_render();
     notify_stats(g_overlay_width, g_overlay_height, "u");
 
@@ -2271,6 +2257,33 @@ static void draw_border(int s, int c)
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
+static bool mixTexture(m_textureT *mix)
+{
+    if (mix->t && mix->w == g_logical_rect.w && mix->h == g_logical_rect.h)
+        return true;
+
+    SDL_Texture *temp = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_TARGET, g_logical_rect.w, g_logical_rect.h);
+
+    if (!temp) {
+        LOGE << fmt("Mixing texture creation failed: %s", SDL_GetError());
+        set_quitflag();
+        return false;
+    }
+
+    SDL_SetTextureBlendMode(temp, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(temp, 0xff);
+    SDL_SetTextureScaleMode(temp, VIDEO_HAS(SCALE_LINEAR) ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
+
+    if (mix->t) SDL_DestroyTexture(mix->t);
+
+    mix->t = temp;
+    mix->w = g_logical_rect.w;
+    mix->h = g_logical_rect.h;
+
+    return true;
+}
+
 static void vid_render_aux()
 {
     if (g_aux_texture) {
@@ -2389,7 +2402,9 @@ void vid_blit()
     // Prevents stroboscopic effects on the background in fullscreen mode,
     // and is recommended by SDL_Rendercopy() documentation.
 
-    SDL_SetRenderTarget(g_renderer, g_mix_texture);
+    if (!mixTexture(&g_mix_texture)) return;
+
+    SDL_SetRenderTarget(g_renderer, g_mix_texture.t);
     SDL_RenderClear(g_renderer);
 
     // Does YUV texture need update from the YUV surface
@@ -2460,10 +2475,10 @@ void vid_blit()
     SDL_RenderClear(g_renderer);
 
     if (g_fRotateDegrees != 0)
-        SDL_RenderTextureRotated(g_renderer, g_mix_texture,  &fScaleRect,
+        SDL_RenderTextureRotated(g_renderer, g_mix_texture.t,  &fScaleRect,
              &fScaleRect, g_fRotateDegrees, NULL, SDL_FLIP_NONE);
     else
-        SDL_RenderTexture(g_renderer, g_mix_texture, &fScaleRect,  &fScaleRect);
+        SDL_RenderTexture(g_renderer, g_mix_texture.t, &fScaleRect,  &fScaleRect);
 
     if (VIDEO_HAS(BEZEL_TOGGLE)) vid_render_bezels();
 
