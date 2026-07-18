@@ -152,8 +152,7 @@ typedef struct {
 // texture size caching
 typedef struct {
     SDL_Texture *t;
-    int w;
-    int h;
+    int w, h;
 } m_textureT;
 
 m_yuv_surface_t                        *g_yuv_surface;
@@ -1818,16 +1817,14 @@ void vid_toggle_fullscreen()
     VIDEO_CLEAR(BEZEL_TOGGLE);
 
     Uint32 current = SDL_GetWindowFlags(g_window);
-    bool flip = current & SDL_WINDOW_FULLSCREEN;
+    bool flip = (current & SDL_WINDOW_FULLSCREEN) != 0;
 
-    if (!SDL_SetWindowFullscreen(g_window, flip ? false : SDL_WINDOW_FULLSCREEN)) {
+    if (!SDL_SetWindowFullscreen(g_window, flip ? false : true)) {
         LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());
         return;
     }
 
-    current = SDL_GetWindowFlags(g_window);
-
-    if ((current & SDL_WINDOW_FULLSCREEN)) {
+    if (!flip) {
         g_logical_rect = displayDimensions[g_display];
         VIDEO_SET(FULLSCREEN);
         format_fullscreen_render();
@@ -2273,7 +2270,8 @@ static bool mixTexture(m_textureT *mix)
 
     SDL_SetTextureBlendMode(temp, SDL_BLENDMODE_BLEND);
     SDL_SetTextureAlphaMod(temp, 0xff);
-    SDL_SetTextureScaleMode(temp, VIDEO_HAS(SCALE_LINEAR) ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode(temp, VIDEO_HAS(SCALE_LINEAR) ?
+          SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
 
     if (mix->t) SDL_DestroyTexture(mix->t);
 
