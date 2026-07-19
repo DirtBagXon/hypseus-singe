@@ -487,10 +487,6 @@ bool init_display()
 
     if (notify && g_window && !VIDEO_HAS(TEARDOWN)) {
         SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
-        SDL_SetWindowPosition(g_window, displayDimensions[g_display].x +
-            ((displayDimensions[g_display].w - g_viewport_width) >> 1),
-            displayDimensions[g_display].y +
-            ((displayDimensions[g_display].h - g_viewport_height) >> 1));
     } else {
 
         if (VIDEO_HAS(TEARDOWN) && g_window) {
@@ -498,7 +494,8 @@ bool init_display()
             SDL_Delay(40);
         }
 
-        g_window = SDL_CreateWindow(title, g_viewport_width, g_viewport_height, sdl_flags);
+        g_window = SDL_CreateWindow(title, g_viewport_width, g_viewport_height,
+                                        sdl_flags | SDL_WINDOW_HIDDEN);
     }
 
     if (!g_window) {
@@ -529,6 +526,12 @@ bool init_display()
         SDL_SetRenderVSync(g_renderer, VIDEO_HAS(VSYNC) ?
             SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED);
 
+        SDL_SetWindowPosition(g_window, displayDimensions[g_display].x +
+            ((displayDimensions[g_display].w - g_viewport_width) >> 1),
+            displayDimensions[g_display].y +
+            ((displayDimensions[g_display].h - g_viewport_height) >> 1));
+
+        SDL_ShowWindow(g_window);
         SDL_RaiseWindow(g_window);
 
         if (!g_renderer)
@@ -1754,7 +1757,7 @@ void draw_srt(const char *s, uint8_t func, int pos = -1)
 
         float lx = x - w / 2.0f;
 
-        TTF_DrawRendererText(text, lx, y);
+        TTF_DrawRendererText(text, (int)lx, (int)y);
 
         TTF_DestroyText(text);
 
@@ -1806,7 +1809,7 @@ void draw_subtitle(const char *s, uint8_t func, bool center = false)
 
     TTF_Text *text = TTF_CreateText(g_font_engine, g_font, s, strlen(s));
 
-    TTF_DrawRendererText(text, p.x, p.y);
+    TTF_DrawRendererText(text, (int)p.x, (int)p.y);
     TTF_DestroyText(text);
 
     m_message_timer++;
