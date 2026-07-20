@@ -73,10 +73,7 @@ laireuro::laireuro()
 
     m_video_overlay_width       = LAIREURO_OVERLAY_W;
     m_video_overlay_height      = LAIREURO_OVERLAY_H;
-    m_uVideoOverlayVisibleLines = LAIREURO_OVERLAY_H; // since it's PAL, this
-                                                      // must be explicitly set
-                                                      // (576 / 2)
-    m_palette_color_count = LAIREURO_COLOR_COUNT;
+    m_palette_color_count       = LAIREURO_COLOR_COUNT;
 
     m_banks[2] = 0x16;
     m_banks[3] = 0xF6;
@@ -168,6 +165,11 @@ void laireuro::do_nmi()
     }
 }
 
+void laireuro::reset()
+{
+    return; // Do nothing
+}
+
 Uint8 laireuro::cpu_mem_read(Uint16 addr)
 {
     Uint8 result = m_cpumem[addr];
@@ -256,8 +258,8 @@ void laireuro::cpu_mem_write(Uint16 addr, Uint8 value)
         if (m_splash) {
             m_wt_misc = value;
         } else {
-            m_wt_misc = (m_wt_misc == LAIREURO_SPLASH && !value) ? m_wt_misc : value;
             m_splash = (m_wt_misc == LAIREURO_SPLASH && !value);
+            m_wt_misc = m_splash ? m_wt_misc : value;
         }
 
         m_video_overlay_needs_update = true;
@@ -450,9 +452,6 @@ void laireuro::input_enable(Uint8 move, Sint8 mouseID)
     case SWITCH_COIN2:
         m_banks[1] &= ~0x08;
         break;
-    case SWITCH_TEST:
-        m_banks[0] &= ~0x80;
-        break;
     default:
         LOGD << "Error, bug in move enable";
         break;
@@ -490,9 +489,6 @@ void laireuro::input_disable(Uint8 move, Sint8 mouseID)
         break;
     case SWITCH_COIN2:
         m_banks[1] |= 0x08;
-        break;
-    case SWITCH_TEST:
-        m_banks[0] |= 0x80;
         break;
     default:
         LOGD << "Error, bug in move enable";

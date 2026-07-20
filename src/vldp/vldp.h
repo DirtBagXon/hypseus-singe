@@ -30,10 +30,7 @@
 extern "C" {
 #endif
 
-// by RDG2010
-// Ubuntu Linux complains with plain <SDL.h>
-// But CMake does the right thing here 
-#include <SDL3/SDL.h> // only used for threading
+#include <SDL3/SDL.h>
 
 struct yuv_buf {
     uint8_t *Y;     // Y channel

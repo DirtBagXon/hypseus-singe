@@ -93,8 +93,6 @@ game::game()
       m_video_overlay_height(0),          // " " "
       m_video_overlay_needs_update(true), // it always needs to be updated the
                                           // first time
-      m_uVideoOverlayVisibleLines(240),   // (480/2) for almost all games with
-                                          // overlay
       m_bMouseEnabled(false)              // mouse is disabled for most games
 {
     memset(m_video_overlay, 0, sizeof(m_video_overlay)); // clear this structure
@@ -937,8 +935,6 @@ int game::get_video_row_offset() { return m_video_row_offset; }
 
 // how many pixels to the right to shift video overlay
 int game::get_video_col_offset() { return m_video_col_offset; }
-
-unsigned game::get_video_visible_lines() { return m_uVideoOverlayVisibleLines; }
 
 SDL_Surface *game::get_video_overlay(int index)
 {

@@ -249,7 +249,6 @@ class game
                                // after they're loaded
     int get_video_row_offset();
     int get_video_col_offset();
-    unsigned get_video_visible_lines(); // returns m_uVideoOverlayVisibleLines
 
     SDL_Surface *get_video_overlay(int index); // returns pointer to video
                                                // overlay specified, or NULL if
@@ -384,12 +383,6 @@ class game
     // the repaint needs to be called
 
     bool m_video_no_overlay;
-
-    // how many lines are visible in the video overlay
-    // (usually 240 for almost all games, that is, half the resolution of the
-    // laserdisc player)
-    // Firefox is the only current exception.
-    unsigned int m_uVideoOverlayVisibleLines;
 
     // if the game uses the mouse, this should be set to true IN THE GAME'S
     // CONSTRUCTOR

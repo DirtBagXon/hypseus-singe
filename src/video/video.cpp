@@ -506,6 +506,51 @@ bool init_display()
 
     } else {
 
+        // Check for KMSDRM
+        const char *driver = SDL_GetCurrentVideoDriver();
+        if (driver && strcmp(driver, "kmsdrm") == 0)
+        {
+            int count = 0;
+            SDL_DisplayID winId = SDL_GetDisplayForWindow(g_window);
+            SDL_DisplayMode **modes = SDL_GetFullscreenDisplayModes(winId, &count);
+            SDL_DisplayMode *selected = NULL;
+
+            if (!modes || count == 0)
+            {
+                LOGE << fmt("KMSDRM: SDL_GetFullscreenDisplayModes failed: %s", SDL_GetError());
+                set_quitflag();
+                goto exit;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                SDL_DisplayMode *m = modes[i];
+
+                if (m->w == displayDimensions[g_display].w &&
+                    m->h == displayDimensions[g_display].h)
+                {
+                    selected = m;
+                    break;
+                }
+            }
+
+            if (!selected)
+            {
+                selected = modes[0];
+                LOGW << fmt("KMSDRM: %dx%d not available, using first detected mode: %dx%d",
+                             displayDimensions[g_display].w, displayDimensions[g_display].h,
+                                 selected->w, selected->h);
+            }
+
+            if (!SDL_SetWindowFullscreenMode(g_window, selected)) {
+                LOGE << fmt("KMSDRM: Fullscreen mode failed: %s\n", SDL_GetError());
+                set_quitflag();
+                goto exit;
+            }
+
+            SDL_free(modes);
+        }
+
         if (VIDEO_HAS(FULLSCREEN))
             SDL_SetWindowFullscreen(g_window, true);
 
