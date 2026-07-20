@@ -405,12 +405,15 @@ static bool draw_ranks()
 bool init_display()
 {
     bool result = false;
-    static bool notify = false;
     constexpr char title[] = "HYPSEUS Singe: Multiple Arcade Laserdisc Emulator";
 
     Uint32 sdl_flags = 0;
     Uint32 sdl_scoreboard_flags = SDL_WINDOW_BORDERLESS;
+    const char *driver = SDL_GetCurrentVideoDriver();
     const char *sdl_render_flags = NULL;
+
+    if (driver && strcmp(driver, "kmsdrm") == 0)
+        VIDEO_SET(KMSDRM);
 
     if (VIDEO_HAS(FORCE_TOP))
         sdl_flags |= SDL_WINDOW_ALWAYS_ON_TOP;
@@ -485,7 +488,7 @@ bool init_display()
     if (g_alloc_screen > g_display && g_alloc_screen < g_displays_total)
         g_display = g_alloc_screen;
 
-    if (notify && g_window && !VIDEO_HAS(TEARDOWN)) {
+    if (VIDEO_HAS(INITPASS) && g_window && !VIDEO_HAS(TEARDOWN)) {
         SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
     } else {
 
@@ -495,7 +498,7 @@ bool init_display()
         }
 
         g_window = SDL_CreateWindow(title, g_viewport_width, g_viewport_height,
-                                        sdl_flags | SDL_WINDOW_HIDDEN);
+                     sdl_flags | (VIDEO_HAS(KMSDRM) ? 0 : SDL_WINDOW_HIDDEN));
     }
 
     if (!g_window) {
@@ -507,8 +510,7 @@ bool init_display()
     } else {
 
         // Check for KMSDRM
-        const char *driver = SDL_GetCurrentVideoDriver();
-        if (driver && strcmp(driver, "kmsdrm") == 0)
+        if (VIDEO_HAS(KMSDRM) && (!VIDEO_HAS(INITPASS) || VIDEO_HAS(TEARDOWN)))
         {
             int count = 0;
             SDL_DisplayMode *selected = NULL;
@@ -796,13 +798,13 @@ bool init_display()
 
             VIDEO_ASSIGN(INDEX8, (g_game->get_overlay_depth() == GAME_OVERLAY_STD) ? true : false);
 
-            if (!notify && VIDEO_HAS(INTRO)) splash(VIDEO_HAS(LOGO));
+            if (!VIDEO_HAS(INITPASS) && VIDEO_HAS(INTRO)) splash(VIDEO_HAS(LOGO));
             result = true;
         }
     }
 
 exit:
-    notify = true;
+    VIDEO_SET(INITPASS);
     return (result);
 }
 

@@ -118,53 +118,55 @@ enum
 
 enum VideoState : uint64_t
 {
-    INDEX8               = 1ull << 0,
-    LUA_GAME             = 1ull << 1,
+    INITPASS             = 1ull << 0,
+    INDEX8               = 1ull << 1,
+    LUA_GAME             = 1ull << 2,
 
-    FULLSCREEN           = 1ull << 2,
-    TAKE_SCREENSHOT      = 1ull << 3,
+    FULLSCREEN           = 1ull << 3,
+    TAKE_SCREENSHOT      = 1ull << 4,
 
-    SCALE_LINEAR         = 1ull << 4,
-    SCANLINES            = 1ull << 5,
+    SCALE_LINEAR         = 1ull << 5,
+    SCANLINES            = 1ull << 6,
 
-    OPENGL               = 1ull << 6,
-    VULKAN               = 1ull << 7,
-    SOFT_RENDER          = 1ull << 8,
-    VSYNC                = 1ull << 9,
+    OPENGL               = 1ull << 7,
+    VULKAN               = 1ull << 8,
+    SOFT_RENDER          = 1ull << 9,
+    VSYNC                = 1ull << 10,
 
-    TEARDOWN             = 1ull << 10,
-    INTRO                = 1ull << 11,
-    LOGO                 = 1ull << 12,
+    TEARDOWN             = 1ull << 11,
+    INTRO                = 1ull << 12,
+    LOGO                 = 1ull << 13,
 
-    FORCE_TOP            = 1ull << 13,
-    GRAB_MOUSE           = 1ull << 14,
+    FORCE_TOP            = 1ull << 14,
+    GRAB_MOUSE           = 1ull << 15,
 
-    YUV_BLUE             = 1ull << 15,
+    YUV_BLUE             = 1ull << 16,
 
-    VIDEO_RESIZED        = 1ull << 16,
+    VIDEO_RESIZED        = 1ull << 17,
 
-    BLOCK_DRIVER_OVERLAY = 1ull << 17,
+    BLOCK_DRIVER_OVERLAY = 1ull << 18,
 
-    ENHANCE_OVERLAY      = 1ull << 18,
-    OVERLAY_DYNAMIC      = 1ull << 19,
-    LEGACY_OVERLAY       = 1ull << 20,
-    OVERLAY_WHITE        = 1ull << 21,
+    ENHANCE_OVERLAY      = 1ull << 19,
+    OVERLAY_DYNAMIC      = 1ull << 20,
+    LEGACY_OVERLAY       = 1ull << 21,
+    OVERLAY_WHITE        = 1ull << 22,
 
-    FORCE_ASPECT         = 1ull << 22,
-    IGNORE_ASPECT        = 1ull << 23,
+    FORCE_ASPECT         = 1ull << 23,
+    IGNORE_ASPECT        = 1ull << 24,
 
-    BEZEL_LOAD           = 1ull << 24,
-    BEZEL_TOGGLE         = 1ull << 25,
-    BEZEL_REVERSE        = 1ull << 26,
-    KEYBOARD_BEZEL       = 1ull << 27,
-    SCOREBOARD_BEZEL     = 1ull << 28,
+    BEZEL_LOAD           = 1ull << 25,
+    BEZEL_TOGGLE         = 1ull << 26,
+    BEZEL_REVERSE        = 1ull << 27,
+    KEYBOARD_BEZEL       = 1ull << 28,
+    SCOREBOARD_BEZEL     = 1ull << 29,
 
-    AUX_BEZEL            = 1ull << 29,
-    ANNUN_LAMPS          = 1ull << 30,
-    DED_ANNUN_BEZEL      = 1ull << 31,
+    AUX_BEZEL            = 1ull << 30,
+    ANNUN_LAMPS          = 1ull << 31,
+    DED_ANNUN_BEZEL      = 1ull << 32,
 
-    SCALED               = 1ull << 32,
-    VERTICAL_ORIENTATION = 1ull << 33,
+    KMSDRM               = 1ull << 33,
+    SCALED               = 1ull << 34,
+    VERTICAL_ORIENTATION = 1ull << 35,
 };
 
 bool init_display();
