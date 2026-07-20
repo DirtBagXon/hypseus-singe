@@ -511,9 +511,12 @@ bool init_display()
         if (driver && strcmp(driver, "kmsdrm") == 0)
         {
             int count = 0;
+            SDL_DisplayMode *selected = NULL;
+            SDL_DisplayID display = SDL_GetPrimaryDisplay();
             SDL_DisplayID winId = SDL_GetDisplayForWindow(g_window);
             SDL_DisplayMode **modes = SDL_GetFullscreenDisplayModes(winId, &count);
-            SDL_DisplayMode *selected = NULL;
+
+            const SDL_DisplayMode *current = SDL_GetCurrentDisplayMode(display);
 
             if (!modes || count == 0)
             {
@@ -527,7 +530,8 @@ bool init_display()
                 SDL_DisplayMode *m = modes[i];
 
                 if (m->w == displayDimensions[g_display].w &&
-                    m->h == displayDimensions[g_display].h)
+                    m->h == displayDimensions[g_display].h &&
+                    (current ? m->refresh_rate == current->refresh_rate : false))
                 {
                     selected = m;
                     break;
@@ -536,17 +540,30 @@ bool init_display()
 
             if (!selected)
             {
-                selected = modes[0];
-                LOGW << fmt("KMSDRM: %dx%d not available, using first detected mode: %dx%d",
+                for (int i = 0; i < count; i++)
+                {
+                    SDL_DisplayMode *m = modes[i];
+
+                    if (m->w == displayDimensions[g_display].w &&
+                        m->h == displayDimensions[g_display].h)
+                    {
+                        if (!selected || m->refresh_rate > selected->refresh_rate)
+                            selected = m;
+                    }
+                }
+                LOGW << fmt("KMSDRM: %dx%d %.2f Hz not available, using highest mode detected.",
                              displayDimensions[g_display].w, displayDimensions[g_display].h,
-                                 selected->w, selected->h);
+                                 (current ? current->refresh_rate : 0.0f));
             }
 
             if (!SDL_SetWindowFullscreenMode(g_window, selected)) {
                 LOGE << fmt("KMSDRM: Fullscreen mode failed: %s\n", SDL_GetError());
+                SDL_free(modes);
                 set_quitflag();
                 goto exit;
             }
+
+            LOGI << fmt("KMSDRM Mode: %dx%d, %.2f Hz", selected->w, selected->h, selected->refresh_rate);
 
             SDL_free(modes);
         }
