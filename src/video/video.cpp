@@ -418,10 +418,13 @@ bool init_display()
     if (VIDEO_HAS(FORCE_TOP))
         sdl_flags |= SDL_WINDOW_ALWAYS_ON_TOP;
 
-    if (VIDEO_HAS(OPENGL)) {
+    if (VIDEO_HAS(OPENGL))
+    {
         sdl_flags |= SDL_WINDOW_OPENGL;
         sdl_scoreboard_flags |= SDL_WINDOW_OPENGL;
-    } else if (VIDEO_HAS(VULKAN)) {
+    }
+    else if (VIDEO_HAS(VULKAN))
+    {
         sdl_flags |= SDL_WINDOW_VULKAN;
         sdl_scoreboard_flags |= SDL_WINDOW_VULKAN;
     }
@@ -433,24 +436,28 @@ bool init_display()
     g_probe_width = std::max((int)g_probe_width, 320);
     g_probe_height = std::max((int)g_probe_height, 240);
 
-    if (VIDEO_HAS(VIDEO_RESIZED)) {
+    if (VIDEO_HAS(VIDEO_RESIZED))
+    {
         g_viewport_width  = g_video_width;
         g_viewport_height = g_video_height;
 
     } else {
 
-        if (!VIDEO_HAS(IGNORE_ASPECT) && g_aspect_width > 0) {
+        if (!VIDEO_HAS(IGNORE_ASPECT) && g_aspect_width > 0)
+        {
             g_viewport_width  = g_aspect_width;
             g_viewport_height = g_aspect_height;
-
-        } else {
+        }
+        else
+        {
             g_viewport_width  = g_probe_width;
             g_viewport_height = g_probe_height;
         }
     }
 
     // Enforce 4:3 aspect ratio
-    if (VIDEO_HAS(FORCE_ASPECT)) {
+    if (VIDEO_HAS(FORCE_ASPECT))
+    {
         double dCurAspect = (double)g_viewport_width / g_viewport_height;
         const double dTARGET_ASPECT_RATIO = 4.0 / 3.0;
 
@@ -462,7 +469,8 @@ bool init_display()
 
     if (g_window) resize_cleanup();
 
-    if (g_fRotateDegrees != 0 && g_fRotateDegrees != 180) {
+    if (g_fRotateDegrees != 0 && g_fRotateDegrees != 180)
+    {
         switch(g_aspect_ratio) {
         case ASPECTWS:
             g_scalefactor = (!VIDEO_HAS(SCALED)) ? 56 : g_scalefactor;
@@ -479,19 +487,20 @@ bool init_display()
     SDL_DisplayID *id = SDL_GetDisplays(&g_displays_total);
     displayDimensions.resize(g_displays_total);
 
-    for (int i = 0; i < g_displays_total; i++) {
+    for (int i = 0; i < g_displays_total; i++)
         SDL_GetDisplayBounds(id[i], &displayDimensions[i]);
-    }
 
     SDL_free(id);
 
     if (g_alloc_screen > g_display && g_alloc_screen < g_displays_total)
         g_display = g_alloc_screen;
 
-    if (VIDEO_HAS(INITPASS) && g_window && !VIDEO_HAS(TEARDOWN)) {
+    if (VIDEO_HAS(INITPASS) && g_window && !VIDEO_HAS(TEARDOWN))
+    {
         SDL_SetWindowSize(g_window, g_viewport_width, g_viewport_height);
-    } else {
-
+    }
+    else
+    {
         if (VIDEO_HAS(TEARDOWN) && g_window) {
             SDL_DestroyWindow(g_window);
             SDL_Delay(40);
@@ -501,14 +510,14 @@ bool init_display()
                      sdl_flags | (VIDEO_HAS(KMSDRM) ? 0 : SDL_WINDOW_HIDDEN));
     }
 
-    if (!g_window) {
-
+    if (!g_window)
+    {
         LOGE << fmt("Could not initialize window: %s", SDL_GetError());
         set_quitflag();
         goto exit;
-
-    } else {
-
+    }
+    else
+    {
         // Check for KMSDRM
         if (VIDEO_HAS(KMSDRM) && (!VIDEO_HAS(INITPASS) || VIDEO_HAS(TEARDOWN)))
         {
@@ -558,7 +567,8 @@ bool init_display()
                                  (current ? current->refresh_rate : 0.0f));
             }
 
-            if (!SDL_SetWindowFullscreenMode(g_window, selected)) {
+            if (!SDL_SetWindowFullscreenMode(g_window, selected))
+            {
                 LOGE << fmt("KMSDRM: Fullscreen mode failed: %s\n", SDL_GetError());
                 SDL_free(modes);
                 set_quitflag();
@@ -566,7 +576,6 @@ bool init_display()
             }
 
             LOGI << fmt("KMSDRM Mode: %dx%d, %.2f Hz", selected->w, selected->h, selected->refresh_rate);
-
             SDL_free(modes);
         }
 
@@ -579,7 +588,8 @@ bool init_display()
         SDL_IOStream* ops = SDL_IOFromConstMem(ghci, sizeof(ghci));
         SDL_Surface *rep = IMG_Load_IO(ops, true);
 
-        if (rep != NULL) {
+        if (rep != NULL)
+        {
             SDL_SetWindowIcon(g_window, rep);
             SDL_DestroySurface(rep);
         }
@@ -591,9 +601,9 @@ bool init_display()
             SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED);
 
         SDL_SetWindowPosition(g_window, displayDimensions[g_display].x +
-            ((displayDimensions[g_display].w - g_viewport_width) >> 1),
-            displayDimensions[g_display].y +
-            ((displayDimensions[g_display].h - g_viewport_height) >> 1));
+                ((displayDimensions[g_display].w - g_viewport_width) >> 1),
+                    displayDimensions[g_display].y +
+                        ((displayDimensions[g_display].h - g_viewport_height) >> 1));
 
         SDL_ShowWindow(g_window);
         SDL_RaiseWindow(g_window);
@@ -603,13 +613,12 @@ bool init_display()
             LOGE << fmt("Could not initialize renderer: %s", SDL_GetError());
             set_quitflag();
             goto exit;
-
-        } else {
-
-            if (VIDEO_HAS(KEYBOARD_BEZEL)) {
-
+        }
+        else
+        {
+            if (VIDEO_HAS(KEYBOARD_BEZEL))
+            {
                 g_aux_needs_update = true;
-
                 g_tqkeys = g_bezel_path + "/tqkeys.png";
 
                 if (!mpo_file_exists(g_tqkeys.c_str()))
@@ -618,55 +627,54 @@ bool init_display()
 
             VIDEO_ASSIGN(LUA_GAME, (g_game->get_game_type() == GAME_SINGE));
 
-            Uint32 current = SDL_GetWindowFlags(g_window);
-
-            if ((current & SDL_WINDOW_FULLSCREEN)) {
-
+            if (VIDEO_HAS(FULLSCREEN))
+            {
                 g_logical_rect = displayDimensions[g_display];
 
                 if (!g_bezel_file.empty())
                     VIDEO_SET(BEZEL_TOGGLE);
 
                 format_fullscreen_render();
+            }
+            else format_window_render();
 
-            } else
-                format_window_render();
-
-            if (g_game->m_software_scoreboard) {
-
+            if (g_game->m_software_scoreboard)
+            {
                 if (!g_scoreboard_blit_surface)
                     g_scoreboard_blit_surface = SDL_CreateSurface( g_scoreboard_w,
                                                    g_scoreboard_h, SDL_PIXELFORMAT_RGBA32);
 
-                if (!g_scoreboard_blit_surface) {
+                if (!g_scoreboard_blit_surface)
+                {
                     LOGE << fmt("Could not initialize g_scoreboard_blit_surface: %s", SDL_GetError());
                     set_quitflag();
                     goto exit;
                 }
 
-                if (!VIDEO_HAS(SCOREBOARD_BEZEL) && !g_scoreboard_window) {
-
+                if (!VIDEO_HAS(SCOREBOARD_BEZEL) && !g_scoreboard_window)
+                {
                     double scale = double((g_scoreboard_bezel_scale >> 1) / 7.0f);
 
                     g_scoreboard_window = SDL_CreateWindow(NULL,
                         (scale * g_scoreboard_w), (scale * g_scoreboard_h),
                             sdl_scoreboard_flags | SDL_WINDOW_HIDDEN);
 
-                    if (!g_scoreboard_window) {
+                    if (!g_scoreboard_window)
+                    {
                         LOGE << fmt("Could not initialize scoreboard window: %s", SDL_GetError());
                         set_quitflag();
                         goto exit;
                     }
 
-                    if (g_displays_total > 1) {
-
+                    if (g_displays_total > 1)
+                    {
                         int screen;
 
                         if (g_scoreboard_screen != -1)
                         {
                             screen = g_scoreboard_screen;
                         }
-                            else if (g_display == 0)
+                        else if (g_display == 0)
                         {
                             screen = 1;
                         }
@@ -690,19 +698,21 @@ bool init_display()
                     SDL_SetRenderVSync(g_scoreboard_renderer, VIDEO_HAS(VSYNC) ?
                                   SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED);
 
-                    if (!g_scoreboard_renderer) {
+                    if (!g_scoreboard_renderer)
+                    {
                         LOGE << fmt("Could not initialize scoreboard renderer: %s", SDL_GetError());
                         set_quitflag();
                         goto exit;
                     }
+
                     SDL_SetRenderDrawColor(g_scoreboard_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
                     SDL_RenderClear(g_scoreboard_renderer);
                     SDL_RenderPresent(g_scoreboard_renderer);
                 }
             }
 
-            if (VIDEO_HAS(AUX_BEZEL)) {
-
+            if (VIDEO_HAS(AUX_BEZEL))
+            {
                 if (VIDEO_HAS(DED_ANNUN_BEZEL)) g_aux_bezel_scale--;
 
                 g_aux_ratio = (float)g_anun_h / (float)g_anun_w;
@@ -710,7 +720,8 @@ bool init_display()
                 g_aux_blit_surface = SDL_CreateSurface(g_anun_w, g_anun_h,
                                            SDL_PIXELFORMAT_RGBA32);
 
-                if (!g_aux_blit_surface) {
+                if (!g_aux_blit_surface)
+                {
                     LOGE << fmt("Failed to create auxillary surface: %s", SDL_GetError());
                     set_quitflag();
                     goto exit;
@@ -724,12 +735,14 @@ bool init_display()
                     LogicalPosition(&g_logical_rect, &g_aux_rect, 100, 90);
 
                 // argument override
-                if (aux_bezel_pos_x || aux_bezel_pos_y) {
+                if (aux_bezel_pos_x || aux_bezel_pos_y)
+                {
                     g_aux_rect.x = aux_bezel_pos_x;
                     g_aux_rect.y = aux_bezel_pos_y;
                 }
 
                 draw_annunciator(0);
+
                 if (!VIDEO_HAS(DED_ANNUN_BEZEL))
                     draw_ranks();
             }
@@ -750,7 +763,8 @@ bool init_display()
                 SDL_CreateSurface(g_overlay_width, g_overlay_height,
                                          SDL_PIXELFORMAT_RGBA32);
 
-            if (!g_overlay_surface) {
+            if (!g_overlay_surface)
+            {
                 LOGE << fmt("Could not initialize g_overlay_surface: %s", SDL_GetError());
                 set_quitflag();
                 goto exit;
@@ -773,12 +787,13 @@ bool init_display()
             colorkey = SDL_MapSurfaceRGB(g_other_bmps[B_OVERLAY_LDP1450], 0, 0, 0);
             SDL_SetSurfaceColorKey(g_other_bmps[B_OVERLAY_LDP1450], true, colorkey);
 
-            if (g_overlay_width && g_overlay_height) {
-
+            if (g_overlay_width && g_overlay_height)
+            {
                 g_overlay_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
                                         g_texture_access, g_overlay_width, g_overlay_height);
 
-                if (!g_overlay_texture) {
+                if (!g_overlay_texture)
+                {
                     LOGE << fmt("Could not initialize g_overlay_texture: %s", SDL_GetError());
                     set_quitflag();
                     goto exit;
@@ -943,9 +958,10 @@ static SDL_Surface *load_led_strip(const char *filename)
 
     SDL_Surface *result  = SDL_LoadBMP(filepath.c_str());
 
-    if (!result) {
+    if (!result)
         LOGE << fmt("Could not load bitmap: %s", filepath.c_str());
-    } else colorLeds(result);
+    else
+      colorLeds(result);
 
     return (result);
 }
@@ -1055,7 +1071,8 @@ bool draw_led(int value, int x, int y, unsigned char end)
     dest.w = (unsigned short) g_scoreboard_surface->w;
     dest.h = (unsigned short) g_scoreboard_surface->h;
 
-    if (!SDL_BlitSurface(g_scoreboard_surface, NULL, g_scoreboard_blit_surface, &dest)) {
+    if (!SDL_BlitSurface(g_scoreboard_surface, NULL, g_scoreboard_blit_surface, &dest))
+    {
         LOGE << fmt("Could not Blit Scoreboard LED's %s", SDL_GetError());
         set_quitflag();
         return false;
@@ -1170,7 +1187,8 @@ void draw_overlay_leds(unsigned int values[], int num_digits,
         if (!VIDEO_HAS(LEGACY_OVERLAY))
             SDL_FillSurfaceRect(g_overlay_surface, &base, colorkey);
 
-        if (!SDL_BlitSurface(g_other_bmps[B_OVERLAY_LEDS], &src, g_overlay_surface, &dest)) {
+        if (!SDL_BlitSurface(g_other_bmps[B_OVERLAY_LEDS], &src, g_overlay_surface, &dest))
+        {
             LOGE << fmt("Could not Blit Overlay LED's: %s", SDL_GetError());
             set_quitflag();
             return;
@@ -1718,7 +1736,8 @@ void draw_string(const char *t, int col, int row, SDL_Surface *overlay,
 
     SDL_Surface *text_surface = TTF_RenderText_Solid(g_ttfont, t, strlen(t), rgb);
 
-    if (!text_surface) {
+    if (!text_surface)
+    {
         LOGE << fmt("Could not draw_string %s", SDL_GetError());
         set_quitflag();
         return;
@@ -2106,7 +2125,8 @@ static SDL_Texture *vid_create_yuv_texture(int width, int height)
 
     g_yuv_skip = true;
 
-    if (!g_yuv_texture) {
+    if (!g_yuv_texture)
+    {
         LOGE << fmt("Could not initialize g_yuv_texture %s", SDL_GetError());
         set_quitflag();
     }
@@ -2251,11 +2271,10 @@ static void take_screenshot()
             break;
     }
 
-    if (IMG_SavePNG(screenshot, filename)) {
+    if (IMG_SavePNG(screenshot, filename))
         LOGI << fmt("Wrote screenshot: %s", filename);
-    } else {
+    else
         LOGE <<  fmt("Could not write screenshot: %s !! - %s", filename, SDL_GetError());
-    }
 
     SDL_DestroySurface(screenshot);
 }
@@ -2329,7 +2348,8 @@ static bool mixTexture(m_textureT *mix)
     SDL_Texture *temp = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
         SDL_TEXTUREACCESS_TARGET, g_logical_rect.w, g_logical_rect.h);
 
-    if (!temp) {
+    if (!temp)
+    {
         LOGE << fmt("Mixing texture creation failed: %s", SDL_GetError());
         set_quitflag();
         return false;
@@ -2364,7 +2384,8 @@ static void vid_render_aux()
             g_aux_needs_update = false;
             g_aux_texture = IMG_LoadTexture(g_renderer, g_tqkeys.c_str());
 
-            if (!g_aux_texture) {
+            if (!g_aux_texture)
+            {
                 LOGE << fmt("Failed on keyboard texture: %s, %s",
                              g_tqkeys.c_str(), SDL_GetError());
                 set_quitflag();
@@ -2390,11 +2411,12 @@ static void vid_render_aux()
             g_aux_texture = SDL_CreateTexture(g_renderer, SDL_PIXELFORMAT_RGBA32,
                                 g_texture_access, g_anun_w, g_anun_h);
 
-            if (!g_aux_texture) {
+            if (!g_aux_texture)
+            {
                 LOGE << fmt("Failed on annunciator texture: %s", SDL_GetError());
                 set_quitflag();
-            } else
-                SDL_SetTextureBlendMode(g_aux_texture, SDL_BLENDMODE_BLEND);
+            }
+            else SDL_SetTextureBlendMode(g_aux_texture, SDL_BLENDMODE_BLEND);
         }
     }
 }
@@ -2415,11 +2437,14 @@ static void vid_render_bezels()
             std::string bezelpath =  g_bezel_path + std::string(PATH_SEPARATOR) + g_bezel_file;
             g_bezel_texture = IMG_LoadTexture(g_renderer, bezelpath.c_str());
 
-            if (g_bezel_texture) {
+            if (g_bezel_texture)
+            {
                 LOGI << fmt("Loaded bezel file: %s", bezelpath.c_str());
                 SDL_SetTextureScaleMode(g_bezel_texture, VIDEO_HAS(SCALE_LINEAR) ?
                               SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
-            } else {
+            }
+            else
+            {
                 LOGW << fmt("Failed to load bezel: %s", bezelpath.c_str());
             }
         }
