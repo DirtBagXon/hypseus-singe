@@ -204,7 +204,8 @@ static void defaultConfig(string config, bool gamepad)
 
     pf = fopen(config.c_str(), "w");
 
-    if (!pf) {
+    if (!pf)
+    {
         LOGE << fmt("Unable to create a default keymap file: %s", config.c_str());
         return;
     }
@@ -292,10 +293,12 @@ static bool mouseButtonMap(SDL_Event *event, bool enable)
     const int button = event->gbutton.button;
     const int player = g_controllers[slot].player;
 
-    for (int j = 0; j < MAX_CONTROLLERCONFIG; j++) {
-        for (int i = SWITCH_BUTTON1; i < SWITCH_COIN1; ++i) {
-            if (button == controller_button_map[j][i]-1) {
-
+    for (int j = 0; j < MAX_CONTROLLERCONFIG; j++)
+    {
+        for (int i = SWITCH_BUTTON1; i < SWITCH_COIN1; ++i)
+        {
+            if (button == controller_button_map[j][i]-1)
+            {
                 (enable ? input_enable : input_disable)(i, player + g_gamepad_wad);
                 if (enabled_haptic) doRumble(slot);
                 return true;
@@ -326,7 +329,8 @@ static void CFG_System()
     string cur_line = "";
     string key_name = "", sval1 = "",  eq_sign = "";
 
-    if (m_altInputFileSet && !g_index_reset) {
+    if (m_altInputFileSet && !g_index_reset)
+    {
         string keyinput_notice = "Loading alternate keymap file: ";
         keyinput_notice += g_inputini_file.c_str();
         LOGI << keyinput_notice.c_str();
@@ -339,7 +343,8 @@ static void CFG_System()
 
     io = mpo_open(strHypInput.c_str(), MPO_OPEN_READONLY);
 
-    if (!io) {
+    if (!io)
+    {
         LOGW << fmt("%s inaccessible, using defaults", g_inputini_file.c_str());
         m_config_valid = false;
         return;
@@ -347,7 +352,8 @@ static void CFG_System()
 
     LOGD << "Configuring system ...";
 
-    auto system_config = [&](const std::string& key, const char* val) {
+    auto system_config = [&](const std::string& key, const char* val)
+    {
         if (strcasecmp(key.c_str(), "SCREEN") == 0) {
             video::set_display_screen((uint8_t)atoi(val));
         } else if (strcasecmp(key.c_str(), "VLDPVOLUME") == 0) {
@@ -387,21 +393,25 @@ static void CFG_System()
                 video::set_opengl(opengl);
                 video::set_vulkan(vulkan);
             }
-        } else {
+        }
+        else
+        {
             LOGW << "Unknown [GLOBAL] config: " << key.c_str();
         }
     };
 
-    while (strcasecmp(cur_line.c_str(), "[GLOBAL]") != 0) {
+    while (strcasecmp(cur_line.c_str(), "[GLOBAL]") != 0)
+    {
         read_line(io, cur_line);
-        if (io->eof) {
+        if (io->eof)
+        {
             LOGD << fmt("[GLOBAL] section missing in %s", g_inputini_file.c_str());
             goto cleanup;
         }
     }
 
-    while (!io->eof) {
-
+    while (!io->eof)
+    {
         if (read_line(io, cur_line) <= 0)
             continue;
 
@@ -443,7 +453,8 @@ static void CFG_Keys()
 
     io = mpo_open(strHypInput.c_str(), MPO_OPEN_READONLY);
 
-    if (!io) {
+    if (!io)
+    {
         LOGE << fmt("Something weird with %s, we shouldn't get here...",
                     g_inputini_file.c_str());
         return;
@@ -457,14 +468,18 @@ static void CFG_Keys()
                                SDL_GetJoysticks(&count);
     SDL_free(ids);
 
-    if (!g_open_hat && g_use_joystick && count > 1) {
+    if (!g_open_hat && g_use_joystick && count > 1)
+    {
         g_assigned_hat = g_controllers[0].device;
         LOGI << fmt("Joystick HAT enabled on stick: [ID:%d]", g_assigned_hat);
     }
 
-    while (strcasecmp(cur_line.c_str(), "[KEYBOARD]") != 0) {
+    while (strcasecmp(cur_line.c_str(), "[KEYBOARD]") != 0)
+    {
         read_line(io, cur_line);
-        if (io->eof) {
+
+        if (io->eof)
+        {
             LOGW << "Didn't find [KEYBOARD] header, aborting";
             mpo_close(io);
             return;
@@ -478,25 +493,27 @@ static void CFG_Keys()
 
         bool corrupt_file = true;
 
-        if (find_word(cur_line.c_str(), key_name, cur_line)) {
+        if (find_word(cur_line.c_str(), key_name, cur_line))
+        {
 
             if (strcasecmp(key_name.c_str(), "END") == 0)
                 break;
 
-            if (find_word(cur_line.c_str(), eq_sign, cur_line) && eq_sign == "=") {
+            if (find_word(cur_line.c_str(), eq_sign, cur_line) && eq_sign == "=")
+            {
 
                 if (find_word(cur_line.c_str(), sval1, cur_line) &&
                     find_word(cur_line.c_str(), sval2, cur_line) &&
-                    find_word(cur_line.c_str(), sval3, cur_line)) {
-
+                    find_word(cur_line.c_str(), sval3, cur_line))
+                {
                     val1 = isdigit(sval1[0]) ? atoi(sval1.c_str()) : sdl3_keycode(sval1.c_str());
                     val2 = isdigit(sval2[0]) ? atoi(sval2.c_str()) : sdl3_keycode(sval2.c_str());
 
                     if (g_use_gamepad)
                         val3 = isdigit(sval3[0]) ? atoi(sval3.c_str()) :
                                sdl3_controller_button(sval3.c_str());
-                    else {
-
+                    else
+                    {
                         if (!isdigit(sval3[0]) && warn)
                         {
                             LOGW << "Found a button config string: " << sval3.c_str();
@@ -508,7 +525,8 @@ static void CFG_Keys()
                     }
 
                     val4 = 0;
-                    if (find_word(cur_line.c_str(), sval4, cur_line)) {
+                    if (find_word(cur_line.c_str(), sval4, cur_line))
+                    {
                         if (g_use_gamepad)
                             val4 = (isdigit(sval4[0])) ? atoi(sval4.c_str()) :
                                     sdl3_controller_axis(sval4.c_str());
@@ -516,11 +534,14 @@ static void CFG_Keys()
                             val4 = atoi(sval4.c_str());
                     }
 
-                    if (g_use_gamepad) {
+                    if (g_use_gamepad)
+                    {
                         val5 = val6 = 0;
-                        if (find_word(cur_line.c_str(), sval5, cur_line)) {
+                        if (find_word(cur_line.c_str(), sval5, cur_line))
+                        {
                             val5 = (isdigit(sval5[0])) ? atoi(sval5.c_str()) :
                                     sdl3_controller_button(sval5.c_str());
+
                             if (find_word(cur_line.c_str(), sval6, cur_line))
                                 val6 = (isdigit(sval6[0])) ? atoi(sval6.c_str()) :
                                         sdl3_controller_axis(sval6.c_str());
@@ -529,9 +550,10 @@ static void CFG_Keys()
 
                     corrupt_file = false;
 
-                    for (int i = 0; i < SWITCH_COUNT; i++) {
-                        if (strcasecmp(key_name.c_str(), g_key_names[i]) == 0) {
-
+                    for (int i = 0; i < SWITCH_COUNT; i++)
+                    {
+                        if (strcasecmp(key_name.c_str(), g_key_names[i]) == 0)
+                        {
                             g_key_defs[i][0] = val1;
                             g_key_defs[i][1] = val2;
                             int id;
@@ -541,7 +563,9 @@ static void CFG_Keys()
                                 id = 0;
                                 if (val3 > AXIS_TRIGGER) {
                                     controller_button_map[id][i] = val3;
-                                } else {
+                                }
+                                else
+                                {
                                     int divider = (sval3.length() == 4) ? 1000 : 100;
                                     if (g_use_joystick) id = safe_id(val3 / divider);
 
@@ -564,7 +588,8 @@ static void CFG_Keys()
                                 id = 1;
                                 controller_button_map[id][i] = val5;
 
-                                if (val6 != 0) {
+                                if (val6 != 0)
+                                {
                                     controller_axis_map[id][i][0] = abs(val6);
                                     controller_axis_map[id][i][1] = (val6 == 0) ? 0 : ((val6 < 0) ? -1 : 1);
                                 }
@@ -591,8 +616,10 @@ static void CFG_Keys()
     int valid_remap[MOUSE_BUTTONS] = {0};
     bool remapped[MOUSE_BUTTONS] = {false};
 
-    auto mouse_map = [&](const string &name) -> int {
-        for (int i = 0; i < SWITCH_COUNT; i++) {
+    auto mouse_map = [&](const string &name) -> int
+    {
+        for (int i = 0; i < SWITCH_COUNT; i++)
+        {
             if (strcasecmp(name.c_str(), g_key_names[i]) == 0)
                 return i;
         }
@@ -600,21 +627,27 @@ static void CFG_Keys()
         return -1;
     };
 
-    auto mouse_button = [&](const std::string& key, int val) {
+    auto mouse_button = [&](const std::string& key, int val)
+    {
         if (strcasecmp(key.c_str(), "MOUSE_BUTTON1") == 0) {
             valid_remap[2] = val; remapped[2] = true;
         } else if (strcasecmp(key.c_str(), "MOUSE_BUTTON3") == 0) {
             valid_remap[1] = val; remapped[1] = true;
         } else if (strcasecmp(key.c_str(), "MOUSE_BUTTON2") == 0) {
             valid_remap[0] = val; remapped[0] = true;
-        } else {
+        }
+        else
+        {
             LOGW << "Unknown [MOUSE] config: " << key.c_str();
         }
     };
 
-    while (strcasecmp(cur_line.c_str(), "[MOUSE]") != 0) {
+    while (strcasecmp(cur_line.c_str(), "[MOUSE]") != 0)
+    {
         read_line(io, cur_line);
-        if (io->eof) {
+
+        if (io->eof)
+        {
             LOGW << fmt("[MOUSE] section missing in %s", g_inputini_file.c_str());
             goto cleanup;
         }
@@ -640,16 +673,21 @@ static void CFG_Keys()
         mouse_button(key_name, mouse_map(sval1));
     }
 
-    for (int i = 0; i < MOUSE_BUTTONS; i++) {
-        if (!remapped[i] || valid_remap[i] == -1) {
+    for (int i = 0; i < MOUSE_BUTTONS; i++)
+    {
+        if (!remapped[i] || valid_remap[i] == -1)
+        {
             LOGW << "[MOUSE] config is invalid, using defaults";
             goto cleanup;
         }
     }
 
-    for (int i = 0; i < MOUSE_BUTTONS; ++i) {
-        for (int j = i + 1; j < MOUSE_BUTTONS; ++j) {
-            if (valid_remap[i] == valid_remap[j]) {
+    for (int i = 0; i < MOUSE_BUTTONS; ++i)
+    {
+        for (int j = i + 1; j < MOUSE_BUTTONS; ++j)
+        {
+            if (valid_remap[i] == valid_remap[j])
+            {
                 LOGW << "Invalid [MOUSE] config: Duplicate values";
                 goto cleanup;
             }
@@ -731,8 +769,10 @@ static void SDL_gamepad_init()
     SDL_free(ids);
     SDL_Event event{};
 
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_GAMEPAD_ADDED) {
+    while (SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_EVENT_GAMEPAD_ADDED)
+	{
             SDL_FlushEvent(SDL_EVENT_GAMEPAD_ADDED);
         }
     }
@@ -754,7 +794,8 @@ static void manymouse_init_mice(void)
 
     g_game->set_mice_detected(g_available_mice);
 
-    if (g_available_mice == 0) {
+    if (g_available_mice == 0)
+    {
         LOGW << "No mice detected!";
         if (g_use_gamepad) g_game->set_mice_detected(connectedGamepads());
         return;
@@ -776,7 +817,8 @@ static void manymouse_init_mice(void)
         }
     }
 
-    if (g_use_gamepad) {
+    if (g_use_gamepad)
+    {
         LOGI << "Manage overlap in Mouse and Gamepad #id allocations in device selection.";
         if (connectedGamepads() > g_available_mice)
             g_game->set_mice_detected(connectedGamepads());
@@ -791,8 +833,8 @@ static bool set_mouse_mode(int thisMode)
 
     memset(mouse_buttons_map, 0, sizeof(mouse_buttons_map));
 
-    if (thisMode == SDL_MOUSE) {
-
+    if (thisMode == SDL_MOUSE)
+    {
         mouse_buttons_map[0] = mouse_remap[0];           // 0 (Left Button)
         mouse_buttons_map[1] = mouse_remap[2];           // 1 (Middle Button)
         mouse_buttons_map[2] = mouse_remap[1];           // 2 (Right Button)
@@ -831,19 +873,22 @@ static void manymouse_update_mice()
 
         Mouse &mouse = mice[mm_event.device];
 
-        switch(mm_event.type) {
+        switch(mm_event.type)
+        {
         case MANYMOUSE_EVENT_RELMOTION:
         {
             if (mm_event.item > 1) break;
 
-            if (mm_event.item == 0) {
+            if (mm_event.item == 0)
+            {
                 mouse.x += mm_event.value;
                 mouse.relx = mm_event.value;
 
                 if (mouse.x < 0) mouse.x = 0;
                 else if (mouse.x >= max_width) mouse.x = max_width;
             }
-            else {
+            else
+            {
                 mouse.y += mm_event.value;
                 mouse.rely = mm_event.value;
 
@@ -921,7 +966,8 @@ int SDL_input_init()
 
     // make sure the coin queue is empty (it should be, this is just a safety
     // check)
-    while (!g_coin_queue.empty()) {
+    while (!g_coin_queue.empty())
+    {
         g_coin_queue.pop();
     }
     g_sticky_coin_cycles =
@@ -935,9 +981,12 @@ int SDL_input_init()
         if (mpo_file_exists(strGCdb.c_str())) {
             LOGI << "Found " << strGCdb;
             int num = SDL_AddGamepadMappingsFromFile(strGCdb.c_str());
-            if (num > 0) {
+            if (num > 0)
+            {
                 LOGI << fmt("Loaded %d Game Controller mappings", num);
-            } else {
+            }
+            else
+            {
                 LOGW << "Loading gamecontrollerdb.txt failed";
             }
         }
@@ -953,11 +1002,14 @@ int SDL_input_init()
             // open joysticks
             int count = 0;
             SDL_JoystickID *ids = SDL_GetJoysticks(&count);
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
                 SDL_Joystick* joystick = SDL_OpenJoystick(ids[i]);
-                if (joystick != NULL) {
+                if (joystick != NULL)
+                {
                     int slot = findFreeSlot(JOYSTICK);
-                    if (slot < 0) {
+                    if (slot < 0)
+                    {
                         LOGW << "No Joystick slots available!";
                         SDL_CloseJoystick(joystick);
                         SDL_free(ids);
@@ -973,14 +1025,15 @@ int SDL_input_init()
                     joy.haptic  = false;
 
                     LOGI << "Joystick #" << i << " [ID:" << ids[i] << "] was successfully opened";
-
-                } else {
-                    LOGW << "Error opening joystick #" << i << "!";
                 }
+                else LOGW << "Error opening joystick #" << i << "!";
             }
-            if (count == 0) {
+
+            if (count == 0)
+            {
                 LOGI << "No joysticks detected";
             }
+
             SDL_free(ids);
         }
         // notify user that their attempt to disable the joystick is successful
@@ -999,8 +1052,10 @@ int SDL_input_init()
 
      if (thisGame == GAME_THAYERS) RELFORMAT = 0;
 
-     if (g_game->get_mouse_enabled()) {
-         if (!set_mouse_mode(g_mouse_mode)) {
+     if (g_game->get_mouse_enabled())
+     {
+         if (!set_mouse_mode(g_mouse_mode))
+         {
              LOGE << "Mouse initialization failed.";
              set_quitflag();
          }
@@ -1023,8 +1078,8 @@ SDL_Gamepad* get_gamepad_id(int id)
 // shut down the necessary
 void SDL_input_shutdown(void)
 {
-    for (int i = 0; i < MAX_GAMECONTROLLER; i++) {
-
+    for (int i = 0; i < MAX_GAMECONTROLLER; i++)
+    {
         if (g_controllers[i].gamepad)
             SDL_CloseGamepad(g_controllers[i].gamepad);
 
@@ -1040,7 +1095,8 @@ void SDL_check_input()
 {
     SDL_Event event{};
 
-    while ((SDL_PollEvent(&event)) && (!get_quitflag())) {
+    while ((SDL_PollEvent(&event)) && (!get_quitflag()))
+    {
         process_event(&event);
     }
 
@@ -1049,7 +1105,8 @@ void SDL_check_input()
         set_quitflag();
 
     // if the coin queue has something entered into it
-    if (!g_coin_queue.empty()) {
+    if (!g_coin_queue.empty())
+    {
         struct coin_input coin = g_coin_queue.front(); // examine the next
                                                        // element in the queue
                                                        // to be considered
@@ -1060,13 +1117,16 @@ void SDL_check_input()
         // here
 
         // if it's safe to activate the coin
-        if (cpu::get_total_cycles_executed(0) > coin.cycles_when_to_enable) {
+        if (cpu::get_total_cycles_executed(0) > coin.cycles_when_to_enable)
+        {
             // if we're supposed to enable this coin
-            if (coin.coin_enabled) {
+            if (coin.coin_enabled)
+            {
                 g_game->input_enable(coin.coin_val, NOMOUSE);
             }
             // else we are supposed to disable this coin
-            else {
+            else
+            {
                 g_game->input_disable(coin.coin_val, NOMOUSE);
             }
             g_coin_queue.pop(); // remove coin entry from queue
@@ -1085,18 +1145,22 @@ void process_event(SDL_Event *event)
     // make things easier to read...
     SDL_Keycode keyPressed = event->key.key;
 
-    switch (event->type) {
+    switch (event->type)
+    {
     case SDL_EVENT_KEY_DOWN:
         reset_idle(); // added by JFA for -idleexit
 
         // by RDG2010
         // Get SINGE full access to keyboard input (like Thayers)
 
-        if (thisGame != GAME_THAYERS && thisGame != GAME_SINGE) {
+        if (thisGame != GAME_THAYERS && thisGame != GAME_SINGE)
+	{
             process_keydown(keyPressed);
-        } else {
-            if (thisGame == GAME_THAYERS) {
-
+        }
+        else
+        {
+            if (thisGame == GAME_THAYERS)
+            {
                 thayers* l_thayers = dynamic_cast<thayers*>(g_game);
                 // cast game class to a thayers class so we can call a
                 // thayers-specific function
@@ -1107,9 +1171,11 @@ void process_event(SDL_Event *event)
 // cast would fail if g_game is not a thayers class
 
 #ifdef BUILD_SINGE
-            } else {
-
-                if (thisGame == GAME_SINGE) {
+            }
+            else
+            {
+                if (thisGame == GAME_SINGE)
+                {
                     singe* l_singe = dynamic_cast<singe*>(g_game);
                     if (l_singe)
                         l_singe->process_keydown(keyPressed, g_key_defs);
@@ -1127,12 +1193,15 @@ void process_event(SDL_Event *event)
         // by RDG2010
         // Get SINGE full access to keyboard input (like Thayers)
 
-        if (thisGame != GAME_THAYERS && thisGame != GAME_SINGE) {
+        if (thisGame != GAME_THAYERS && thisGame != GAME_SINGE)
+        {
             process_keyup(keyPressed);
 
-        } else {
-            if (thisGame == GAME_THAYERS) {
-
+        }
+        else
+        {
+            if (thisGame == GAME_THAYERS)
+            {
                 thayers* l_thayers = dynamic_cast<thayers*>(g_game);
                 // cast game class to a thayers class so we can call a
                 // thayers-specific function
@@ -1143,9 +1212,11 @@ void process_event(SDL_Event *event)
 // else cast failed, and we would crash if we tried to call process_keydown
 // cast would fail if g_game is not a thayers class
 #ifdef BUILD_SINGE
-            } else {
-
-                if (thisGame == GAME_SINGE) {
+            }
+            else
+            {
+                if (thisGame == GAME_SINGE)
+                {
                     singe* l_singe = dynamic_cast<singe*>(g_game);
                     if (l_singe) l_singe->process_keyup(keyPressed, g_key_defs);
                 }
@@ -1204,7 +1275,8 @@ void process_event(SDL_Event *event)
     {
         if (g_use_joystick) break;
         reset_idle(); // added by JFA for -idleexit
-        if (g_mouse_mode == MANY_MOUSE) {
+        if (g_mouse_mode == MANY_MOUSE)
+        {
             if (mouseButtonMap(event, true))
                 break;
         }
@@ -1231,7 +1303,8 @@ void process_event(SDL_Event *event)
         if (g_use_joystick) break;
         g_hotkey = false;
         reset_idle(); // added by JFA for -idleexit
-        if (g_mouse_mode == MANY_MOUSE) {
+        if (g_mouse_mode == MANY_MOUSE)
+        {
             if (mouseButtonMap(event, false))
                 break;
         }
@@ -1257,7 +1330,8 @@ void process_event(SDL_Event *event)
     case SDL_EVENT_JOYSTICK_HAT_MOTION:
         if (g_use_gamepad) break;
         // only process events for the first hat on device
-        if (event->jhat.hat == 0) {
+        if (event->jhat.hat == 0)
+        {
             reset_idle();
             process_joystick_hat_motion(event);
         }
@@ -1270,8 +1344,10 @@ void process_event(SDL_Event *event)
         int slot = findSlotByDevice(id, JOYSTICK);
 
         // loop through map and find corresponding action
-        for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i]-1) {
+        for (i = 0; i < SWITCH_COUNT; i++)
+        {
+            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i]-1)
+            {
                 if (i == SWITCH_COIN1) g_hotkey = true;
                 input_enable(i, NOMOUSE);
                 break;
@@ -1288,8 +1364,10 @@ void process_event(SDL_Event *event)
         SDL_JoystickID id = event->gdevice.which;
         int slot = findSlotByDevice(id, JOYSTICK);
         // loop through map and find corresponding action
-        for (i = 0; i < SWITCH_COUNT; i++) {
-            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i]-1) {
+        for (i = 0; i < SWITCH_COUNT; i++)
+        {
+            if (event->jbutton.button == controller_button_map[g_controllers[slot].player][i]-1)
+            {
                 input_disable(i, NOMOUSE);
                 break;
             }
@@ -1312,25 +1390,32 @@ void process_event(SDL_Event *event)
 
         } else {
 
-           switch (event->type) {
+           switch (event->type)
+           {
            case SDL_EVENT_MOUSE_BUTTON_DOWN:
-               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
-                    if (event->button.button == i) {
+               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++)
+               {
+                    if (event->button.button == i)
+                    {
                         g_game->input_enable((Uint8)mouse_buttons_map[i], NOMOUSE);
                         break;
                     }
                }
                break;
            case SDL_EVENT_MOUSE_BUTTON_UP:
-               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++) {
-                    if (event->button.button == i) {
+               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++)
+               {
+                    if (event->button.button == i)
+                    {
                         g_game->input_disable((Uint8)mouse_buttons_map[i], NOMOUSE);
                         break;
                     }
                }
                break;
            case SDL_EVENT_MOUSE_MOTION:
-               switch (RELFORMAT) {
+
+               switch (RELFORMAT)
+               {
                case 0:
                    g_game->OnMouseMotion(event->motion.x, event->motion.y, event->motion.xrel,
                        event->motion.yrel, NOMOUSE);
@@ -1342,8 +1427,10 @@ void process_event(SDL_Event *event)
                    static const int max_width = video::get_video_width();
                    static const int max_height = video::get_video_height();
 
-                   if (!relative) {
-                       if (SDL_SetWindowRelativeMouseMode(video::get_window(), true)) {
+                   if (!relative)
+                   {
+                       if (SDL_SetWindowRelativeMouseMode(video::get_window(), true))
+                       {
                            LOGI << "Relative mouse mode enabled, mouse is now captured.";
                        }
                        relative = true;
@@ -1382,20 +1469,24 @@ void process_keydown(SDL_Keycode key)
     // the key entered matches
     // If we have a match, the switch to be used is the value of the index
     // "move"
-    for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-        if (((int)key == g_key_defs[move][0]) || ((int)key == g_key_defs[move][1])) {
+    for (Uint8 move = 0; move < SWITCH_COUNT; move++)
+    {
+        if (((int)key == g_key_defs[move][0]) || ((int)key == g_key_defs[move][1]))
+        {
             input_enable(move, NOMOUSE);
         }
     }
 
-    if (g_game->alt_commands) {
+    if (g_game->alt_commands)
+    {
         input_toolbox(key, g_game->alt_lastkey, false);
         g_game->alt_lastkey = key;
     }
     // end ALT-COMMAND checks
 
     // check for ALT-COMMANDS but not this pass
-    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+    if ((key == SDLK_LALT) || (key == SDLK_RALT))
+    {
         g_game->alt_commands = true;
     }
 }
@@ -1407,14 +1498,17 @@ void process_keyup(SDL_Keycode key)
     // the key entered matches
     // If we have a match, the switch to be used is the value of the index
     // "move"
-    for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-        if (((int)key == g_key_defs[move][0]) || ((int)key == g_key_defs[move][1])) {
+    for (Uint8 move = 0; move < SWITCH_COUNT; move++)
+    {
+        if (((int)key == g_key_defs[move][0]) || ((int)key == g_key_defs[move][1]))
+        {
             input_disable(move, NOMOUSE);
         }
     }
 
     // if they are releasing an ALT key
-    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+    if ((key == SDLK_LALT) || (key == SDLK_RALT))
+    {
         g_game->alt_commands = false;
     }
 
@@ -1435,8 +1529,8 @@ void process_controller_motion(SDL_Event *event)
 
     g_game->ControllerAxisProxy(axis, value, player);
 
-    if (mmouse) {
-
+    if (mmouse)
+    {
         // Process the LEFT AXIS as absolute co-ordinates
         static Sint16 x_axis[MAX_GAMECONTROLLER] = { 0 };
         static Sint16 y_axis[MAX_GAMECONTROLLER] = { 0 };
@@ -1446,9 +1540,12 @@ void process_controller_motion(SDL_Event *event)
         static const int width = video::get_video_width();
         static const int height = video::get_video_height();
 
-        if (axis == SDL_GAMEPAD_AXIS_LEFTX) {
+        if (axis == SDL_GAMEPAD_AXIS_LEFTX)
+        {
             x_axis[player] = value;
-        } else if (axis == SDL_GAMEPAD_AXIS_LEFTY) {
+        }
+        else if (axis == SDL_GAMEPAD_AXIS_LEFTY)
+        {
             y_axis[player] = value;
         }
 
@@ -1458,7 +1555,8 @@ void process_controller_motion(SDL_Event *event)
         int relx = x - prev_x[player];
         int rely = y - prev_y[player];
 
-        if (relx | rely) {
+        if (relx | rely)
+	{
             g_game->OnMouseMotion(x, y, relx, rely, player + g_gamepad_wad);
 
             prev_x[player] = x;
@@ -1499,9 +1597,11 @@ void process_controller_motion(SDL_Event *event)
 
     int key = -1;
 
-    for (int i = 0; i < SWITCH_START1; i++) {
+    for (int i = 0; i < SWITCH_START1; i++)
+    {
         if (axis == controller_axis_map[player][i][0]-1 &&
-            ((value < 0) ? -1 : 1) == controller_axis_map[player][i][1]) {
+            ((value < 0) ? -1 : 1) == controller_axis_map[player][i][1])
+        {
             key = i;
             break;
         }
@@ -1512,21 +1612,24 @@ void process_controller_motion(SDL_Event *event)
     static bool x_axis_in_use[MAX_GAMECONTROLLER] = { false };
     static bool y_axis_in_use[MAX_GAMECONTROLLER] = { false };
 
-    if (abs(value) > JOY_AXIS_MID) {
+    if (abs(value) > JOY_AXIS_MID)
+    {
         input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
             y_axis_in_use[player] = true;
         else
             x_axis_in_use[player] = true;
     }
-    else {
+    else
+    {
         if ((key == SWITCH_UP || key == SWITCH_DOWN) &&
                 y_axis_in_use[player]) {
             input_disable(SWITCH_UP, NOMOUSE);
             input_disable(SWITCH_DOWN, NOMOUSE);
             y_axis_in_use[player] = false;
 
-        } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) &&
+        }
+        else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) &&
                 x_axis_in_use[player]) {
             input_disable(SWITCH_LEFT, NOMOUSE);
             input_disable(SWITCH_RIGHT, NOMOUSE);
@@ -1547,29 +1650,36 @@ void process_joystick_motion(SDL_Event *event)
 
     // loop through map and find corresponding action
     int key = -1;
-    for (int i = 0; i < SWITCH_START1; i++) {
+    for (int i = 0; i < SWITCH_START1; i++)
+    {
         if (event->jaxis.axis == controller_axis_map[player][i][0]-1
-            && ((event->jaxis.value < 0) ? -1 : 1) == controller_axis_map[player][i][1]) {
+            && ((event->jaxis.value < 0) ? -1 : 1) == controller_axis_map[player][i][1])
+        {
             key = i;
             break;
         }
     }
     if (key == -1) return;
 
-    if (abs(event->jaxis.value) > JOY_AXIS_MID) {
+    if (abs(event->jaxis.value) > JOY_AXIS_MID)
+    {
         input_enable(key, NOMOUSE);
         if (key == SWITCH_UP || key == SWITCH_DOWN)
             y_axis_in_use = true;
         else
             x_axis_in_use = true;
     }
-    else {
-        if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use) {
+    else
+    {
+        if ((key == SWITCH_UP || key == SWITCH_DOWN) && y_axis_in_use)
+        {
             input_disable(SWITCH_UP, NOMOUSE);
             input_disable(SWITCH_DOWN, NOMOUSE);
             y_axis_in_use = false;
 
-        } else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use) {
+        }
+        else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) && x_axis_in_use)
+        {
             input_disable(SWITCH_LEFT, NOMOUSE);
             input_disable(SWITCH_RIGHT, NOMOUSE);
             x_axis_in_use = false;
@@ -1608,7 +1718,8 @@ void process_joystick_hat_motion(SDL_Event *event)
             return;
     }
 
-    if (event->jhat.value & hat_movement) {
+    if (event->jhat.value & hat_movement)
+    {
         input_enable(hat, NOMOUSE);
         prev_hat_position |= hat_movement;
     }
@@ -1624,7 +1735,8 @@ void input_enable(Uint8 move, Sint8 mouseID)
 {
     // first test universal input, then pass unknown input on to the game driver
 
-    switch (move) {
+    switch (move)
+    {
         default:
             g_game->input_enable(move, mouseID);
             break;
@@ -1673,14 +1785,18 @@ void input_disable(Uint8 move, Sint8 mouseID)
     // don't send reset or screenshots key-ups to the individual games because
     // they will return warnings that will alarm users
     if ((move != SWITCH_RESET) && (move != SWITCH_SCREENSHOT) &&
-        (move != SWITCH_QUIT) && (move != SWITCH_PAUSE)) {
+        (move != SWITCH_QUIT) && (move != SWITCH_PAUSE))
+    {
         // coin inputs are buffered to ensure that they are not dropped while
         // the cpu is busy (such as during a seek)
         // therefore if the input is coin1 or coin2 AND we are using a real cpu
         // (and not a program such as seektest)
-        if (((move == SWITCH_COIN1) || (move == SWITCH_COIN2)) && (cpu::get_hz(0) > 0)) {
+        if (((move == SWITCH_COIN1) || (move == SWITCH_COIN2)) && (cpu::get_hz(0) > 0))
+	{
             add_coin_to_queue(false, move);
-        } else {
+        }
+        else
+        {
             g_game->input_disable(move, mouseID);
         }
     }
@@ -1696,15 +1812,15 @@ inline void add_coin_to_queue(bool enabled, Uint8 val)
 
     // make sure that we are >= to the total cycles executed otherwise coin
     // insertions will be really quick
-    if (g_last_coin_cycle_used < total_cycles) {
+    if (g_last_coin_cycle_used < total_cycles)
+    {
         g_last_coin_cycle_used = total_cycles;
     }
-    g_last_coin_cycle_used += g_sticky_coin_cycles; // advance to the next safe
-                                                    // slot
+    g_last_coin_cycle_used += g_sticky_coin_cycles;      // advance to the next safe
+                                                         // slot
     coin.cycles_when_to_enable = g_last_coin_cycle_used; // and assign this safe
-                                                         // slot to this current
-                                                         // coin
-    g_coin_queue.push(coin); // add the coin to the queue ...
+                                                         // slot to this current coin
+    g_coin_queue.push(coin);                             // add the coin to the queue ...
 }
 
 // added by JFA for -idleexit
@@ -1715,7 +1831,8 @@ void reset_idle(void)
     // At this time, the only way the sound will be muted is if -startsilent was
     // passed via command line.
     // So the first key press should always unmute the sound.
-    if (!bSoundOn) {
+    if (!bSoundOn)
+    {
         bSoundOn = true;
         sound::set_mute(false);
     }
@@ -1757,7 +1874,8 @@ void set_use_gamepad(bool value)
 
 void set_gamepad_order(int *c, int max)
 {
-    for (int i = 0; i < max; i++) {
+    for (int i = 0; i < max; i++)
+    {
         g_padindex[i] = (uint8_t)(c[i] - 1);
     }
 

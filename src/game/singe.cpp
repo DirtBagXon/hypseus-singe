@@ -56,7 +56,8 @@ struct singe_in_info g_SingeIn;
 ////////////////////////////////////////////////////////////////////////////////
 
 // by RDG2010
-const int singe::i_full_keybd_defs[] = {
+const int singe::i_full_keybd_defs[] =
+{
     SDLK_BACKSPACE,    SDLK_TAB,
     SDLK_RETURN,       SDLK_PAUSE,
     SDLK_SPACE,        SDLK_APOSTROPHE,
@@ -226,7 +227,8 @@ bool singe::init()
         g_pSingeOut = pSingeInit(&g_SingeIn);
 
         // version check
-        if (g_pSingeOut->uVersion != SINGE_INTERFACE_API_VERSION) {
+        if (g_pSingeOut->uVersion != SINGE_INTERFACE_API_VERSION)
+        {
             printline("Singe API version mismatch!  Something needs to be "
                       "recompiled...");
             bSuccess = false;
@@ -234,7 +236,8 @@ bool singe::init()
     }
 
     // if we're not using VLDP, then singe will segfault, so abort ...
-    if (g_vldp_info == NULL) {
+    if (g_vldp_info == NULL)
+    {
         printerror("You must use VLDP when using Singe.");
         bSuccess = false;
     }
@@ -264,7 +267,8 @@ void singe::start()
     g_ldp->set_seek_frames_per_ms(0);
     g_ldp->set_min_seek_delay(0);
 
-    switch (m_upgrade_overlay) {
+    switch (m_upgrade_overlay)
+    {
     case (1 << 0):
         g_pSingeOut->sep_upgrade_overlay();
         break;
@@ -279,12 +283,14 @@ void singe::start()
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
 
     // if singe didn't get an error during startup...
-    if (!get_quitflag()) {
-
+    if (!get_quitflag())
+    {
         m_running = true;
-        while (!get_quitflag()) {
+        while (!get_quitflag())
+        {
             g_pSingeOut->sep_call_lua("onOverlayUpdate", ">i", &intReturn);
-            if (intReturn == 1) {
+            if (intReturn == 1)
+            {
                 m_video_overlay_needs_update = true;
             }
 
@@ -309,20 +315,24 @@ void singe::start()
 
 void singe::shutdown()
 {
-    if (g_bezelboard.type == SINGE_SB_USB) {
+    if (g_bezelboard.type == SINGE_SB_USB)
+    {
         struct timespec delta = {0, 300000};
         nanosleep(&delta, &delta); // Let serial flush
     }
 
-    if (m_pScoreboard) {
+    if (m_pScoreboard)
+    {
         m_pScoreboard->PreDeleteInstance();
     }
 }
 
 void singe::input_enable(Uint8 input, Sint8 mouseID)
 {
-    if (singe_joymouse) {
-        switch (input) {
+    if (singe_joymouse)
+    {
+        switch (input)
+        {
         case SWITCH_UP:
            g_js.ypos = -abs(g_js.slide);
            g_js.jrely--;
@@ -348,8 +358,10 @@ void singe::input_enable(Uint8 input, Sint8 mouseID)
 
 void singe::input_disable(Uint8 input, Sint8 mouseID)
 {
-    if (singe_joymouse) {
-        switch (input) {
+    if (singe_joymouse)
+    {
+        switch (input)
+        {
         case SWITCH_UP:
         case SWITCH_DOWN:
            g_js.ypos = 0;
@@ -397,144 +409,180 @@ bool singe::handle_cmdline_arg(const char *arg)
     char s[len]              = {0};
     int i;
 
-    if (!bInit) {
+    if (!bInit)
+    {
         g_game->set_overlay_upgrade(GAME_OVERLAY_UPGRADE, true);
         g_game->set_dynamic_overlay(true);
         m_upgrade_overlay |= (1 << 0);
         bInit = true;
     }
 
-    if (strcasecmp(arg, "-script") == 0 || strcasecmp(arg, "-zlua") == 0) {
-
+    if (strcasecmp(arg, "-script") == 0 || strcasecmp(arg, "-zlua") == 0)
+    {
         if (strcasecmp(arg, "-zlua") == 0)
             m_zlua = true;
 
         get_next_word(s, sizeof(s));
 
-        if (mpo_file_exists(s)) {
-            if (!scriptLoaded) {
+        if (mpo_file_exists(s))
+        {
+            if (!scriptLoaded)
+            {
                 bResult = scriptLoaded = true;
                 m_strGameScript = s;
-            } else {
+            }
+            else
+            {
                 printerror("Only one game script or zip may be loaded at a time!");
                 bResult = false;
             }
-        } else {
+        }
+        else
+        {
             string strErrMsg = "Game Data file: ";
             strErrMsg += s;
             strErrMsg += " does not exist.";
             printerror(strErrMsg.c_str());
         }
     }
-    else if (strcasecmp(arg, "-usealt") == 0 || strcasecmp(arg, "-altscript") == 0) {
+    else if (strcasecmp(arg, "-usealt") == 0 || strcasecmp(arg, "-altscript") == 0)
+    {
         get_next_word(s, sizeof(s));
         bResult = true;
 
-        if (s[0] == 0) {
+        if (s[0] == 0)
+        {
             printerror("altscript switch used but no name specified!");
             bResult = false;
         }
 
-        for (int i = 0; i < len && s[i] != '\0'; ++i) {
+        for (int i = 0; i < len && s[i] != '\0'; ++i)
+        {
             if (!isalnum(s[i]) && s[i] != int('_')
-                    && s[i] != int('-') && s[i] != int('.')) {
+                    && s[i] != int('-') && s[i] != int('.'))
+            {
                 bResult = false;
             }
         }
 
         if (bResult) m_zipAltName = s;
     }
-    else if (strcasecmp(arg, "-blend_sprites") == 0) {
+    else if (strcasecmp(arg, "-blend_sprites") == 0)
+    {
         printline("Obsolete argument supplied, ignoring...");
         bResult = true;
     }
-    else if (strcasecmp(arg, "-espath") == 0 || strcasecmp(arg, "-retropath") == 0) {
+    else if (strcasecmp(arg, "-espath") == 0 || strcasecmp(arg, "-retropath") == 0)
+    {
         g_game->set_es_flag(true);
         bResult = true;
     }
-    else if (strcasecmp(arg, "-singedir") == 0) {
+    else if (strcasecmp(arg, "-singedir") == 0)
+    {
         get_next_word(s, sizeof(s));
         bResult = true;
 
-        if (s[0] == 0) {
+        if (s[0] == 0)
+        {
             printerror("singedir switch used but no singedir specified!");
             bResult = false;
         }
-        else if (!safe_dir(s, len)) {
+        else if (!safe_dir(s, len))
+        {
             printerror("SINGE: Invalid path characters specified");
             bResult = false;
         }
 
-        if (bResult) {
+        if (bResult)
+        {
             m_strDataPaths = s;
             if (m_strDataPaths.back() != '/')
                 m_strDataPaths += '/';
             g_game->set_es_flag(true);
         }
     }
-    else if (strcasecmp(arg, "-fullalpha") == 0) {
+    else if (strcasecmp(arg, "-fullalpha") == 0)
+    {
             enableFullAlpha();
             bResult = true;
     }
-    else if (strcasecmp(arg, "-8bit_overlay") == 0) {
+    else if (strcasecmp(arg, "-8bit_overlay") == 0)
+    {
         g_game->set_overlay_upgrade(GAME_OVERLAY_DEFAULT, false);
         m_upgrade_overlay = 0;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-nocrosshair") == 0) {
+    else if (strcasecmp(arg, "-nocrosshair") == 0)
+    {
         m_crosshair = false;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-border") == 0 || strcasecmp(arg, "-sinden") == 0) {
+    else if (strcasecmp(arg, "-border") == 0 || strcasecmp(arg, "-sinden") == 0)
+    {
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
-        if ((i > 0) && (i < 11)) {
+        if ((i > 0) && (i < 11))
+        {
            g_game->set_outline_border(i<<2);
            g_game->set_manymouse(true);
            bResult = true;
-        } else {
+        }
+        else
+        {
            printerror("SINGE: border out of scope: <1-10>");
         }
 
         get_next_word(s, sizeof(s));
         int j = *((int*)(&s));
 
-        if (j != 0x62 && j != 0x67 && j != 0x72 && j != 0x77 && j != 0x78) {
+        if (j != 0x62 && j != 0x67 && j != 0x72 && j != 0x77 && j != 0x78)
+        {
            printerror("SINGE: invalid border color: w, r, g, b or x");
            bResult = false;
-        } else {
+        }
+        else
+        {
            g_game->set_outline_border_color(j);
         }
     }
-    else if (strcasecmp(arg, "-xratio") == 0) {
+    else if (strcasecmp(arg, "-xratio") == 0)
+    {
         get_next_word(s, sizeof(s));
         float f = (float)numstr::ToDouble(s);
 
-        if (f > 0 && f < 100) {
+        if (f > 0 && f < 100)
+        {
             singe_xratio = (double)floorf(f * 100) / 100;
             bResult = true;
-        } else
+        }
+        else
             printerror("SINGE: ratio should be a float");
     }
-    else if (strcasecmp(arg, "-yratio") == 0) {
+    else if (strcasecmp(arg, "-yratio") == 0)
+    {
         get_next_word(s, sizeof(s));
         float f = (float)numstr::ToDouble(s);
 
-        if (f > 0 && f < 100) {
+        if (f > 0 && f < 100)
+        {
             singe_yratio = (double)floorf(f * 100) / 100;
             bResult = true;
-        } else
+        }
+        else
             printerror("SINGE: ratio should be a float");
     }
-    else if (strcasecmp(arg, "-fvalue") == 0) {
+    else if (strcasecmp(arg, "-fvalue") == 0)
+    {
         get_next_word(s, sizeof(s));
         float f = (float)numstr::ToDouble(s);
 
-        if (f > 0 && f < 100000) {
+        if (f > 0 && f < 100000)
+        {
             singe_fvalue = (double)floorf(f * 1000) / 1000;
             bResult = true;
-        } else
+        }
+        else
             printerror("SINGE: -fvalue <value> out of range");
     }
     else if (strcasecmp(arg, "-nojoymouse") == 0) {
@@ -542,17 +590,22 @@ bool singe::handle_cmdline_arg(const char *arg)
         singe_joymouse = false;
         bResult = true;
     }
-    else if (strcasecmp(arg, "-enable_trace") == 0) {
+    else if (strcasecmp(arg, "-enable_trace") == 0)
+    {
         singe_trace = bResult = true;
     }
-    else if (strcasecmp(arg, "-js_range") == 0) {
+    else if (strcasecmp(arg, "-js_range") == 0)
+    {
         get_next_word(s, sizeof(s));
         i = atoi(s);
 
-        if ((i > 0) && (i <= 20)) {
+        if ((i > 0) && (i <= 20))
+        {
             g_js.slide = i;
             bResult = true;
-        } else {
+        }
+        else
+        {
             printerror("SINGE: js_range out of scope: <1-20>");
         }
     }
@@ -569,7 +622,8 @@ void singe::palette_calculate()
 
     // go through all colors and compute the palette
     // (start at 2 because 0 and 1 are a special case)
-    for (unsigned int i = 2; i < 256; i++) {
+    for (unsigned int i = 2; i < 256; i++)
+    {
         temp_color.r = i & 0xE0;        // Top 3 bits for red
         temp_color.g = (i << 3) & 0xC0; // Middle 2 bits for green
         temp_color.b = (i << 5) & 0xE0; // Bottom 3 bits for blue
@@ -594,7 +648,8 @@ void singe::repaint()
     Uint32 cur_w;
     Uint32 cur_h;
 
-    switch(m_overlay_size) {
+    switch(m_overlay_size)
+    {
     case SINGE_OVERLAY_FULL:
        cur_w = g_ldp->get_discvideo_width();
        cur_h = g_ldp->get_discvideo_height();
@@ -616,33 +671,40 @@ void singe::repaint()
     // if the width or height of the mpeg video has changed since we last were
     // here (ie, opening a new mpeg)
     // then reallocate the video overlay buffer
-    if ((cur_w != m_video_overlay_width) || (cur_h != m_video_overlay_height)) {
-        if (g_ldp->lock_overlay(1000)) {
+    if ((cur_w != m_video_overlay_width) || (cur_h != m_video_overlay_height))
+    {
+        if (g_ldp->lock_overlay(1000))
+        {
             m_video_overlay_width  = cur_w;
             m_video_overlay_height = cur_h;
 
             shutdown_video();
-            if (!init_video()) {
-                printline(
-                    "Fatal Error, trying to re-create the surface failed!");
+            if (!init_video())
+            {
+                printline("Fatal Error, trying to re-create the surface failed!");
                 set_quitflag();
             }
             g_pSingeOut->sep_set_surface(m_video_overlay_width, m_video_overlay_height);
             g_ldp->unlock_overlay(1000); // unblock game video overlay
-        } else {
+        }
+        else
+        {
             g_pSingeOut->sep_print(
                 "Timed out trying to get a lock on the yuv overlay");
             return;
         }
     } // end if dimensions are incorrect
 
-    if (m_bezel_scoreboard) {
-
-        if (!m_pScoreboard) {
+    if (m_bezel_scoreboard)
+    {
+        if (!m_pScoreboard)
+        {
             IScoreboard *pScoreboard = ScoreboardCollection::GetInstance(
 			                   NULL, false, false, 0);
-            if (pScoreboard) {
-                switch (g_bezelboard.type) {
+            if (pScoreboard)
+            {
+                switch (g_bezelboard.type)
+                {
                 case SINGE_SB_BEZEL:
                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::BEZEL);
                    break;
@@ -663,18 +725,20 @@ void singe::repaint()
             goto exit;
         }
 
-        if (g_bezelboard.clear) {
+        if (g_bezelboard.clear)
+        {
             m_pScoreboard->Clear();
             g_bezelboard.clear = false;
             goto repaint;
         }
 
-        if (g_bezelboard.repaint) {
-
+        if (g_bezelboard.repaint)
+        {
             scoreboard_score(g_bezelboard.player1_score, S_B_PLAYER1);
             scoreboard_lives(g_bezelboard.player1_lives, S_B_PLAYER1);
 
-	    if (g_bezelboard.altscore) {
+	    if (g_bezelboard.altscore)
+            {
                 scoreboard_score(g_bezelboard.player2_score, S_B_PLAYER2);
                 scoreboard_lives(g_bezelboard.player2_lives, S_B_PLAYER2);
             }
@@ -692,19 +756,15 @@ exit:
 
 void singe::set_last_error(const char *cpszErrMsg)
 {
-    // TODO : figure out reliable way to call printerror (maybe there isn't
-    // one?)
     printline(cpszErrMsg);
 }
 
 // by RDG2010
 void singe::set_keyboard_mode(int thisVal)
 {
-    if (thisVal != KEYBD_NORMAL && thisVal != KEYBD_FULL) {
-        // printline("Singe tried to se an invalid keyboard mode. Defaulting to
-        // normal.");
+    if (thisVal != KEYBD_NORMAL && thisVal != KEYBD_FULL)
         i_keyboard_mode = KEYBD_NORMAL;
-    } else
+    else
         i_keyboard_mode = thisVal;
 }
 
@@ -748,7 +808,8 @@ void singe::second_score(bool bEnable)
 
 void singe::player2_score(int thisVal)
 {
-    if (g_bezelboard.altscore) {
+    if (g_bezelboard.altscore)
+    {
         g_bezelboard.player2_score = thisVal;
         g_bezelboard.repaint = true;
     }
@@ -756,7 +817,8 @@ void singe::player2_score(int thisVal)
 
 void singe::player2_lives(uint8_t thisVal)
 {
-    if (g_bezelboard.altscore) {
+    if (g_bezelboard.altscore)
+    {
         g_bezelboard.player2_lives = thisVal;
         g_bezelboard.repaint = true;
     }
@@ -777,7 +839,8 @@ void singe::set_custom_overlay(uint16_t w, uint16_t h)
 
 bool singe::overlay_unmask()
 {
-    if (g_game->get_overlay_depth() == GAME_OVERLAY_FULL) {
+    if (g_game->get_overlay_depth() == GAME_OVERLAY_FULL)
+    {
         g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
         return true;
     }
@@ -821,7 +884,8 @@ string singe::show_version()
 
 void singe::enableFullAlpha()
 {
-    if (m_upgrade_overlay & (1 << 0)) {
+    if (m_upgrade_overlay & (1 << 0))
+    {
         printline("Enabling a full alpha range in the overlay.");
         m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 0)) | (1 << 1);
         g_game->set_overlay_upgrade(GAME_OVERLAY_ALPHA, true);
@@ -857,19 +921,23 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
      * */
 
     if (m_running) g_pSingeOut->sep_keyboard_set_state(key, true);
+
     if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
     { // traverse the keydef array for mapped keys.
-        for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-            if (((int)key == keydefs[move][0]) || ((int)key == keydefs[move][1])) {
+        for (Uint8 move = 0; move < SWITCH_COUNT; move++)
+        {
+            if (((int)key == keydefs[move][0]) || ((int)key == keydefs[move][1]))
+            {
                 if (move != SWITCH_PAUSE) input_enable(move, NOMOUSE);
             }
         }
 
-    } else { // Using full keyboard access....
+    }
+    else // Using full keyboard access....
+    {
 
         if (key >= SDLK_A && key <= SDLK_Z) input_enable(key, NOMOUSE);
-        // check to see if key is a number on the top row of the keyboard (not
-        // keypad)
+        // check to see if key is a number on the top row of the keyboard (not keypad)
         else if (key >= SDLK_MINUS && key <= SDLK_9)
             input_enable(key, NOMOUSE);
         // numeric keypad keys
@@ -884,8 +952,8 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
         // Key state modifier keys (left and right ctrls, alts)
         else if (key >= SDLK_LCTRL && key <= SDLK_MODE)
             input_enable(key, NOMOUSE);
-        else {
-
+        else
+        {
             /*
             * SDLK_BACKSPACE, SDLK_TAB, SDLK_RETURN, SDLK_PAUSE,
             * SDLK_SPACE, SDLK_QUOTE, SDLK_COMMA, SDLK_SEMICOLON,
@@ -893,8 +961,10 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
             * SDLK_BACKSLASH, SDLK_SLASH, SDLK_DELETE, SDLK_PERIOD };
             */
 
-            for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
-                if ((int)key == i_full_keybd_defs[k]) {
+            for (int k = 0; k < KEYBD_ARRAY_SIZE; k++)
+            {
+                if ((int)key == i_full_keybd_defs[k])
+                {
                     input_enable(key, NOMOUSE);
                     break;
                 } // end if
@@ -905,14 +975,16 @@ void singe::process_keydown(SDL_Keycode key, int keydefs[][2])
 
     } // endif
 
-    if (alt_commands) {
+    if (alt_commands)
+    {
         input_toolbox(key, alt_lastkey, false);
         alt_lastkey = key;
     }
     // end ALT-COMMAND checks
 
     // check for ALT-COMMANDS but not this pass
-    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+    if ((key == SDLK_LALT) || (key == SDLK_RALT))
+    {
         alt_commands = true;
     }
 }
@@ -929,28 +1001,36 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
      * */
 
     if (m_running) g_pSingeOut->sep_keyboard_set_state(key, false);
+
     if (i_keyboard_mode == KEYBD_NORMAL) // Using normal keyboard mappings
     { // traverse the keydef array for mapped keys.
 
         // Handle pause and quit keypresses first.
-        if ((int)key == keydefs[SWITCH_PAUSE][0] || (int)key == keydefs[SWITCH_PAUSE][1]) {
+        if ((int)key == keydefs[SWITCH_PAUSE][0] || (int)key == keydefs[SWITCH_PAUSE][1])
+        {
             toggle_game_pause();
             input_disable(SWITCH_PAUSE, NOMOUSE);
 
-        } else if ((int)key == keydefs[i_keyboard_quit][0] ||
-                       (int)key == keydefs[i_keyboard_quit][1]) {
+        }
+        else if ((int)key == keydefs[i_keyboard_quit][0] ||
+                       (int)key == keydefs[i_keyboard_quit][1])
+        {
 
             if (m_running) set_quitflag();
 
-        } else if ((int)key == keydefs[SWITCH_SCREENSHOT][0]) {
+        }
+        else if ((int)key == keydefs[SWITCH_SCREENSHOT][0]) {
 
             printline("Screenshot requested!");
             video::set_queue_screenshot(true);
 
-        } else {
-
-            for (Uint8 move = 0; move < SWITCH_COUNT; move++) {
-                if (((int)key == keydefs[move][0]) || ((int)key == keydefs[move][1])) {
+        }
+        else
+        {
+            for (Uint8 move = 0; move < SWITCH_COUNT; move++)
+            {
+                if (((int)key == keydefs[move][0]) || ((int)key == keydefs[move][1]))
+                {
                     if (move != SWITCH_PAUSE) input_disable(move, NOMOUSE);
                 }
 
@@ -961,7 +1041,8 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     } else { // Using full keyboard access....
 
         // Hardwire ESCAPE (or END) key to quit
-        if ((int)key == i_keyboard_escape) {
+        if ((int)key == i_keyboard_escape)
+        {
             if (m_running) set_quitflag();
         }
         // letter keys
@@ -991,8 +1072,10 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
             * SDLK_BACKSLASH, SDLK_SLASH, SDLK_DELETE, SDLK_PERIOD };
             */
 
-            for (int k = 0; k < KEYBD_ARRAY_SIZE; k++) {
-                if ((int)key == i_full_keybd_defs[k]) {
+            for (int k = 0; k < KEYBD_ARRAY_SIZE; k++)
+            {
+                if ((int)key == i_full_keybd_defs[k])
+                {
                     input_disable(key, NOMOUSE);
                     break;
                 } // end if
@@ -1003,7 +1086,8 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
     }
 
     // if they are releasing an ALT key
-    if ((key == SDLK_LALT) || (key == SDLK_RALT)) {
+    if ((key == SDLK_LALT) || (key == SDLK_RALT))
+    {
         alt_commands = false;
     }
 

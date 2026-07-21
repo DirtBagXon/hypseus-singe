@@ -580,7 +580,12 @@ bool init_display()
         }
 
         if (VIDEO_HAS(FULLSCREEN))
+        {
             SDL_SetWindowFullscreen(g_window, true);
+
+            if (VIDEO_HAS(KMSDRM) && !VIDEO_HAS(INITPASS))
+                SDL_SyncWindow(g_window);
+        }
 
         if (strlen(g_window_title) > 0)
             SDL_SetWindowTitle(g_window, g_window_title);
@@ -1387,7 +1392,6 @@ static void set_srt_display(const char *s)
     srtchar = strdup(s);
 }
 
-
 void set_grayscale(bool value)
 {
     if (value) g_yuv_flags |= YUV_FLAG_GRAYSCALE;
@@ -1484,7 +1488,8 @@ void set_rotate_degrees(float fDegrees)
 
 void set_scoreboard_bezel(bool bEnabled)
 {
-     if (bEnabled) {
+     if (bEnabled)
+     {
          if (!VIDEO_HAS(FULLSCREEN) && g_yuv_surface)
              vid_toggle_fullscreen();
          VIDEO_SET(FULLSCREEN);
@@ -1494,7 +1499,8 @@ void set_scoreboard_bezel(bool bEnabled)
 
 void set_aux_bezel(bool bEnabled)
 {
-     if (bEnabled) {
+     if (bEnabled)
+     {
          VIDEO_SET(FULLSCREEN);
          VIDEO_SET(SCOREBOARD_BEZEL);
          g_game->m_software_scoreboard = true;
@@ -1512,7 +1518,8 @@ void set_bezel_reverse(bool d)
 
 void set_tq_keyboard(bool bEnabled)
 {
-     if (bEnabled) {
+     if (bEnabled)
+     {
          g_scalefactor = (g_scalefactor == 100) ? 75 : g_scalefactor;
          VIDEO_SET(FULLSCREEN);
          VIDEO_SET(SCOREBOARD_BEZEL);
@@ -1525,7 +1532,8 @@ void set_bezel_file(const char *bezelFile)
 {
      g_bezel_file = bezelFile;
 
-     if (!g_bezel_file.empty()) {
+     if (!g_bezel_file.empty())
+     {
          VIDEO_SET(FULLSCREEN);
      }
 }
@@ -1560,9 +1568,12 @@ static SDL_FRect* copy_rect(const SDL_FRect* src)
 
 static bool allocate_rect(SDL_FRect** rect)
 {
-     if (*rect == NULL) {
+     if (*rect == NULL)
+     {
          *rect = new(std::nothrow) SDL_FRect();
-         if (*rect == nullptr) {
+
+         if (*rect == nullptr)
+         {
              printerror("Failed in allocate_rect: g_yuv_frect");
              set_quitflag();
              return false;
@@ -1647,7 +1658,8 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
      int h, v;
      bool rst = true;
 
-     switch(bezel) {
+     switch(bezel)
+     {
      case 1: // Scoreboard
          if (!g_scoreboard_texture) { rst = false ; break; }
          if (vert) scoreboard_window_pos_y = value;
@@ -1673,7 +1685,8 @@ void reset_shiftvalue(int value, bool vert, uint8_t bezel)
      }
 
      char s[32]; // In-game
-     if (rst) {
+     if (rst)
+     {
          g_rescale = VIDEO_HAS(FULLSCREEN) ? 1 : 2;
          snprintf(s, sizeof(s), "x:%d, y:%d", h, v);
      }
@@ -1751,7 +1764,8 @@ void draw_string(const char *t, int col, int row, SDL_Surface *overlay,
         SDL_Surface *outline = TTF_RenderText_Solid(g_ttfont, t, strlen(t), padding);
         SDL_Rect r = dest;
 
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i)
+        {
             r.x = dest.x + offsets[i][0];
             r.y = dest.y + offsets[i][1];
             SDL_BlitSurface(outline, NULL, overlay, &r);
@@ -1905,7 +1919,8 @@ void vid_toggle_fullscreen()
     Uint32 current = SDL_GetWindowFlags(g_window);
     bool flip = (current & SDL_WINDOW_FULLSCREEN) != 0;
 
-    if (!SDL_SetWindowFullscreen(g_window, flip ? false : true)) {
+    if (!SDL_SetWindowFullscreen(g_window, flip ? false : true))
+    {
         LOGW << fmt("Toggle fullscreen failed: %s", SDL_GetError());
         return;
     }
@@ -1939,15 +1954,21 @@ void vid_toggle_scanlines()
 {
     char s[16] = "scanlines off";
 
-    if (VIDEO_HAS(SCANLINES)) {
-        if (g_scanline_shunt < 10) {
+    if (VIDEO_HAS(SCANLINES))
+    {
+        if (g_scanline_shunt < 10)
+        {
             g_scanline_shunt++;
-        } else {
+        }
+        else
+        {
             VIDEO_CLEAR(SCANLINES);
             SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_NONE);
             g_scanline_shunt = 2;
         }
-    } else {
+    }
+    else
+    {
         VIDEO_SET(SCANLINES);
         SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
     }
@@ -1959,7 +1980,8 @@ void vid_toggle_scanlines()
 
 void vid_toggle_bezel()
 {
-    if (VIDEO_HAS(FULLSCREEN)) {
+    if (VIDEO_HAS(FULLSCREEN))
+    {
         if (g_bezel_texture || g_aux_texture || VIDEO_HAS(SCOREBOARD_BEZEL))
             VIDEO_TOGGLE(BEZEL_TOGGLE);
 
@@ -1999,7 +2021,9 @@ void vid_setup_yuv_overlay (int width, int height)
     // Prepare the YUV overlay, wich means setting up both the YUV surface and YUV texture.
 
     // If we have already been here, free things first.
-    if (g_yuv_surface) {
+
+    if (g_yuv_surface)
+    {
         // Free both the YUV surface and YUV texture.
         vid_free_yuv_overlay();
     }
@@ -2025,7 +2049,8 @@ void vid_setup_yuv_overlay (int width, int height)
     // Setup the threaded access stuff, since this surface is accessed from the vldp thread, too.
     g_yuv_surface->mutex = SDL_CreateMutex();
 
-    if (g_yuv_frect[0]) {
+    if (g_yuv_frect[0])
+    {
         g_yuv_frect[0]->w = (float)(width * g_yuv_scale[YUV_H]);
         g_yuv_frect[0]->h = (float)(height * g_yuv_scale[YUV_V]);
         g_yuv_frect[0]->x = (float)((width / 2) - (g_yuv_frect[0]->w / 2));
@@ -2087,7 +2112,8 @@ static void vid_blank_yuv_texture()
 static inline void blendPlane(const uint8_t *src, uint8_t *dst, int w, int h,
 	int srcPitch, int dstPitch)
 {
-    for (int y = 0; y < h; ++y) {
+    for (int y = 0; y < h; ++y)
+    {
         const uint8_t *line0 = src + ((y > 0 ? y - 1 : y) * srcPitch);
         const uint8_t *line1 = src + ( y * srcPitch);
         const uint8_t *line2 = src + ((y < h - 1 ? y + 1 : y) * srcPitch);
@@ -2102,7 +2128,8 @@ static inline void blendPlane(const uint8_t *src, uint8_t *dst, int w, int h,
 static inline void lumaControl(const uint8_t *src, uint8_t *dst, int width, int height,
         int srcPitch, int dstPitch)
 {
-    for (int y = 0; y < height; y++) {
+    for (int y = 0; y < height; y++)
+    {
         const uint8_t *s = src + y * srcPitch;
         uint8_t *d = dst + y * dstPitch;
 
@@ -2150,7 +2177,8 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
 
     SDL_LockMutex(g_yuv_surface->mutex);
 
-    switch(g_yuv_display) {
+    switch(g_yuv_display)
+    {
     case YUV_BLANK:
         vid_blank_yuv_surface();
         break;
@@ -2173,25 +2201,30 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
             break;
         }
 
-        if (g_yuv_flags & YUV_FLAG_BLEND) {
+        if (g_yuv_flags & YUV_FLAG_BLEND)
+        {
             blendPlane(Yplane, g_yuv_surface->Yplane, g_yuv_surface->width,
                 g_yuv_surface->height, Ypitch, g_yuv_surface->Ypitch);
-
-        } else {
+        }
+        else
+        {
             copyPlane(g_yuv_surface->Yplane, Yplane,
                 g_yuv_surface->width, g_yuv_surface->height, Ypitch);
         }
 
-        if (g_yuv_flags & YUV_FLAG_LUMA) {
+        if (g_yuv_flags & YUV_FLAG_LUMA)
+        {
             lumaControl(Yplane, g_yuv_surface->Yplane, g_yuv_surface->width,
                 g_yuv_surface->height, Ypitch, g_yuv_surface->Ypitch);
         }
 
-        if (g_yuv_flags & YUV_FLAG_GRAYSCALE) {
+        if (g_yuv_flags & YUV_FLAG_GRAYSCALE)
+        {
             memset(g_yuv_surface->Uplane, 0x80, g_yuv_surface->Usize);
             memset(g_yuv_surface->Vplane, 0x80, g_yuv_surface->Vsize);
-
-        } else {
+        }
+        else
+        {
             int w = g_yuv_surface->width  >> 1;
             int h = g_yuv_surface->height >> 1;
             blendPlane(Uplane, g_yuv_surface->Uplane, w, h, Upitch, g_yuv_surface->Upitch);
@@ -2219,7 +2252,8 @@ void vid_update_overlay_surface(SDL_Surface *overlay)
     SDL_Rect src = (SDL_Rect){0, 0, overlay->w, overlay->h};
     SDL_Rect* dst = NULL;
 
-    if (VIDEO_HAS(ENHANCE_OVERLAY)) {
+    if (VIDEO_HAS(ENHANCE_OVERLAY))
+    {
         g_limit_rect.w = overlay->w - (g_limit_rect.x << 1);
         g_limit_rect.h = overlay->h - (g_limit_rect.y << 1);
         dst = &g_limit_rect;
@@ -2228,7 +2262,9 @@ void vid_update_overlay_surface(SDL_Surface *overlay)
     if (VIDEO_HAS(OVERLAY_DYNAMIC))
         g_limit_rect = src;
 
-    if (VIDEO_HAS(INDEX8)) { // else texture was updated in driver
+    // else texture was updated in driver
+    if (VIDEO_HAS(INDEX8))
+    {
         SDL_BlitSurface(overlay, NULL, g_overlay_surface, dst);
         SDL_UpdateTexture(g_overlay_texture, &src,
              (void *)g_overlay_surface->pixels, g_overlay_surface->pitch);
@@ -2243,11 +2279,20 @@ static void take_screenshot()
     const char   dir[12] = "screenshots";
 
     if (stat(dir, &info ) != 0 )
-        { LOGW << fmt("'%s' directory does not exist.", dir); return; }
+    {
+         LOGW << fmt("'%s' directory does not exist.", dir);
+         return;
+    }
     else if (!(info.st_mode & S_IFDIR))
-        { LOGW << fmt("'%s' is not a directory.", dir); return; }
+    {
+        LOGW << fmt("'%s' is not a directory.", dir);
+        return;
+    }
     else if (g_display != 0)
-        { LOGE << "Screenshots require the primary display."; return; }
+    {
+         LOGE << "Screenshots require the primary display.";
+         return;
+    }
 
     SDL_Surface *screenshot = NULL;
 
@@ -2262,7 +2307,8 @@ static void take_screenshot()
         set_quitflag();
     }
 
-    for (;;) {
+    for (;;)
+    {
         screenshot_num++;
         snprintf(filename, sizeof(filename), "%s%shypseus-%d.png",
           dir, PATH_SEPARATOR, screenshot_num);
@@ -2286,13 +2332,18 @@ static void draw_scanlines(int l)
 
     SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, g_scanline_alpha);
 
-    if (g_aspect_ratio == ASPECTPD) {
-        for (int i = 0; i < g_scaling_rect.w; i += l) {
+    if (g_aspect_ratio == ASPECTPD)
+    {
+        for (int i = 0; i < g_scaling_rect.w; i += l)
+        {
             int x = (int)(g_scaling_rect.x + i);
             SDL_RenderLine(g_renderer, x, g_scaling_rect.y, x, ye);
         }
-    } else {
-        for (int i = 0; i < g_scaling_rect.h; i += l) {
+    }
+    else
+    {
+        for (int i = 0; i < g_scaling_rect.h; i += l)
+        {
             int y = (int)(g_scaling_rect.y + i);
             SDL_RenderLine(g_renderer, g_scaling_rect.x, y, xe, y);
         }
@@ -2371,14 +2422,15 @@ static bool mixTexture(m_textureT *mix)
 
 static void vid_render_aux()
 {
-    if (g_aux_texture) {
+    if (g_aux_texture)
+    {
         SDL_UpdateTexture(g_aux_texture, &g_annu_rect,
             (void *)g_aux_blit_surface->pixels, g_aux_blit_surface->pitch);
 
         g_aux_needs_update = false;
-
-    } else {
-
+    }
+    else
+    {
         if (VIDEO_HAS(KEYBOARD_BEZEL)) {
 
             g_aux_needs_update = false;
@@ -2423,7 +2475,8 @@ static void vid_render_aux()
 
 static void vid_render_texture(SDL_Texture *texture, SDL_Rect rect)
 {
-    if (texture) {
+    if (texture)
+    {
         SDL_FRect frect;
         SDL_RectToFRect(&rect, &frect);
         SDL_RenderTexture(g_renderer, texture, NULL, &frect);
@@ -2432,8 +2485,10 @@ static void vid_render_texture(SDL_Texture *texture, SDL_Rect rect)
 
 static void vid_render_bezels()
 {
-    if (!VIDEO_HAS(BEZEL_LOAD)) {
-        if (!g_bezel_file.empty() && !g_bezel_texture) {
+    if (!VIDEO_HAS(BEZEL_LOAD))
+    {
+        if (!g_bezel_file.empty() && !g_bezel_texture)
+        {
             std::string bezelpath =  g_bezel_path + std::string(PATH_SEPARATOR) + g_bezel_file;
             g_bezel_texture = IMG_LoadTexture(g_renderer, bezelpath.c_str());
 
@@ -2477,7 +2532,8 @@ void vid_blit()
     // boolean DO need to be protected with a mutex.
 
     // Handle any rescaling that occurred.
-    switch(g_rescale) {
+    switch(g_rescale)
+    {
     case 1:
        format_fullscreen_render();
        break;
@@ -2498,8 +2554,8 @@ void vid_blit()
     SDL_RenderClear(g_renderer);
 
     // Does YUV texture need update from the YUV surface
-    if (g_yuv_surface) {
-
+    if (g_yuv_surface)
+    {
         SDL_LockMutex(g_yuv_surface->mutex);
 
         if (g_yuv_video_needs_update)
@@ -2528,7 +2584,8 @@ void vid_blit()
     }
 
     // Does OVERLAY texture need update from the local surfaces
-    if (VIDEO_HAS(BLOCK_DRIVER_OVERLAY)) {
+    if (VIDEO_HAS(BLOCK_DRIVER_OVERLAY))
+    {
         SDL_UpdateTexture(g_overlay_texture, &g_local_size_rect,
 	    (void *)g_overlay_surface->pixels, g_overlay_surface->pitch);
     }
@@ -2538,7 +2595,8 @@ void vid_blit()
     if (g_yuv_texture)
         SDL_RenderTexture(g_renderer, g_yuv_texture, g_yuv_frect[0], &fScaleRect);
 
-    if (g_overlay_texture) {
+    if (g_overlay_texture)
+    {
         SDL_FRect frect;
         SDL_RectToFRect(&g_limit_rect, &frect);
         SDL_RenderTexture(g_renderer, g_overlay_texture, &frect, &fScaleRect);
@@ -2572,14 +2630,16 @@ void vid_blit()
 
     if (VIDEO_HAS(BEZEL_TOGGLE)) vid_render_bezels();
 
-    if (VIDEO_HAS(TAKE_SCREENSHOT)) {
+    if (VIDEO_HAS(TAKE_SCREENSHOT))
+    {
         VIDEO_CLEAR(TAKE_SCREENSHOT);
         take_screenshot();
     }
 
     SDL_RenderPresent(g_renderer);
 
-    if (g_scoreboard_needs_update) {
+    if (g_scoreboard_needs_update)
+    {
         SDL_RenderPresent(g_scoreboard_renderer);
         g_scoreboard_needs_update = false;
     }
@@ -2631,12 +2691,14 @@ void notify_positions()
     LOGI << fmt("Shift video (0): x:%d, y:%d", (g_scale_h_shift - 0x64),
                          (g_scale_v_shift - 0x64));
 
-    if (g_scoreboard_texture) {
+    if (g_scoreboard_texture)
+    {
         LOGI << fmt("Scale score (1): %d", g_scoreboard_bezel_scale);
         LOGI << fmt("Shift score (1): x:%d, y:%d", scoreboard_window_pos_x, scoreboard_window_pos_y);
     }
 
-    if (g_aux_texture) {
+    if (g_aux_texture)
+    {
         LOGI << fmt("Scale aux (2): %d", g_aux_bezel_scale);
         LOGI << fmt("Shift aux (2): x:%d, y:%d", g_aux_rect.x, g_aux_rect.y);
     }
