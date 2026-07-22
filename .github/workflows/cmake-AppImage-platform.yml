@@ -1,0 +1,378 @@
+name: CMake-AppImage
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Linux 64bit AppImage'
+
+env:
+  BUILD_TYPE: Release
+
+  # Pin known stable SDL3 releases.
+  SDL_VERSION: 3.4.12
+  SDL_IMAGE_VERSION: 3.4.4
+  SDL_TTF_VERSION: 3.2.2
+  SDL_MIXER_VERSION: 3.2.4
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    # Explicitly build current upstream Hypseus Singe master.
+    # fetch-depth: 0 preserves tags so Hypseus' git version detection works.
+    - name: Checkout Hypseus Singe master
+      uses: actions/checkout@v4
+      with:
+        repository: DirtBagXon/hypseus-singe
+        ref: master
+        fetch-depth: 0
+
+    - name: Install Build Dependencies
+      run: |
+        sudo apt update
+
+        sudo apt install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          pkg-config \
+          git \
+          curl \
+          autoconf \
+          automake \
+          libtool \
+          patchelf \
+          libc6 \
+          libc6-dev \
+          libc-dev-bin \
+          libogg-dev \
+          libvorbis-dev \
+          libzip-dev \
+          zlib1g-dev \
+          libfuse2 \
+          libasound2-dev \
+          libpulse-dev \
+          libx11-dev \
+          libxext-dev \
+          libxrandr-dev \
+          libxcursor-dev \
+          libxfixes-dev \
+          libxi-dev \
+          libxss-dev \
+          libxtst-dev \
+          libxkbcommon-dev \
+          libdrm-dev \
+          libgbm-dev \
+          libgl1-mesa-dev \
+          libgles2-mesa-dev \
+          libegl1-mesa-dev \
+          libdbus-1-dev \
+          libudev-dev \
+          libusb-1.0-0-dev \
+          libpipewire-0.3-dev \
+          libwayland-dev \
+          libdecor-0-dev \
+          liburing-dev \
+          libfreetype6-dev \
+          libharfbuzz-dev \
+          libpng-dev \
+          libjpeg-dev \
+          libwebp-dev \
+          libtiff-dev \
+          libflac-dev \
+          libmpg123-dev \
+          libopusfile-dev \
+          libxmp-dev \
+          libgme-dev \
+          libwavpack-dev \
+          libfluidsynth-dev
+
+    - name: Configure SDL3 Prefix
+      run: |
+        echo "SDL3_PREFIX=${{ github.workspace }}/sdl3-prefix" >> "$GITHUB_ENV"
+        echo "CMAKE_PREFIX_PATH=${{ github.workspace }}/sdl3-prefix" >> "$GITHUB_ENV"
+        echo "PKG_CONFIG_PATH=${{ github.workspace }}/sdl3-prefix/lib/pkgconfig:${{ github.workspace }}/sdl3-prefix/lib/x86_64-linux-gnu/pkgconfig" >> "$GITHUB_ENV"
+        echo "LD_LIBRARY_PATH=${{ github.workspace }}/sdl3-prefix/lib:${{ github.workspace }}/sdl3-prefix/lib/x86_64-linux-gnu" >> "$GITHUB_ENV"
+
+    # -------------------------------------------------------------------------
+    # SDL3
+    # -------------------------------------------------------------------------
+
+    - name: Build SDL3
+      run: |
+        git clone \
+          --depth 1 \
+          --branch release-${SDL_VERSION} \
+          https://github.com/libsdl-org/SDL.git \
+          _deps/SDL
+
+        cmake \
+          -S _deps/SDL \
+          -B _deps/SDL-build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX="${SDL3_PREFIX}" \
+          -DSDL_SHARED=ON \
+          -DSDL_STATIC=OFF \
+          -DSDL_TESTS=OFF
+
+        cmake --build _deps/SDL-build --parallel
+        cmake --install _deps/SDL-build
+
+    # -------------------------------------------------------------------------
+    # SDL3_image
+    #
+    # AVIF is deliberately disabled because Ubuntu 22.04's system libavif is
+    # older than the current SDL_image requirement. The formats Hypseus
+    # normally needs (PNG/JPEG/etc.) remain enabled.
+    #
+    # DEPS_SHARED=OFF means enabled codec libraries are normal ELF dependencies,
+    # allowing linuxdeploy to bundle them instead of SDL_image dlopening random
+    # host libraries at runtime.
+    # -------------------------------------------------------------------------
+
+    - name: Build SDL3_image
+      run: |
+        git clone \
+          --depth 1 \
+          --branch release-${SDL_IMAGE_VERSION} \
+          https://github.com/libsdl-org/SDL_image.git \
+          _deps/SDL_image
+
+        cmake \
+          -S _deps/SDL_image \
+          -B _deps/SDL_image-build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX="${SDL3_PREFIX}" \
+          -DCMAKE_PREFIX_PATH="${SDL3_PREFIX}" \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDLIMAGE_INSTALL=ON \
+          -DSDLIMAGE_SAMPLES=OFF \
+          -DSDLIMAGE_TESTS=OFF \
+          -DSDLIMAGE_DEPS_SHARED=OFF \
+          -DSDLIMAGE_AVIF=OFF \
+          -DSDLIMAGE_JXL=OFF
+
+        cmake --build _deps/SDL_image-build --parallel
+        cmake --install _deps/SDL_image-build
+
+    # -------------------------------------------------------------------------
+    # SDL3_ttf
+    # -------------------------------------------------------------------------
+
+    - name: Build SDL3_ttf
+      run: |
+        git clone \
+          --depth 1 \
+          --branch release-${SDL_TTF_VERSION} \
+          https://github.com/libsdl-org/SDL_ttf.git \
+          _deps/SDL_ttf
+
+        cmake \
+          -S _deps/SDL_ttf \
+          -B _deps/SDL_ttf-build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX="${SDL3_PREFIX}" \
+          -DCMAKE_PREFIX_PATH="${SDL3_PREFIX}" \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDLTTF_INSTALL=ON \
+          -DSDLTTF_SAMPLES=OFF \
+          -DSDLTTF_TESTS=OFF
+
+        cmake --build _deps/SDL_ttf-build --parallel
+        cmake --install _deps/SDL_ttf-build
+
+    # -------------------------------------------------------------------------
+    # SDL3_mixer
+    #
+    # Build against the Ubuntu 22.04 codec libraries and use normal ELF
+    # dependencies. linuxdeploy will then pull the required libraries into
+    # the AppImage.
+    # -------------------------------------------------------------------------
+
+    - name: Build SDL3_mixer
+      run: |
+        git clone \
+          --depth 1 \
+          --branch release-${SDL_MIXER_VERSION} \
+          https://github.com/libsdl-org/SDL_mixer.git \
+          _deps/SDL_mixer
+
+        cmake \
+          -S _deps/SDL_mixer \
+          -B _deps/SDL_mixer-build \
+          -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX="${SDL3_PREFIX}" \
+          -DCMAKE_PREFIX_PATH="${SDL3_PREFIX}" \
+          -DBUILD_SHARED_LIBS=ON \
+          -DSDLMIXER_INSTALL=ON \
+          -DSDLMIXER_TESTS=OFF \
+          -DSDLMIXER_EXAMPLES=OFF \
+          -DSDLMIXER_DEPS_SHARED=OFF
+
+        cmake --build _deps/SDL_mixer-build --parallel
+        cmake --install _deps/SDL_mixer-build
+
+    - name: Show SDL3 Versions
+      run: |
+        echo "Installed SDL3 libraries:"
+        find "${SDL3_PREFIX}" -type f -o -type l | grep -E 'libSDL3|SDL3.*Config' | sort || true
+
+        echo
+        echo "pkg-config:"
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion sdl3 || true
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion SDL3_image || true
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion SDL3_ttf || true
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion SDL3_mixer || true
+
+    # This SHA is now the actual upstream Hypseus master commit we checked out.
+    - name: Create Distribution SHA
+      run: |
+        ShortSHA=$(git rev-parse --short HEAD)
+        echo "COMMIT_SHORT_SHA=$ShortSHA" >> "$GITHUB_ENV"
+
+    - name: Build Hypseus Singe
+      run: |
+        # Keep the original AppImage logging behavior:
+        # write the log to /tmp instead of requiring a writable logs directory.
+        sed -i "/.*logs%shypseus.log.*/d" src/hypseus.cpp
+        sed -i 's/char logname\[64\];/char logname[64] = "\/tmp\/hypseus.log";/' src/hypseus.cpp
+
+        # Replace "-dirty" with the actual upstream commit SHA for this build.
+        sed -i \
+          's/set(VER_TAG "${VER_TAG}-dirty")/set(VER_TAG "${VER_TAG}-${{ env.COMMIT_SHORT_SHA }}")/' \
+          src/CMakeLists.txt
+
+        cmake \
+          -S src \
+          -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_PREFIX_PATH="${SDL3_PREFIX}"
+
+        cmake --build build --parallel
+
+        echo
+        echo "Hypseus dynamic dependencies before packaging:"
+        LD_LIBRARY_PATH="${LD_LIBRARY_PATH}" ldd build/hypseus
+
+    - name: Build AppImage
+      run: |
+        mkdir -p build/AppDir/usr/bin
+        mkdir -p build/AppDir/usr/lib
+
+        cp build/hypseus build/AppDir/usr/bin/hypseus.bin
+
+        # Put our private SDL3 builds directly into the AppDir.
+        # Preserve their SONAME symlinks.
+        cp -a "${SDL3_PREFIX}"/lib/libSDL3*.so* build/AppDir/usr/lib/
+
+        ln -s usr/bin/hypseus.bin build/AppDir/AppRun
+
+        cp screenshots/hypseus-logo.png build/AppDir/hypseus.png
+
+        cat > build/AppDir/hypseus.desktop <<'EOF'
+        [Desktop Entry]
+        Version=1.0
+        Exec=hypseus.bin
+        Icon=hypseus
+        Terminal=false
+        Type=Application
+        StartupNotify=true
+        Hidden=false
+        Categories=Game;Emulator;
+        Name=Hypseus Singe
+        GenericName=Arcade LaserDisc Emulator
+        Keywords=emulator;hypseus;singe;daphne;laserdisc
+        EOF
+
+        cd build
+
+        curl -sSL \
+          https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage \
+          -o linuxdeploy
+
+        curl -sSL \
+          https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage \
+          -o AppImageTool
+
+        chmod +x linuxdeploy AppImageTool
+
+        # Make both our custom SDL prefix and AppDir libraries visible while
+        # linuxdeploy resolves the executable's dependency tree.
+        export LD_LIBRARY_PATH="${SDL3_PREFIX}/lib:${SDL3_PREFIX}/lib/x86_64-linux-gnu:${PWD}/AppDir/usr/lib:${LD_LIBRARY_PATH}"
+
+        ./linuxdeploy \
+          -l /lib/x86_64-linux-gnu/libOpenGL.so.0 \
+          -l /lib/x86_64-linux-gnu/libgio-2.0.so.0 \
+          --appdir AppDir
+
+        echo
+        echo "Bundled SDL libraries:"
+        find AppDir -name 'libSDL3*.so*' -print
+
+        ./AppImageTool AppDir
+
+        mkdir hypseus-singe
+
+        cp Hypseus_Singe-x86_64.AppImage hypseus-singe
+        ln -s Hypseus_Singe-x86_64.AppImage hypseus-singe/hypseus.bin
+
+        cp -r ../fonts hypseus-singe
+        cp -r ../midi hypseus-singe
+        cp -r ../roms hypseus-singe
+        cp -r ../sound hypseus-singe
+        cp -r ../pics hypseus-singe
+
+        cat > hypseus-singe/hypinput.ini <<'EOF'
+        # Steam Deck Buttons: A=1, B=2, X=3, Y=4
+        # Start=8, Select=7, L1=5, R1=6, L3=10, R3=11
+
+        [KEYBOARD]
+        KEY_UP         = SDLK_UP         SDLK_R     0     -002
+        KEY_DOWN       = SDLK_DOWN       SDLK_F     0     +002
+        KEY_LEFT       = SDLK_LEFT       SDLK_D     0     -001
+        KEY_RIGHT      = SDLK_RIGHT      SDLK_G     0     +001
+        KEY_COIN1      = SDLK_5          0          7
+        KEY_COIN2      = SDLK_6          0          0
+        KEY_START1     = SDLK_1          0          8
+        KEY_START2     = SDLK_2          0          0
+        KEY_BUTTON1    = SDLK_LCTRL      SDLK_A     1
+        KEY_BUTTON2    = SDLK_LALT       SDLK_S     0
+        KEY_BUTTON3    = SDLK_SPACE      SDLK_D    11
+        KEY_SKILL1     = SDLK_LSHIFT     SDLK_W     3
+        KEY_SKILL2     = SDLK_Z          SDLK_I     4
+        KEY_SKILL3     = SDLK_X          SDLK_K     2
+        KEY_SERVICE    = SDLK_9          0          0
+        KEY_TEST       = SDLK_F2         0          0
+        KEY_RESET      = SDLK_0          0          0
+        KEY_SCREENSHOT = SDLK_F12        0          0
+        KEY_QUIT       = SDLK_ESCAPE     SDLK_Q    17
+        KEY_PAUSE      = SDLK_P          0          0
+        KEY_CONSOLE    = SDLK_BACKSLASH  0          0
+        KEY_TILT       = SDLK_T          0          0
+        END
+
+        [MOUSE]
+        MOUSE_BUTTON1  = KEY_BUTTON3
+        MOUSE_BUTTON2  = KEY_BUTTON1
+        MOUSE_BUTTON3  = KEY_BUTTON2
+        END
+        EOF
+
+        tar -zcvf \
+          ../hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz \
+          hypseus-singe
+
+    - uses: actions/upload-artifact@v6
+      with:
+        name: hypseus-singe-AppImage-${{ env.COMMIT_SHORT_SHA }}
+        path: hypseus-singe_${{ env.COMMIT_SHORT_SHA }}_ES-DE.tar.gz

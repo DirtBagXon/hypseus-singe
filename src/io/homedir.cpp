@@ -31,11 +31,14 @@ homedir::homedir()
     m_homedir = "."; // using curdir is a sensible default for the constructor
     m_romdir  = "";
     m_ramdir  = "";
+    m_lockhome = false;
 }
 
 string homedir::get_homedir() { return m_homedir; }
 string homedir::get_romdir() { return m_romdir; }
 string homedir::get_ramdir() { return m_ramdir; }
+
+void homedir::set_lockhome(bool state) { m_lockhome = state; }
 
 // helper function
 void homedir::make_dir(const string &dir)
@@ -162,7 +165,7 @@ void homedir::create_dirs(const string &s) {
         if (p[i] == '/') {
             string sub = p.substr(0, i);
             if (!mpo_file_exists(sub.c_str())) {
-                if (m_ramdir.empty()) {
+                if (m_ramdir.empty() && m_lockhome) {
                     make_dir(m_homedir + "/" + sub);
                 } else {
                     make_dir(sub);

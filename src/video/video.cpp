@@ -186,7 +186,8 @@ static void LogicalPosition(SDL_Rect *port, SDL_Rect *dst, int x, int y)
 
 static inline void copyPlane(uint8_t *dst, const uint8_t *src, int w, int h, int srcPitch)
 {
-    if (srcPitch == w) {
+    if (srcPitch == w)
+    {
         memcpy(dst, src, (size_t)w * h);
     } else {
         for (int y = 0; y < h; ++y)
@@ -327,7 +328,8 @@ static void format_fullscreen_render()
     {
         h = VIDEO_HAS(VERTICAL_ORIENTATION) ? g_logical_rect.w : g_logical_rect.h;
 
-        switch (g_aspect_ratio) {
+        switch (g_aspect_ratio)
+        {
             case ASPECTWS:  w = (h * 16) / 9; break;
             case ASPECTSD:  w = (h * 4) / 3; break;
             case ASPECTPD:
@@ -388,7 +390,8 @@ static bool draw_ranks()
     dest.x = 10;
     dest.y = dest.x - 1;
 
-    for (int i = B_ACE_SPACE; i < B_MIA; i++) {
+    for (int i = B_ACE_SPACE; i < B_MIA; i++)
+    {
 
         g_scoreboard_surface = g_other_bmps[i];
 
@@ -471,7 +474,8 @@ bool init_display()
 
     if (g_fRotateDegrees != 0 && g_fRotateDegrees != 180)
     {
-        switch(g_aspect_ratio) {
+        switch(g_aspect_ratio)
+        {
         case ASPECTWS:
             g_scalefactor = (!VIDEO_HAS(SCALED)) ? 56 : g_scalefactor;
             break;
@@ -501,7 +505,8 @@ bool init_display()
     }
     else
     {
-        if (VIDEO_HAS(TEARDOWN) && g_window) {
+        if (VIDEO_HAS(TEARDOWN) && g_window)
+        {
             SDL_DestroyWindow(g_window);
             SDL_Delay(40);
         }
@@ -889,7 +894,8 @@ bool deinit_display()
 
     SDL_DestroyTexture(g_aux_texture);
 
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < 2; ++i)
+    {
         delete g_yuv_frect[i];
         g_yuv_frect[i] = NULL;
     }
@@ -933,9 +939,10 @@ static void colorLeds(SDL_Surface *src)
     SDL_LockSurface(tmp);
     SDL_LockSurface(src);
 
-    for (int y = 0; y < src->h; ++y) {
-        for (int x = 0; x < src->w; ++x) {
-
+    for (int y = 0; y < src->h; ++y)
+    {
+        for (int x = 0; x < src->w; ++x)
+	{
             uint8_t* pixel = ((uint8_t*)src->pixels) + y * src->pitch + x * fmt->bytes_per_pixel;
 
             SDL_GetRGBA(*(uint32_t*)pixel, fmt, nullptr, &r, &g, &b, &a);
@@ -983,7 +990,8 @@ static SDL_Surface *load_one_bmp(const char *filename, bool bezel)
 
     SDL_Surface *result  = SDL_LoadBMP(filepath.c_str());
 
-    if (!result) {
+    if (!result)
+    {
         LOGE << fmt("Could not load bitmap: %s", filepath.c_str());
     }
 
@@ -999,7 +1007,8 @@ static SDL_Surface *load_one_png(const char *filename)
 
     SDL_Surface *result = IMG_Load(filepath.c_str());
 
-    if (!result) {
+    if (!result)
+    {
         LOGE << fmt("Could not load png: %s", filepath.c_str());
     }
 
@@ -1014,13 +1023,15 @@ bool load_bmps()
     int index   = 0;
     char filename[81];
 
-    for (; index < LED_RANGE; index++) {
+    for (; index < LED_RANGE; index++)
+    {
         snprintf(filename, sizeof(filename), "led%d.bmp", index);
 
         g_led_bmps[index] = load_one_bmp(filename, false);
 
         // If the bit map did not successfully load
-        if (g_led_bmps[index] == 0) {
+        if (g_led_bmps[index] == 0)
+        {
             result = false;
         }
     }
@@ -1051,8 +1062,10 @@ bool load_bmps()
     g_other_bmps[B_ANUN_OFF]    = load_one_png("annunoff.png");
 
     // check to make sure they all loaded
-    for (index = 0; index < B_EMPTY; index++) {
-        if (g_other_bmps[index] == NULL && index != B_MIA) {
+    for (index = 0; index < B_EMPTY; index++)
+    {
+        if (g_other_bmps[index] == NULL && index != B_MIA)
+        {
             result = false;
         }
     }
@@ -1083,7 +1096,8 @@ bool draw_led(int value, int x, int y, unsigned char end)
         return false;
     }
 
-    if (led == end) {
+    if (led == end)
+    {
 
         if (g_scoreboard_texture) SDL_DestroyTexture(g_scoreboard_texture);
 
@@ -1092,7 +1106,8 @@ bool draw_led(int value, int x, int y, unsigned char end)
         g_scoreboard_texture = SDL_CreateTextureFromSurface(renderer, g_scoreboard_blit_surface);
         if (!g_scoreboard_texture) return false;
 
-        if (!VIDEO_HAS(SCOREBOARD_BEZEL)) {
+        if (!VIDEO_HAS(SCOREBOARD_BEZEL))
+        {
             SDL_RenderTexture(g_scoreboard_renderer, g_scoreboard_texture, NULL, NULL);
             g_scoreboard_needs_update = true;
         }
@@ -1115,14 +1130,16 @@ static bool draw_annunciator1(int which)
     dest.w = (unsigned short) g_scoreboard_surface->w;
     dest.h = (unsigned short) g_scoreboard_surface->h;
 
-    for (int i = 0; i < ANUN_LEVELS; i++) {
+    for (int i = 0; i < ANUN_LEVELS; i++)
+    {
         dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * i) + spacer;
         if (VIDEO_HAS(ANNUN_LAMPS)) dest.x = 110 - (-i * 15);
         SDL_FillSurfaceRect(g_aux_blit_surface, &dest, 0x00000000);
         SDL_BlitSurface(g_scoreboard_surface, NULL, g_aux_blit_surface, &dest);
     }
 
-    if (which) {
+    if (which)
+    {
         g_scoreboard_surface = g_other_bmps[B_ANUN_ON];
         if (VIDEO_HAS(ANNUN_LAMPS)) dest.x = 110 - ((-which + 1) * 15);
         dest.y = ((dest.h + ANUN_CHAR_HEIGHT) * --which) + spacer;
@@ -1141,14 +1158,16 @@ static bool draw_annunciator2(int which)
     dest.h = 40;
     dest.w = 220;
 
-    for (int i = B_ACE_OFF; i < B_EMPTY; i++) {
+    for (int i = B_ACE_OFF; i < B_EMPTY; i++)
+    {
         g_scoreboard_surface = g_other_bmps[i];
         dest.y = (ANUN_RANK_HEIGHT * (i - B_ACE_OFF));
         SDL_FillSurfaceRect(g_aux_blit_surface, &dest, 0x00000000);
         SDL_BlitSurface(g_scoreboard_surface, NULL, g_aux_blit_surface, &dest);
     }
 
-    if (which) {
+    if (which)
+    {
         g_scoreboard_surface = g_other_bmps[B_MIA + which];
         dest.y = ANUN_RANK_HEIGHT * --which;
         SDL_BlitSurface(g_scoreboard_surface, NULL, g_aux_blit_surface, &dest);
@@ -1285,7 +1304,8 @@ bool draw_othergfx(int which, int x, int y)
     return true;
 }
 
-static void free_one_bmp(SDL_Surface *candidate) {
+static void free_one_bmp(SDL_Surface *candidate)
+{
 	SDL_DestroySurface(candidate);
 }
 
@@ -1295,12 +1315,15 @@ void free_bmps()
     int nuke_index = 0;
 
     // get rid of all the LED's
-    for (; nuke_index < LED_RANGE; nuke_index++) {
+    for (; nuke_index < LED_RANGE; nuke_index++)
+    {
         free_one_bmp(g_led_bmps[nuke_index]);
     }
-    for (nuke_index = 0; nuke_index < B_EMPTY; nuke_index++) {
+    for (nuke_index = 0; nuke_index < B_EMPTY; nuke_index++)
+    {
         // check to make sure it exists before we try to free
-        if (g_other_bmps[nuke_index]) {
+        if (g_other_bmps[nuke_index])
+        {
             free_one_bmp(g_other_bmps[nuke_index]);
         }
     }
@@ -1604,7 +1627,8 @@ void reset_scalefactor(int value, uint8_t bezel, bool verbose)
 {
      bool rst = true;
 
-     switch(bezel) {
+     switch(bezel)
+     {
      case 1: // Scoreboard
          if (!g_scoreboard_texture) { rst = false ; break; }
          g_scoreboard_bezel_scale = value;
@@ -1916,6 +1940,7 @@ void vid_toggle_fullscreen()
 {
     VIDEO_CLEAR(BEZEL_TOGGLE);
 
+    SDL_SyncWindow(g_window);
     Uint32 current = SDL_GetWindowFlags(g_window);
     bool flip = (current & SDL_WINDOW_FULLSCREEN) != 0;
 
@@ -1925,7 +1950,8 @@ void vid_toggle_fullscreen()
         return;
     }
 
-    if (!flip) {
+    if (!flip)
+    {
         g_logical_rect = displayDimensions[g_display];
         VIDEO_SET(FULLSCREEN);
         format_fullscreen_render();
@@ -2133,7 +2159,8 @@ static inline void lumaControl(const uint8_t *src, uint8_t *dst, int width, int 
         const uint8_t *s = src + y * srcPitch;
         uint8_t *d = dst + y * dstPitch;
 
-        for (int x = 0; x < width; x++) {
+        for (int x = 0; x < width; x++)
+        {
             int yv = s[x];
             int val = yv + ((yv * g_yuv_luma) >> 3);
 
@@ -2191,7 +2218,8 @@ int vid_update_yuv_overlay(uint8_t *Yplane, uint8_t *Uplane, uint8_t *Vplane,
         g_yuv_display = YUV_VISIBLE;
         break;
     default:
-        if (!g_yuv_flags) {
+        if (!g_yuv_flags)
+        {
             copyPlane(g_yuv_surface->Yplane, Yplane,
                 g_yuv_surface->width, g_yuv_surface->height, Ypitch);
             copyPlane(g_yuv_surface->Uplane, Uplane,
@@ -2431,8 +2459,8 @@ static void vid_render_aux()
     }
     else
     {
-        if (VIDEO_HAS(KEYBOARD_BEZEL)) {
-
+        if (VIDEO_HAS(KEYBOARD_BEZEL))
+        {
             g_aux_needs_update = false;
             g_aux_texture = IMG_LoadTexture(g_renderer, g_tqkeys.c_str());
 
@@ -2453,7 +2481,8 @@ static void vid_render_aux()
             LogicalPosition(&g_logical_rect, &g_aux_rect, 50, 100);
 
             // argument override
-            if (aux_bezel_pos_x || aux_bezel_pos_y) {
+            if (aux_bezel_pos_x || aux_bezel_pos_y)
+            {
                 g_aux_rect.x = aux_bezel_pos_x;
                 g_aux_rect.y = aux_bezel_pos_y;
             }
@@ -2560,9 +2589,10 @@ void vid_blit()
 
         if (g_yuv_video_needs_update)
         {
-            if (!g_yuv_texture) {
-            g_yuv_texture = vid_create_yuv_texture(
-                g_yuv_surface->width, g_yuv_surface->height);
+            if (!g_yuv_texture)
+            {
+                g_yuv_texture = vid_create_yuv_texture(
+                    g_yuv_surface->width, g_yuv_surface->height);
             }
 
             g_yuv_video_needs_update = false;

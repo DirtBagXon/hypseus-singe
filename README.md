@@ -6,7 +6,7 @@ Hypseus is a fork of [Matt Ownby's][CUS] [Daphne].
 
 A program to play laserdisc arcade games on a PC, Mac or Raspberry Pi.
 
-This version includes _Singe LUA_ support for Fan Made [American Laser Games][ALG] and many others.
+Hypseus includes _Singe LUA_ support for fan created games.
 
 Features:
 
@@ -14,7 +14,7 @@ Features:
 * VLDP 32bit upgrade
 * Updated MPEG2 decoder
 * Integrated _(active)_ [bezel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/bezel.png) support
-* Singe full 32bit overlay support (details below)
+* Full 32bit overlay support in LUA games.
 * Multiple *Gamepad* (*hotplug*) support: [config](doc/hypinput_gamepad.ini)
 * Advanced configuration and multi-joystick support: [config](doc/hypinput.ini)
 * 'lair/ace' [hardware](https://github.com/DirtBagXon/hypseus_scoreboard) and [software](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/scoreboard.png) original scoreboards.

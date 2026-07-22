@@ -129,6 +129,7 @@ bool parse_homedir()
             } else {
                 g_homedir.set_homedir(s);
                 bHomeDirSet = true;
+                g_homedir.set_lockhome(bHomeDirSet);
                 snprintf(e, sizeof(e), "Setting alternate home dir: %s", s);
                 printline(e);
                 break;
@@ -144,8 +145,6 @@ bool parse_homedir()
     if (!bHomeDirSet) {
 
 #ifdef UNIX
-#ifndef MAC_OSX // Zaph doesn't seem to like this behavior and he is maintaining
-                // the Mac build, so...
         // on unix, if the user doesn't specify a homedir, then we want to
         // default to ~/.hypseus
         //  to follow standard unix convention.
@@ -158,8 +157,8 @@ bool parse_homedir()
             g_homedir.set_homedir(strHomeDir);
         }
 // else we couldn't set the homedir, so just leave it as default
-#endif // not MAC_OSX
 #else  // WIN32
+        g_homedir.set_lockhome(true); // fallthough so behaviour is unchaged
         g_homedir.set_homedir("."); // for win32 set it to the current directory
                                     // "." is already the default,
 //  so the the main purpose for this is to ensure that the ram and

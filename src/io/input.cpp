@@ -197,7 +197,8 @@ static void defaultConfig(string config, bool gamepad)
 {
     FILE *pf = fopen(config.c_str(), "r");
 
-    if (pf) {
+    if (pf)
+    {
         fclose(pf);
         return;
     }
@@ -486,8 +487,8 @@ static void CFG_Keys()
         }
     }
 
-    while (!io->eof) {
-
+    while (!io->eof)
+    {
         if (read_line(io, cur_line) <= 0)
             continue;
 
@@ -561,7 +562,8 @@ static void CFG_Keys()
                             if (val3 > 0)
                             {
                                 id = 0;
-                                if (val3 > AXIS_TRIGGER) {
+                                if (val3 > AXIS_TRIGGER)
+                                {
                                     controller_button_map[id][i] = val3;
                                 }
                                 else
@@ -653,8 +655,8 @@ static void CFG_Keys()
         }
     }
 
-    while (!io->eof) {
-
+    while (!io->eof)
+    {
         if (read_line(io, cur_line) <= 0)
             continue;
 
@@ -974,11 +976,12 @@ int SDL_input_init()
         (Uint32)(STICKY_COIN_SECONDS * cpu::get_hz(0)); // only needs to be
                                                         // calculated once
 
-    if (g_use_gamepad) {
-
+    if (g_use_gamepad)
+    {
         string strGCdb = g_homedir.find_file("gamecontrollerdb.txt", true);
 
-        if (mpo_file_exists(strGCdb.c_str())) {
+        if (mpo_file_exists(strGCdb.c_str()))
+        {
             LOGI << "Found " << strGCdb;
             int num = SDL_AddGamepadMappingsFromFile(strGCdb.c_str());
             if (num > 0)
@@ -998,7 +1001,8 @@ int SDL_input_init()
     } else {
 
         // if joystick usage is enabled
-        if (g_use_joystick) {
+        if (g_use_joystick)
+        {
             // open joysticks
             int count = 0;
             SDL_JoystickID *ids = SDL_GetJoysticks(&count);
@@ -1566,7 +1570,8 @@ void process_controller_motion(SDL_Event *event)
 
     // Deal with AXIS TRIGGERS
     int device = mmouse ? player + g_gamepad_wad : NOMOUSE;
-    for (int j = 0; j < configs; j++) {
+    for (int j = 0; j < configs; j++)
+    {
         for (int i = 0; i < SWITCH_COUNT; i++)
         {
             if (controller_button_map[j][i] - AXIS_TRIGGER == axis)
@@ -1623,14 +1628,16 @@ void process_controller_motion(SDL_Event *event)
     else
     {
         if ((key == SWITCH_UP || key == SWITCH_DOWN) &&
-                y_axis_in_use[player]) {
+                y_axis_in_use[player])
+        {
             input_disable(SWITCH_UP, NOMOUSE);
             input_disable(SWITCH_DOWN, NOMOUSE);
             y_axis_in_use[player] = false;
 
         }
         else if ((key == SWITCH_LEFT || key == SWITCH_RIGHT) &&
-                x_axis_in_use[player]) {
+                x_axis_in_use[player])
+        {
             input_disable(SWITCH_LEFT, NOMOUSE);
             input_disable(SWITCH_RIGHT, NOMOUSE);
             x_axis_in_use[player] = false;

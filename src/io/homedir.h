@@ -21,6 +21,7 @@ class homedir
     string get_homedir();
     string get_romdir();
     string get_ramdir();
+    void set_lockhome(bool);
     void set_homedir(const string &s);
     void set_romdir(const string &s);
     void set_ramdir(const string &s);
@@ -42,6 +43,7 @@ class homedir
     void make_dir(const string &dir);
 
     // Private members
+    bool m_lockhome; // Is POSIX running footloose and fancy free...
     string m_appdir; // Directory the app was launched from
     string m_homedir; //"Home" directory to search first (defaults to appdir)
     string m_romdir; // ROMS directory

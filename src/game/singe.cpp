@@ -115,7 +115,8 @@ bool singe::init()
     bSuccess   = true;
 
     // if pSingeInit is valid ...
-    if (bSuccess) {
+    if (bSuccess)
+    {
         g_SingeIn.uVersion            = SINGE_INTERFACE_API_VERSION;
         g_SingeIn.printline           = printline;
         g_SingeIn.set_quitflag        = set_quitflag;
@@ -585,7 +586,8 @@ bool singe::handle_cmdline_arg(const char *arg)
         else
             printerror("SINGE: -fvalue <value> out of range");
     }
-    else if (strcasecmp(arg, "-nojoymouse") == 0) {
+    else if (strcasecmp(arg, "-nojoymouse") == 0)
+    {
         printline("Disabling Singe Joystick mouse actions...");
         singe_joymouse = false;
         bResult = true;
@@ -713,7 +715,8 @@ void singe::repaint()
                    break;
                 default:
                    ScoreboardCollection::AddType(pScoreboard, ScoreboardFactory::IMAGE);
-                   if (g_bezelboard.type == SINGE_SB_PANEL) {
+                   if (g_bezelboard.type == SINGE_SB_PANEL)
+                   {
                        m_video_overlay_width = m_video_overlay_width >> 1;
                        video::set_scoreboard_bezel(false);
                    }
@@ -1019,8 +1022,8 @@ void singe::process_keyup(SDL_Keycode key, int keydefs[][2])
             if (m_running) set_quitflag();
 
         }
-        else if ((int)key == keydefs[SWITCH_SCREENSHOT][0]) {
-
+        else if ((int)key == keydefs[SWITCH_SCREENSHOT][0])
+	{
             printline("Screenshot requested!");
             video::set_queue_screenshot(true);
 
