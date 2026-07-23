@@ -942,7 +942,7 @@ static void colorLeds(SDL_Surface *src)
     for (int y = 0; y < src->h; ++y)
     {
         for (int x = 0; x < src->w; ++x)
-	{
+        {
             uint8_t* pixel = ((uint8_t*)src->pixels) + y * src->pitch + x * fmt->bytes_per_pixel;
 
             SDL_GetRGBA(*(uint32_t*)pixel, fmt, nullptr, &r, &g, &b, &a);

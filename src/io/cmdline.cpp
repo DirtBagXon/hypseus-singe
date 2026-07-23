@@ -158,7 +158,7 @@ bool parse_homedir()
         }
 // else we couldn't set the homedir, so just leave it as default
 #else  // WIN32
-        g_homedir.set_lockhome(true); // fallthough so behaviour is unchaged
+        g_homedir.set_lockhome(true); // fallthough so behaviour is unchanged
         g_homedir.set_homedir("."); // for win32 set it to the current directory
                                     // "." is already the default,
 //  so the the main purpose for this is to ensure that the ram and

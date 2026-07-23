@@ -27,7 +27,7 @@ jobs:
     # Explicitly build current upstream Hypseus Singe master.
     # fetch-depth: 0 preserves tags so Hypseus' git version detection works.
     - name: Checkout Hypseus Singe master
-      uses: actions/checkout@v4
+      uses: actions/checkout@master
       with:
         repository: DirtBagXon/hypseus-singe
         ref: master
@@ -83,12 +83,9 @@ jobs:
           libharfbuzz-dev \
           libpng-dev \
           libjpeg-dev \
-          libwebp-dev \
-          libtiff-dev \
           libflac-dev \
           libmpg123-dev \
           libopusfile-dev \
-          libxmp-dev \
           libgme-dev \
           libwavpack-dev \
           libfluidsynth-dev
@@ -158,7 +155,17 @@ jobs:
           -DSDLIMAGE_TESTS=OFF \
           -DSDLIMAGE_DEPS_SHARED=OFF \
           -DSDLIMAGE_AVIF=OFF \
-          -DSDLIMAGE_JXL=OFF
+          -DSDLIMAGE_JXL=OFF \
+          -DSDLIMAGE_WEBP=OFF \
+          -DSDLIMAGE_TIF=OFF \
+          -DSDLIMAGE_QOI=OFF \
+          -DSDLIMAGE_SVG=OFF \
+          -DSDLIMAGE_XCF=OFF \
+          -DSDLIMAGE_XPM=OFF \
+          -DSDLIMAGE_XV=OFF \
+          -DSDLIMAGE_TGA=OFF \
+          -DSDLIMAGE_LBM=OFF \
+          -DSDLIMAGE_PNM=OFF
 
         cmake --build _deps/SDL_image-build --parallel
         cmake --install _deps/SDL_image-build
@@ -184,8 +191,7 @@ jobs:
           -DCMAKE_PREFIX_PATH="${SDL3_PREFIX}" \
           -DBUILD_SHARED_LIBS=ON \
           -DSDLTTF_INSTALL=ON \
-          -DSDLTTF_SAMPLES=OFF \
-          -DSDLTTF_TESTS=OFF
+          -DSDLTTF_SAMPLES=OFF
 
         cmake --build _deps/SDL_ttf-build --parallel
         cmake --install _deps/SDL_ttf-build
@@ -230,9 +236,9 @@ jobs:
         echo
         echo "pkg-config:"
         PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion sdl3 || true
-        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion SDL3_image || true
-        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion SDL3_ttf || true
-        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion SDL3_mixer || true
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion sdl3-image || true
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion sdl3-ttf || true
+        PKG_CONFIG_PATH="${PKG_CONFIG_PATH}" pkg-config --modversion sdl3-mixer || true
 
     # This SHA is now the actual upstream Hypseus master commit we checked out.
     - name: Create Distribution SHA
@@ -333,29 +339,29 @@ jobs:
         cp -r ../pics hypseus-singe
 
         cat > hypseus-singe/hypinput.ini <<'EOF'
-        # Steam Deck Buttons: A=1, B=2, X=3, Y=4
-        # Start=8, Select=7, L1=5, R1=6, L3=10, R3=11
+        # Steam Deck Buttons (SDL3 API): A=?, B=?, X=?, Y=?
+        # Start=?, Select=?, L1=?, R1=?, L3=?, R3=?
 
         [KEYBOARD]
         KEY_UP         = SDLK_UP         SDLK_R     0     -002
         KEY_DOWN       = SDLK_DOWN       SDLK_F     0     +002
         KEY_LEFT       = SDLK_LEFT       SDLK_D     0     -001
         KEY_RIGHT      = SDLK_RIGHT      SDLK_G     0     +001
-        KEY_COIN1      = SDLK_5          0          7
+        KEY_COIN1      = SDLK_5          0          0
         KEY_COIN2      = SDLK_6          0          0
-        KEY_START1     = SDLK_1          0          8
+        KEY_START1     = SDLK_1          0          0
         KEY_START2     = SDLK_2          0          0
-        KEY_BUTTON1    = SDLK_LCTRL      SDLK_A     1
+        KEY_BUTTON1    = SDLK_LCTRL      SDLK_A     0
         KEY_BUTTON2    = SDLK_LALT       SDLK_S     0
-        KEY_BUTTON3    = SDLK_SPACE      SDLK_D    11
-        KEY_SKILL1     = SDLK_LSHIFT     SDLK_W     3
-        KEY_SKILL2     = SDLK_Z          SDLK_I     4
-        KEY_SKILL3     = SDLK_X          SDLK_K     2
+        KEY_BUTTON3    = SDLK_SPACE      SDLK_D     0
+        KEY_SKILL1     = SDLK_LSHIFT     SDLK_W     0
+        KEY_SKILL2     = SDLK_Z          SDLK_I     0
+        KEY_SKILL3     = SDLK_X          SDLK_K     0
         KEY_SERVICE    = SDLK_9          0          0
         KEY_TEST       = SDLK_F2         0          0
         KEY_RESET      = SDLK_0          0          0
         KEY_SCREENSHOT = SDLK_F12        0          0
-        KEY_QUIT       = SDLK_ESCAPE     SDLK_Q    17
+        KEY_QUIT       = SDLK_ESCAPE     SDLK_Q     0
         KEY_PAUSE      = SDLK_P          0          0
         KEY_CONSOLE    = SDLK_BACKSLASH  0          0
         KEY_TILT       = SDLK_T          0          0
