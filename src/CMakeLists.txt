@@ -56,12 +56,11 @@ include(GNUInstallDirs)
 include(GetGitRevisionDescription)
 include(InstallRequiredSystemLibraries)
 include(FindPkgConfig)
-include(ExternalProject)
-include(BuildLibMPEG2)
 
 set (CMAKE_CXX_STANDARD 11)
 
-build_libmpeg2( )
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(MPEG2 REQUIRED libmpeg2)
 
 message(STATUS "Target: ${CMAKE_SYSTEM_NAME} ${CMAKE_TARGET_ARCHITECTURES}")
 
@@ -88,6 +87,7 @@ message(STATUS "Version: ${VER_TAG}")
 
 include_directories(
     ${PROJECT_BINARY_DIR} # config.h
+    ${MPEG2_INCLUDE_DIRS}
 )
 
 if( "${CMAKE_TARGET_ARCHITECTURES}" MATCHES "i386" )
@@ -139,11 +139,6 @@ add_subdirectory(sound)
 add_subdirectory(timer)
 add_subdirectory(video)
 add_subdirectory(vldp)
-
-add_dependencies( vldp libmpeg2 )
-add_dependencies( ldp-out vldp )
-add_dependencies( game vldp )
-add_dependencies( sound vldp )
 
 add_executable( hypseus hypseus.cpp globals.h )
 target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} SDL3::SDL3 SDL3::Headers SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer ${LIBZIP_LIBRARY} )
