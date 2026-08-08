@@ -1094,8 +1094,7 @@ int SDL_input_init()
                     {
                         LOGW << "No Joystick slots available!";
                         SDL_CloseJoystick(joystick);
-                        SDL_free(ids);
-                        continue;
+                        break;
                     }
 
                     SDL_JoystickID id = ids[i];
