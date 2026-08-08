@@ -30,8 +30,8 @@
 #include <dlfcn.h>
 #include <sys/select.h>
 
-/* 32 is good enough for now. */
-#define MAX_MICE 32
+/* 16 is good enough for now. */
+#define MAX_MICE 16
 #define MAX_AXIS 16
 typedef struct
 {

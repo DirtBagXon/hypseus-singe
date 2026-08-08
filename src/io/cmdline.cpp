@@ -1218,6 +1218,10 @@ bool parse_cmd_line(int argc, char **argv)
             else if (strcasecmp(s, "-fullscreen") == 0) {
                 video::set_fullscreen(true);
             }
+            // If SDL mouse - Enable multiple relative mice
+            else if (strcasecmp(s, "-relative-mice") == 0) {
+                set_relative_init();
+            }
             // If SDL mouse - send raw coordinates
             else if (strcasecmp(s, "-rawmouse") == 0) {
                 if (g_game->get_manymouse())

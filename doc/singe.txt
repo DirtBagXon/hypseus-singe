@@ -19,14 +19,14 @@ rewriteStatus,          sep_lua_rewrite            (return bool) -- (-espath ena
 
 mouseHowManyReal,       sep_get_number_of_realmice (return number of real mice, excluding GC)
 
-musicLoad,              sep_music_load             (SDL_MIX supported music file)
-musicPlay,              sep_music_play             (music, [loops]) -1 = infinite
-musicPause,             sep_music_pause            (void)
-musicIsPlaying,         sep_music_playing          (return bool)
-musicResume,            sep_music_resume           (void)
-musicStop,              sep_music_stop             (void || [frames to fade-out])
+musicLoad,              sep_music_load             (SDL_MIX supported music file) -- (returns id)
+musicPlay,              sep_music_play             (id, [loops]) -1 = infinite -- [returns id]
+musicPause,             sep_music_pause            (id)
+musicIsPlaying,         sep_music_playing          (id) -- (return bool)
+musicResume,            sep_music_resume           (id)
+musicStop,              sep_music_stop             (id, [frames to fade-out])
 musicSetVolume,         sep_music_volume           (0 - 128)
-musicUnload,            sep_music_unload           (music)
+musicUnload,            sep_music_unload           (id)
 
 mainBezelLoaded,        sep_bezel_loaded           (return bool)
 scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB

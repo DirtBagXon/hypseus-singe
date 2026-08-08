@@ -31,9 +31,10 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
-#define SEP_OVERLAY_ALPHA  4
-#define SEP_OVERLAY_MONO   3
-#define SEP_OVERLAY_FULL   1
+#define SEP_OVERLAY_ALMONO 12
+#define SEP_OVERLAY_ALPHA   4
+#define SEP_OVERLAY_MONO    3
+#define SEP_OVERLAY_FULL    1
 
 #if __cplusplus < 201103L
 #define __func__ "unknown"

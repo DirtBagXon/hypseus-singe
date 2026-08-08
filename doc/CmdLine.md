@@ -80,7 +80,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -min_seek_delay \<ms>            | The minimum amount of milliseconds to force a seek to take (artificial delay). 0 = disabled. |
 | -monochrome                      | Display VLDP video as grayscale monochrome [Just a gimmick]   |
 | -nocrc                           | Disables CRC32 checking (not recommended).                    |
-| -nohwaccel                       | Disables hardware acceleration for SDL2. Only use this if hardware acceleration doesn't work. |
+| -nohwaccel                       | Disables hardware acceleration for SDL3. Only use this if hardware acceleration doesn't work. |
 | -noissues                        | Don't display warnings about game driver problems.            |
 | -nojoystick                      | Disables any joysticks that may be plugged in. Joysticks will normally be used if available. |
 | -nolog                           | Disables writing to the log file (hypseus.log).               |
@@ -98,9 +98,10 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
-| -rawmouse                        | Restore raw MouseMotion values for SDL mouse.    |
-| -ramdir \<path>                  | Sets an alternate `ram` directory path.          |
-| -romdir \<path>                  | Sets an alternate `roms` directory path.         |
+| -rawmouse                        | Restore raw MouseMotion values for SDL mouse.          |
+| -ramdir \<path>                  | Sets an alternate `ram` directory path.                |
+| -relative-mice                   | Enable SDL3 multiple mouse support (RelativeMouseMode) |
+| -romdir \<path>                  | Sets an alternate `roms` directory path.               |
 | -rotate \<degrees>               | Rotates the screen a certain number of degrees clockwise. Valid values are from 0-359.   |
 | -sboverlaymono                   | Use white LED's in (lair, ace) scoreboard overlay     |
 | -seek_frames_per_ms \<frames> | The # of frames that we can seek per millisecond (to simulate seek delay). Typical values for real laserdisc players are about 30.0 for 29.97fps discs and 20.0 for 23.976fps discs (dragon's lair and space ace). FLOATING POINT VALUES ARE ALLOWED HERE. Minimum value is 12.0 (5 seconds for 60,000 frames), maximum value is 600.0 (100 milliseconds for 60,000 frames). If you want a value higher than the max, you should just use 0 (as fast as possible). *This option may be replaced by something more accurate in the future.* |
@@ -119,9 +120,9 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -texturestream                   | Enable SDL_TEXTUREACCESS_STREAMING (Default) |
 | -texturetarget                   | Enable SDL_TEXTUREACCESS_TARGET              |
 | -tiphat                          | Invert joystick SDL_HAT_UP and SDL_HAT_DOWN. |
-| -trigger-threshold <90 to 99.9>  | Alter the threshold value for Game Controller trigger buttons. [Default: 99.5]% |
+| -trigger-threshold <90 to 99.9>  | Alter the threshold value for Game Controller trigger buttons. [Default: 99.5]%         |
 | -usbscoreboard \<args>           | Enable USB serial support for scoreboard. Arguments: *(i)mplementation, (p)ort, (b)aud* |
-| -usbserial_rts_on                | Enable RTS on USB serial port setup [Default: off] |
+| -usbserial_rts_on                | Enable RTS on USB serial port setup [Default: off]                                      |
 | -use_annunciator                 | Use this when using a real Space Ace scoreboard with the annunciator board attached. *Space Ace only.* |
 | -useoverlaysb \<overlay number>  | Enables a graphical scoreboard for Dragon's Lair, Space Ace, or Thayer's Quest. The 'overlay number' is the style of scoreboard. Currently the two choices for the 'overlay number' are 1 and 2. |
 | -vertical_screen                 | Reorient calculations in the logical fullscreen when using portrait displays. |

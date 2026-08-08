@@ -27,6 +27,7 @@
 #include "config.h"
 #include "configfile.h"
 
+#include <array>
 #include <time.h>
 #include <plog/Log.h>
 #include "input.h"
@@ -63,6 +64,7 @@ constexpr double DEFAULT_TRIGGER_FACTOR = 0.995; // to trigger the trigger :)
 const int JOY_AXIS_MID  = (int)(MAX_AXIS * (0.75));  // how far they have to move the
                                                      // joystick before it 'grabs'
 
+bool g_use_relative      = false;
 bool g_use_gamepad       = false;
 bool g_use_joystick      = true;  // use a joystick by default
 bool g_invert_hat        = false; // invert joystick hat up/down
@@ -169,6 +171,17 @@ struct ControllerSlot
     bool haptic = true;
 };
 
+// SDL_Mouse mapping
+struct MouseInfo
+{
+    SDL_MouseID id = 0;
+    Sint8 player_id = NOMOUSE;
+    size_t index = 0;
+};
+
+static std::array<MouseInfo, MAX_MICE> mouse_ids;
+static size_t mouse_index = 0;
+
 static ControllerSlot g_controllers[MAX_GAMECONTROLLER];
 static bool g_index_reset = false;
 
@@ -190,6 +203,34 @@ int mouse_remap[MOUSE_BUTTONS] =
     SWITCH_BUTTON2,
     SWITCH_BUTTON3
 };
+
+static const MouseInfo* GetMouseInfo(SDL_MouseID id)
+{
+    for (size_t i = 0; i < mouse_index; i++)
+    {
+        if (mouse_ids[i].id == id)
+            return &mouse_ids[i];
+    }
+
+    return NULL;
+}
+
+static void logJoystickInfo(SDL_Joystick* joystick)
+{
+    if (joystick == nullptr)
+        return;
+
+    const char* name = SDL_GetJoystickName(joystick);
+    const char* serial = SDL_GetJoystickSerial(joystick);
+
+    LOGI << "Joystick Information:";
+    LOGI << "  Name:    " << (name ? name : "Unknown");
+    LOGI << "  Vendor:  0x" << std::hex << SDL_GetJoystickVendor(joystick) << std::dec;
+    LOGI << "  Serial:  " << (serial ? serial : "N/A");
+    LOGI << "  Axes:    " << SDL_GetNumJoystickAxes(joystick);
+    LOGI << "  Buttons: " << SDL_GetNumJoystickButtons(joystick);
+    LOGI << "  Hats:    " << SDL_GetNumJoystickHats(joystick);
+}
 
 ////////////
 
@@ -257,6 +298,7 @@ static int connectedGamepads()
     int count = 0;
     for (auto& g : g_controllers)
         if (g.gamepad) ++count;
+
     return count;
 }
 
@@ -307,6 +349,40 @@ static bool mouseButtonMap(SDL_Event *event, bool enable)
         }
     }
     return false;
+}
+
+static void set_relative_mice()
+{
+    if (g_mouse_mode == MANY_MOUSE)
+    {
+        LOGE << "Relative mode is not available with ManyMouse";
+        set_quitflag();
+        return;
+    }
+
+    int count = 0;
+    SDL_MouseID *ids = SDL_GetMice(&count);
+
+    for (int i = 0; i < count && mouse_index < MAX_MICE; i++)
+    {
+        MouseInfo info;
+
+        info.id = ids[i];
+        info.player_id = MAX_MICE + mouse_index;
+        info.index = mouse_index;
+
+        mouse_ids[mouse_index] = info;
+        mouse_index++;
+
+        const char* name = SDL_GetMouseNameForID(info.id);
+
+        LOGI << "Device " << mouse_index - 1
+             << ", Raw ID = " << info.id
+             << ", Player ID = " << static_cast<int>(info.player_id)
+             << ", Name = " << (name ? name : "Unknown");
+    }
+
+    SDL_free(ids);
 }
 
 void set_trigger_threshold(double adj)
@@ -385,6 +461,8 @@ static void CFG_System()
             video::set_scanlines(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "SPLASH") == 0) {
             video::set_intro(parse_bool(val));
+        } else if (strcasecmp(key.c_str(), "LINEARSCALE") == 0) {
+            video::set_scale_linear(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "GRAPHICAPI") == 0)
 	{
             bool opengl = (strcasecmp(val, "OPENGL") == 0);
@@ -1029,6 +1107,7 @@ int SDL_input_init()
                     joy.haptic  = false;
 
                     LOGI << "Joystick #" << i << " [ID:" << ids[i] << "] was successfully opened";
+                    logJoystickInfo(joystick);
                 }
                 else LOGW << "Error opening joystick #" << i << "!";
             }
@@ -1051,18 +1130,22 @@ int SDL_input_init()
 
     idle_timer = refresh_ms_time(); // added by JFA for -idleexit
 
-     if (g_game->get_manymouse() && thisGame != GAME_THAYERS)
-         g_mouse_mode = MANY_MOUSE;
+    if (g_game->get_manymouse() && thisGame != GAME_THAYERS)
+        g_mouse_mode = MANY_MOUSE;
 
-     if (thisGame == GAME_THAYERS) RELFORMAT = 0;
+    if (thisGame == GAME_THAYERS) RELFORMAT = 0;
 
-     if (g_game->get_mouse_enabled())
-     {
-         if (!set_mouse_mode(g_mouse_mode))
-         {
-             LOGE << "Mouse initialization failed.";
-             set_quitflag();
-         }
+    if (g_game->get_mouse_enabled())
+    {
+        if (!set_mouse_mode(g_mouse_mode))
+        {
+            LOGE << "Mouse initialization failed.";
+            set_quitflag();
+            return 0;
+        }
+
+        if (g_use_relative && RELFORMAT > 0)
+            set_relative_mice();
     }
 
     return (result);
@@ -1392,73 +1475,93 @@ void process_event(SDL_Event *event)
         {
             manymouse_update_mice();
 
-        } else {
+        }
+        else
+        {
+            switch (event->type)
+            {
+                case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                {
+                    const MouseInfo* mouse = GetMouseInfo(event->button.which);
 
-           switch (event->type)
-           {
-           case SDL_EVENT_MOUSE_BUTTON_DOWN:
-               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++)
-               {
-                    if (event->button.button == i)
+                    for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++)
                     {
-                        g_game->input_enable((Uint8)mouse_buttons_map[i], NOMOUSE);
+                         if (event->button.button == i)
+                         {
+                             g_game->input_enable((Uint8)mouse_buttons_map[i],
+                                         mouse ? mouse->player_id : NOMOUSE);
+                             break;
+                         }
+                    }
+                    break;
+                }
+                case SDL_EVENT_MOUSE_BUTTON_UP:
+                {
+                    const MouseInfo* mouse = GetMouseInfo(event->button.which);
+
+                    for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++)
+                    {
+                         if (event->button.button == i)
+                         {
+                             g_game->input_disable((Uint8)mouse_buttons_map[i],
+                                     mouse ? mouse->player_id : NOMOUSE);
+                             break;
+                         }
+                    }
+                    break;
+                }
+                case SDL_EVENT_MOUSE_MOTION:
+                {
+                    const MouseInfo* mouse = GetMouseInfo(event->motion.which);
+                    Sint8 player = mouse ? mouse->player_id : NOMOUSE;
+
+                    switch (RELFORMAT)
+                    {
+                    case 0:
+                        g_game->OnMouseMotion(event->motion.x, event->motion.y, event->motion.xrel,
+                            event->motion.yrel, player);
+                        break;
+                    case 1:
+                        static int vX[MAX_MICE] = {0}, vY[MAX_MICE] = {0};
+                        static bool relative = false;
+
+                        size_t index = mouse ? mouse->index : 0;
+                        static const int max_width = video::get_video_width();
+                        static const int max_height = video::get_video_height();
+
+                        if (!relative)
+                        {
+                            if (SDL_SetWindowRelativeMouseMode(video::get_window(), true))
+                            {
+                                LOGI << "Relative mouse mode enabled, mouse is now captured.";
+                            }
+                            relative = true;
+                        }
+
+                        vX[index] += event->motion.xrel;
+                        vY[index] += event->motion.yrel;
+
+                        if (vX[index] < 0) vX[index] = 0;
+                        else if (vX[index] > max_width) vX[index] = max_width;
+
+                        if (vY[index] < 0) vY[index] = 0;
+                        else if (vY[index] > max_height) vY[index] = max_height;
+
+                        g_game->OnMouseMotion(vX[index], vY[index], event->motion.xrel, event->motion.yrel, player);
                         break;
                     }
-               }
-               break;
-           case SDL_EVENT_MOUSE_BUTTON_UP:
-               for (i = 0; i < (sizeof(mouse_buttons_map) / sizeof(int)); i++)
-               {
-                    if (event->button.button == i)
-                    {
-                        g_game->input_disable((Uint8)mouse_buttons_map[i], NOMOUSE);
-                        break;
-                    }
-               }
-               break;
-           case SDL_EVENT_MOUSE_MOTION:
+                    break;
+                }
+                case SDL_EVENT_MOUSE_WHEEL:
+                {
+                    const MouseInfo* mouse = GetMouseInfo(event->wheel.which);
 
-               switch (RELFORMAT)
-               {
-               case 0:
-                   g_game->OnMouseMotion(event->motion.x, event->motion.y, event->motion.xrel,
-                       event->motion.yrel, NOMOUSE);
-                   break;
-               case 1:
-                   static int vX = 0, vY = 0;
-                   static bool relative = false;
-
-                   static const int max_width = video::get_video_width();
-                   static const int max_height = video::get_video_height();
-
-                   if (!relative)
-                   {
-                       if (SDL_SetWindowRelativeMouseMode(video::get_window(), true))
-                       {
-                           LOGI << "Relative mouse mode enabled, mouse is now captured.";
-                       }
-                       relative = true;
-                   }
-
-                   vX += event->motion.xrel;
-                   vY += event->motion.yrel;
-
-                   if (vX < 0) vX = 0;
-                   else if (vX > max_width) vX = max_width;
-
-                   if (vY < 0) vY = 0;
-                   else if (vY > max_height) vY = max_height;
-
-                   g_game->OnMouseMotion(vX, vY, event->motion.xrel, event->motion.yrel, NOMOUSE);
-                   break;
-               }
-               break;
-           case SDL_EVENT_MOUSE_WHEEL:
-               int s = (event->wheel.y > 0 ? SWITCH_MOUSE_SCROLL_UP : SWITCH_MOUSE_SCROLL_DOWN);
-               g_game->input_disable(s, NOMOUSE);
-               break;
-          }
-       }
+                    int s = (event->wheel.y > 0 ? SWITCH_MOUSE_SCROLL_UP : SWITCH_MOUSE_SCROLL_DOWN);
+                    g_game->input_disable(s, mouse ? mouse->player_id : NOMOUSE);
+                    break;
+                }
+            }
+        }
     }
 
     // added by JFA for -idleexit
@@ -1933,4 +2036,9 @@ void do_gamepad_rumble(Uint8 str, Uint8 len, Uint8 player)
 
         return;
     }
+}
+
+void set_relative_init()
+{
+    g_use_relative = true;
 }

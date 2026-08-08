@@ -29,7 +29,11 @@
 ///////////////////////////////////////////////////////////////////////
 
 #define NET_STRSIZE 15
+#ifdef _WIN32
+#define NET_LONGSTRSIZE 130
+#else
 #define NET_LONGSTRSIZE 80
+#endif
 
 void net_server_send(bool);
 unsigned int get_sys_mem();

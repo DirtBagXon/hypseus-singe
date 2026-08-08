@@ -72,8 +72,6 @@ Run `hypseus` with [arguments](doc/CmdLine.md) on the command line:
 
 Using **Windows**, `.bat`, or `.vbs`, scripts can be created for specific games.
 
-Example `.bat` files  are provided within the [Windows](win32/) zip file.
-
 **Retro gaming** systems will require adoption within the relevant emulation scripts.
 
 The singe `-espath` argument can ease integration into EmulationStation style systems.  

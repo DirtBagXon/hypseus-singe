@@ -9,10 +9,10 @@
 Latest SDL3 build is:
 
     hypseus.exe -version
-    [version] Hypseus Singe: v3.0.0
+    [version] Hypseus Singe: v3.0.1
     [console] Windows 11
-    [console] (CC) SDL: 3.4.10, IMG: 3.4.4, TTF: 3.2.2, MIX: 3.2.4
-    [console] (LD) SDL: 3.4.10, IMG: 3.4.4, TTF: 3.2.2, MIX: 3.2.4
+    [console] (CC) SDL: 3.4.14, IMG: 3.4.4, TTF: 3.2.2, MIX: 3.2.4
+    [console] (LD) SDL: 3.4.14, IMG: 3.4.4, TTF: 3.2.2, MIX: 3.2.4
 
 
 Windows executables linked with `-subsystem,windows` are also available to suppress *Command Prompt* popups.

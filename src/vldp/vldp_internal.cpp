@@ -27,11 +27,10 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-//#include <unistd.h>
-//#include "inttypesreplace.h"
 #include <SDL3/SDL.h>
 
 #include "vldp_internal.h"
+#include "vldp_nonstd.h"
 #include "vldp_common.h"
 #include "mpegscan.h"
 #include "../video/video.h"
@@ -539,12 +538,15 @@ void idle_handler_open()
 
         // if we find the proper mpeg2 video header at the beginning of the file
         if (((small_buf[0] << 24) | (small_buf[1] << 16) | (small_buf[2] << 8) |
-             small_buf[3]) == 0x000001B3) {
-            g_out_info.w =
-                (small_buf[4] << 4) | (small_buf[5] >> 4); // get mpeg width
-            g_out_info.h =
-                ((small_buf[5] & 0x0F) << 8) | small_buf[6]; // get mpeg height
-            ivldp_set_framerate(small_buf[7] & 0xF); // set the framerate
+            small_buf[3]) == 0x000001B3)
+        {
+            g_out_info.w = (small_buf[4] << 4) | (small_buf[5] >> 4);   // get mpeg width
+            g_out_info.h = ((small_buf[5] & 0x0F) << 8) | small_buf[6]; // get mpeg height
+
+            if (get_mpeg_rate() < 0)
+                ivldp_set_framerate(small_buf[7] & 0xF); // set the framerate from header
+            else
+                g_out_info.uFpks = get_mpeg_rate(); // force a non-standard rate
 
             // Look for aspect ratio meta field - thanks to walknight
             sAspect = small_buf[7] >> 4;

@@ -1,0 +1,78 @@
+name: CMake-Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Windows'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-ntldd
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-sdl3
+            mingw-w64-x86_64-sdl3-image
+            mingw-w64-x86_64-sdl3-mixer
+            mingw-w64-x86_64-sdl3-ttf
+            mingw-w64-x86_64-libvorbis
+            mingw-w64-x86_64-libogg
+            mingw-w64-x86_64-libzip
+            mingw-w64-x86_64-zlib
+            autoconf
+            automake
+            libtool
+            make
+            git
+
+      - name: Create Build SHA
+        run: |
+          ShortSHA=$(git rev-parse --short HEAD)
+          echo "COMMIT_SHORT_SHA=$ShortSHA" >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: |
+          sed -i \
+          's/set(VER_TAG "${VER_TAG}-dirty")/set(VER_TAG "${VER_TAG}-${{ env.COMMIT_SHORT_SHA }}")/' \
+          src/CMakeLists.txt
+          mkdir build
+          cd build
+          cmake -G "MSYS Makefiles" ../src
+
+      - name: Build
+        run: |
+          cd build
+          make
+
+      - name: Add DLLs
+        working-directory: build
+        run: |
+          ntldd -R hypseus.exe |
+            awk '/mingw64/ {print $3}' |
+            while read -r dll; do
+              cp -u "$dll" .
+            done
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: hypseus-windows
+          path: |
+            build/hypseus.exe
+            build/*.dll

@@ -27,7 +27,7 @@
 #endif
 
 /* that should be enough, knock on wood. */
-#define MAX_MICE 32
+#define MAX_MICE 16
 
 /*
  * Just trying to avoid malloc() here...we statically allocate a buffer

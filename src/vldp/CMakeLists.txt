@@ -1,11 +1,13 @@
 set( LIB_SOURCES
     vldp.cpp
+    vldp_nonstd.cpp
     vldp_internal.cpp
     mpegscan.cpp
 )
 
 set( LIB_HEADERS
     mpegscan.h
+    vldp_nonstd.h
     vldp_common.h
     vldp.h
     vldp_internal.h

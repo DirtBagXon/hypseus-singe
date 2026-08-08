@@ -23,7 +23,7 @@
 #ifndef io_limits_h
 #define io_limits_h
 
-#define MAX_MICE 32
+#define MAX_MICE 16
 #define AXIS_COUNT 6
 #define MAX_AXIS 32767
 #define MIN_AXIS -32768

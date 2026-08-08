@@ -25,8 +25,8 @@
 
 #define test_bit(array, bit)    (array[bit/8] & (1<<(bit%8)))
 
-/* linux allows 32 evdev nodes currently. */
-#define MAX_MICE 32
+/* linux allows 16 evdev nodes currently. */
+#define MAX_MICE 16
 typedef struct
 {
     int fd;

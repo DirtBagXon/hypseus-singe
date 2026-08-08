@@ -14,7 +14,7 @@ env:
   BUILD_TYPE: Release
 
   # Pin known stable SDL3 releases.
-  SDL_VERSION: 3.4.12
+  SDL_VERSION: 3.4.14
   SDL_IMAGE_VERSION: 3.4.4
   SDL_TTF_VERSION: 3.2.2
   SDL_MIXER_VERSION: 3.2.4
@@ -164,8 +164,7 @@ jobs:
           -DSDLIMAGE_XPM=OFF \
           -DSDLIMAGE_XV=OFF \
           -DSDLIMAGE_TGA=OFF \
-          -DSDLIMAGE_LBM=OFF \
-          -DSDLIMAGE_PNM=OFF
+          -DSDLIMAGE_LBM=OFF
 
         cmake --build _deps/SDL_image-build --parallel
         cmake --install _deps/SDL_image-build
@@ -339,9 +338,6 @@ jobs:
         cp -r ../pics hypseus-singe
 
         cat > hypseus-singe/hypinput.ini <<'EOF'
-        # Steam Deck Buttons (SDL3 API): A=?, B=?, X=?, Y=?
-        # Start=?, Select=?, L1=?, R1=?, L3=?, R3=?
-
         [KEYBOARD]
         KEY_UP         = SDLK_UP         SDLK_R     0     -002
         KEY_DOWN       = SDLK_DOWN       SDLK_F     0     +002

@@ -67,7 +67,8 @@
     "#MANYMOUSE     = TRUE\n"
     "GAMEPAD        = FALSE\n"
     "#SCANLINES     = FALSE\n"
-    "FULLALPHA      = FALSE\n"
+    "FULLALPHA      = TRUE\n"
+    "LINEARSCALE    = FALSE\n"
     "GRAPHICAPI     = OPENGL\n"
     "END\n"
 };
@@ -116,7 +117,8 @@
     "#MANYMOUSE     = TRUE\n"
     "GAMEPAD        = TRUE\n"
     "#SCANLINES     = FALSE\n"
-    "FULLALPHA      = FALSE\n"
+    "FULLALPHA      = TRUE\n"
+    "LINEARSCALE    = FALSE\n"
     "GRAPHICAPI     = OPENGL\n"
     "END\n"
 };

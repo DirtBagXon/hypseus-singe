@@ -103,6 +103,7 @@ inline void add_coin_to_queue(bool enabled, Uint8 val);
 void reset_idle(void); // added by JFA
 void set_use_joystick(bool val);
 void set_invert_hat(bool val);
+void set_relative_init();
 void set_open_hat(bool val);
 void set_inputini_file(const char *inputFile);
 void set_mouse_raw(bool);

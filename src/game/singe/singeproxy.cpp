@@ -24,6 +24,7 @@
 #include "singe_interface.h"
 
 #include "../../video/video.h"
+#include "../../vldp/vldp_nonstd.h"
 #include "../../video/palette.h"
 #include "../../sound/sound.h"
 #include "../../io/zippp.h"
@@ -604,7 +605,7 @@ void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouse
     int y1 = (int)y;
     int xr = (int)xrel;
     int yr = (int)yrel;
-    int mID = (int) mouseID;
+    int mID = (int)mouseID;
     int8_t rID = mID;
 	
     x1 *= m_se_overlay_scale_x;
@@ -1318,6 +1319,7 @@ void sep_do_blit(SDL_Surface *srfDest)
             sep_fullalpha_srf32(g_se_surface, g_se_texture);
             break;
         case SEP_OVERLAY_MONO:
+        case SEP_OVERLAY_ALMONO:
             sep_format_monochrome(g_se_surface, g_se_texture);
             break;
         case SEP_OVERLAY_FULL:
@@ -2357,9 +2359,12 @@ static int sep_overlay_set_grayscale(lua_State *L)
 {
     int n = lua_gettop(L);
 
-    if (n == 1)
-      if (lua_isboolean(L, 1) && (m_upgrade_overlay & (1 << 0)))
-        m_upgrade_overlay = (m_upgrade_overlay & ~(1 << 1)) | (lua_toboolean(L, 1) << 1);
+    if (n == 1) {
+      const uint8_t bit = (m_upgrade_overlay & (1 << 0)) ? 1 :
+                        (m_upgrade_overlay & (1 << 2)) ? 3 : 0xff;
+      if (bit != 0xff)
+        m_upgrade_overlay = (m_upgrade_overlay & ~(1 << bit)) | (lua_toboolean(L, 1) << bit);
+    }
 
     return 0;
 }
@@ -2547,7 +2552,7 @@ static int sep_set_overlaysize(lua_State *L)
            switch (size) {
            case SINGE_OVERLAY_FULL:
            case SINGE_OVERLAY_HALF:
-           case SINGE_OVERLAY_OVERSIZE:
+           case SINGE_OVERLAY_NONSQUARE:
                break;
            case SINGE_OVERLAY_CUSTOM:
                if (n == 3) {
@@ -2893,7 +2898,16 @@ static int sep_set_disc_fps(lua_State *L)
   if (n == 1)
       if (lua_isnumber(L, 1))
       {
-          *g_se_disc_fps = lua_tonumber(L, 1);
+          float fps = lua_tonumber(L, 1);
+          int rate = (int)fps;
+
+          if (force_mpeg_rate(rate))
+          {
+              fps = (float)rate;
+              LOGI << sep_fmt("Using non-standard MPEG2 framerate: %dFPS", rate);
+          }
+
+          *g_se_disc_fps = fps;
 
           if (*g_se_disc_fps != 0.0)
               *g_se_uDiscFPKS = (unsigned int) ((*g_se_disc_fps * 1000.0) + 0.5);
@@ -3184,13 +3198,13 @@ static int sep_music_play(lua_State *L)
 {
   int n = lua_gettop(L);
   const uint8_t lmax = 64;
-  int result = -1;
+  int num = -1;
   int loop = 0;
 
   if (n == 1 || n == 2)
       if (lua_isnumber(L, 1))
       {
-          int num = lua_tonumber(L, 1);
+          num = lua_tonumber(L, 1);
 
           if (lua_isnumber(L, 2))
               loop = lua_tonumber(L, 2);
@@ -3201,12 +3215,12 @@ static int sep_music_play(lua_State *L)
           SDL_SetNumberProperty(props, MIX_PROP_PLAY_LOOPS_NUMBER, loop);
 
           if (!sep_mixer_valid(num, __func__)) return 0;
-          result = MIX_PlayTrack(m_mixerList[num].track, props);
+          MIX_PlayTrack(m_mixerList[num].track, props);
 
           SDL_DestroyProperties(props);
       }
 
-  lua_pushnumber(L, result);
+  lua_pushnumber(L, num);
   return 1;
 }
 
@@ -3289,7 +3303,7 @@ static int sep_sprite_animate(lua_State *L)
               SDL_BlitSurface(m_sprites[id].present, &src, g_se_surface, &dest);
 
           } else {
-              SDL_BlitSurfaceScaled(m_sprites[id].present, &src, g_se_surface, &dest, SDL_SCALEMODE_LINEAR);
+              SDL_BlitSurfaceScaled(m_sprites[id].present, &src, g_se_surface, &dest, SDL_SCALEMODE_NEAREST);
           }
       }
   }
@@ -3344,7 +3358,7 @@ static int sep_sprite_animate_rotated(lua_State *L)
               SDL_BlitSurface(m_sprites[id].frame, NULL, g_se_surface, &dest);
 
           } else {
-              SDL_BlitSurfaceScaled(m_sprites[id].frame, NULL, g_se_surface, &dest, SDL_SCALEMODE_LINEAR);
+              SDL_BlitSurfaceScaled(m_sprites[id].frame, NULL, g_se_surface, &dest, SDL_SCALEMODE_NEAREST);
           }
       }
   }
@@ -3449,7 +3463,7 @@ static int sep_sprite_draw(lua_State *L)
               if ((n == 3) || (n == 4)) {
                   SDL_BlitSurface(m_sprites[id].present, NULL, g_se_surface, &dest);
               } else {
-                  SDL_BlitSurfaceScaled(m_sprites[id].present, NULL, g_se_surface, &dest, SDL_SCALEMODE_LINEAR);
+                  SDL_BlitSurfaceScaled(m_sprites[id].present, NULL, g_se_surface, &dest, SDL_SCALEMODE_NEAREST);
               }
           }
       }
@@ -4759,38 +4773,76 @@ static int sep_ldp_verbose(lua_State *L)
 
 static int sep_music_playing(lua_State *L)
 {
-        bool result = ((GetCurrentlyPlayingTrack()) == NULL) ? false : true;
+	int n = lua_gettop(L);
+	bool result = false;
 
-        lua_pushboolean(L, result);
-        return 1;
+	if (n == 1) {
+	    if (lua_isnumber(L, 1)) {
+		int id = lua_tonumber(L, 1);
+		if (!sep_mixer_valid(id, __func__)) return 0;
+		result = MIX_TrackPlaying(m_mixerList[id].track);
+	    }
+	}
+	else
+	    result = ((GetCurrentlyPlayingTrack()) == NULL) ? false : true;
+
+	lua_pushboolean(L, result);
+	return 1;
 }
 
 
 static int sep_music_pause(lua_State *L)
 {
-	MIX_PauseTrack(GetCurrentlyPlayingTrack());
+	int n = lua_gettop(L);
+
+	if (n == 1) {
+	    if (lua_isnumber(L, 1)) {
+		int id = lua_tonumber(L, 1);
+		if (!sep_mixer_valid(id, __func__)) return 0;
+		MIX_PauseTrack(m_mixerList[id].track);
+	    }
+	}
+	else
+	    MIX_PauseTrack(GetCurrentlyPlayingTrack());
 
 	return 0;
 }
 
 static int sep_music_resume(lua_State *L)
 {
-	MIX_ResumeTrack(GetCurrentlyPlayingTrack());
+	int n = lua_gettop(L);
+
+	if (n == 1) {
+	    if (lua_isnumber(L, 1)) {
+		int id = lua_tonumber(L, 1);
+		if (!sep_mixer_valid(id, __func__)) return 0;
+		MIX_ResumeTrack(m_mixerList[id].track);
+	    }
+	}
 
 	return 0;
 }
 
 static int sep_music_stop(lua_State *L)
 {
+	int id = -1;
 	int fade = 0;
 	int n = lua_gettop(L);
 
-	if (n == 1)
-	    if (lua_isnumber(L, 1))
-		fade = std::min(std::max((int)lua_tonumber(L, 1), 0), 10000);
+	if (n == 1 || n == 2)
+	{
+	    if (lua_isnumber(L, 1)) id = lua_tonumber(L, 1);
+
+	    if (!sep_mixer_valid(id, __func__)) return 0;
+
+	    if (n == 2 && lua_isnumber(L, 2))
+		fade = std::min(std::max((int)lua_tonumber(L, 2), 0), 1000000);
+
+	    MIX_StopTrack(m_mixerList[id].track, (Sint64)fade);
+	    return 0;
+	}
 
 	MIX_StopTrack(GetCurrentlyPlayingTrack(), (Sint64)fade);
-
 	return 0;
 }
 
