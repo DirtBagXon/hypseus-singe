@@ -31,6 +31,7 @@ extern "C" {
 #endif
 
 #include <SDL3/SDL.h>
+#include <mpeg2dec/mpeg2.h>
 
 struct yuv_buf {
     uint8_t *Y;     // Y channel

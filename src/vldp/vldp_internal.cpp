@@ -40,8 +40,6 @@
 
 #include <inttypes.h>
 
-#include <mpeg2.h>
-
 #ifdef VLDP_DEBUG
 #define FRAMELOG "frame_report.txt"
 #endif
