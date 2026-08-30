@@ -54,6 +54,10 @@ while [[ $# -gt 0 ]]; do
         LOG="-nolog"
         shift
         ;;
+      -overlayontop)
+        TOPOVERLAY="-overlaybezel"
+        shift
+        ;;
       -rotate)
         ROTATE="-rotate 90"
         shift
@@ -64,10 +68,6 @@ while [[ $# -gt 0 ]]; do
         ;;
       -scanlines)
         SCANLINES="-scanlines"
-        shift
-        ;;
-      -spriteblend)
-        SPRITEBLEND="-blend_sprites"
         shift
         ;;
       *)
@@ -83,7 +83,7 @@ set -- "${POSITIONAL[@]}"
 if [ -z $1 ] ; then
 	echo "Specify a game to try: " | STDERR
 	echo
-	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-grabmouse] [-scanlines] [-scale] [-spriteblend] <gamename>" | STDERR
+	echo "$0 [-fullscreen] [-8bit] [-blanking] [-blend] [-linear] [-gamepad] [-grabmouse] [-scanlines] [-scale] <gamename>" | STDERR
 	echo
 
         echo "Games available: "
@@ -143,12 +143,10 @@ $LOG \
 $ROTATE \
 $SCANLINES \
 $SCALE \
-$SPRITEBLEND \
 $ALPHA \
 $EIGHTBIT \
-$BEZEL \
--volume_nonvldp 5 \
--volume_vldp 20
+$TOPOVERLAY \
+$BEZEL
 
 EXIT_CODE=$?
 

@@ -187,7 +187,7 @@ extern "C" int zip_file_info(lua_State* L) {
             return 1;
         }
         if (strcmp(member, "size") == 0) {
-            lua_pushinteger(L, (lua_Integer)entry.getSize());
+            lua_pushinteger(L, (lua_Number)entry.getSize());
             return 1;
         }
 
@@ -211,7 +211,7 @@ extern "C" int zip_file_info(lua_State* L) {
     lua_settable(L, -3);
 
     lua_pushstring(L, "size");
-    lua_pushinteger(L, (lua_Integer)entry.getSize());
+    lua_pushinteger(L, (lua_Number)entry.getSize());
     lua_settable(L, -3);
 
     return 1;

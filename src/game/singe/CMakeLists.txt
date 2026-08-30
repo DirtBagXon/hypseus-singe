@@ -52,6 +52,10 @@ endif()
 add_library( singeproxy ${LIB_SOURCES} ${LIB_HEADERS} )
 target_link_libraries( singeproxy PRIVATE plog io sdl3_deps )
 
+if( ANDROID )
+    target_compile_options( singeproxy PRIVATE -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 )
+endif()
+
 if(WIN32)
     target_link_libraries( singeproxy PRIVATE ws2_32 sdl3_deps )
 endif()

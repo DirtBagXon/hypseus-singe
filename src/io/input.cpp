@@ -439,10 +439,10 @@ static void CFG_System()
             sound::set_chip_nonvldp_volume((unsigned int)atoi(val));
         } else if (strcasecmp(key.c_str(), "SERVERSEND") == 0) {
             net_server_send(parse_bool(val));
-        } else if (strcasecmp(key.c_str(), "SOUNDBUFFER") == 0) {
-            sound::set_buf_size((Uint16)atoi(val));
         } else if (strcasecmp(key.c_str(), "ALWAYSONTOP") == 0) {
             video::set_forcetop(parse_bool(val));
+        } else if (strcasecmp(key.c_str(), "PRESERVEASPECT") == 0) {
+            video::set_preserve_aspect_ratio(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "FULLSCREEN") == 0) {
             video::set_fullscreen(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "MANYMOUSE") == 0) {
@@ -509,6 +509,7 @@ static void CFG_System()
         if (!find_word(cur_line.c_str(), sval1, cur_line))
             continue;
 
+        LOGI << fmt("[GLOBAL] overrides %s with %s", key_name.c_str(), sval1.c_str());
         system_config(key_name, sval1.c_str());
     }
 
@@ -1964,12 +1965,22 @@ void set_inputini_file(const char *inputFile)
 
 int get_realmouse_attached()
 {
-    return g_available_mice;
+    return g_use_relative ? mouse_index : g_available_mice;
+}
+
+int get_mouse_wad()
+{
+    return g_use_relative ? MAX_MICE : 0;
 }
 
 void set_mouse_raw(bool format)
 {
     RELFORMAT = format ? 0 : 1;
+}
+
+void set_relative_init()
+{
+    g_use_relative = true;
 }
 
 void set_use_gamepad(bool value)
@@ -2035,9 +2046,4 @@ void do_gamepad_rumble(Uint8 str, Uint8 len, Uint8 player)
 
         return;
     }
-}
-
-void set_relative_init()
-{
-    g_use_relative = true;
 }

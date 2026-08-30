@@ -536,7 +536,6 @@ void sep_call_lua(const char *func, const char *sig, ...)
         LOGE << sep_fmt("error running function '%s': %s", func, lua_tostring(g_se_lua_context, -1));
         if (err > 0) {
             sep_die("Multiple errors, cannot continue...");
-            exit(SINGE_ERROR_RUNTIME);
         }
         err++;
         return;
@@ -1333,6 +1332,13 @@ void sep_do_blit(SDL_Surface *srfDest)
 
 static ZipMem sep_unzip(const std::string& s)
 {
+    std::string fold = s;
+
+    auto it = std::unique(fold.begin(), fold.end(),
+                  [](char a, char b) { return a == '/' && b == '/'; });
+
+    fold.erase(it, fold.end());
+
     ZipMem out{nullptr, 0};
 
     if (!g_zf->isOpen())
@@ -1342,7 +1348,7 @@ static ZipMem sep_unzip(const std::string& s)
         m_zipList = g_zf->getEntries();
 
         for (auto& entry : m_zipList) {
-            if (entry.getName().find(s) != std::string::npos) {
+            if (entry.getName().find(fold) != std::string::npos) {
                 out.data = entry.readAsBinary();
                 out.size = entry.getSize();
                 break;
@@ -1694,6 +1700,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "vldpGetWidth",           sep_mpeg_get_width);
     lua_register(g_se_lua_context, "vldpSetMonochrome",      sep_mpeg_set_grayscale);
     lua_register(g_se_lua_context, "vldpSetLuma",            sep_mpeg_set_luma);
+    lua_register(g_se_lua_context, "vldpSetBlend",           sep_mpeg_set_blend);
     lua_register(g_se_lua_context, "vldpSetVerbose",         sep_ldp_verbose);
 
     // Singe 2
@@ -1703,6 +1710,7 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "mouseHowMany",           sep_get_number_of_mice);
     lua_register(g_se_lua_context, "mouseHowManyReal",       sep_get_number_of_realmice);
     lua_register(g_se_lua_context, "mouseGetPosition",       sep_get_mouse_position);
+    lua_register(g_se_lua_context, "mouseGetPadding",        sep_get_mouse_padding);
     lua_register(g_se_lua_context, "overlayEllipse",         sep_overlay_ellipse);
     lua_register(g_se_lua_context, "overlayCircle",          sep_overlay_circle);
     lua_register(g_se_lua_context, "overlayLine",            sep_overlay_line);
@@ -1737,7 +1745,9 @@ void sep_startup(const char *data)
     lua_register(g_se_lua_context, "getFValue",              sep_get_fvalue);
     lua_register(g_se_lua_context, "setOverlaySize",         sep_set_overlaysize);
     lua_register(g_se_lua_context, "setOverlayFullAlpha",    sep_set_overlayfullalpha);
+    lua_register(g_se_lua_context, "setOverlayLinearScale",  sep_set_overlayscalemode);
     lua_register(g_se_lua_context, "setOverlayOpacity",      sep_set_overlayopacity);
+    lua_register(g_se_lua_context, "setOverlayOnTop",        sep_set_overlayontop);
     lua_register(g_se_lua_context, "setOverlayResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "overlaySetResolution",   sep_set_custom_overlay);
     lua_register(g_se_lua_context, "spriteLoadFrames",       sep_sprite_loadframes);
@@ -2139,6 +2149,7 @@ static int sep_font_load(lua_State *L)
         if (temp) {
             // Make it the current font and mark it as loaded.
             if (SEP_HAS(SEP_FIRSTFONT)) sep_font_reset();
+            TTF_SetFontHinting(temp, TTF_HINTING_NORMAL);
             m_fontList.push_back(temp);
             m_fontCurrent = m_fontList.size() - 1;
             result        = m_fontCurrent;
@@ -2195,10 +2206,10 @@ static int sep_font_sprite(lua_State *L)
               const char *message = lua_tostring(L, 1);
 
               switch (m_fontQuality) {
-                  case 2:
+                  case FONT_QUALITY_SHADED:
                       textsurface = TTF_RenderText_Shaded(font, message, strlen(message), m_colorForeground, m_colorBackground);
                       break;
-                  case 3:
+                  case FONT_QUALITY_BLENDED:
                       textsurface = TTF_RenderText_Blended(font, message, strlen(message), m_colorForeground);
                       break;
                   default:
@@ -2326,10 +2337,19 @@ static int sep_mpeg_set_grayscale(lua_State *L)
     int n = lua_gettop(L);
 
     if (n == 1)
-      if (lua_isboolean(L, 1))
-        {
-          video::set_grayscale(lua_toboolean(L, 1));
-        }
+        if (lua_isboolean(L, 1))
+            video::set_grayscale(lua_toboolean(L, 1));
+
+    return 0;
+}
+
+static int sep_mpeg_set_blend(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isboolean(L, 1))
+            video::set_blendfilter(lua_toboolean(L, 1));
 
     return 0;
 }
@@ -2577,13 +2597,28 @@ static int sep_set_overlaysize(lua_State *L)
    return 0;
 }
 
+static int sep_set_overlayontop(lua_State *L)
+{
+    int n = lua_gettop(L);
+    uint64_t result = 0;
+
+    if (n == 1)
+        if (lua_isboolean(L, 1))
+            result = video::set_overlaybezel(lua_toboolean(L, 1), false);
+
+    lua_pushboolean(L, result != 0);
+    lua_pushstring(L, std::to_string(result).c_str());
+
+    return 2;
+}
+
 static int sep_set_overlayopacity(lua_State *L)
 {
     int n = lua_gettop(L);
 
     if (n == 1)
-      if (lua_isnumber(L, 1))
-          video::set_overlay_alpha((uint8_t)sep_byte_clip(lua_tonumber(L, 1)));
+        if (lua_isnumber(L, 1))
+            video::set_overlay_alpha((uint8_t)sep_byte_clip(lua_tonumber(L, 1)));
 
     return 0;
 }
@@ -2591,6 +2626,17 @@ static int sep_set_overlayopacity(lua_State *L)
 static int sep_set_overlayfullalpha(lua_State *L)
 {
    sep_fullalpha_overlay();
+   return 0;
+}
+
+static int sep_set_overlayscalemode(lua_State *L)
+{
+    int n = lua_gettop(L);
+
+    if (n == 1)
+        if (lua_isboolean(L, 1))
+            video::set_overlayscalemode(lua_toboolean(L, 1));
+
    return 0;
 }
 
@@ -2741,10 +2787,10 @@ static int sep_say_font(lua_State *L)
                 const char *message = lua_tostring(L, 3);
 
                 switch (m_fontQuality) {
-                case 2:
+                case FONT_QUALITY_SHADED:
                     textsurface = TTF_RenderText_Shaded(font, message, strlen(message), m_colorForeground, m_colorBackground);
                     break;
-                case 3:
+                case FONT_QUALITY_BLENDED:
                     textsurface = TTF_RenderText_Blended(font, message, strlen(message), m_colorForeground);
                     break;
                 default:
@@ -2764,7 +2810,8 @@ static int sep_say_font(lua_State *L)
 
                     if (SEP_HAS(SEP_COLORKEY)) SDL_SetSurfaceColorKey(textsurface, true, 0x0);
 
-                    SDL_SetSurfaceBlendMode(textsurface, SDL_BLENDMODE_NONE);
+                    SDL_SetSurfaceBlendMode(textsurface, (m_fontQuality == FONT_QUALITY_SOLID) ?
+                                               SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND );
 
                     SDL_BlitSurface(textsurface, NULL, g_se_surface, &dest);
                     SDL_DestroySurface(textsurface);
@@ -4346,6 +4393,12 @@ static int sep_get_number_of_realmice(lua_State *L)
     return 1;
 }
 
+static int sep_get_mouse_padding(lua_State *L)
+{
+    lua_pushinteger(L, get_mouse_wad());
+    return 1;
+}
+
 static int sep_get_mouse_position(lua_State *L)
 {
     int n = lua_gettop(L);
@@ -5003,8 +5056,12 @@ static int sep_doluafile(lua_State *L)
 
 static int sep_bezel_loaded(lua_State *L)
 {
-    lua_pushboolean(L, video::get_bezelstatus());
-    return 1;
+    uint64_t result = video::get_bezelstatus();
+
+    lua_pushboolean(L, result != 0);
+    lua_pushstring(L, std::to_string(result).c_str());
+
+    return 2;
 }
 
 static int sep_bezel_enable(lua_State *L)

@@ -664,9 +664,8 @@ bool parse_cmd_line(int argc, char **argv)
                 }
             }
             // Ignore some deprecated arguments (Rather than error)
-            else if (strcasecmp(s, "-nolinear_scale") == 0 ||
-                         strcasecmp(s, "-fullscale") == 0 ||
-                             strcasecmp(s, "-fullscreen_window") == 0 ) {
+            else if (strcasecmp(s, "-sound_buffer") == 0 ||
+                         strcasecmp(s, "-fullscreen_window") == 0 ) {
                  char e[460];
                  snprintf(e, sizeof(e), "NOTE : Ignoring deprecated argument: %s", s);
                  printline(e);
@@ -871,10 +870,6 @@ bool parse_cmd_line(int argc, char **argv)
             } else if (strcasecmp(s, "-nosound") == 0) {
                 sound::set_enabled_status(false);
                 printline("Disabling sound...");
-            } else if (strcasecmp(s, "-sound_buffer") == 0) {
-                get_next_word(s, sizeof(s));
-                Uint16 sbsize = (Uint16)atoi(s);
-                sound::set_buf_size(sbsize);
             } else if (strcasecmp(s, "-volume_vldp") == 0) {
                 get_next_word(s, sizeof(s));
                 unsigned int uVolume = atoi(s);
@@ -1181,6 +1176,10 @@ bool parse_cmd_line(int argc, char **argv)
                 video::set_ignore_aspect_ratio(true);
                 video::set_force_aspect_ratio(false);
             }
+            else if (strcasecmp(s, "-preserve_aspect_ratio") == 0) {
+                printline("Preserving video aspect ratio within display area.");
+                video::set_preserve_aspect_ratio(true);
+            }
             else if (strcasecmp(s, "-scanline_shunt") == 0) {
                 get_next_word(s, sizeof(s));
                 i = atoi(s);
@@ -1450,6 +1449,10 @@ bool parse_cmd_line(int argc, char **argv)
             // exits
             else if (strcasecmp(s, "-stoponquit") == 0) {
                 g_ldp->set_stop_on_quit(true);
+            }
+            // Draw overlay over bezels
+            else if (strcasecmp(s, "-overlaybezel") == 0) {
+                video::set_overlaybezel(true, true);
             }
             // Use old style overlays (lair, ace, tq)
             else if (strcasecmp(s, "-original_overlay") == 0) {

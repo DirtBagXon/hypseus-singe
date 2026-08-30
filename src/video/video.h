@@ -142,31 +142,35 @@ enum VideoState : uint64_t
 
     YUV_BLUE             = 1ull << 16,
 
-    VIDEO_RESIZED        = 1ull << 17,
+    RESIZED_MEDIA        = 1ull << 17,
+    ROTATED_MEDIA        = 1ull << 18,
 
-    BLOCK_DRIVER_OVERLAY = 1ull << 18,
+    BLOCK_DRIVER_OVERLAY = 1ull << 19,
 
-    ENHANCE_OVERLAY      = 1ull << 19,
-    OVERLAY_DYNAMIC      = 1ull << 20,
-    LEGACY_OVERLAY       = 1ull << 21,
-    OVERLAY_WHITE        = 1ull << 22,
+    ENHANCE_OVERLAY      = 1ull << 20,
+    OVERLAY_DYNAMIC      = 1ull << 21,
+    LEGACY_OVERLAY       = 1ull << 22,
+    OVERLAY_WHITE        = 1ull << 23,
+    OVERLAY_LAST         = 1ull << 24,
+    BEZEL_OVERLAY        = 1ull << 25,
 
-    FORCE_ASPECT         = 1ull << 23,
-    IGNORE_ASPECT        = 1ull << 24,
+    FORCE_ASPECT         = 1ull << 26,
+    IGNORE_ASPECT        = 1ull << 27,
+    PRESERVE_ASPECT      = 1ull << 28,
 
-    BEZEL_LOAD           = 1ull << 25,
-    BEZEL_TOGGLE         = 1ull << 26,
-    BEZEL_REVERSE        = 1ull << 27,
-    KEYBOARD_BEZEL       = 1ull << 28,
-    SCOREBOARD_BEZEL     = 1ull << 29,
+    BEZEL_LOAD           = 1ull << 29,
+    BEZEL_TOGGLE         = 1ull << 30,
+    BEZEL_REVERSE        = 1ull << 31,
+    KEYBOARD_BEZEL       = 1ull << 32,
+    SCOREBOARD_BEZEL     = 1ull << 33,
 
-    AUX_BEZEL            = 1ull << 30,
-    ANNUN_LAMPS          = 1ull << 31,
-    DED_ANNUN_BEZEL      = 1ull << 32,
+    AUX_BEZEL            = 1ull << 34,
+    ANNUN_LAMPS          = 1ull << 35,
+    DED_ANNUN_BEZEL      = 1ull << 36,
 
-    KMSDRM               = 1ull << 33,
-    SCALED               = 1ull << 34,
-    VERTICAL_ORIENTATION = 1ull << 35,
+    KMSDRM               = 1ull << 37,
+    SCALED               = 1ull << 38,
+    VERTICAL_ORIENTATION = 1ull << 39,
 };
 
 bool init_display();
@@ -216,8 +220,10 @@ void set_forcetop(bool value);
 void set_software_render(bool value);
 SDL_TextureAccess get_textureaccess();
 void set_textureaccess(SDL_TextureAccess value);
+void set_overlayscalemode(bool value);
 void set_grabmouse(bool value);
 void toggle_grabmouse();
+void toggle_bilinearscale();
 void set_vsync(bool value);
 void set_intro(bool value);
 void set_logo(bool value);
@@ -226,6 +232,7 @@ void set_fullscreen(bool value);
 void set_scale_linear(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_ignore_aspect_ratio(bool bEnabled);
+void set_preserve_aspect_ratio(bool bEnabled);
 void set_scanlines(bool value);
 void set_shunt(uint8_t value);
 void set_alpha(uint8_t value);
@@ -280,12 +287,13 @@ void set_yuv_rect(float, float, float, float);
 void reset_yuv_rect();
 
 void set_legacy_overlay(bool);
+uint64_t set_overlaybezel(bool, bool);
 
 void set_vertical_orientation(bool);
 
 bool draw_annunciator(int which);
 
-bool get_bezelstatus();
+uint64_t get_bezelstatus();
 
 void set_queue_screenshot(bool bEnabled);
 

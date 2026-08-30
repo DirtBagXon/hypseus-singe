@@ -71,12 +71,13 @@ unsigned int g_uSoundChipNextID = 0; // the idea that the next chip to get
 void (*g_soundmix_callback)(Uint8 *stream, int length) = mixNone;
 
 // The # of samples in the sound buffer
-// Matt prefers 1024 but some people (cough Warren) can't handle it haha
-//  but now it can be changed from the command line
-Uint16 g_u16SoundBufSamples = 2048;
+const Uint16 g_u16SoundBufSamples = 2048;
 
 // # of bytes each individual sound chip should be allocated for its buffer
-unsigned int g_uSoundChipBufSize = g_u16SoundBufSamples * BYTES_PER_SAMPLE;
+const unsigned int g_uSoundChipBufSize = g_u16SoundBufSamples * BYTES_PER_SAMPLE;
+
+// callback buffer refill
+const int g_SoundBufQueue = (g_uSoundChipBufSize * 3) >> 2;
 
 // the volume (user adjustable) of the VLDP audio stream
 unsigned int g_uVolumeVLDP = MAX_VOLUME;
@@ -101,27 +102,6 @@ void set_mute(bool bMuted)
     }
 }
 // end edit
-
-void set_buf_size(Uint16 newbufsize)
-{
-    if (newbufsize > 4096) newbufsize = 4096;
-
-    LOGI << fmt("Setting sound buffer size to %d", newbufsize);
-
-    g_u16SoundBufSamples = newbufsize;
-    g_uSoundChipBufSize  = newbufsize * BYTES_PER_SAMPLE;
-
-    // re-allocate all sound buffers since the size has changed
-    struct chip *cur = g_chip_head;
-    while (cur) {
-        delete[] cur->buffer;
-        cur->buffer = new Uint8[g_uSoundChipBufSize];
-        memset(cur->buffer, 0, g_uSoundChipBufSize);
-        cur->buffer_pointer = cur->buffer;
-        cur->bytes_left     = g_uSoundChipBufSize;
-        cur                 = cur->next;
-    }
-}
 
 static SDL_AudioSpec specDesired;
 
@@ -586,7 +566,7 @@ void SDLCALL StreamAudio(void *userdata, SDL_AudioStream *stream, int additional
     static const int buf = (int)g_uSoundChipBufSize;
     static std::vector<Uint8> mix;
 
-    if (SDL_GetAudioStreamAvailable(stream) > buf)
+    if (SDL_GetAudioStreamAvailable(stream) > g_SoundBufQueue)
         return;
 
     struct chip *cur = g_chip_head;

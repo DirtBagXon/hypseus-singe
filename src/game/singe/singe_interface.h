@@ -4,8 +4,6 @@
 // increase this number every time you change something in this file!!!
 #define SINGE_INTERFACE_API_VERSION 30
 
-#define SINGE_ERROR_RUNTIME 0xA0
-
 #define SINGE_OVERLAY_STANDARD_W  320
 #define SINGE_OVERLAY_STANDARD_H  240
 #define SINGE_OVERLAY_NONSQUARE_W 360

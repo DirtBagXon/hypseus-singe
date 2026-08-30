@@ -249,6 +249,7 @@ class game
                                // after they're loaded
     int get_video_row_offset();
     int get_video_col_offset();
+    void set_video_col_offset(int);
 
     SDL_Surface *get_video_overlay(int index); // returns pointer to video
                                                // overlay specified, or NULL if

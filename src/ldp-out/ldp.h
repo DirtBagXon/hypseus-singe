@@ -265,6 +265,7 @@ class ldp
     bool skipping_supported; // whether the laserdisc player supports skipping
     bool skip_instead_of_search; // whether we should skip instead of search if
                                  // searching forward a short distance
+    bool m_rethink;
     Uint32 max_skippable_frames; // maximum # of frames that player can skip (if
                                  // skipping is supported)
     Uint32 m_last_try_frame;     // the last frame we _tried_ to seek to

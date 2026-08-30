@@ -36,6 +36,10 @@
 #define SEP_OVERLAY_MONO    3
 #define SEP_OVERLAY_FULL    1
 
+#define FONT_QUALITY_SOLID   1
+#define FONT_QUALITY_SHADED  2
+#define FONT_QUALITY_BLENDED 3
+
 #if __cplusplus < 201103L
 #define __func__ "unknown"
 #endif
@@ -115,6 +119,7 @@ void                set_gamepad_wad(bool);
 int                 get_gamepad_wad();
 int                 get_gamepad_attached();
 int                 get_realmouse_attached();
+int                 get_mouse_wad();
 
 struct yuv_buffer
 {
@@ -184,6 +189,7 @@ static int sep_mpeg_get_pixel(lua_State *L);
 static int sep_mpeg_get_rawpixel(lua_State *L);
 static int sep_mpeg_set_grayscale(lua_State *L);
 static int sep_mpeg_set_luma(lua_State *L);
+static int sep_mpeg_set_blend(lua_State *L);
 static int sep_mpeg_get_width(lua_State *L);
 static int sep_mpeg_get_scale(lua_State *L);
 static int sep_mpeg_get_rotate(lua_State *L);
@@ -280,6 +286,7 @@ static int sep_singe_wants_crosshair(lua_State *L);
 static int sep_get_number_of_mice(lua_State *L);
 static int sep_get_number_of_realmice(lua_State *L);
 static int sep_get_mouse_position(lua_State *L);
+static int sep_get_mouse_padding(lua_State *L);
 static int sep_get_scriptpath(lua_State *L);
 static int sep_get_idstring(lua_State *L);
 static int sep_get_netperm(lua_State *L);
@@ -290,6 +297,8 @@ static int sep_doluafile(lua_State *L);
 static int sep_set_overlaysize(lua_State *L);
 static int sep_set_overlayfullalpha(lua_State *L);
 static int sep_set_overlayopacity(lua_State *L);
+static int sep_set_overlayontop(lua_State *L);
+static int sep_set_overlayscalemode(lua_State *L);
 static int sep_set_custom_overlay(lua_State *L);
 static int sep_controller_rumble(lua_State *L);
 static int sep_bezel_loaded(lua_State *L);

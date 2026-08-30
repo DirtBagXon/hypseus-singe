@@ -32,10 +32,14 @@
 #include "../io/conout.h"
 #include "sound.h"
 #include "tms9919-sdl.hpp"
+#include <mutex>
 
 // this can be set arbitrarily large (as large as it needs to be to support all
 // games)
 #define MAX_TMS9919_CHIPS 2
+
+// SDL audio thread locking
+std::mutex g_TMSMutex;
 
 cSdlTMS9919 *g_paSoundChips[MAX_TMS9919_CHIPS] = {NULL};
 
@@ -59,6 +63,7 @@ int tms9919_initialize(Uint32 core_frequency)
 
 void tms9919_writedata(Uint8 data, int index)
 {
+    std::lock_guard<std::mutex> lock(g_TMSMutex);
 #ifdef DEBUG
     assert((index >= 0) && (index < g_uTMS9919Index));
 #endif
@@ -67,6 +72,7 @@ void tms9919_writedata(Uint8 data, int index)
 
 void tms9919_stream(Uint8 *stream, int length, int index)
 {
+    std::lock_guard<std::mutex> lock(g_TMSMutex);
 #ifdef DEBUG
     assert((index >= 0) && (index < g_uTMS9919Index));
 #endif

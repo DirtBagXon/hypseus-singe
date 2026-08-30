@@ -11,7 +11,7 @@ Hypseus includes _Singe LUA_ support for fan created games.
 Features:
 
 * SDL3
-* VLDP 32bit upgrade
+* 32bit VLDP
 * Updated MPEG2 decoder
 * Integrated _(active)_ [bezel](https://raw.githubusercontent.com/DirtBagXon/hypseus-singe/refs/heads/master/screenshots/bezel.png) support
 * Full 32bit overlay support in LUA games.

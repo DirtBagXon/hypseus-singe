@@ -63,6 +63,7 @@ bool g_tms_interrupt_enabled = false; // whether NMI is on or off
 bool g_conv_12a563 = false;
 bool g_alpha_latch = false;
 bool g_nostretch = false;
+bool g_tms_bord = false;
 
 int g_transparency_enabled = 0;
 int g_transparency_latch   = 0;
@@ -97,6 +98,7 @@ void tms9128nl_reset()
     g_tms_foreground_color  = 0xF;
     g_tms_background_color  = 0;
     g_tms_interrupt_enabled = false;
+    g_tms_bord              = false;
     g_transparency_enabled  = 0;
     g_transparency_latch    = 0;
     prevg_vidmode           = 0;
@@ -116,6 +118,8 @@ void tms9128nl_writechar(unsigned char value)
     unsigned int row = 0, col = 0;
     unsigned char tile = 0, s = 0;
     int base = 0;
+
+    g_game->set_video_col_offset(0x0);
 
     if (g_nostretch) s += TMS_ROW_HEIGHT >> 1;
     if (viddisp == 0) return; // video display is off
@@ -203,8 +207,13 @@ void tms9128nl_writechar(unsigned char value)
                 }
 
                 if (tms9128nl_bordchar(value))
+                {
                     if (g_transparency_latch)
+                    {
+                        g_tms_bord = true;
                         tile = 2;
+                    }
+                }
 
                 row += offset_shunt;
                 --col;
@@ -244,15 +253,11 @@ void tms9128nl_write_port1(unsigned char value)
 {
     static int tempindex = 0;
 
-#ifdef TMS_DEBUG
-    char s[81] = {0}; // just a temp string
-#endif
-
     if (toggleflag == 0) {
         wvidindex = 0;
         rvidindex = 0;
         lowbyte   = value;
-        //    printf("lowbyte: %d\n",lowbyte);
+        LOGD << fmt("lowbyte: %d", lowbyte);
     }
 
     // if toggleflag is not zero
@@ -557,6 +562,8 @@ void tms9128nl_convert_color(unsigned char color_src, SDL_Color *color)
            tms9128nl_convert_color(0x4, color);
            return;
         case 5:
+           if (g_tms_bord)
+               g_game->set_video_col_offset(0xA);
            color->r = color->g = color->b = 0xF0;
            return;
         case 2:
@@ -800,9 +807,9 @@ void tms9128nl_outcommand(char *s, int col, int row)
     // gp2x doesn't have enough resolution to display this schlop anyway...
     SDL_Rect dest;
 
-    dest.x = (short)((col * 6) + 200);
-    dest.y = (short)((row * 13) + 100);
-    dest.w = (unsigned short)(6 * strlen(s)); // width of rectangle area to draw
+    dest.x = (int16_t)((col * 6) + 200);
+    dest.y = (int16_t)((row * 13) + 100);
+    dest.w = (uint16_t)(6 * strlen(s)); // width of rectangle area to draw
                                               // (width of font * length of
                                               // string)
     dest.h = 13;                              // height of area (height of font)
@@ -814,7 +821,7 @@ void tms9128nl_outcommand(char *s, int col, int row)
         float y = dest.y;
 
         TTF_Text *text = TTF_CreateText(video::get_font_engine(), video::get_font(), s, strlen(s));
-        TTF_DrawRendererText(text, x, y);
+        TTF_DrawRendererText(text, (int)x, (int)y);
         TTF_DestroyText(text);
     }
 }
@@ -997,6 +1004,7 @@ void tms9128nl_video_repaint_stretched()
 void tms9128nl_clear_overlay()
 {
     Uint8 clear_color = TMS_BG_COLOR;
+    g_tms_bord = false;
 
     int i = 0;
 

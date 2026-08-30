@@ -25,6 +25,7 @@
 #include "../io/mpo_mem.h"
 #include "sound.h"  // for get frequency stuff
 #include <string.h> // for memset
+#include <mutex>
 
 #ifdef DEBUG
 #include "../io/conout.h"
@@ -36,6 +37,9 @@
 
 namespace dac
 {
+
+// SDL audio thread locking
+std::mutex g_DACMutex;
 
 // how many DACs have been created
 unsigned int g_uDACCount = 0;
@@ -115,54 +119,94 @@ int init(unsigned int uCpuFreq)
 
 void ctrl_data(unsigned int uCyclesSinceLastChange, unsigned int u8Byte, int internal_id)
 {
+    std::lock_guard<std::mutex> lock(g_DACMutex);
+
 #ifdef DEBUG
     assert(u8Byte <= 255); // make sure it is really 8-bit
+    assert(g_uDACSampleCount <= sizeof(g_u8SampleBuf));
 #endif
 
 #ifdef OUT_RAW
     if (sample_io) mpo_write(&u8Byte, 1, NULL, sample_io);
 #endif
 
-    // if this is a recent update to the DAC, then we need to buffer it
-    if (uCyclesSinceLastChange < g_uCyclesPerInterval) {
+    // if this is a recent update to the DAC, buffer the samples that
+    // should have been generated since the previous change.
+    if (uCyclesSinceLastChange < g_uCyclesPerInterval)
+    {
         g_uCyclesUsedThisInterval += uCyclesSinceLastChange;
 
-        // calculate how many samples we should have at this point ...
-        unsigned int uCorrectSampleCount =
-            (unsigned int)((g_uCyclesUsedThisInterval * g_dSamplesPerCycle) + 0.5);
+        // calculate how many samples should have been generated so far
+        // during this interval.
+        const unsigned int uCorrectSampleCount =
+            (unsigned int)((g_uCyclesUsedThisInterval *
+                            g_dSamplesPerCycle) + 0.5);
 
+        // Calculate how many additional samples need to be stored.
+        // Explicitly guard against unsigned underflow.
+        unsigned int uSamplesToStore = 0;
+
+        if (uCorrectSampleCount >= g_uSampleCountThisInterval)
+        {
+            uSamplesToStore = uCorrectSampleCount - g_uSampleCountThisInterval;
+        }
+        else
+        {
+            // Accounting inconsistency. Do not allow unsigned arithmetic
+            // to turn a negative value into a huge buffer write.
 #ifdef DEBUG
-        assert(uCorrectSampleCount > g_uSampleCountThisInterval);
+            assert(false &&
+                   "uCorrectSampleCount < g_uSampleCountThisInterval");
 #endif
-        // the # of samples we will be storing depends on how many we've already
-        // stored
-        unsigned int uSamplesToStore = uCorrectSampleCount - g_uSampleCountThisInterval;
-
-        // if we're in an overflow situation
-        // (this should never happen)
-        if ((uSamplesToStore + g_uDACSampleCount) >= sizeof(g_u8SampleBuf)) {
-            uSamplesToStore = sizeof(g_u8SampleBuf) - g_uDACSampleCount;
+            uSamplesToStore = 0;
         }
 
-        // if it's ok to write to the buffer
-        if (uSamplesToStore > 0) {
-            memset(g_u8SampleBuf + g_uDACSampleCount, g_u8DACVal, uSamplesToStore);
+        // Clamp the write to the available buffer space.
+        if (g_uDACSampleCount < sizeof(g_u8SampleBuf))
+        {
+            const unsigned int uBufferSpace =
+                (unsigned int)sizeof(g_u8SampleBuf) - g_uDACSampleCount;
+
+            if (uSamplesToStore > uBufferSpace)
+            {
+                uSamplesToStore = uBufferSpace;
+            }
+        }
+        else
+        {
+            // Buffer is already full, or its count has somehow become
+            // invalid. Never calculate a wrapped remaining size.
+#ifdef DEBUG
+            assert(g_uDACSampleCount == sizeof(g_u8SampleBuf));
+#endif
+            uSamplesToStore = 0;
+        }
+
+        // Store the samples.
+        if (uSamplesToStore > 0)
+        {
+            memset(g_u8SampleBuf + g_uDACSampleCount,
+                   (unsigned char)g_u8DACVal,
+                   uSamplesToStore);
+
             g_uDACSampleCount += uSamplesToStore;
             g_uSampleCountThisInterval += uSamplesToStore;
+
+#ifdef DEBUG
+            assert(g_uDACSampleCount <= sizeof(g_u8SampleBuf));
+#endif
         }
-        // else perhaps we were already at our correct sample count
+    }
 
-    } // end if recent update
-    // else the DAC hasn't been updated for a while, so we do not need to buffer
-    // the new value,
-    //  we can let the stream callback handle it instead.
-
+    // Update the currently active DAC value.
     g_u8DACVal = u8Byte;
 }
 
 // called from sound mixer to get audio stream
 void get_stream(Uint8 *stream, int length, int internal_id)
 {
+    std::lock_guard<std::mutex> lock(g_DACMutex);
+
 #ifdef DEBUG
     // make sure this is in the proper format (stereo 16-bit)
     assert((length % sound::BYTES_PER_SAMPLE) == 0);

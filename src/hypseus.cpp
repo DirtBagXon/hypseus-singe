@@ -169,13 +169,12 @@ int main(int argc, char **argv)
                 SDL_INIT_HAPTIC ))
     {
         printerror(SDL_GetError());
-        exit(result_code);
+        goto cleanup;
     }
 
     if (!TTF_Init()) {
         printerror(SDL_GetError());
-        SDL_Quit();
-        exit(result_code);
+        goto cleanup;
     }
 
     // parse the command line (which allocates game and ldp) and continue if no
@@ -298,8 +297,9 @@ int main(int argc, char **argv)
 
     TTF_Quit();
 
+cleanup:
     SDL_Quit();
-    exit(result_code);
+    return result_code;
 }
 
 void set_search_offset(int i) { search_offset = i; }

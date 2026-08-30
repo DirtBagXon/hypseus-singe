@@ -92,11 +92,13 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -opengl                          | Enforces SDL_WINDOW_OPENGL                                    |
 | -openhat                         | Allow HAT input from any Joystick                             |
 | -original_overlay                | Enable daphne style overlays (lair, ace, tq)                  |
+| -overlaybezel                    | Display the game overlay on top of any rendered bezels (incompatible with _-rotate_).                                                                                   |
 | -pal_dl                          | Tells Hypseus that you are using a PAL Philips Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_dl_sc                       | Tells Hypseus that you are using a PAL Software Corner Dragon's Lair disc instead of an NTSC Dragon's Lair disc. *Only relevant when playing the USA version of Dragon's Lair.* |
 | -pal_sa                          | Tells Hypseus that you are using a PAL Philips Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
+| -preserve_aspect_ratio           | Ensure the video aspect ratio is maintained and fully displayed within the visible screen area. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
 | -rawmouse                        | Restore raw MouseMotion values for SDL mouse.          |
 | -ramdir \<path>                  | Sets an alternate `ram` directory path.                |
@@ -113,7 +115,6 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -script                          | Defines the location of the primary Singe LUA game script. This, or `-zlua`, is required for Singe games. |
 | -shiftx \<-100 to 100>           | Shift x-axis on video window [%]                                        |
 | -shifty \<-100 to 100>           | Shift y-axis on video window [%]                                        |
-| -sound_buffer \<number of samples> | Sets the number of samples in the sound buffer. Hypseus runs at 44,100 kHz which means 44,100 samples per second. The sound buffer size is typically 2048 samples. Lower values make the sound more responsive but choppier, while higher values make the sound smoother but more sluggish. |
 | -spaceace91                      | Tells Hypseus that you are using a Space Ace '91 disc instead of a Space Ace '83 NTSC disc. *Only relevant when you are playing the USA version of Space Ace '83.* |
 | -sram_continuous_update          | Saves the static RAM after every search so that if Hypseus is terminated improperly, high scores are preserved. |
 | -startsilent                     | Tells Hypseus to start with no sound until input has been received. |

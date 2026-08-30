@@ -2,6 +2,7 @@ set( LIB_SOURCES
     ldp.cpp
     framemod.cpp
     ldp-vldp.cpp
+    ldp-sync.cpp
     ldp-vldp-audio.cpp
 )
 
@@ -10,6 +11,7 @@ set( LIB_HEADERS
     framemod.h
     ldp.h
     ldp-vldp.h
+    ldp-sync.h
 )
 
 IF(NOT APPLE)

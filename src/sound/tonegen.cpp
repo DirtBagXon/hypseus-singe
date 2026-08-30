@@ -29,10 +29,13 @@
 #include "sound.h"
 #include "tonegen.h"
 #include <memory.h>
+#include <mutex>
 #include <plog/Log.h>
 
 namespace tonegen
 {
+// SDL audio thread locking
+std::mutex g_TGMutex;
 
 tonegen g_tonegen;
 bool g_tonegen_init = false;
@@ -58,12 +61,16 @@ int initialize(Uint32 unused)
 
 void writedata(Uint32 channel, Uint32 frequency, int index)
 {
+    std::lock_guard<std::mutex> lock(g_TGMutex);
+
     g_tonegen.bytes_per_switch[channel] =
         frequency ? (int)((sound::FREQ / frequency * 4 / 2) + .5) : 0;
 }
 
 void stream(Uint8* stream, int length, int index)
 {
+    std::lock_guard<std::mutex> lock(g_TGMutex);
+
     for (int pos = 0; pos < length; pos += 4) {
         // endian-independent! :)
         // NOTE : assumes stream is in little endian format

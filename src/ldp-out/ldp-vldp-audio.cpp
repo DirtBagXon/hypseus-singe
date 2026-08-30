@@ -31,6 +31,7 @@
 #endif
 
 #include "ldp-vldp.h"
+#include "ldp-sync.h"
 #include "../io/conout.h"
 #include "../io/mpo_fileio.h"
 #include "../sound/sound.h"
@@ -45,6 +46,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <mutex>
 
 #include <vorbis/codec.h> // OGG VORBIS specific headers
 #include <vorbis/vorbisfile.h>
@@ -54,7 +56,7 @@
 #endif
 
 // how much uncompressed audio we deal with at a time
-#define AUDIO_BUF_CHUNK 4096
+#define AUDIO_BUF_CHUNK 8192
 
 // Macros to lock and unlock the mutex for the audio to make sure we aren't
 // playing audio while
@@ -67,22 +69,25 @@
 typedef void *(*audiocopyproc)(void *dest, const void *src, size_t bytes_to_copy);
 audiocopyproc paudiocopy = memcpy; // pointer to the audio copy procedure
                                    // (defaults to memcpy)
-
+std::mutex g_LDPMutex;
 SDL_Mutex *g_ogg_mutex   = NULL;
 mpo_io *g_pIOAudioHandle = NULL;
 OggVorbis_File s_ogg;
 
-Uint32 g_audio_filesize = 0;     // total size of the audio stream
-Uint32 g_audio_filepos  = 0;     // the position in the file of our audio stream
-Uint8 *g_big_buf        = NULL;  // holds entire Ogg stream in RAM :)
-bool g_audio_ready      = false; // whether audio is ready to be parsed
-bool g_audio_playing    = false; // whether the audio is to be playing or not
-Uint32 g_playing_timer  = 0;     // the time at which we began playing audio
-Uint32 g_samples_played = 0; // how many samples have played since we've been
-                             // timing
+Uint32 g_audio_filesize = 0;      // total size of the audio stream
+Uint32 g_audio_filepos  = 0;      // the position in the file of our audio stream
+Uint8 *g_big_buf        = NULL;   // holds entire Ogg stream in RAM :)
+bool g_audio_ready      = false;  // whether audio is ready to be parsed
+bool g_audio_playing    = false;  // whether the audio is to be playing or not
+Uint32 g_playing_timer  = 0;      // the time at which we began playing audio
+Uint32 g_samples_played = 0;      // how many samples have played since we've been timing
+
 bool g_audio_left_muted  = false; // left audio channel enabled
 bool g_audio_right_muted = false; // right audio channel enabled
 string m_oggpath         = "";
+
+bool g_audio_ldp_sync    = false;
+Uint8 g_ovseek_trigger   = 0;
 
 #ifdef AUDIO_DEBUG
 Uint64 g_u64CallbackByteCount      = 0;
@@ -494,14 +499,23 @@ bool ldp_vldp::seek_audio(Uint64 u64Samples)
 
         OGG_LOCK; // can't have audio callback running during this
 
-        if (ov_seekable(&s_ogg)) {
+        if (ov_seekable(&s_ogg))
+        {
             ov_pcm_seek(&s_ogg, u64Samples);
             g_audio_playing = false; // audio should not be playing immediately
-                                 // after a seek
+                                     // after a seek
             result = true;
-        } else {
-            LOGE << "DOH! OGG stream is not seekable!";
+
+            if (vldp_get_sync())
+            {
+                if (g_ovseek_trigger > 0)
+                    g_audio_ldp_sync = true;
+                else
+                    ++g_ovseek_trigger;
+            }
         }
+        else
+            LOGE << "DOH! OGG stream is not seekable!";
 
         OGG_UNLOCK;
     }
@@ -536,151 +550,210 @@ int g_leftover_samples                = 0;
 // our audio callback
 void ldp_vldp_audio_callback(Uint8 *stream, int len, int unused)
 {
+    std::lock_guard<std::mutex> lock(g_LDPMutex);
+
 #ifdef AUDIO_DEBUG
     g_u64CallbackByteCount += len;
+
     unsigned int uFloodTimer = (GET_TICKS() - g_uCallbackDbgTimer) / 1000;
-    if (uFloodTimer != g_uCallbackFloodTimer) {
+
+    if (uFloodTimer != g_uCallbackFloodTimer)
+    {
         g_uCallbackFloodTimer = uFloodTimer;
         LOGD << fmt("audio callback frequency is: %d", (g_u64CallbackByteCount / uFloodTimer) >> 2);
     }
 #endif
-
     OGG_LOCK; // make sure nothing changes with any ogg stuff while we decode
 
-    // if audio is ready to be read and if it is playing
-    if (g_audio_ready && g_audio_playing) {
+    // -----------------------------------------------------------------
+    // If audio is ready and playing,
+    // -----------------------------------------------------------------
+
+    if (g_audio_ready && g_audio_playing)
+    {
         bool audio_caught_up = false;
         int loop_count       = 0;
 
-        // normally we only want to go through this loop once
-        // The exception is if we are behind, in which case we want to process
-        // audio until we're caught up again
-        // we don't want to loop endlessly in here if there is a bug, which is
-        // why we have a loop count
-        while ((!audio_caught_up) && (loop_count++ < 10)) {
-            long samples_read      = 0;
-            int samples_copied     = 0;
-            Uint32 bytes_to_read   = 0;
-            Uint32 correct_samples = 0; // how many samples we should have
-                                        // played up to this point
+        // -------------------------------------------------------------
+        // Normally we only want to go through this loop once.
+        // If we are behind we will attempt to catchup * loop_count
+        //
+        // There is an exception on LUA 'init', which ignores catchup.
+        // -------------------------------------------------------------
+        while ((!audio_caught_up) && (loop_count++ < 4))
+        {
+            long samples_read = 0;
+            int samples_copied = 0;
+            Uint32 bytes_to_read = 0;
+            Uint32 correct_samples = 0;
             int nop;
 
-            // if we have some samples from last time for the audio stream
-            if (g_leftover_samples) {
-                if (g_leftover_samples <= len) {
+#ifdef AUDIO_DEBUG
+            // -------------------------------------------------------------
+            // If the PCM backlog has become excessive, discard it so audio
+            // can catch up instead of playing increasingly stale audio.
+            // -------------------------------------------------------------
+            if (g_leftover_samples > (len << 1))
+            {
+                LOGD << "Audio backlog too large (" << g_leftover_samples
+                         << " bytes), dropping stale PCM";
+
+                g_leftover_samples = (Uint32)len;
+            }
+#endif
+
+            // -------------------------------------------------------------
+            // First consume any PCM left over from the previous callback.
+            // -------------------------------------------------------------
+            if (g_leftover_samples)
+            {
+                if (g_leftover_samples <= len)
+                {
                     paudiocopy(stream, g_leftover_buf, g_leftover_samples);
-                    samples_copied += g_leftover_samples;
+                    samples_copied += (int)g_leftover_samples;
                     g_leftover_samples = 0;
-                } else {
+                }
+                else
+                {
                     paudiocopy(stream, g_leftover_buf, len);
-                    memmove(g_leftover_buf, g_leftover_buf + len,
-                            g_leftover_samples - len); // shift remaining buf to
-                                                       // front
-                    // memmove is used because the memory area overlaps
+
+                    memmove(g_leftover_buf, g_leftover_buf + len, g_leftover_samples - len);
+
                     samples_copied = len;
                     g_leftover_samples -= len;
                 }
             }
 
-            while (samples_copied < len) {
-                samples_read =
-                    ov_read(&s_ogg, &g_small_buf[0], AUDIO_BUF_CHUNK, 0, 2, 1, &nop);
+            // -------------------------------------------------------------
+            // Fill the remainder of the SDL buffer from the OGG decoder.
+            //
+            // This is the ONLY place we write decoded OGG data into "stream".
+            // -------------------------------------------------------------
+            while (samples_copied < len)
+            {
+                samples_read = ov_read(&s_ogg, &g_small_buf[0], AUDIO_BUF_CHUNK, 0, 2, 1, &nop);
 
-                if (samples_read > 0) {
-                    bytes_to_read = len - samples_copied; // how much space we
-                                                          // have left to fill
-                    // (samples_copied can and often is 0)
+                if (samples_read > 0)
+                {
+                    bytes_to_read = (Uint32)(len - samples_copied);
 
-                    // if we have more space to fill than samples available,
-                    // then we only want to read
-                    // as many samples as we have available
-                    if (bytes_to_read > (Uint32)samples_read) {
-                        bytes_to_read = samples_read;
+                    // -----------------------------------------------------
+                    // Only copy as much as will fit in this SDL callback.
+                    // -----------------------------------------------------
+                    if (bytes_to_read > (Uint32)samples_read)
+                    {
+                        bytes_to_read = (Uint32)samples_read;
                     }
-                    // else we have to split the buffer
-                    else {
-                        g_leftover_samples = samples_read - bytes_to_read;
+                    else
+                    {
+                        // -------------------------------------------------
+                        // OGG returned more PCM than fits in this callback.
+                        // Preserve the unused PCM for the next callback.
+                        // -------------------------------------------------
+                        g_leftover_samples = (Uint32)samples_read - bytes_to_read;
                         memcpy(g_leftover_buf, g_small_buf + bytes_to_read, g_leftover_samples);
                     }
 
                     paudiocopy(stream + samples_copied, g_small_buf, bytes_to_read);
-                    samples_copied += bytes_to_read;
-                } // end if samples were read
+                    samples_copied += (int)bytes_to_read;
+                }
 
-                // if we got an error
-                else if (samples_read < 0) {
+                // ---------------------------------------------------------
+                // OGG decoder error.
+                // ---------------------------------------------------------
+                else if (samples_read < 0)
+                {
                     LOGE << "Problem reading samples!";
+
                     g_audio_playing = false;
                     break;
                 }
 
-                // else, samples_read == 0 in which case we've come to the end
-                // of the stream
-                else {
+                // ---------------------------------------------------------
+                // End of OGG stream.
+                // ---------------------------------------------------------
+                else
+                {
                     LOGW << "End of audio stream detected!";
+
                     g_audio_playing = false;
                     break;
                 }
-
-            } // end while we have not filled the buffer
-
-            // NOW WE CHECK TO SEE IF THE AUDIO IS LAGGING TOO FAR BEHIND
-            // IF IT IS, WE NEED TO SKIP FORWARD
-
-            g_samples_played += len; // update stats on how many samples have
-                                     // played so we can make sure audio is in
-                                     // sync
-
-            // unsigned int cur_time = refresh_ms_time();
-            unsigned int cur_time = g_ldp->get_elapsed_ms_since_play();
-            // if our timer is set to the current time or some previous time
-            if (g_playing_timer < cur_time) {
-                // needs to be uint64 to prevent overflow from subsequent math
-                static const Uint64 uBYTES_PER_S = sound::FREQ * sound::BYTES_PER_SAMPLE;
-                // how many samples should have played 176.4 = 44.1 samples per
-                // millisecond * 2 for stereo * 2 for 16-bit
-                correct_samples =
-                    (unsigned int)((uBYTES_PER_S * (cur_time - g_playing_timer)) / 1000);
             }
-            // our timer is set to some time in the future (used with skipping)
-            // so we actually should not have played any samples at this point
-            else {
-                // fprintf(stderr, "LDP-VLDP-AUDIO : Timer is in the future\n");
+
+            // -------------------------------------------------------------
+            // If the decoder stopped before filling the SDL buffer, fill
+            // the remainder with silence.
+            //
+            // This prevents uninitialised/old data from being sent to SDL.
+            // -------------------------------------------------------------
+            if (samples_copied < len)
+            {
+                memset(stream + samples_copied, 0, len - samples_copied);
+            }
+
+            // -------------------------------------------------------------
+            // SDL has been given exactly "len" bytes.
+            //
+            // This is the ONLY place where g_samples_played advances.
+            // -------------------------------------------------------------
+            g_samples_played += len;
+
+            // -------------------------------------------------------------
+            // Lagging checks.
+            // -------------------------------------------------------------
+
+            const Uint32 cur_time = g_ldp->get_elapsed_ms_since_play();
+            const bool sync = vldp_get_sync() && !g_audio_ldp_sync;
+
+            if (g_playing_timer < cur_time)
+            {
+                // Needs to be Uint64 to prevent overflow from subsequent math.
+                static const Uint64 uBYTES_PER_S = (Uint64)sound::FREQ * sound::BYTES_PER_SAMPLE;
+                correct_samples = (Uint32)((uBYTES_PER_S * (cur_time - g_playing_timer)) / 1000);
+            }
+            else
+            {
+                LOGD << "LDP-VLDP-AUDIO : Timer is in the future";
                 correct_samples = 0;
             }
 
-            // if we're ahead instead of behind, don't loop
-            if (correct_samples <= g_samples_played) {
-                audio_caught_up = true;
+            if (sync || correct_samples <= g_samples_played)
+            {
+                 audio_caught_up = true;
             }
-
-            // if we're not too far behind, don't loop
-            else if ((Sint32)(correct_samples - g_samples_played) < len) {
-                audio_caught_up = true;
+            else if ((Sint32)(correct_samples - g_samples_played) < len)
+            {
+                 audio_caught_up = true;
             }
+            else
+            {
+                LOGD << fmt(
+                    "LDP-VLDP-AUDIO: callback behind clock "
+                    "played=%u expected=%u len=%d "
+                    "timer=%u curtime=%u",
+                    g_samples_played,
+                    correct_samples,
+                    len,
+                    g_playing_timer,
+                    cur_time);
 
-            // if we're too far behind, notify the user for testing purposes
-            else {
-                LOGD << fmt("played %u, expected %u, timer=%u, curtime=%u",
-                            g_samples_played,
-                            correct_samples,
-                            g_playing_timer,
-                            g_ldp->get_elapsed_ms_since_play());
                 audio_caught_up = false;
-                SDL_Delay(0); // don't starve other processes while trying to
-                              // catch up
+                SDL_Delay(0); // Yield
             }
-        } // end while we're not caught up
+        }
+    }
 
-    } // end if audio is playing
-
-    // Either we have no audio file opened OR
-    // disc is not playing, pause audio and make sure we don't have any
-    // extraneous audio lingering around when
-    // we start playing again
+    // -----------------------------------------------------------------
+    // Either we have no audio file opened OR disc is not playing.
+    //
+    // Pause audio and make sure we don't have any extraneous audio
+    // lingering around when we start playing again.
+    // -----------------------------------------------------------------
     else {
-// fill audio stream with silence since it will be expecting to get something
-// back from us
+
+        // Fill audio stream with silence since SDL expects something
+        // to be returned from the callback.
 #ifdef WIN32
         ZeroMemory(stream, len);
 #else

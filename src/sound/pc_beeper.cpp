@@ -24,6 +24,7 @@
 
 #include "sound.h"  // for get frequency stuff
 #include <string.h> // for memset
+#include <mutex>
 
 #ifdef DEBUG
 #include <assert.h>
@@ -34,6 +35,8 @@
 
 namespace beeper
 {
+// SDL audio thread locking
+std::mutex g_BEPMutex;
 
 // how many beepers have been created
 unsigned int g_uBeeperCount = 0;
@@ -67,7 +70,6 @@ unsigned int g_uSamplesPerHalfCycle = 0;
 // init callback
 int init(Uint32 unused)
 {
-
 #ifdef DEBUG
     // a couple of assumptions...
     assert(sound::CHANNELS == 2);
@@ -89,6 +91,8 @@ int init(Uint32 unused)
 // should be called from the game driver to control beeper
 void ctrl_data(unsigned int uPort, unsigned int uByte, int internal_id)
 {
+    std::lock_guard<std::mutex> lock(g_BEPMutex);
+
     switch (uPort) {
     case 0x42: // frequency
         if (g_bWaitFreqLow) {
@@ -125,6 +129,8 @@ void ctrl_data(unsigned int uPort, unsigned int uByte, int internal_id)
 // called from sound mixer to get audio stream
 void get_stream(Uint8 *stream, int length, int internal_id)
 {
+    std::lock_guard<std::mutex> lock(g_BEPMutex);
+
 #ifdef DEBUG
     // make sure this is in the proper format (stereo 16-bit)
     assert((length % sound::BYTES_PER_SAMPLE) == 0);

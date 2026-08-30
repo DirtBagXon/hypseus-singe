@@ -17,6 +17,7 @@ keyboardCatchQuit,      sep_keyboard_block_quit    (bool) -- KEY_QUIT/SWITCH_QUI
 getUserString,          sep_get_idstring           (return user string)
 rewriteStatus,          sep_lua_rewrite            (return bool) -- (-espath enabled)
 
+mouseGetPadding,        sep_get_mouse_padding      (return padding int)
 mouseHowManyReal,       sep_get_number_of_realmice (return number of real mice, excluding GC)
 
 musicLoad,              sep_music_load             (SDL_MIX supported music file) -- (returns id)
@@ -28,7 +29,7 @@ musicStop,              sep_music_stop             (id, [frames to fade-out])
 musicSetVolume,         sep_music_volume           (0 - 128)
 musicUnload,            sep_music_unload           (id)
 
-mainBezelLoaded,        sep_bezel_loaded           (return bool)
+mainBezelLoaded,        sep_bezel_loaded           (return bool, hash)
 scoreBezelEnable,       sep_bezel_enable           (bool, int) -- (0)IMG, (1)BEZEL, (2)USB
 scoreBezelClear,        sep_bezel_clear            (void)
 scoreBezelCredits,      sep_bezel_credits          (credits)
@@ -39,7 +40,9 @@ scoreBezelGetState,     sep_bezel_is_enabled       (return bool)
 
 setOverlaySpriteBlend,  sep_set_overlayblend       (bool)
 setOverlayFullAlpha,    sep_set_overlayfullalpha   (void)
+setOverlayLinearScale,  sep_set_overlayscalemode   (bool) - Enable Bilinear overlay scaling
 setOverlayOpacity,      sep_set_overlayopacity     (0 - 255)
+setOverlayOnTop,        sep_set_overlayontop       (bool) -- (returns bool, hash) Overlay over Bezels
 setOverlaySize,         sep_set_overlaysize        (int)
 setOverlayResolution,   sep_set_custom_overlay     (int, int)
 overlayBanner,          sep_banner                 (txt, [1 - 95])
@@ -86,6 +89,7 @@ vldpSetScale,           sep_mpeg_set_scale         (scale) - return bool on upda
 vldpFocusArea,          sep_mpeg_focus_area        (x, y, w, h) -- Rect
 vldpGetYUVPixel,        sep_mpeg_get_rawpixel      (return Y, U, V)
 vldpResetFocus,         sep_mpeg_reset_focus       (void)
+vldpSetBlend,           sep_mpeg_set_blend         (bool) -- Enable smoothing filter
 vldpSetLuma,            sep_mpeg_set_luma          (bool, filter level) -- 0 - [4] - 8
 vldpSetMonochrome,      sep_mpeg_set_grayscale     (bool)
 discAudioSuffix,        sep_audio_suffix           (string) -- (return bool on load success)

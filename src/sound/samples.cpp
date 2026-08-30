@@ -14,10 +14,14 @@
 #endif
 
 #include <queue>
+#include <mutex>
 using namespace std;
 
 namespace samples
 {
+// SDL audio thread locking
+std::mutex g_SAMMutex;
+
 struct data_s {
     // holds audio buffer
     Uint8 *pu8Buf;
@@ -89,6 +93,8 @@ void shutdown(int unused) {}
 // NOTE : This runs on the audio thread!!!
 void get_stream(Uint8 *stream, int length, int unused)
 {
+    std::lock_guard<std::mutex> lock(g_SAMMutex);
+
 #ifdef DEBUG
     assert(length % 4 == 0); // make sure it's divisible by 4
 #endif

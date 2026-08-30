@@ -102,13 +102,13 @@ ldp_vldp::ldp_vldp()
     m_bIsVLDP        = true; // this is VLDP, so this value is true ...
     blitting_allowed = true; // blitting is allowed until we get to a certain
                              // point in initialization
-    m_target_mpegframe  = 0; // mpeg frame # we are seeking to
-    m_mpeg_path         = "";
-    m_cur_mpeg_filename = "";
-    m_file_index        = 0; // # of mpeg files in our list
-    m_framefile         = ".txt";
+    m_target_mpegframe   = 0; // mpeg frame # we are seeking to
+    m_mpeg_path          = "";
+    m_cur_mpeg_filename  = "";
+    m_file_index         = 0; // # of mpeg files in our list
+    m_framefile          = ".txt";
     // create a sensible default framefile name
-    m_framefile         = g_game->get_shortgamename() + m_framefile;
+    m_framefile          = g_game->get_shortgamename() + m_framefile;
     m_bFramefileSet      = false;
     m_altaudio_suffix    = ""; // no alternate audio by default
     m_audio_file_opened  = false;
@@ -1507,15 +1507,16 @@ void update_parse_meter(const string &strFilename)
         // always be >= elapsed_s, so no checking necessary here
         remaining_s = total_s - elapsed_s;
 
+        SDL_Renderer *renderer = video::get_renderer();
+        TTF_TextEngine *engine = video::get_font_engine();
+        TTF_Font *font = video::get_font();
+        int h = video::get_logical_height();
+        int w = video::get_logical_width();
+
         // if we have some progress to report ...
 	//
-        if (remaining_s > 0) {
-            SDL_Renderer *renderer = video::get_renderer();
-            TTF_TextEngine *engine = video::get_font_engine();
-            TTF_Font *font = video::get_font();
-            int h = video::get_logical_height();
-            int w = video::get_logical_width();
-
+        if (remaining_s > 0)
+        {
             char s[160];
             char f[160];
             const char *c = strFilename.c_str();
@@ -1541,7 +1542,7 @@ void update_parse_meter(const string &strFilename)
                 dst.x = (w - text_w) * 0.5f;
                 dst.y = (float)y;
 
-                TTF_DrawRendererText(tt, dst.x, dst.y);
+                TTF_DrawRendererText(tt, (int)dst.x, (int)dst.y);
 
                 TTF_DestroyText(tt);
             };
@@ -1627,7 +1628,7 @@ void free_yuv_overlay()
 // makes the laserdisc video black while drawing game's video overlay on top
 void blank_overlay()
 {
-    // only do this if the HW overlay has already been allocated
+    // only do this if the YUV overlay has already been allocated
     if (video::get_yuv_overlay_ready()) {
         video::set_yuv_blank(video::YUV_SHUTTER);
     }

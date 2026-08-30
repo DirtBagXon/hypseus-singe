@@ -9,7 +9,7 @@
 Latest SDL3 build is:
 
     hypseus.exe -version
-    [version] Hypseus Singe: v3.0.1
+    [version] Hypseus Singe: v3.0.2
     [console] Windows 11
     [console] (CC) SDL: 3.4.14, IMG: 3.4.4, TTF: 3.2.2, MIX: 3.2.4
     [console] (LD) SDL: 3.4.14, IMG: 3.4.4, TTF: 3.2.2, MIX: 3.2.4

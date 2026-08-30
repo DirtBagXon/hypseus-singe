@@ -50,6 +50,10 @@ while [[ $# -gt 0 ]]; do
         PROTOTYPE="on"
         shift
         ;;
+      -overlayontop)
+        TOPOVERLAY="-overlaybezel"
+        shift
+        ;;
       -rotate)
         ROTATE="-rotate 90"
         shift
@@ -63,9 +67,6 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
       -scoreboard)
-        if [ $FULLSCREEN ] ; then
-           FULLSCREEN="-fullscreen_window"
-        fi
         SCOREBOARD="-scorepanel"
         shift
         ;;
@@ -232,12 +233,11 @@ $SCALE \
 $SCOREBOARD \
 $KEYINPUT \
 $BANKS \
+$TOPOVERLAY \
 $BEZEL \
 -framefile $HYPSEUS_SHARE/vldp/$1/$1.txt \
 -homedir $HYPSEUS_SHARE \
--datadir $HYPSEUS_SHARE \
--volume_nonvldp 5 \
--volume_vldp 20
+-datadir $HYPSEUS_SHARE
 
 EXIT_CODE=$?
 

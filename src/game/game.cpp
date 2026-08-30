@@ -936,6 +936,16 @@ int game::get_video_row_offset() { return m_video_row_offset; }
 // how many pixels to the right to shift video overlay
 int game::get_video_col_offset() { return m_video_col_offset; }
 
+void game::set_video_col_offset(int value)
+{
+    static int prev = m_video_col_offset;
+    if (value != prev)
+    {
+        video::set_overlay_offset(value, m_video_row_offset);
+        prev = value;
+    }
+}
+
 SDL_Surface *game::get_video_overlay(int index)
 {
     SDL_Surface *result = NULL;

@@ -30,12 +30,15 @@
 #include "gisound.h"
 #include "sound.h"
 #include <memory.h>
+#include <mutex>
 #include <plog/Log.h>
 
 #define MAX_GISOUND_CHIPS 4
 
 namespace gisound
 {
+// SDL audio thread locking
+std::mutex g_GIMutex;
 
 int g_gisoundchip_count = -1;
 
@@ -86,6 +89,8 @@ int initialize(Uint32 core_frequency)
 
 void writedata(Uint32 address, Uint32 data, int index)
 {
+    std::lock_guard<std::mutex> lock(g_GIMutex);
+
     Uint16 chan_a_tone_period;
     Uint16 chan_b_tone_period;
     Uint16 chan_c_tone_period;
@@ -261,6 +266,8 @@ void writedata(Uint32 address, Uint32 data, int index)
 
 void stream(Uint8 *stream, int length, int index)
 {
+    std::lock_guard<std::mutex> lock(g_GIMutex);
+
     for (int pos = 0; pos < length; pos += 4) {
         // endian-independent! :)
         // NOTE : assumes stream is in little endian format

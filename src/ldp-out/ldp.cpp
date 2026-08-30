@@ -43,11 +43,12 @@
 #include "../timer/timer.h"
 #include "framemod.h"
 #include "ldp.h"
+#include "ldp-sync.h"
 #include <plog/Log.h>
+#include <mutex>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 
 // generic ldp constructor
 ldp::ldp()
@@ -87,6 +88,7 @@ bool ldp::pre_init()
 
     player_initialized        = init_player();
     result                    = temp && player_initialized;
+    m_rethink                 = g_game->get_game_type() == GAME_SINGE;
     m_start_time              = GET_TICKS();
     m_uElapsedMsSincePlay     = 0;
     m_uBlockedMsSincePlay     = 0;
@@ -674,9 +676,12 @@ void ldp::think_delay(unsigned int uMsDelay)
             MAKE_DELAY(1);
         }
 
-        if (g_game->get_game_type() == GAME_SINGE) {
-            if (uElapsedMs > m_uElapsedMsSinceStart)
+        if (m_rethink) {
+            if (uElapsedMs > m_uElapsedMsSinceStart) {
                 pre_think();
+                static std::once_flag flag;
+                std::call_once(flag, [] { vldp_set_sync(true); });
+            }
         }
 
         // otherwise we're caught up or behind, so just loop so we can make sure

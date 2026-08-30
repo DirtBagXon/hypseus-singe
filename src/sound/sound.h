@@ -221,7 +221,6 @@ void update_chip_volumes();
 
 void shutdown_chip();
 void update_buffer(); // update the sound buffers with 1 ms worth of data
-void set_buf_size(Uint16 newbufsize);
 bool init();
 void shutdown();
 bool play(Uint32 whichone);
