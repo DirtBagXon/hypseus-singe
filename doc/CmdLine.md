@@ -98,7 +98,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -pal_sa                          | Tells Hypseus that you are using a PAL Philips Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -pal_sa_sc                       | Tells Hypseus that you are using a PAL Software Corner Space Ace disc instead of an NTSC Space Ace disc. *Only relevant when playing the USA version of Space Ace.* |
 | -prefer_samples                  | Same games can emulate sound or use samples of sounds. If both emulated and sampled sounds are available, this option will force sampled sounds to be used. Otherwise, emulated sounds will always be used. |
-| -preserve_aspect_ratio           | Ensure the video aspect ratio is maintained and fully displayed within the visible screen area. |
+| -preserve_aspect_ratio           | Ensure the video aspect ratio is maintained and fully displayed within the visible screen area. Bezels narrower than the display (e.g. 16:9 on ultrawide) also keep their own aspect ratio. |
 | -preset \<number>                | A simple way to pass arguments directly to the game driver. Tells the game driver to use a specific preset configuration. Different for each game. |
 | -rawmouse                        | Restore raw MouseMotion values for SDL mouse.          |
 | -ramdir \<path>                  | Sets an alternate `ram` directory path.                |
