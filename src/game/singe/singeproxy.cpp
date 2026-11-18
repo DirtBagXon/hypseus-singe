@@ -616,6 +616,17 @@ void sep_do_mouse_move(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel, Sint8 mouse
     m_tract.mouseX[rID] = x1;
     m_tract.mouseY[rID] = y1;
 
+    // Every aiming device (mouse, ManyMouse gun, gamepad as gun, d-pad
+    // joymouse) arrives here, so the Hypseus crosshair follows all of them.
+    if (video::get_show_crosshairs())
+    {
+        const int vw = g_pSingeIn->get_video_width();
+        const int vh = g_pSingeIn->get_video_height();
+
+        if (vw > 0 && vh > 0)
+            video::set_crosshair_position(rID, (double)x / vw, (double)y / vh);
+    }
+
     // Not sure what's wrong here. I think things are getting started before Singe is ready.
     if (!debounced) {
         debounced = true;

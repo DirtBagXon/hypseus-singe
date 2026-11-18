@@ -233,6 +233,11 @@ void set_scale_linear(bool value);
 void set_force_aspect_ratio(bool bEnabled);
 void set_ignore_aspect_ratio(bool bEnabled);
 void set_preserve_aspect_ratio(bool bEnabled);
+// Light gun crosshairs drawn by Hypseus (-show_crosshairs).
+// id is the pointer slot; nx/ny are 0.0-1.0 across the game video area.
+void set_show_crosshairs(bool bEnabled);
+bool get_show_crosshairs();
+void set_crosshair_position(int id, double nx, double ny);
 void set_scanlines(bool value);
 void set_shunt(uint8_t value);
 void set_alpha(uint8_t value);

@@ -143,6 +143,7 @@ Refer also to **bezel arguments** [here](Bezels.md)
 | -fullalpha                       | Observe the full RGBA alpha channel value in overlay sprite bltting.                                                        |
 | -js_range \<1-20>                | Adjust joystick-mouse sensitivity: *[default:5]*                                                                            |
 | -nocrosshair                     | Request the game does not display crosshairs.                                                                               |
+| -show_crosshairs                 | Hypseus draws a crosshair for every aiming device (mouse, ManyMouse light guns, gamepads), one colour per player, and asks the game not to draw its own. |
 | -nojoymouse                      | Disable the joysticks ability to control mouse input.                                                                       |
 | -script                          | Defines the location of the Singe LUA script. **Required** for LUA games.                                                   |
 | -usealt                          | In multigame zipped ROM's. Provide the alternate startup _.singe_ filename within the zip.<br>`-altscript` is an alias.     |

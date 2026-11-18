@@ -1441,6 +1441,72 @@ void set_legacy_overlay(bool value) { VIDEO_ASSIGN(LEGACY_OVERLAY, value); }
 void set_force_aspect_ratio(bool value) { VIDEO_ASSIGN(FORCE_ASPECT, value); }
 void set_ignore_aspect_ratio(bool value) { VIDEO_ASSIGN(IGNORE_ASPECT, value); }
 void set_preserve_aspect_ratio(bool value) { VIDEO_ASSIGN(PRESERVE_ASPECT, value); }
+
+// Light gun crosshairs (-show_crosshairs): one per pointer slot (mouse,
+// ManyMouse device, gamepad acting as a gun), shown once that slot has moved.
+static const int CROSSHAIR_SLOTS = 32;
+struct crosshair_t { bool seen; double nx, ny; };
+static crosshair_t g_crosshairs[CROSSHAIR_SLOTS] = {};
+static bool g_show_crosshairs = false;
+
+void set_show_crosshairs(bool value) { g_show_crosshairs = value; }
+bool get_show_crosshairs() { return g_show_crosshairs; }
+
+void set_crosshair_position(int id, double nx, double ny)
+{
+    if (id < 0 || id >= CROSSHAIR_SLOTS) return;
+
+    g_crosshairs[id].nx = (nx < 0.0) ? 0.0 : ((nx > 1.0) ? 1.0 : nx);
+    g_crosshairs[id].ny = (ny < 0.0) ? 0.0 : ((ny > 1.0) ? 1.0 : ny);
+    g_crosshairs[id].seen = true;
+}
+
+static void draw_crosshairs()
+{
+    static const Uint8 colors[8][3] = {
+        {0xff, 0x30, 0x30}, {0x30, 0xa0, 0xff}, {0x40, 0xff, 0x40}, {0xff, 0xe0, 0x20},
+        {0xff, 0x40, 0xff}, {0xff, 0x90, 0x20}, {0xff, 0xff, 0xff}, {0xa0, 0x60, 0xff}
+    };
+
+    const SDL_Rect &v = g_scaling_rect;
+    if (v.w <= 0 || v.h <= 0) return;
+
+    const float arm   = (v.h / 36.0f) < 8.0f ? 8.0f : v.h / 36.0f;
+    const float thick = (v.h / 360.0f) < 2.0f ? 2.0f : v.h / 360.0f;
+    const float gap   = arm / 3.0f;
+    const float edge  = (thick / 2.0f) < 1.0f ? 1.0f : thick / 2.0f;
+
+    for (int i = 0; i < CROSSHAIR_SLOTS; i++)
+    {
+        if (!g_crosshairs[i].seen) continue;
+
+        const float cx = v.x + static_cast<float>(g_crosshairs[i].nx * v.w);
+        const float cy = v.y + static_cast<float>(g_crosshairs[i].ny * v.h);
+        const float h  = thick / 2.0f;
+
+        SDL_FRect bars[5] = {
+            {cx - gap - arm, cy - h, arm, thick},   // left
+            {cx + gap,       cy - h, arm, thick},   // right
+            {cx - h, cy - gap - arm, thick, arm},   // up
+            {cx - h, cy + gap,       thick, arm},   // down
+            {cx - h, cy - h,         thick, thick}  // centre dot
+        };
+
+        // Dark outline first so the crosshair stays visible on bright video
+        SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        for (const SDL_FRect &b : bars)
+        {
+            SDL_FRect o = {b.x - edge, b.y - edge, b.w + edge * 2, b.h + edge * 2};
+            SDL_RenderFillRect(g_renderer, &o);
+        }
+
+        const Uint8 *c = colors[i % 8];
+        SDL_SetRenderDrawColor(g_renderer, c[0], c[1], c[2], SDL_ALPHA_OPAQUE);
+        SDL_RenderFillRects(g_renderer, bars, 5);
+    }
+
+    SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+}
 void set_aspect_ratio(int fRatio) { g_aspect_ratio = fRatio; }
 void set_detected_height(int pHeight) { g_probe_height = pHeight; }
 void set_detected_width(int pWidth) { g_probe_width = pWidth; }
@@ -2754,6 +2820,8 @@ void vid_blit()
     }
 
     if (VIDEO_HAS(BEZEL_TOGGLE)) vid_render_bezels();
+
+    if (g_show_crosshairs) draw_crosshairs();
 
     if (VIDEO_HAS(TAKE_SCREENSHOT))
     {

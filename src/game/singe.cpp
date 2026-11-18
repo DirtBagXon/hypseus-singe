@@ -278,7 +278,8 @@ void singe::start()
         break;
     }
 
-    if (!m_crosshair) g_pSingeOut->sep_no_crosshair();
+    // Hypseus draws its own crosshairs: ask the game not to draw a second set
+    if (!m_crosshair || video::get_show_crosshairs()) g_pSingeOut->sep_no_crosshair();
     if (singe_trace) g_pSingeOut->sep_enable_trace();
 
     g_pSingeOut->sep_startup(m_strGameScript.c_str());
@@ -516,6 +517,11 @@ bool singe::handle_cmdline_arg(const char *arg)
     else if (strcasecmp(arg, "-nocrosshair") == 0)
     {
         m_crosshair = false;
+        bResult = true;
+    }
+    else if (strcasecmp(arg, "-show_crosshairs") == 0)
+    {
+        video::set_show_crosshairs(true);
         bResult = true;
     }
     else if (strcasecmp(arg, "-border") == 0 || strcasecmp(arg, "-sinden") == 0)

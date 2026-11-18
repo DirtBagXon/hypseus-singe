@@ -443,6 +443,8 @@ static void CFG_System()
             video::set_forcetop(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "PRESERVEASPECT") == 0) {
             video::set_preserve_aspect_ratio(parse_bool(val));
+        } else if (strcasecmp(key.c_str(), "SHOWCROSSHAIRS") == 0) {
+            video::set_show_crosshairs(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "FULLSCREEN") == 0) {
             video::set_fullscreen(parse_bool(val));
         } else if (strcasecmp(key.c_str(), "MANYMOUSE") == 0) {
