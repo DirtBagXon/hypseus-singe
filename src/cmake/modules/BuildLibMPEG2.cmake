@@ -17,7 +17,7 @@ check_c_compiler_flag(
     HAVE_DEPRECATED_NON_PROTOTYPE
 )
 
-set( LIBMPEG2_CFLAGS "-std=gnu89" )
+set( LIBMPEG2_CFLAGS "-std=gnu89 -O2" )
 
 if( HAVE_DEPRECATED_NON_PROTOTYPE )
     string( APPEND LIBMPEG2_CFLAGS " -Wno-deprecated-non-prototype" )

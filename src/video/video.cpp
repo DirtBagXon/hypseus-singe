@@ -337,6 +337,36 @@ static void format_window_render()
     }
 }
 
+// With -preserve_aspect_ratio, keep the bezel image at its own aspect ratio
+// (centred, full height) instead of stretching it across a wider display,
+// e.g. a 16:9 bezel on a 21:9 ultrawide monitor. Widescreen video keeps the
+// existing behaviour where the bezel follows the video rectangle.
+static void fit_bezel_to_aspect()
+{
+    if (!g_bezel_texture || !VIDEO_HAS(PRESERVE_ASPECT) || !VIDEO_HAS(FULLSCREEN))
+        return;
+
+    if (g_aspect_ratio == ASPECTWS) return;
+
+    float tw = 0, th = 0;
+    if (!SDL_GetTextureSize(g_bezel_texture, &tw, &th) || tw <= 0 || th <= 0)
+        return;
+
+    const double bezel_ratio  = static_cast<double>(tw) / th;
+    const double screen_ratio = static_cast<double>(g_logical_rect.w) / g_logical_rect.h;
+
+    // Only pillarbox (display wider than the bezel). The video is always
+    // scaled to the full display height, so a full-height bezel keeps its
+    // window aligned with the video; shrinking the bezel vertically would not.
+    if (screen_ratio - bezel_ratio < 0.01) return;
+
+    SDL_Rect r = {0, 0, g_logical_rect.w, g_logical_rect.h};
+    r.w = static_cast<int>(r.h * bezel_ratio);
+    r.x = (g_logical_rect.w - r.w) >> 1;
+
+    g_bezel_rect = r;
+}
+
 static void format_fullscreen_render()
 {
     int w, h;
@@ -422,6 +452,8 @@ static void format_fullscreen_render()
         else
             VIDEO_CLEAR(BEZEL_TOGGLE);
     }
+
+    fit_bezel_to_aspect();
 
     if (!g_rescale)
     {
@@ -2619,6 +2651,7 @@ static void vid_render_bezels()
                 LOGI << fmt("Loaded bezel file: %s", bezelpath.c_str());
                 SDL_SetTextureScaleMode(g_bezel_texture, VIDEO_HAS(SCALE_LINEAR) ?
                               SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
+                fit_bezel_to_aspect();
             }
             else
             {

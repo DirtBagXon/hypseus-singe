@@ -77,7 +77,7 @@ endif()
 set_source_files_properties( zippp.cpp PROPERTIES COMPILE_FLAGS -Wno-deprecated-declarations )
 
 add_library( io ${LIB_SOURCES} ${LIB_HEADERS} )
-target_link_libraries( io PRIVATE ldp-out game plog manymouse ${ZLIB_LIBRARIES} ${LIBZIP_LIBRARY} sdl3_deps )
+target_link_libraries( io PRIVATE ldp-out game plog manymouse ZLIB::ZLIB ${LIBZIP_LIBRARY} sdl3_deps )
 if(APPLE)
     target_link_libraries(io PRIVATE "-framework CoreFoundation" "-framework IOKit")
 endif()
