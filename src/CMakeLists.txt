@@ -146,7 +146,25 @@ add_dependencies( ldp-out vldp )
 add_dependencies( game vldp )
 add_dependencies( sound vldp )
 
-add_executable( hypseus hypseus.cpp globals.h )
+set(HYPSEUS_EXTRA_SOURCES "")
+if(WIN32)
+    # Embed version information (Explorer: Properties > Details)
+    # Numeric fields must be plain integers (e.g. tag v2.11.6a -> 6)
+    foreach(part MAJOR MINOR PATCH)
+        string(REGEX MATCH "^[0-9]+" RC_VER_${part} "${VER_${part}}")
+        if("${RC_VER_${part}}" STREQUAL "")
+            set(RC_VER_${part} 0)
+        endif()
+    endforeach()
+    configure_file(
+        "${PROJECT_SOURCE_DIR}/hypseus_version.rc.in"
+        "${PROJECT_BINARY_DIR}/hypseus_version.rc"
+    )
+    enable_language(RC)
+    list(APPEND HYPSEUS_EXTRA_SOURCES "${PROJECT_BINARY_DIR}/hypseus_version.rc")
+endif()
+
+add_executable( hypseus hypseus.cpp globals.h ${HYPSEUS_EXTRA_SOURCES} )
 target_link_libraries( hypseus plog io timer sound video cpu game ${Vorbis_Enc_LIBRARY} Vorbis::vorbis ${OGG_LIBRARIES} ${VORBISFILE_LIBRARIES} ${Vorbis_File_LIBRARY} SDL3::SDL3 SDL3::Headers SDL3_ttf::SDL3_ttf SDL3_image::SDL3_image SDL3_mixer::SDL3_mixer ${LIBZIP_LIBRARY} )
 
 if(ASAN)
